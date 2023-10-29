@@ -41,7 +41,7 @@ class OrdersHistoryService implements SingleCardScreenOrdersHistoryService {
     if (ordersHistoryFromServerResource is Error) {
       return Resource.error(ordersHistoryFromServerResource.message!);
     }
-    if (ordersHistoryFromServerResource is Error) {
+    if (ordersHistoryFromServerResource is Empty) {
       final emptyOrdersHistory = OrdersHistoryModel(
         nmId: nmId,
         qty: 0,
