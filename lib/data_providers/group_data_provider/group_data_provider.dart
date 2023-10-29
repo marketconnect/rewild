@@ -102,14 +102,16 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
       List<GroupModel> resultGroups = [];
       final db = await SqfliteService().database;
       final groups = await db.rawQuery('SELECT * FROM groups');
-
+      if (groups.isEmpty) {
+        return Resource.empty();
+      }
       // get distinct groups names
       List<String> groupsNames = [];
       for (final group in groups) {
         final grName = group['name'] as String;
         groupsNames.add(grName);
       }
-
+      groupsNames = groupsNames.toSet().toList();
       // add groups to the list
       for (final grName in groupsNames) {
         final groupMapsList = groups.where((e) => e['name'] == grName).toList();

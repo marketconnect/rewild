@@ -1,7 +1,6 @@
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:flutter/material.dart';
-import 'package:rewild/domain/entities/group_model.dart';
 
 import 'package:rewild/presentation/all_cards/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards/widgets/my_sliver_persistent_header_delegate.dart';
@@ -76,21 +75,15 @@ class _AllCardsScreenState extends State<AllCardsScreen>
         content: Text(errMes),
       ));
     }
-    final allGroup = GroupModel(
-        name: "Все",
-        bgColor: Theme.of(context).colorScheme.primary.value,
-        cardsNmIds: [],
-        fontColor: Theme.of(context).colorScheme.onPrimary.value);
-    if (!groups.contains(allGroup)) {
-      groups.insert(0, allGroup);
-    }
+
     if (selectedGroup != null) {
       productCards = productCards.where((card) {
         final groupsIds = card.groups.map((group) => group.id);
         return groupsIds.contains(selectedGroup.id);
       }).toList();
-      final grId = selectedGroup.id;
-      selectedGroupIndex = groups.indexWhere((group) => group.id == grId);
+      final grName = selectedGroup.name;
+
+      selectedGroupIndex = groups.indexWhere((group) => group.name == grName);
     }
 
     final selectionInProcess = model.selectionInProcess;
@@ -381,28 +374,30 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AllCardsScreenViewModel>();
+    final model = context.read<AllCardsScreenViewModel>();
     final onClear = model.onClearSelected;
     final onDelete = model.deleteCards;
     final combine = model.combine;
     final len = model.selectedLength;
     final selectionInProcess = model.selectionInProcess;
     final groups = model.groups;
+
     final isLoading = model.loading;
     final selectGroup = model.selectGroup;
     final productsCardsIsEmpty = model.productCards.isEmpty;
-
     _tabController = TabController(
       length: selectionInProcess ? 1 : groups.length,
       vsync: this,
       initialIndex: selectionInProcess ? 0 : widget.selectedGroupIndex,
     );
+
     return SliverPersistentHeader(
       delegate: MySliverPersistentHeaderDelegate(
         TabBar(
             controller: _tabController,
             isScrollable: true,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            labelPadding: const EdgeInsets.symmetric(horizontal: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             unselectedLabelColor: Theme.of(context).colorScheme.primary,
             indicatorPadding: const EdgeInsets.symmetric(vertical: 7),
             labelColor: selectionInProcess
@@ -413,6 +408,7 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
               if (selectionInProcess) {
                 return;
               }
+
               selectGroup(index);
             },
             indicator: selectionInProcess || productsCardsIsEmpty

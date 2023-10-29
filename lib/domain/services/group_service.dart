@@ -41,18 +41,15 @@ class GroupService
   @override
   Future<Resource<List<GroupModel>>> getAll() async {
     final resource = await groupDataProvider.getAll();
-    if (resource is Error) {
-      return Resource.error(resource.message!);
+
+    if (resource is Empty) {
+      return Resource.success([]);
     }
-    return Resource.success(resource.data!);
+    return resource;
   }
 
   @override
   Future<Resource<GroupModel>> loadGroup(int id) async {
-    final resource = await groupDataProvider.get(id);
-    if (resource is Error) {
-      return Resource.error(resource.message!);
-    }
-    return Resource.success(resource.data!);
+    return await groupDataProvider.get(id);
   }
 }

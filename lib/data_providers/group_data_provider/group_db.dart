@@ -28,12 +28,4 @@ class GroupDb {
       ''',
     );
   }
-
-  // static Future<void> printTableContent(Database db) async {
-  //   final List<Map<String, dynamic>> rows = await db.query('groups');
-  //   for (final row in rows) {
-  //     print(row);
-  //   }
-  //   print('Groups count: ${rows.length}');
-  // }
 }

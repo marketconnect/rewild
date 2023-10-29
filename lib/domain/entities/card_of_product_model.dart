@@ -51,7 +51,11 @@ class CardOfProductModel {
     }).toList();
   }
 
-  final List<GroupModel> groups;
+  List<GroupModel> groups = [];
+  void setGroup(GroupModel g) {
+    groups = List.from(groups);
+    groups.add(g);
+  }
 
   SellerModel? seller;
 

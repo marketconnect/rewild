@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_db.dart';
 import 'package:sqflite/sqflite.dart';
 // ignore: depend_on_referenced_packages
@@ -48,5 +50,14 @@ class SqfliteService {
     await CommissionDb.createTable(db);
     await SupplyDb.createTable(db);
     await OrdersHistoryDb.createTable(db);
+  }
+
+  static Future<void> printTableContent(String tableName) async {
+    final db = await SqfliteService().database;
+    final List<Map<String, dynamic>> rows = await db.query(tableName);
+    for (final row in rows) {
+      debugPrint(row.toString());
+    }
+    debugPrint('${tableName.capitalize()} count: ${rows.length}');
   }
 }
