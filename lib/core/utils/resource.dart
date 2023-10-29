@@ -25,6 +25,5 @@ class Empty<T> extends Resource<T> {
 }
 
 class Error<T> extends Resource<T> {
-  Error({required String message, T? data})
-      : super(data: data, message: message);
+  Error({required String super.message, super.data});
 }

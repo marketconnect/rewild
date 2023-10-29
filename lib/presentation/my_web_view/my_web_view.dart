@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class MyWebViewScreen extends StatefulWidget {
-  const MyWebViewScreen({Key? key}) : super(key: key);
+  const MyWebViewScreen({super.key});
 
   @override
   State<MyWebViewScreen> createState() => _MyWebViewScreenState();

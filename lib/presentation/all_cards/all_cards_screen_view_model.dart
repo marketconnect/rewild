@@ -88,9 +88,13 @@ class AllCardsScreenViewModel extends ChangeNotifier {
     await p();
   }
 
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
   bool _loading = true;
   bool get loading => _loading;
   bool _mounted = true;
+
   Future<void> setMounted(bool mounted) async {
     _mounted = mounted;
     if (!_mounted) {
@@ -139,6 +143,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
     if (!_mounted) {
       return;
     }
+    _errorMessage = null;
     // update all cards in the local storage
     // final updateResource = await updateService.update();
     // if (updateResource is Error) {
@@ -396,10 +401,8 @@ class AllCardsScreenViewModel extends ChangeNotifier {
   Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {
     final resource = await callBack();
     if (resource is Error) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(resource.message!),
-      ));
+      _errorMessage = resource.message;
+      notifyListeners();
       return null;
     }
     return resource.data;

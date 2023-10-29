@@ -233,7 +233,6 @@ class SingleCardScreenViewModel extends ChangeNotifier {
     if (cardOfProduct == null) {
       return;
     }
-    print("isNull false");
 
     _isNull = false;
 
@@ -255,7 +254,6 @@ class SingleCardScreenViewModel extends ChangeNotifier {
         _sellerName = seller.name;
       }
     }
-    print("isNull false1");
     // Commission, category, subject
     if (_subjectId == 0) {
       _subjectId = cardOfProduct.subjectId ?? 0;
@@ -273,7 +271,6 @@ class SingleCardScreenViewModel extends ChangeNotifier {
 
     // brand
     _brand = cardOfProduct.brand ?? '-';
-    print("isNull false2");
     // get stocks
     final stocks = await _fetch(() => stockService.get(id));
     if (stocks == null) {
@@ -289,7 +286,6 @@ class SingleCardScreenViewModel extends ChangeNotifier {
       }
       addWarehouse(resouwarehouse.name, stock.qty);
     }
-    print("isNull false3");
     // get supplies
     final supplies = await _fetch(() => supplyService.getForOne(
             nmId: id,
@@ -297,14 +293,11 @@ class SingleCardScreenViewModel extends ChangeNotifier {
             dateTo: DateTime.now())) ??
         [];
 
-    print("isNull false3.5");
-
     // get initial stocks
     final initialStocks = await _fetch(() => initialStocksService.get(id));
     if (initialStocks == null) {
       return;
     }
-    print("isNull false4");
     // add initial stocks and orders
     for (final initStock in initialStocks) {
       final wh = initStock.wh;
@@ -344,7 +337,6 @@ class SingleCardScreenViewModel extends ChangeNotifier {
     }
 
     _totalOrdersQty = ordersHistory.qty;
-    print("isNull false5");
     // is high buyout
     _isHighBuyout = ordersHistory.highBuyout;
 
@@ -355,14 +347,12 @@ class SingleCardScreenViewModel extends ChangeNotifier {
   Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {
     final resource = await callBack();
     if (resource is Error) {
-      print('ERRRRRRR${resource.message}');
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(resource.message!),
       ));
       return null;
     }
-    print('Data ${resource.data}');
     return resource.data;
   }
 }

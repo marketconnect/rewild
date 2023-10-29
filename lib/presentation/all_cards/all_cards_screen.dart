@@ -14,13 +14,12 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/custom_elevated_button.dart';
 
 class AllCardsScreen extends StatefulWidget {
-  const AllCardsScreen({Key? key}) : super(key: key);
+  const AllCardsScreen({super.key});
 
   @override
   State<AllCardsScreen> createState() => _AllCardsScreenState();
 }
 
-// TODO Add filter option to the popup menu
 class _AllCardsScreenState extends State<AllCardsScreen>
     with WidgetsBindingObserver {
   void Function(bool)? mountedCallback;
@@ -71,6 +70,12 @@ class _AllCardsScreenState extends State<AllCardsScreen>
     final selectedGroup = model.selectedGroup;
     int selectedGroupIndex = 0;
     final groups = model.groups;
+    final errMes = model.errorMessage;
+    if (errMes != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(errMes),
+      ));
+    }
     final allGroup = GroupModel(
         name: "Все",
         bgColor: Theme.of(context).colorScheme.primary.value,
