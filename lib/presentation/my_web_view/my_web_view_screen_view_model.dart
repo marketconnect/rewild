@@ -1,0 +1,80 @@
+import 'dart:convert';
+
+import 'package:rewild/core/utils/resource.dart';
+
+import 'package:rewild/domain/entities/card_of_product_model.dart';
+import 'package:flutter/material.dart';
+
+abstract class MyWebViewScreenViewModelUpdateService {
+  Future<Resource<int>> insert(String token, List<CardOfProductModel> cards);
+}
+
+abstract class MyWebViewScreenViewModelTokenProvider {
+  Future<Resource<String>> getToken();
+}
+
+class MyWebViewScreenViewModel extends ChangeNotifier {
+  MyWebViewScreenViewModel(
+      {required this.updateService, required this.tokenProvider});
+  final MyWebViewScreenViewModelUpdateService updateService;
+  final MyWebViewScreenViewModelTokenProvider tokenProvider;
+  bool isLoading = false;
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+  set errorMessage(String? errorMessage) {
+    _errorMessage = errorMessage;
+    notifyListeners();
+  }
+
+  Future<int> saveSiblingCards(String jsonString) async {
+    isLoading = true;
+    notifyListeners();
+    final cardsListResource = _parseCards(jsonString);
+    if (cardsListResource is Error) {
+      errorMessage = cardsListResource.message;
+      isLoading = false;
+      notifyListeners();
+      return 0;
+    }
+
+    final cardsList = cardsListResource.data!;
+
+    // get token
+    final tokenResource = await tokenProvider.getToken();
+    if (tokenResource is Error) {
+      errorMessage = tokenResource.message;
+
+      isLoading = false;
+      notifyListeners();
+    }
+
+    if (tokenResource is Success) {
+      final token = tokenResource.data!;
+      final resource = await updateService.insert(token, cardsList);
+      if (resource is Success) {
+        isLoading = false;
+        notifyListeners();
+        return resource.data!;
+      }
+    }
+
+    return 0;
+  }
+
+  Resource<List<CardOfProductModel>> _parseCards(String jsonString) {
+    try {
+      List<dynamic> jsonList = json.decode(jsonString);
+      List<CardOfProductModel> cards = [];
+
+      for (var jsonObject in jsonList) {
+        cards.add(
+            CardOfProductModel(nmId: jsonObject['id'], img: jsonObject['img']));
+      }
+
+      return Resource.success(cards);
+    } catch (e) {
+      return Resource.error(e.toString());
+    }
+  }
+}
