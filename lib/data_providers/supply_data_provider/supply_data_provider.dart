@@ -1,13 +1,15 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
+import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/supply_service.dart';
 import 'package:rewild/domain/services/update_service.dart';
 
 class SupplyDataProvider
     implements
         UpdateServiceSupplyDataProvider,
-        SupplyServiceSupplyDataProvider {
+        SupplyServiceSupplyDataProvider,
+        CardOfProductServiceSupplyDataProvider {
   @override
   Future<Resource<int>> insert(SupplyModel supply) async {
     try {

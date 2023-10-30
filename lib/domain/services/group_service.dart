@@ -7,7 +7,7 @@ import 'package:rewild/presentation/all_groups/all_groups_view_model.dart';
 import 'package:rewild/presentation/single_group/single_groups_screen_view_model.dart';
 
 abstract class GroupServiceGroupDataProvider {
-  Future<Resource<GroupModel>> get(int id);
+  Future<Resource<GroupModel>> get(String name);
   Future<Resource<int>> insert(GroupModel group);
   Future<Resource<List<GroupModel>>> getAll();
 }
@@ -49,7 +49,7 @@ class GroupService
   }
 
   @override
-  Future<Resource<GroupModel>> loadGroup(int id) async {
-    return await groupDataProvider.get(id);
+  Future<Resource<GroupModel>> loadGroup(String name) async {
+    return await groupDataProvider.get(name);
   }
 }

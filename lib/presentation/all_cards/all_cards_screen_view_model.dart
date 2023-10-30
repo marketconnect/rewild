@@ -7,8 +7,7 @@ import 'package:rewild/domain/entities/card_of_product_model.dart';
 
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
-import 'package:rewild/domain/entities/size_model.dart';
-import 'package:rewild/domain/entities/stocks_model.dart';
+
 import 'package:rewild/domain/entities/supply_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +18,7 @@ abstract class AllCardsScreenTokenProvider {
 }
 
 abstract class AllCardsScreenCardOfProductService {
-  Future<Resource<List<CardOfProductModel>>> getAll(
-      DateTime dateFrom, DateTime dateTo);
+  Future<Resource<List<CardOfProductModel>>> getAll();
   Future<Resource<int>> delete(String token, List<int> nmIds);
 }
 
@@ -28,14 +26,14 @@ abstract class AllCardsScreenGroupsService {
   Future<Resource<List<GroupModel>>> getAll();
 }
 
-abstract class AllCardsScreenStocksService {
-  Future<Resource<List<StocksModel>>> getAll();
-}
+// abstract class AllCardsScreenStocksService {
+//   Future<Resource<List<StocksModel>>> getAll();
+// }
 
-abstract class AllCardsScreenInitStockService {
-  Future<Resource<List<InitialStockModel>>> getAll(
-      [DateTime? dateFrom, DateTime? dateTo]);
-}
+// abstract class AllCardsScreenInitStockService {
+//   Future<Resource<List<InitialStockModel>>> getAll(
+//       [DateTime? dateFrom, DateTime? dateTo]);
+// }
 
 abstract class AllCardsScreenSupplyService {
   Future<Resource<List<SupplyModel>>> getForOne(
@@ -53,18 +51,18 @@ class AllCardsScreenViewModel extends ChangeNotifier {
   final AllCardsScreenCardOfProductService cardsOfProductsService;
   final AllCardsScreenUpdateService updateService;
   final AllCardsScreenGroupsService groupsProvider;
-  final AllCardsScreenStocksService stocksService;
-  final AllCardsScreenInitStockService initStockService;
+  // final AllCardsScreenStocksService stocksService;
+  // final AllCardsScreenInitStockService initStockService;
   final AllCardsScreenSupplyService supplyService;
   final BuildContext context;
 
   AllCardsScreenViewModel(
       {required this.context,
       required this.tokenProvider,
-      required this.stocksService,
+      // required this.stocksService,
       required this.updateService,
       required this.groupsProvider,
-      required this.initStockService,
+      // required this.initStockService,
       required this.supplyService,
       required this.cardsOfProductsService}) {
     asyncInit();
@@ -146,65 +144,68 @@ class AllCardsScreenViewModel extends ChangeNotifier {
 
     _errorMessage = null;
 
+    // Update
     await _fetch(() => updateService.update());
 
-    final dateFrom = yesterdayEndOfTheDay();
-    final dateTo = DateTime.now();
-
+    // get cards
     final fetchedCardsOfProducts =
-        await _fetch(() => cardsOfProductsService.getAll(dateFrom, dateTo));
+        await _fetch(() => cardsOfProductsService.getAll());
     if (fetchedCardsOfProducts == null) {
       return;
     }
 
-    final stocks = await _fetch(() => stocksService.getAll());
-    if (stocks == null) {
-      return;
-    }
+    // get stocks
+    // final stocks = await _fetch(() => stocksService.getAll());
+    // if (stocks == null) {
+    //   return;
+    // }
 
-    final initialStocks = await _fetch(() => initStockService.getAll());
-    if (initialStocks == null) {
-      return;
-    }
+    // final initialStocks = await _fetch(() => initStockService.getAll());
+    // if (initialStocks == null) {
+    //   return;
+    // }
     List<CardOfProductModel> oldCards = List.from(_productCards);
 
     if (fetchedCardsOfProducts.isNotEmpty) {
       _productCards.clear();
     }
+    final dateFrom = yesterdayEndOfTheDay();
+    final dateTo = DateTime.now();
 
     for (CardOfProductModel card in fetchedCardsOfProducts) {
-      final cardStocks =
-          stocks.where((stock) => stock.nmId == card.nmId).toList();
+      // final cardStocks =
+      //     stocks.where((stock) => stock.nmId == card.nmId).toList();
 
-      final sizes = [SizeModel(stocks: cardStocks)];
-      final cardWithStocks = card.copyWith(sizes: sizes);
+      // final sizes = [SizeModel(stocks: cardStocks)];
+      // final cardWithStocks = card.copyWith(sizes: sizes);
 
-      final initStocks =
-          initialStocks.where((stock) => stock.nmId == card.nmId).toList();
+      // final initStocks =
+      //     initialStocks.where((stock) => stock.nmId == card.nmId).toList();
 
-      final newCard = cardWithStocks.copyWith(initialStocks: initStocks);
+      // final newCard = cardWithStocks.copyWith(initialStocks: initStocks);
+      // final dateFrom = yesterdayEndOfTheDay();
+      // final dateTo = DateTime.now();
+      // final supplies = await _fetch(() => supplyService.getForOne(
+      //       nmId: newCard.nmId,
+      //       dateFrom: dateFrom,
+      //       dateTo: dateTo,
+      //     ));
+      // if (supplies != null) {
+      //   newCard.setSupplies(supplies);
+      // }
 
-      final supplies = await _fetch(() => supplyService.getForOne(
-            nmId: newCard.nmId,
-            dateFrom: dateFrom,
-            dateTo: dateTo,
-          ));
-      if (supplies != null) {
-        newCard.setSupplies(supplies);
-      }
-
-      newCard.calculate(dateFrom, dateTo);
+      card.calculate(dateFrom, dateTo);
       final oldCard = oldCards.where((old) {
-        return old.nmId == newCard.nmId;
+        return old.nmId == card.nmId;
       });
 
-      if (oldCard.isNotEmpty && newCard.ordersSum > oldCard.first.ordersSum) {
-        newCard.setWasOrdered();
+      if (oldCard.isNotEmpty && card.ordersSum > oldCard.first.ordersSum) {
+        card.setWasOrdered();
       } else {
-        newCard.setWasNotOrdered();
+        card.setWasNotOrdered();
       }
 
-      _productCards.add(newCard);
+      _productCards.add(card);
     }
 
     _productCards.sort((a, b) => b.ordersSum.compareTo(a.ordersSum));

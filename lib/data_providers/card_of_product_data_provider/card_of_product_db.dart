@@ -19,54 +19,6 @@ class CardOfProductDb extends CardOfProductModel {
       super.feedbacks,
       super.promoTextCard});
 
-  // int nmId;
-
-  // String name;
-
-  // String? img;
-
-  // int? sellerId;
-
-  // String? tradeMark;
-
-  // int? subjectId;
-
-  // int? subjectParentId;
-
-  // String? brand;
-
-  // int? supplierId;
-
-  // int? basicPriceU;
-
-  // int? pics;
-
-  // int? rating;
-
-  // double? reviewRating;
-
-  // int? feedbacks;
-
-  // String? promoTextCard;
-
-  // CardOfProductDb({
-  //   required this.nmId,
-  //   required this.name,
-  //   this.img,
-  //   this.sellerId,
-  //   this.tradeMark,
-  //   this.subjectId,
-  //   this.subjectParentId,
-  //   this.brand,
-  //   this.supplierId,
-  //   this.basicPriceU,
-  //   this.pics,
-  //   this.rating,
-  //   this.reviewRating,
-  //   this.feedbacks,
-  //   this.promoTextCard,
-  // });
-
   static Future<void> createTable(Database db) async {
     await db.execute(
       '''
@@ -90,12 +42,4 @@ class CardOfProductDb extends CardOfProductModel {
       ''',
     );
   }
-
-  // static Future<void> printTableContent(Database db) async {
-  //   final List<Map<String, dynamic>> rows = await db.query('cards');
-  //   for (final row in rows) {
-  //     print(row);
-  //   }
-  //   print('Cards count: ${rows.length}');
-  // }
 }

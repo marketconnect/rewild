@@ -9,7 +9,7 @@ abstract class ScreenFactory {
   Widget makeAllCardsScreen();
   Widget makeMyWebViewScreen();
   Widget makeAllGroupsScreen();
-  Widget makeSingleGroupScreen(int id);
+  Widget makeSingleGroupScreen(String name);
   Widget makeSingleCardScreen(int id);
   Widget makeAddGroupsScreen(List<int> cardsIds);
 }
@@ -64,9 +64,9 @@ class MainNavigation implements AppNavigation {
 
       case MainNavigationRouteNames.singleGroupScreen:
         final arguments = settings.arguments;
-        final groupId = arguments is int ? arguments : 0;
+        final groupName = arguments is String ? arguments : "";
         return MaterialPageRoute(
-          builder: (_) => screenFactory.makeSingleGroupScreen(groupId),
+          builder: (_) => screenFactory.makeSingleGroupScreen(groupName),
         );
 
       case MainNavigationRouteNames.allGroupsScreen:

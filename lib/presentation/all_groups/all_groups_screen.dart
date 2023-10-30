@@ -45,7 +45,7 @@ class AllGroupsScreen extends StatelessWidget {
                       return GestureDetector(
                         onTap: () => Navigator.of(context).pushNamed(
                           MainNavigationRouteNames.singleGroupScreen,
-                          arguments: groups[index].id,
+                          arguments: groups[index].name,
                         ),
                         child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -120,7 +120,7 @@ class AllGroupsScreen extends StatelessWidget {
                                                 ),
                                               ),
                                               Text(
-                                                '${groups[index].cards.length} карточек',
+                                                '${groups[index].cardsNmIds.length} карточек',
                                                 style: TextStyle(
                                                     color: Theme.of(context)
                                                         .colorScheme

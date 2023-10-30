@@ -14,7 +14,7 @@ abstract class InitStockServiceInitStockDataProvider {
 
 class InitialStockService
     implements
-        AllCardsScreenInitStockService,
+        // AllCardsScreenInitStockService,
         SingleCardScreenInitialStockService {
   final InitStockServiceInitStockDataProvider initStockDataProvider;
 

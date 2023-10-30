@@ -7,6 +7,9 @@ class GroupModel {
   final int fontColor;
   final List<int> cardsNmIds;
   List<CardOfProductModel> cards;
+  void setCards(List<CardOfProductModel> cards) {
+    this.cards = cards;
+  }
 
   int stocksSum = 0;
   void calculateStocksSum() {

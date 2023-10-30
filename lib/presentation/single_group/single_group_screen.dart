@@ -107,7 +107,7 @@ class _EmptyWidget extends StatelessWidget {
           height: MediaQuery.of(context).size.height * 0.02,
         ),
         const Text(
-          'Вы не добавили ни одной карточки в группу',
+          'Нет карточек в группе',
         ),
       ],
     ));

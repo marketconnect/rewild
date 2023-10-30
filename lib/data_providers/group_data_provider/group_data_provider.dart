@@ -39,20 +39,19 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
   }
 
   @override
-  Future<Resource<GroupModel>> get(int id) async {
+  Future<Resource<GroupModel>> get(String name) async {
     try {
       final db = await SqfliteService().database;
       final groups =
-          await db.rawQuery('SELECT * FROM groups WHERE id = ?', [id]);
+          await db.rawQuery('SELECT * FROM groups WHERE name = ?', [name]);
 
-      String? name;
+      // String? name;
       int? bgColor;
       int? fontColor;
       List<int> nmIds = [];
 
       for (final group in groups) {
-        if (name == null) {
-          name = group['name'] as String;
+        if (bgColor == null) {
           bgColor = group['bgColor'] as int;
           fontColor = group['fontColor'] as int;
         }
@@ -61,7 +60,7 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
       }
 
       return Resource.success(GroupModel(
-          name: name!,
+          name: name,
           bgColor: bgColor!,
           fontColor: fontColor!,
           cardsNmIds: nmIds));

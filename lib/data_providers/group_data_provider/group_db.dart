@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 
 class GroupDb {
-  int id;
+  final int id;
   final String name;
   final int bgColor;
   final int fontColor;

@@ -154,13 +154,27 @@ class CardOfProductDataProvider
   }
 
   @override
-  Future<Resource<List<CardOfProductModel>>> getAll() async {
+  Future<Resource<List<CardOfProductModel>>> getAll([List<int>? nmIds]) async {
     try {
       final db = await SqfliteService().database;
+      if (nmIds != null) {
+        final cards = await db.rawQuery(
+          '''
+            SELECT * FROM cards
+            WHERE nmId IN (${nmIds.map((e) => '?').join(',')})
+          ''',
+          nmIds,
+        );
+        print("AND HERE cards: ${cards.length} $nmIds");
+        return Resource.success(
+          cards.map((e) => CardOfProductModel.fromMap(e)).toList(),
+        );
+      }
+
       final cards = await db.rawQuery(
         '''
-  SELECT * FROM cards
-  ''',
+          SELECT * FROM cards
+        ''',
       );
       return Resource.success(
           cards.map((e) => CardOfProductModel.fromMap(e)).toList());

@@ -154,6 +154,9 @@ class _DIContainer {
   CardOfProductService _makeCardOfProductService() => CardOfProductService(
         warehouseApiClient: _makeWarehouseApiClient(),
         cardOfProductApiClient: _makeCardOfProductApiClient(),
+        initStockDataProvider: _makeInitialStockDataProvider(),
+        supplyDataProvider: _makeSupplyDataProvider(),
+        stockDataprovider: _makeStockDataProvider(),
         warehouseDataprovider: _makeWarehouseDataProvider(),
         cardOfProductDataProvider: _makeCardOfProductDataProvider(),
       );
@@ -211,11 +214,9 @@ class _DIContainer {
   AllCardsScreenViewModel _makeAllCardsScreenViewModel(context) =>
       AllCardsScreenViewModel(
           context: context,
-          stocksService: _makeStockService(),
           updateService: _makeUpdateService(),
           supplyService: _makeSupplyService(),
           groupsProvider: _makeAllGroupsService(),
-          initStockService: _makeInitialStockService(),
           cardsOfProductsService: _makeCardOfProductService(),
           tokenProvider: _makeAuthService());
 
@@ -246,9 +247,12 @@ class _DIContainer {
           productsCardsIds: productsCardsIds);
 
   SingleGroupScreenViewModel _makeSingleGroupScreenViewModel(
-          BuildContext context, int id) =>
+          BuildContext context, String name) =>
       SingleGroupScreenViewModel(
-          id: id, context: context, groupProvider: _makeAllGroupsService());
+          name: name,
+          context: context,
+          groupService: _makeAllGroupsService(),
+          cardsService: _makeCardOfProductService());
 
   AllGroupsScreenViewModel _makeAllGroupsScreenViewModel(
           BuildContext context) =>
@@ -290,10 +294,10 @@ class ScreenFactoryDefault implements ScreenFactory {
   }
 
   @override
-  Widget makeSingleGroupScreen(int id) {
+  Widget makeSingleGroupScreen(String name) {
     return ChangeNotifierProvider(
         create: (context) =>
-            _diContainer._makeSingleGroupScreenViewModel(context, id),
+            _diContainer._makeSingleGroupScreenViewModel(context, name),
         child: const SingleGroupScreen());
   }
 

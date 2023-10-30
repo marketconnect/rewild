@@ -2,50 +2,70 @@
 
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:flutter/material.dart';
 
 abstract class SingleGroupScreenGroupsService {
-  Future<Resource<GroupModel>> loadGroup(int id);
+  Future<Resource<GroupModel>> loadGroup(String name);
+}
+
+abstract class SingleGroupScreenViewModelCardsService {
+  Future<Resource<List<CardOfProductModel>>> getAll(List<int> ids);
 }
 
 class SingleGroupScreenViewModel extends ChangeNotifier {
-  final SingleGroupScreenGroupsService groupProvider;
+  final SingleGroupScreenGroupsService groupService;
+  final SingleGroupScreenViewModelCardsService cardsService;
   final BuildContext context;
-  final int id;
+  final String name;
+
   SingleGroupScreenViewModel(
-      {required this.id, required this.groupProvider, required this.context}) {
+      {required this.name,
+      required this.groupService,
+      required this.cardsService,
+      required this.context}) {
     _asyncInit();
   }
 
   void _asyncInit() async {
-    final groupsResource = await groupProvider.loadGroup(id);
+    // TODO Move to separate method
+    SqfliteService.printTableContent("groups");
+    final groupsResource = await groupService.loadGroup(name);
     if (groupsResource is Error) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(groupsResource.message!),
       ));
     }
     final group = groupsResource.data!;
-    _name = group.name;
+    final cardsIds = group.cardsNmIds;
+
+    // TODO Move to separate method
+    final cardsResource = await cardsService.getAll(cardsIds);
+    if (cardsResource is Error) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(cardsResource.message!),
+      ));
+    }
+    final cards = cardsResource.data!;
+
+    group.setCards(cards);
+
+    // _name = group.name;
     group.calculateStocksSum();
     group.calculateInitialStocksSum(
       yesterdayEndOfTheDay(),
       DateTime.now(),
     );
-    group.calculateOrdersSum();
     for (final card in group.cards) {
-      // card.calculateStocksSum();
-      // card.calculateInitialStocksSum(
-      //   yesterdayEndOfTheDay(),
-      //   DateTime.now(),
-      // );
       card.setColors(group.cards.indexOf(card));
       card.calculate(
         yesterdayEndOfTheDay(),
         DateTime.now(),
       );
     }
+    group.calculateOrdersSum();
     stocksSum = group.stocksSum;
     ordersSum = group.ordersSum;
     _cards = group.cards;
@@ -68,12 +88,15 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
         _colorsList.add(Colors.red);
         continue;
       }
+      print(
+          'card.stocksSum ${card.stocksSum} card.backgroundColor ${card.backgroundColor}');
       _colorsList.add(card.backgroundColor!);
     }
+    notifyListeners();
   }
 
-  String _name = "";
-  String get name => _name;
+  // String _name = "";
+  // String get name => _name;
 
   int ordersTotal = 0;
   int stocksTotal = 0;

@@ -1,11 +1,15 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/stocks_model.dart';
+import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/stock_service.dart';
 import 'package:rewild/domain/services/update_service.dart';
 
 class StockDataProvider
-    implements UpdateServiceStockDataProvider, StockServiceStocksDataProvider {
+    implements
+        UpdateServiceStockDataProvider,
+        StockServiceStocksDataProvider,
+        CardOfProductServiceStockDataProvider {
   @override
   Future<Resource<int>> insert(StocksModel stock) async {
     try {
