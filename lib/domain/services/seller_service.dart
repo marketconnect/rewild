@@ -1,6 +1,7 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/presentation/single_card/single_card_screen_view_model.dart';
+import 'package:rewild/presentation/single_group/single_groups_screen_view_model.dart';
 
 abstract class SellerServiceSellerDataProvider {
   Future<Resource<SellerModel>> get(int id);
@@ -11,7 +12,8 @@ abstract class SellerServiceSelerApiClient {
   Future<Resource<SellerModel>> fetchSeller(int supplierId);
 }
 
-class SellerService implements SingleCardScreenSellerService {
+class SellerService
+    implements SingleCardScreenSellerService, SingleGroupScreenSellerService {
   final SellerServiceSellerDataProvider sellerDataProvider;
   final SellerServiceSelerApiClient sellerApiClient;
   SellerService(

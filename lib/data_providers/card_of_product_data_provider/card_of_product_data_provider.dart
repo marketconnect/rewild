@@ -165,7 +165,7 @@ class CardOfProductDataProvider
           ''',
           nmIds,
         );
-        print("AND HERE cards: ${cards.length} $nmIds");
+
         return Resource.success(
           cards.map((e) => CardOfProductModel.fromMap(e)).toList(),
         );

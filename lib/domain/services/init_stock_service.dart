@@ -1,7 +1,6 @@
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
-import 'package:rewild/presentation/all_cards/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/single_card/single_card_screen_view_model.dart';
 
 abstract class InitStockServiceInitStockDataProvider {
@@ -20,15 +19,14 @@ class InitialStockService
 
   InitialStockService({required this.initStockDataProvider});
 
-  @override
-  Future<Resource<List<InitialStockModel>>> getAll(
-      [DateTime? dateFrom, DateTime? dateTo]) async {
-    if (dateFrom == null || dateTo == null) {
-      dateFrom = yesterdayEndOfTheDay();
-      dateTo = DateTime.now();
-    }
-    return initStockDataProvider.getAll(dateFrom, dateTo);
-  }
+  // Future<Resource<List<InitialStockModel>>> getAll(
+  //     [DateTime? dateFrom, DateTime? dateTo]) async {
+  //   if (dateFrom == null || dateTo == null) {
+  //     dateFrom = yesterdayEndOfTheDay();
+  //     dateTo = DateTime.now();
+  //   }
+  //   return initStockDataProvider.getAll(dateFrom, dateTo);
+  // }
 
   @override
   Future<Resource<List<InitialStockModel>>> get(int nmId,

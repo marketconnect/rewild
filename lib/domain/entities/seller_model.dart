@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:rewild/core/color.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 
 class SellerModel {
@@ -21,6 +23,16 @@ class SellerModel {
     this.legalAddress = "",
     this.productsCards = const [],
   });
+
+  //
+  Color? backgroundColor;
+
+  Color? fontColor;
+
+  void setColors(int index) {
+    backgroundColor = ColorsConstants.getColorsPair(index).backgroundColor;
+    fontColor = ColorsConstants.getColorsPair(index).fontColor;
+  }
 
   factory SellerModel.fromJson(Map<String, dynamic> json) {
     return SellerModel(

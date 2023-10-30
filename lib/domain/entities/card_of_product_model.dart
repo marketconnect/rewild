@@ -1,8 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-
-import 'package:rewild/core/color.dart';
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
@@ -58,6 +55,9 @@ class CardOfProductModel {
   }
 
   SellerModel? seller;
+  void setSeller(SellerModel s) {
+    seller = s;
+  }
 
   CardOfProductModel({
     required this.nmId,
@@ -126,15 +126,6 @@ class CardOfProductModel {
   List<SupplyModel> supplies = [];
   void setSupplies(List<SupplyModel> s) {
     supplies = s;
-  }
-
-  Color? backgroundColor;
-
-  Color? fontColor;
-
-  void setColors(int index) {
-    backgroundColor = ColorsConstants.getColorsPair(index).backgroundColor;
-    fontColor = ColorsConstants.getColorsPair(index).fontColor;
   }
 
   // int _initialStocksSum = 0;

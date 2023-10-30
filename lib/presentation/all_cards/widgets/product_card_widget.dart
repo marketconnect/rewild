@@ -25,8 +25,9 @@ class ProductCardWidget extends StatelessWidget {
     final promoTextCard = productCard.promoTextCard;
     final supplySum = productCard.supplySum;
 
-    final supplyText =
-        productCard.supplies.isNotEmpty ? " (п. ~$supplySum шт.)" : "";
+    final supplyText = productCard.supplies.isNotEmpty && supplySum > 0
+        ? " (п. ~$supplySum шт.)"
+        : "";
 
     String? salesSumText;
     if (salesSum > 0) {

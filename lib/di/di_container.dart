@@ -252,6 +252,7 @@ class _DIContainer {
           name: name,
           context: context,
           groupService: _makeAllGroupsService(),
+          sellerService: _makeSellerService(),
           cardsService: _makeCardOfProductService());
 
   AllGroupsScreenViewModel _makeAllGroupsScreenViewModel(

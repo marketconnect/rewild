@@ -6,7 +6,6 @@ import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 
 import 'package:rewild/domain/entities/group_model.dart';
-import 'package:rewild/domain/entities/initial_stock_model.dart';
 
 import 'package:rewild/domain/entities/supply_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
@@ -25,15 +24,6 @@ abstract class AllCardsScreenCardOfProductService {
 abstract class AllCardsScreenGroupsService {
   Future<Resource<List<GroupModel>>> getAll();
 }
-
-// abstract class AllCardsScreenStocksService {
-//   Future<Resource<List<StocksModel>>> getAll();
-// }
-
-// abstract class AllCardsScreenInitStockService {
-//   Future<Resource<List<InitialStockModel>>> getAll(
-//       [DateTime? dateFrom, DateTime? dateTo]);
-// }
 
 abstract class AllCardsScreenSupplyService {
   Future<Resource<List<SupplyModel>>> getForOne(
@@ -80,12 +70,9 @@ class AllCardsScreenViewModel extends ChangeNotifier {
     await _update(false);
     _loading = false;
 
-    notifyListeners();
+    if (context.mounted) notifyListeners();
     await p();
   }
-
-  String? _errorMessage;
-  String? get errorMessage => _errorMessage;
 
   bool _loading = true;
   bool get loading => _loading;
@@ -142,8 +129,6 @@ class AllCardsScreenViewModel extends ChangeNotifier {
       return;
     }
 
-    _errorMessage = null;
-
     // Update
     await _fetch(() => updateService.update());
 
@@ -154,46 +139,18 @@ class AllCardsScreenViewModel extends ChangeNotifier {
       return;
     }
 
-    // get stocks
-    // final stocks = await _fetch(() => stocksService.getAll());
-    // if (stocks == null) {
-    //   return;
-    // }
-
-    // final initialStocks = await _fetch(() => initStockService.getAll());
-    // if (initialStocks == null) {
-    //   return;
-    // }
     List<CardOfProductModel> oldCards = List.from(_productCards);
 
+    // reassign productCards
     if (fetchedCardsOfProducts.isNotEmpty) {
       _productCards.clear();
     }
+
     final dateFrom = yesterdayEndOfTheDay();
     final dateTo = DateTime.now();
 
+    // calculate stocks, initial stocks, supplies, was ordered field
     for (CardOfProductModel card in fetchedCardsOfProducts) {
-      // final cardStocks =
-      //     stocks.where((stock) => stock.nmId == card.nmId).toList();
-
-      // final sizes = [SizeModel(stocks: cardStocks)];
-      // final cardWithStocks = card.copyWith(sizes: sizes);
-
-      // final initStocks =
-      //     initialStocks.where((stock) => stock.nmId == card.nmId).toList();
-
-      // final newCard = cardWithStocks.copyWith(initialStocks: initStocks);
-      // final dateFrom = yesterdayEndOfTheDay();
-      // final dateTo = DateTime.now();
-      // final supplies = await _fetch(() => supplyService.getForOne(
-      //       nmId: newCard.nmId,
-      //       dateFrom: dateFrom,
-      //       dateTo: dateTo,
-      //     ));
-      // if (supplies != null) {
-      //   newCard.setSupplies(supplies);
-      // }
-
       card.calculate(dateFrom, dateTo);
       final oldCard = oldCards.where((old) {
         return old.nmId == card.nmId;
@@ -208,6 +165,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
       _productCards.add(card);
     }
 
+    // sort by orders sum
     _productCards.sort((a, b) => b.ordersSum.compareTo(a.ordersSum));
 
     final fetchedGroups = await _fetch(() => groupsProvider.getAll());
@@ -215,6 +173,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
       return;
     }
 
+    // append groups
     for (final g in fetchedGroups) {
       if (_groups.where((element) => element.name == g.name).isEmpty) {
         _groups.add(g);
@@ -321,8 +280,10 @@ class AllCardsScreenViewModel extends ChangeNotifier {
 
   Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {
     final resource = await callBack();
-    if (resource is Error) {
-      _errorMessage = resource.message;
+    if (resource is Error && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(resource.message!),
+      ));
       notifyListeners();
       return null;
     }

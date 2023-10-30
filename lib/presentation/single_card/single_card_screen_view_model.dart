@@ -346,8 +346,7 @@ class SingleCardScreenViewModel extends ChangeNotifier {
   // Define a method for fetch data and handling errors
   Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {
     final resource = await callBack();
-    if (resource is Error) {
-      // ignore: use_build_context_synchronously
+    if (resource is Error && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(resource.message!),
       ));

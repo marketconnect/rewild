@@ -69,12 +69,6 @@ class _AllCardsScreenState extends State<AllCardsScreen>
     final selectedGroup = model.selectedGroup;
     int selectedGroupIndex = 0;
     final groups = model.groups;
-    final errMes = model.errorMessage;
-    if (errMes != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(errMes),
-      ));
-    }
 
     if (selectedGroup != null) {
       productCards = productCards.where((card) {

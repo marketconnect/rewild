@@ -1,5 +1,6 @@
 import 'package:rewild/core/utils/image_constant.dart';
 import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/presentation/single_group/single_groups_screen_view_model.dart';
 import 'package:rewild/widgets/custom_image_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -61,9 +62,10 @@ class _TabBody extends StatelessWidget {
     final stocksDataMap = model.stocksDataMap;
     final ordersTotal = model.ordersTotal;
     final stocksTotal = model.stocksTotal;
-    final colorsList = model.colorsList;
 
-    if (cards == null) {
+    print("orders length: ${ordersDataMap.length}");
+    print("stocks length: ${stocksDataMap.length}");
+    if (cards == null || ordersDataMap.isEmpty || stocksDataMap.isEmpty) {
       return const _EmptyWidget();
     }
 
@@ -71,9 +73,9 @@ class _TabBody extends StatelessWidget {
       child: Column(
         children: [
           _Chart(
-              dataMap: isOrder ? ordersDataMap : stocksDataMap,
-              total: isOrder ? ordersTotal : stocksTotal,
-              colorsList: colorsList),
+            dataMap: isOrder ? ordersDataMap : stocksDataMap,
+            total: isOrder ? ordersTotal : stocksTotal,
+          ),
           Container(
             width: MediaQuery.of(context).size.width,
             height: 10,
@@ -191,12 +193,12 @@ class _CardsList extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.12,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: card.backgroundColor,
+                  color: card.seller!.backgroundColor,
                   borderRadius: BorderRadius.circular(5),
                 ),
                 child: Text(
                   '${part.toStringAsFixed(0)}%',
-                  style: TextStyle(color: card.fontColor),
+                  style: TextStyle(color: card.seller!.fontColor),
                 ),
               ),
               // SizedBox(width: MediaQuery.of(context).size.width * 0.1),
@@ -213,22 +215,28 @@ class _Chart extends StatelessWidget {
   const _Chart({
     required this.dataMap,
     required this.total,
-    required this.colorsList,
+    // required this.colorsList,
   });
 
-  final Map<String, double> dataMap;
+  final Map<SellerModel, double> dataMap;
   final int total;
-  final List<Color> colorsList;
 
   @override
   Widget build(BuildContext context) {
+    List<Color> colorsList = [];
+    Map<String, double> _data = <String, double>{};
+    for (final entry in dataMap.entries) {
+      _data[entry.key.name] = entry.value;
+      colorsList.add(entry.key.backgroundColor!);
+    }
+
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height * 0.5,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 50),
         child: PieChart(
-          dataMap: dataMap,
+          dataMap: _data,
           ringStrokeWidth: 30,
           centerText: 'Всего\n$total шт.',
           legendOptions: const LegendOptions(
