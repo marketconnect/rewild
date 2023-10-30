@@ -58,13 +58,13 @@ class _TabBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<SingleGroupScreenViewModel>();
     final cards = model.cards;
+    final isExpanded = model.isExpanded;
+    final changeExpanded = model.changeIsExpanded;
     final ordersDataMap = model.ordersDataMap;
     final stocksDataMap = model.stocksDataMap;
     final ordersTotal = model.ordersTotal;
     final stocksTotal = model.stocksTotal;
 
-    print("orders length: ${ordersDataMap.length}");
-    print("stocks length: ${stocksDataMap.length}");
     if (cards == null || ordersDataMap.isEmpty || stocksDataMap.isEmpty) {
       return const _EmptyWidget();
     }
@@ -72,9 +72,20 @@ class _TabBody extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _Chart(
-            dataMap: isOrder ? ordersDataMap : stocksDataMap,
-            total: isOrder ? ordersTotal : stocksTotal,
+          GestureDetector(
+            onTap: () {
+              changeExpanded();
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              height: isExpanded
+                  ? MediaQuery.of(context).size.height * 0.5
+                  : MediaQuery.of(context).size.height,
+              child: _Chart(
+                dataMap: isOrder ? ordersDataMap : stocksDataMap,
+                total: isOrder ? ordersTotal : stocksTotal,
+              ),
+            ),
           ),
           Container(
             width: MediaQuery.of(context).size.width,
@@ -224,9 +235,9 @@ class _Chart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Color> colorsList = [];
-    Map<String, double> _data = <String, double>{};
+    Map<String, double> data = <String, double>{};
     for (final entry in dataMap.entries) {
-      _data[entry.key.name] = entry.value;
+      data[entry.key.name] = entry.value;
       colorsList.add(entry.key.backgroundColor!);
     }
 
@@ -236,7 +247,7 @@ class _Chart extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 50),
         child: PieChart(
-          dataMap: _data,
+          dataMap: data,
           ringStrokeWidth: 30,
           centerText: 'Всего\n$total шт.',
           legendOptions: const LegendOptions(

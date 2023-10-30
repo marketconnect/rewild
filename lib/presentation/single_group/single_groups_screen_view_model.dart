@@ -24,8 +24,13 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
   final SingleGroupScreenSellerService sellerService;
   final BuildContext context;
   final String name;
-  String? _errMessage;
-  String? get errMessage => _errMessage;
+  bool _isExpanded = false;
+  void changeIsExpanded() {
+    _isExpanded = !_isExpanded;
+    notifyListeners();
+  }
+
+  bool get isExpanded => _isExpanded;
 
   SingleGroupScreenViewModel(
       {required this.name,

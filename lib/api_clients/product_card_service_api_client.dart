@@ -66,8 +66,8 @@ class CardOfProductApiClient
     } finally {
       await channel.shutdown();
     }
-    return Error(
-      message: "Неизвестная ошибка",
+    return Resource.error(
+      "Неизвестная ошибка",
     );
   }
 
@@ -118,8 +118,8 @@ class CardOfProductApiClient
     } finally {
       await channel.shutdown();
     }
-    return Error(
-      message: "Неизвестная ошибка",
+    return Resource.error(
+      "Неизвестная ошибка",
     );
   }
 
@@ -164,9 +164,8 @@ class CardOfProductApiClient
           );
         }
       }
-      return Error(
-        message:
-            "Неизвестная ошибка в процессе удаления карточки на сервере: $e",
+      return Resource.error(
+        "Неизвестная ошибка в процессе удаления карточки на сервере: $e",
       );
     } finally {
       await channel.shutdown();

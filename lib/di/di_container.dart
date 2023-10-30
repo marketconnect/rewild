@@ -11,6 +11,7 @@ import 'package:rewild/data_providers/commission_data_provider/commission_data_p
 
 import 'package:rewild/data_providers/group_data_provider/group_data_provider.dart';
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
+import 'package:rewild/data_providers/last_update_day_data_provider.dart';
 import 'package:rewild/data_providers/orders_history_data_provider/orders_history_data_provider.dart';
 import 'package:rewild/data_providers/secure_storage_data_provider.dart';
 import 'package:rewild/data_providers/seller_data_provider/seller_data_provider.dart';
@@ -133,6 +134,9 @@ class _DIContainer {
   // orders history
   OrdersHistoryDataProvider _makeOrdersHistoryDataProvider() =>
       OrdersHistoryDataProvider();
+
+  LastUpdateDayDataProvider _makeLastUpdateDayDataProvider() =>
+      LastUpdateDayDataProvider();
   // Services ==================================================================
 
   // auth
@@ -146,6 +150,7 @@ class _DIContainer {
         detailsApiClient: _makeDetailsApiClient(),
         initialStockApiClient: _makeStocksApiClient(),
         supplyDataProvider: _makeSupplyDataProvider(),
+        lastUpdateDayDataProvider: _makeLastUpdateDayDataProvider(),
         cardOfProductDataProvider: _makeCardOfProductDataProvider(),
         initialStockDataProvider: _makeInitialStockDataProvider(),
         stockDataProvider: _makeStockDataProvider(),

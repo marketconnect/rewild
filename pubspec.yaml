@@ -44,7 +44,7 @@ dependencies:
   fixnum: ^1.1.0
   google_nav_bar: ^5.0.6
   url_launcher: ^6.1.14
-
+  intl: ^0.18.1
   shared_preferences: ^2.2.1
   pie_chart: ^5.3.2
   flutter_statusbarcolor_ns: ^0.5.0

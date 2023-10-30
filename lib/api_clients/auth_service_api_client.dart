@@ -53,14 +53,18 @@ class AuthApiClientImpl implements AuthServiceAuthApiClient {
           return Resource.error(
             ErrorsConstants.unavailable,
           );
+        } else {
+          return Resource.error(
+            "Неизвестная ошибка",
+          );
         }
       }
     } finally {
       await channel.shutdown();
     }
 
-    return Error(
-      message: "Неизвестная ошибка",
+    return Resource.error(
+      "Неизвестная ошибка",
     );
   }
 
@@ -94,10 +98,8 @@ class AuthApiClientImpl implements AuthServiceAuthApiClient {
         } else if (e.code == StatusCode.internal) {
           return Resource.error("Ошибка сервера");
         } else if (e.code == StatusCode.unavailable) {
-          return Resource.error(
-            ErrorsConstants.unavailable,
-          );
-        }
+          return Resource.error(ErrorsConstants.unavailable);
+        } else {}
       }
     } finally {
       await channel.shutdown();

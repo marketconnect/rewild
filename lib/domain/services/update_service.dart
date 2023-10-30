@@ -73,6 +73,12 @@ abstract class UpdateServiceStockDataProvider {
       {required int nmId, required int wh, required int sizeOptionId});
 }
 
+// last update day data provider
+abstract class UpdateServiceLastUpdateDayDataProvider {
+  Future<Resource<void>> update();
+  Future<Resource<bool>> updated();
+}
+
 class UpdateService
     implements
         MyWebViewScreenViewModelUpdateService,
@@ -85,6 +91,7 @@ class UpdateService
   final UpdateServiceInitialStockApiClient initialStockApiClient;
   final UpdateServiceInitStockDataProvider initialStockDataProvider;
   final UpdateServiceStockDataProvider stockDataProvider;
+  final UpdateServiceLastUpdateDayDataProvider lastUpdateDayDataProvider;
   UpdateService(
       {required this.stockDataProvider,
       required this.detailsApiClient,
@@ -92,6 +99,7 @@ class UpdateService
       required this.cardOfProductDataProvider,
       required this.initialStockApiClient,
       required this.supplyDataProvider,
+      required this.lastUpdateDayDataProvider,
       required this.cardOfProductApiClient});
   @override
   Future<Resource<void>> fetchAllUserCardsFromServer(String token) async {
@@ -127,7 +135,6 @@ class UpdateService
   @override
   Future<Resource<int>> insert(
       String token, List<CardOfProductModel> cardOfProductsToInsert) async {
-    // SAVE NEW CARDS ON SERVER
     // get all cards from local db
     final cardsInDBResource = await cardOfProductDataProvider.getAll();
 
@@ -136,7 +143,7 @@ class UpdateService
     }
     final cardsInDB = cardsInDBResource.data!;
 
-    // skip cards that already exist in DB
+    // if a card already exists skip that
     final cardsInDBIds = cardsInDB.map((e) => e.nmId).toList();
     List<CardOfProductModel> newCards = [];
     for (final c in cardOfProductsToInsert) {
@@ -146,53 +153,50 @@ class UpdateService
       newCards.add(c);
     }
 
+    // if there are no new cards - return 0
+    if (newCards.isEmpty) {
+      return Resource.success(0);
+    }
+
     // save on server cards that do not exist in DB
-    if (newCards.isNotEmpty) {
-      final saveOnServerResource =
-          await cardOfProductApiClient.save(token, newCards);
-      if (saveOnServerResource is Error) {
-        return Resource.error(saveOnServerResource.message!);
-      }
+    final saveOnServerResource =
+        await cardOfProductApiClient.save(token, newCards);
+    if (saveOnServerResource is Error) {
+      return Resource.error(saveOnServerResource.message!);
     }
 
     // try to fetch today`s initial stocks from server
+    // in case when there are cards that was saved on server
+    // earlier by somebody else
     List<InitialStockModel> initStocksFromServer = [];
 
     // ids of cards that initial stocks do not exist on server yet
-    List<int> abscentIds = newCards.map((e) => e.nmId).toList();
+    List<int> abscentOnServerNewCardsIds = newCards.map((e) => e.nmId).toList();
 
-    if (newCards.isNotEmpty) {
-      final initialStocksResource = await initialStockApiClient.get(
-        newCards.map((e) => e.nmId).toList(),
-        yesterdayEndOfTheDay(),
-        DateTime.now(),
-      );
-      if (initialStocksResource is Error) {
-        return Resource.error(initialStocksResource.message!);
-      }
-
-      initStocksFromServer = initialStocksResource.data!;
-
-      // save fetched initial stocks to local db
-      for (final stock in initStocksFromServer) {
-        final insertStockresource =
-            await initialStockDataProvider.insert(stock);
-        if (insertStockresource is Error) {
-          return Resource.error(insertStockresource.message!);
-        }
-        // remove nmId that initial stock exists on server and in local db
-
-        abscentIds.remove(stock.nmId);
-      }
+    // initial stocks from server
+    final initialStocksResource = await initialStockApiClient.get(
+      newCards.map((e) => e.nmId).toList(),
+      yesterdayEndOfTheDay(),
+      DateTime.now(),
+    );
+    if (initialStocksResource is Error) {
+      return Resource.error(initialStocksResource.message!);
     }
-    // print('final abscentIds: $abscentIds');
 
-    // FETCH DETAILS FROM WB FOR ALL CARDS
+    initStocksFromServer = initialStocksResource.data!;
 
-    // combine to get all cards
-    // final allCards = cardsInDB + newCards;
+    // save fetched from server initial stocks to local db
+    for (final stock in initStocksFromServer) {
+      final insertStockresource = await initialStockDataProvider.insert(stock);
+      if (insertStockresource is Error) {
+        return Resource.error(insertStockresource.message!);
+      }
 
-    // fetch
+      // remove nmId that initial stock exists on server and in local db
+      abscentOnServerNewCardsIds.remove(stock.nmId);
+    }
+
+    // fetch details for all new cards from wb
     final fetchedCardsOfProductsResource =
         await detailsApiClient.get(newCards.map((e) => e.nmId).toList());
     if (fetchedCardsOfProductsResource is Error) {
@@ -200,10 +204,12 @@ class UpdateService
     }
     final fetchedCardsOfProducts = fetchedCardsOfProductsResource.data!;
 
-    // ADD TO DB
+    // add to db cards
     for (final card in fetchedCardsOfProducts) {
+      // append img
       final img = newCards.firstWhere((e) => e.nmId == card.nmId).img;
       card.img = img;
+      // insert
       final insertResource =
           await cardOfProductDataProvider.insertOrUpdate(card);
       if (insertResource is Error) {
@@ -213,19 +219,13 @@ class UpdateService
       // add stocks
       for (final size in card.sizes) {
         for (final stock in size.stocks) {
-          // drop all supplies
-          final dropsuppliesResource =
-              await supplyDataProvider.delete(nmId: stock.nmId);
-          if (dropsuppliesResource is Error) {
-            return Resource.error(dropsuppliesResource.message!);
-          }
           final insertStockresource = await stockDataProvider.insert(stock);
           if (insertStockresource is Error) {
             return Resource.error(insertStockresource.message!);
           }
-
-          // if initial stocks do not exist on server yet
-          if (abscentIds.contains(stock.nmId)) {
+          // if the miracle does not happen
+          // and initial stocks do not exist on server yet
+          if (abscentOnServerNewCardsIds.contains(stock.nmId)) {
             // save fetched stocks to local db as initial stocks
             final insertStockresource =
                 await initialStockDataProvider.insert(InitialStockModel(
@@ -243,14 +243,12 @@ class UpdateService
       }
     }
 
-    final int newCardsCount = newCards.isNotEmpty ? newCards.length : 0;
-    return Resource.success(newCardsCount);
+    return Resource.success(newCards.length);
   }
 
   // update cards ==============================================================
   @override
   Future<Resource<void>> update() async {
-    // FETCH INFORMATION FROM WB FOR ALL CARDS STORED IN THE LOCAL STORAGE
     // get cards from the local storage
     final cardsOfProductsResource = await cardOfProductDataProvider.getAll();
     if (cardsOfProductsResource is Error) {
@@ -262,68 +260,92 @@ class UpdateService
       return Resource.empty();
     }
 
-    // check today`s initial stocks in local db
-    // and get all cards that do not have today`s initial stocks
-    final cardsWithoutTodayInitStocksResource =
-        await _getCardsIdsWithoutTodayInitStocks(allSavedCardsOfProducts);
-    if (cardsWithoutTodayInitStocksResource is Error) {
-      return Resource.error(cardsWithoutTodayInitStocksResource.message!);
+    // if it is Today`s first time update - update initial stocks
+    final isUpdatedResource = await lastUpdateDayDataProvider.updated();
+    if (isUpdatedResource is Error) {
+      return Resource.error(isUpdatedResource.message!);
     }
+    final isUpdated = isUpdatedResource.data!;
 
-    final cardsWithoutTodayInitStocksIds =
-        cardsWithoutTodayInitStocksResource.data!;
+    // Update initial stocks!
+    if (!isUpdated) {
+      // try to fetch today`s initial stocks from server
+      final todayInitialStocksFromServerResource =
+          await _fetchTodayInitialStocksFromServer(
+              allSavedCardsOfProducts.map((e) => e.nmId).toList());
+      if (todayInitialStocksFromServerResource is Error) {
+        return Resource.error(todayInitialStocksFromServerResource.message!);
+      }
+      final todayInitialStocksFromServer =
+          todayInitialStocksFromServerResource.data!;
 
-    // try to fetch today`s initial stocks from server
-    final todayInitialStocksFromServerResource =
-        await _fetchTodayInitialStocksFromServer(
-            cardsWithoutTodayInitStocksIds);
-    if (todayInitialStocksFromServerResource is Error) {
-      return Resource.error(todayInitialStocksFromServerResource.message!);
+      // save today`s initial stocks to local db and delete supplies
+      for (final stock in todayInitialStocksFromServer) {
+        // save
+        final insertStockresource =
+            await initialStockDataProvider.insert(stock);
+        if (insertStockresource is Error) {
+          return Resource.error(insertStockresource.message!);
+        }
+
+        // delete
+        final deleteSuppliesResource =
+            await supplyDataProvider.delete(nmId: stock.nmId);
+        if (deleteSuppliesResource is Error) {
+          return Resource.error(deleteSuppliesResource.message!);
+        }
+      }
     }
-    final todayInitialStocksFromServer =
-        todayInitialStocksFromServerResource.data!;
+    // final cardsWithoutTodayInitStocksResource =
+    //     await _getCardsIdsWithoutTodayInitStocks(allSavedCardsOfProducts);
+    // if (cardsWithoutTodayInitStocksResource is Error) {
+    //   return Resource.error(cardsWithoutTodayInitStocksResource.message!);
+    // }
+
+    // final cardsWithoutTodayInitStocksIds =
+    //     cardsWithoutTodayInitStocksResource.data!;
 
     // save today`s initial stocks to local db and delete supplies
-    for (final stock in todayInitialStocksFromServer) {
-      final insertStockresource = await initialStockDataProvider.insert(stock);
-      if (insertStockresource is Error) {
-        return Resource.error(insertStockresource.message!);
-      }
-      final deleteSuppliesResource =
-          await supplyDataProvider.delete(nmId: stock.nmId);
-      if (deleteSuppliesResource is Error) {
-        return Resource.error(deleteSuppliesResource.message!);
-      }
-    }
+    // for (final stock in todayInitialStocksFromServer) {
+    //   final insertStockresource = await initialStockDataProvider.insert(stock);
+    //   if (insertStockresource is Error) {
+    //     return Resource.error(insertStockresource.message!);
+    //   }
+    //   final deleteSuppliesResource =
+    //       await supplyDataProvider.delete(nmId: stock.nmId);
+    //   if (deleteSuppliesResource is Error) {
+    //     return Resource.error(deleteSuppliesResource.message!);
+    //   }
+    // }
 
     // some cards do not have today`s initial stocks on server too
     // add last saved stocks
-    for (final nmId in cardsWithoutTodayInitStocksIds) {
-      if (!todayInitialStocksFromServer
-          .where((e) => e.nmId == nmId)
-          .isNotEmpty) {
-        final stocksResource = await stockDataProvider.get(nmId);
-        if (stocksResource is Error) {
-          return Resource.error(stocksResource.message!);
-        }
-        final stocks = stocksResource.data!;
+    // for (final nmId in cardsWithoutTodayInitStocksIds) {
+    //   if (!todayInitialStocksFromServer
+    //       .where((e) => e.nmId == nmId)
+    //       .isNotEmpty) {
+    //     final stocksResource = await stockDataProvider.get(nmId);
+    //     if (stocksResource is Error) {
+    //       return Resource.error(stocksResource.message!);
+    //     }
+    //     final stocks = stocksResource.data!;
 
-        final date = DateTime.now();
+    //     final date = DateTime.now();
 
-        for (final stock in stocks) {
-          final initialStocksResource = await initialStockDataProvider.insert(
-              InitialStockModel(
-                  date: date,
-                  nmId: nmId,
-                  wh: stock.wh,
-                  sizeOptionId: stock.sizeOptionId,
-                  qty: stock.qty));
-          if (initialStocksResource is Error) {
-            return Resource.error(initialStocksResource.message!);
-          }
-        }
-      }
-    }
+    //     for (final stock in stocks) {
+    //       final initialStocksResource = await initialStockDataProvider.insert(
+    //           InitialStockModel(
+    //               date: date,
+    //               nmId: nmId,
+    //               wh: stock.wh,
+    //               sizeOptionId: stock.sizeOptionId,
+    //               qty: stock.qty));
+    //       if (initialStocksResource is Error) {
+    //         return Resource.error(initialStocksResource.message!);
+    //       }
+    //     }
+    //   }
+    // }
 
     // fetch details for all saved cards from wb
     final fetchedCardsOfProductsResource = await detailsApiClient
@@ -377,42 +399,39 @@ class UpdateService
         if (initStockResource is Error) {
           return Resource.error(initStockResource.message!);
         }
-        // if init stock does not exist insert it
+        // if init stock does not exist
         if (initStockResource is Empty) {
-          // insert init stock
+          // insert zero init stock
           final insertInitStockResource = await initialStockDataProvider.insert(
               InitialStockModel(
                   date: dateFrom,
                   nmId: stock.nmId,
                   wh: stock.wh,
                   sizeOptionId: stock.sizeOptionId,
-                  qty: stock.qty));
+                  qty: 0));
           if (insertInitStockResource is Error) {
             return Resource.error(insertInitStockResource.message!);
           }
 
-          // // if init stock does not exist and stocks more than threshold insert supply
-          // if (stock.qty > NumericConstants.supplyThreshold) {
-          //   // Supply =====================================
-          //   // also insert supply
-          //   final insertSupplyResource = await supplyDataProvider.insert(
-          //       SupplyModel(
-          //           wh: stock.wh,
-          //           salesBefore: 0,
-          //           nmId: stock.nmId,
-          //           sizeOptionId: stock.sizeOptionId,
-          //           date: dateTo,
-          //           qty: stock.qty));
-          //   if (insertSupplyResource is Error) {
-          //     return Resource.error(insertSupplyResource.message!);
-          //   }
-          // }
+          // if init stock does not exist and stocks more than threshold insert supply
+          if (stock.qty > NumericConstants.supplyThreshold) {
+            // insert supply
+            final insertSupplyResource = await supplyDataProvider.insert(
+                SupplyModel(
+                    wh: stock.wh,
+                    nmId: stock.nmId,
+                    sizeOptionId: stock.sizeOptionId,
+                    lastStocks: 0,
+                    qty: stock.qty));
+            if (insertSupplyResource is Error) {
+              return Resource.error(insertSupplyResource.message!);
+            }
+          }
         } else {
           // if init stock exists
           final initStock = initStockResource.data!;
           // if stocks difference more than threshold insert supply
           if ((stock.qty - initStock.qty) > NumericConstants.supplyThreshold) {
-            // Supply =====================================
             // check if supply already exists
             final supplyResource = await supplyDataProvider.getOne(
               nmId: stock.nmId,
@@ -434,7 +453,7 @@ class UpdateService
               if (savedStock is Error) {
                 return Resource.error(savedStock.message!);
               }
-              // insert supply
+              // insert supply with last saved stocks as lastStocks
               final insertSupplyResource =
                   await supplyDataProvider.insert(SupplyModel(
                 wh: stock.wh,
@@ -474,24 +493,24 @@ class UpdateService
     return Resource.empty();
   }
 
-  Future<Resource<List<int>>> _getCardsIdsWithoutTodayInitStocks(
-      List<CardOfProductModel> allSavedCardsOfProducts) async {
-    final dateFrom = yesterdayEndOfTheDay();
-    final dateTo = DateTime.now();
-    List<int> cardsOfProductsWithoutTodayInitStocks = [];
-    for (final card in allSavedCardsOfProducts) {
-      final todayInitStocksResource =
-          await initialStockDataProvider.get(card.nmId, dateFrom, dateTo);
-      if (todayInitStocksResource is Error) {
-        return Resource.error(todayInitStocksResource.message!);
-      }
-      final todayInitStocks = todayInitStocksResource.data!;
-      if (todayInitStocks.isEmpty) {
-        cardsOfProductsWithoutTodayInitStocks.add(card.nmId);
-      }
-    }
-    return Resource.success(cardsOfProductsWithoutTodayInitStocks);
-  }
+  // Future<Resource<List<int>>> _getCardsIdsWithoutTodayInitStocks(
+  //     List<CardOfProductModel> allSavedCardsOfProducts) async {
+  //   final dateFrom = yesterdayEndOfTheDay();
+  //   final dateTo = DateTime.now();
+  //   List<int> cardsOfProductsWithoutTodayInitStocks = [];
+  //   for (final card in allSavedCardsOfProducts) {
+  //     final todayInitStocksResource =
+  //         await initialStockDataProvider.get(card.nmId, dateFrom, dateTo);
+  //     if (todayInitStocksResource is Error) {
+  //       return Resource.error(todayInitStocksResource.message!);
+  //     }
+  //     final todayInitStocks = todayInitStocksResource.data!;
+  //     if (todayInitStocks.isEmpty) {
+  //       cardsOfProductsWithoutTodayInitStocks.add(card.nmId);
+  //     }
+  //   }
+  //   return Resource.success(cardsOfProductsWithoutTodayInitStocks);
+  // }
 
   Future<Resource<List<InitialStockModel>>> _fetchTodayInitialStocksFromServer(
       List<int> cardsWithoutTodayInitStocksIds) async {
