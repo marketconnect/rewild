@@ -15,6 +15,5 @@ Future<void> main() async {
   ]);
 
   final app = appFactory.makeApp();
-
   runApp(app);
 }
