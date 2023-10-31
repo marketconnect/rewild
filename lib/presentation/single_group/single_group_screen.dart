@@ -1,3 +1,4 @@
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:rewild/core/utils/image_constant.dart';
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
@@ -68,7 +69,7 @@ class _TabBody extends StatelessWidget {
     if (cards == null || ordersDataMap.isEmpty || stocksDataMap.isEmpty) {
       return const _EmptyWidget();
     }
-
+    double turns = isExpanded ? 0.0 : 0.5;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -78,12 +79,37 @@ class _TabBody extends StatelessWidget {
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 500),
-              height: isExpanded
-                  ? MediaQuery.of(context).size.height * 0.5
-                  : MediaQuery.of(context).size.height,
-              child: _Chart(
-                dataMap: isOrder ? ordersDataMap : stocksDataMap,
-                total: isOrder ? ordersTotal : stocksTotal,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            AnimatedRotation(
+                              duration: const Duration(milliseconds: 300),
+                              turns: turns,
+                              child: const Icon(
+                                Icons.keyboard_arrow_up_outlined,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (isExpanded)
+                      const SizedBox(
+                        height: 35,
+                      ),
+                    _Chart(
+                      dataMap: isOrder ? ordersDataMap : stocksDataMap,
+                      total: isOrder ? ordersTotal : stocksTotal,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -136,6 +162,7 @@ class _CardsList extends StatelessWidget {
     final cards = model.cards;
     final ordersTotal = model.ordersTotal;
     final stocksTotal = model.stocksTotal;
+    final delete = model.deleteCardFromGroup;
 
     if (cards == null) {
       return Center(
@@ -173,60 +200,116 @@ class _CardsList extends StatelessWidget {
           part = (card.stocksSum / stocksTotal) * 100;
         }
 
-        return Container(
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context)
-                    .colorScheme
-                    .surfaceVariant
-                    .withOpacity(0.5),
+        return Slidable(
+          startActionPane: ActionPane(
+            dragDismissible: false,
+            // A motion is a widget used to control how the pane animates.
+            motion: const ScrollMotion(),
+
+            // A pane can dismiss the Slidable.
+            dismissible: DismissiblePane(onDismissed: () {}),
+
+            // All actions are defined in the children parameter.
+            children: [
+              // A SlidableAction can have an icon and/or a label.
+              SlidableAction(
+                onPressed: (BuildContext context) async =>
+                    await delete(card.nmId),
+                backgroundColor: Color(0xFFFE4A49),
+                foregroundColor: Colors.white,
+                icon: Icons.group_remove,
+                label: 'Исключить',
+              ),
+            ],
+          ),
+
+          // The end action pane is the one at the right or the bottom side.
+          endActionPane: ActionPane(
+            dragDismissible: false,
+            // dismissible: ,
+            motion: ScrollMotion(),
+            children: [
+              SlidableAction(
+                onPressed: doNothing,
+                backgroundColor: Color(0xFF21B7CA),
+                foregroundColor: Colors.white,
+                icon: Icons.share,
+                label: 'Поделиться',
+              ),
+              // SlidableAction(
+              //   // An action can be bigger than the others.
+              //   flex: 2,
+              //   onPressed: doNothing,
+              //   backgroundColor: Color(0xFF7BC043),
+              //   foregroundColor: Colors.white,
+              //   icon: Icons.archive,
+              //   label: 'Archive',
+              // ),
+              // SlidableAction(
+              //   onPressed: doNothing,
+              //   backgroundColor: Color(0xFF0392CF),
+              //   foregroundColor: Colors.white,
+              //   icon: Icons.save,
+              //   label: 'Save',
+              // ),
+            ],
+          ),
+
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceVariant
+                      .withOpacity(0.5),
+                ),
               ),
             ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.2,
-                      height: MediaQuery.of(context).size.width * 0.2,
-                      child: CachedNetworkImage(imageUrl: card.img ?? '')),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.45,
-                    child: Text(card.name, overflow: TextOverflow.ellipsis),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.2,
+                        height: MediaQuery.of(context).size.width * 0.2,
+                        child: CachedNetworkImage(imageUrl: card.img ?? '')),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      child: Text(card.name, overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.12,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: card.seller!.backgroundColor,
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                ],
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.12,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: card.seller!.backgroundColor,
-                  borderRadius: BorderRadius.circular(5),
+                  child: Text(
+                    '${part.toStringAsFixed(0)}%',
+                    style: TextStyle(color: card.seller!.fontColor),
+                  ),
                 ),
-                child: Text(
-                  '${part.toStringAsFixed(0)}%',
-                  style: TextStyle(color: card.seller!.fontColor),
-                ),
-              ),
-              // SizedBox(width: MediaQuery.of(context).size.width * 0.1),
-              Text('${isOrder ? card.ordersSum : card.stocksSum} ')
-            ],
+                Text('${isOrder ? card.ordersSum : card.stocksSum} ')
+              ],
+            ),
           ),
         );
       }).toList()),
     );
   }
+
+  void doNothing(BuildContext context) {}
 }
 
 class _Chart extends StatelessWidget {
   const _Chart({
     required this.dataMap,
     required this.total,
-    // required this.colorsList,
   });
 
   final Map<SellerModel, double> dataMap;
@@ -234,6 +317,8 @@ class _Chart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<SingleGroupScreenViewModel>();
+    final expanded = model.isExpanded;
     List<Color> colorsList = [];
     Map<String, double> data = <String, double>{};
     for (final entry in dataMap.entries) {
@@ -243,15 +328,16 @@ class _Chart extends StatelessWidget {
 
     return SizedBox(
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.5,
+      height: expanded ? null : MediaQuery.of(context).size.height * 0.5,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 50),
         child: PieChart(
           dataMap: data,
           ringStrokeWidth: 30,
           centerText: 'Всего\n$total шт.',
-          legendOptions: const LegendOptions(
-            showLegends: false,
+          legendOptions: LegendOptions(
+            showLegends: expanded,
+            legendPosition: LegendPosition.bottom,
           ),
           chartValuesOptions: const ChartValuesOptions(
             showChartValues: false,

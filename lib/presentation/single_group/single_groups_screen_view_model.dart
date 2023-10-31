@@ -1,5 +1,6 @@
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/sqflite_service.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/group_model.dart';
@@ -8,6 +9,7 @@ import 'package:rewild/domain/entities/seller_model.dart';
 
 abstract class SingleGroupScreenGroupsService {
   Future<Resource<GroupModel>> loadGroup(String name);
+  Future<Resource<void>> delete(String groupName, int nmId);
 }
 
 abstract class SingleGroupScreenViewModelCardsService {
@@ -42,11 +44,24 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
   }
 
   void _asyncInit() async {
+    await _update();
+
+    if (_cards == null) {
+      return;
+    }
+
+    notifyListeners();
+  }
+
+  Future<void> _update() async {
+    // group
     final group = await _fetch(() => groupService.loadGroup(name));
+
     if (group == null) {
       return;
     }
 
+    // cards
     final cardsIds = group.cardsNmIds;
 
     final cards = await _fetch(() => cardsService.getAll(cardsIds));
@@ -57,6 +72,7 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
     group.setCards(cards);
 
     group.calculateStocksSum();
+
     group.calculateInitialStocksSum(
       yesterdayEndOfTheDay(),
       DateTime.now(),
@@ -66,11 +82,13 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
     if (group.cards.isEmpty) {
       return;
     }
+
     _cards = [];
     for (final card in group.cards) {
       if (card.supplierId == null) {
         continue;
       }
+      // seller
       final seller = await _fetch(() => sellerService.get(card.supplierId!));
       if (seller == null) {
         continue;
@@ -78,14 +96,20 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
       if (!supplierIds.contains(seller.supplierId)) {
         seller.setColors(supplierIds.length);
       }
+
       card.setSeller(seller);
+
       supplierIds.add(seller.supplierId);
+
       card.calculate(
         yesterdayEndOfTheDay(),
         DateTime.now(),
       );
+
       _cards!.add(card);
     }
+
+    SqfliteService.printTableContent("groups");
 
     group.calculateOrdersSum();
     stocksSum = group.stocksSum;
@@ -107,8 +131,6 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
         addStocksToDataMap(card.seller!, (card.stocksSum / stocksTotal) * 100);
       }
     }
-
-    notifyListeners();
   }
 
   Map<int, Color> _sellerColorMap = {};
@@ -162,6 +184,20 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
   List<CardOfProductModel>? get cards => _cards;
   int stocksSum = 0;
   int ordersSum = 0;
+
+  Future<void> deleteCardFromGroup(int nmId) async {
+    final _ = await _fetch(() => groupService.delete(name, nmId));
+    if (cards == null) {
+      return;
+    }
+    // it was last card
+    if (cards!.length == 1) {
+      if (context.mounted) Navigator.of(context).pop();
+      return;
+    }
+    await _update();
+    notifyListeners();
+  }
 
   // Define a method for fetch data and handling errors
   Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {

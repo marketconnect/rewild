@@ -189,7 +189,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
       return;
     }
 
-    notifyListeners();
+    if (context.mounted) notifyListeners();
   }
 
   Future<void> p() async {

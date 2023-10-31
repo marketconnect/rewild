@@ -21,16 +21,17 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
     }
   }
 
-  Future<Resource<void>> delete(int id, [int? nmId]) async {
+  @override
+  Future<Resource<void>> delete(String name, [int? nmId]) async {
     try {
       final db = await SqfliteService().database;
       if (nmId != null) {
         await db.rawDelete(
-          'DELETE FROM groups WHERE nmId = ? AND id != ?',
-          [nmId, id],
+          'DELETE FROM groups WHERE nmId = ? AND name = ?',
+          [nmId, name],
         );
       } else {
-        await db.rawDelete('DELETE FROM groups WHERE id = ?', [id]);
+        await db.rawDelete('DELETE FROM groups WHERE name = ?', [name]);
       }
       return Resource.empty();
     } catch (e) {
@@ -45,7 +46,10 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
       final groups =
           await db.rawQuery('SELECT * FROM groups WHERE name = ?', [name]);
 
-      // String? name;
+      if (groups.isEmpty) {
+        return Resource.empty();
+      }
+
       int? bgColor;
       int? fontColor;
       List<int> nmIds = [];

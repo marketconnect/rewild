@@ -449,7 +449,7 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
                           children: [
                             IconButton(
                                 onPressed: () => combine(),
-                                icon: Icon(Icons.group_add_outlined,
+                                icon: Icon(Icons.group_remove_outlined,
                                     color:
                                         Theme.of(context).colorScheme.primary,
                                     size: MediaQuery.of(context).size.width *

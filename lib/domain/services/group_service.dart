@@ -10,6 +10,7 @@ abstract class GroupServiceGroupDataProvider {
   Future<Resource<GroupModel>> get(String name);
   Future<Resource<int>> insert(GroupModel group);
   Future<Resource<List<GroupModel>>> getAll();
+  Future<Resource<void>> delete(String name, [int? nmId]);
 }
 
 class GroupService
@@ -51,5 +52,10 @@ class GroupService
   @override
   Future<Resource<GroupModel>> loadGroup(String name) async {
     return await groupDataProvider.get(name);
+  }
+
+  @override
+  Future<Resource<void>> delete(String groupName, int nmId) {
+    return groupDataProvider.delete(groupName, nmId);
   }
 }
