@@ -1,6 +1,6 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/commission_model.dart';
-import 'package:rewild/presentation/single_card/single_card_screen_view_model.dart';
+import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 
 abstract class CommissionServiceCommissionApiClient {
   Future<Resource<CommissionModel>> get(int id);

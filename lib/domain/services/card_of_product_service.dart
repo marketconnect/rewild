@@ -10,11 +10,11 @@ import 'package:rewild/domain/entities/stocks_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
 
 import 'package:rewild/domain/entities/warehouse.dart';
-import 'package:rewild/presentation/all_cards/all_cards_screen_view_model.dart';
+import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
 
-import 'package:rewild/presentation/single_card/single_card_screen_view_model.dart';
-import 'package:rewild/presentation/single_group/single_groups_screen_view_model.dart';
+import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
+import 'package:rewild/presentation/single_group_scrren/single_groups_screen_view_model.dart';
 
 // API clients
 abstract class CardOfProductServiceSellerApiClient {

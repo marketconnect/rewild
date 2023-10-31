@@ -1,6 +1,6 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/user_auth_data.dart';
-import 'package:rewild/presentation/all_cards/all_cards_screen_view_model.dart';
+import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/my_web_view/my_web_view_screen_view_model.dart';
 import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart';
 

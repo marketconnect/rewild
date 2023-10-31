@@ -10,21 +10,6 @@ class CommissionDb extends CommissionModel {
       required super.fbs,
       required super.fbo});
 
-  // final int id;
-  // final String category;
-  // final String subject;
-  // final int commission;
-  // final int fbs;
-  // final int fbo;
-
-  // CommissionDb(
-  //     {required this.id,
-  //     required this.category,
-  //     required this.subject,
-  //     required this.commission,
-  //     required this.fbs,
-  //     required this.fbo});
-
   static Future<void> createTable(Database db) async {
     await db.execute(
       '''

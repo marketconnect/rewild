@@ -227,8 +227,12 @@ class AllCardsScreenViewModel extends ChangeNotifier {
   Future<void> deleteCards() async {
     List<int> idsForDelete = [];
     for (final nmId in _selectedNmIds) {
-      final deletedCard =
-          _productCards.where((element) => element.nmId == nmId).first;
+      final deletedCardList =
+          _productCards.where((element) => element.nmId == nmId);
+      if (deletedCardList.isEmpty) {
+        continue;
+      }
+      final deletedCard = deletedCardList.first;
       _productCards.remove(deletedCard);
       idsForDelete.add(deletedCard.nmId);
     }

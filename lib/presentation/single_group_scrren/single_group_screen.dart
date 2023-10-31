@@ -2,12 +2,13 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:rewild/core/utils/image_constant.dart';
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
-import 'package:rewild/presentation/single_group/single_groups_screen_view_model.dart';
+import 'package:rewild/presentation/single_group_scrren/single_groups_screen_view_model.dart';
 import 'package:rewild/widgets/custom_image_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SingleGroupScreen extends StatelessWidget {
   const SingleGroupScreen({super.key});
@@ -215,7 +216,7 @@ class _CardsList extends StatelessWidget {
               SlidableAction(
                 onPressed: (BuildContext context) async =>
                     await delete(card.nmId),
-                backgroundColor: Color(0xFFFE4A49),
+                backgroundColor: const Color(0xFFFE4A49),
                 foregroundColor: Colors.white,
                 icon: Icons.group_remove,
                 label: 'Исключить',
@@ -227,11 +228,13 @@ class _CardsList extends StatelessWidget {
           endActionPane: ActionPane(
             dragDismissible: false,
             // dismissible: ,
-            motion: ScrollMotion(),
+            motion: const ScrollMotion(),
             children: [
               SlidableAction(
-                onPressed: doNothing,
-                backgroundColor: Color(0xFF21B7CA),
+                onPressed: (BuildContext context) async => await Share.share(
+                  'https://www.wildberries.ru/catalog/${card.nmId}/detail.aspx',
+                ),
+                backgroundColor: const Color(0xFF21B7CA),
                 foregroundColor: Colors.white,
                 icon: Icons.share,
                 label: 'Поделиться',

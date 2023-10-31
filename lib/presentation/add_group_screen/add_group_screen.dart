@@ -1,4 +1,4 @@
-import 'package:rewild/presentation/add_group/add_group_screen_view_model.dart';
+import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

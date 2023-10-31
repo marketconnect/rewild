@@ -2,9 +2,9 @@ import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:flutter/material.dart';
 
-import 'package:rewild/presentation/all_cards/all_cards_screen_view_model.dart';
-import 'package:rewild/presentation/all_cards/widgets/my_sliver_persistent_header_delegate.dart';
-import 'package:rewild/presentation/all_cards/widgets/product_card_widget.dart';
+import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
+import 'package:rewild/presentation/all_cards_screen/widgets/my_sliver_persistent_header_delegate.dart';
+import 'package:rewild/presentation/all_cards_screen/widgets/product_card_widget.dart';
 
 import 'package:provider/provider.dart';
 
@@ -71,9 +71,10 @@ class _AllCardsScreenState extends State<AllCardsScreen>
     final groups = model.groups;
 
     if (selectedGroup != null) {
+      final groupsIds = selectedGroup.cardsNmIds;
+
       productCards = productCards.where((card) {
-        final groupsIds = card.groups.map((group) => group.id);
-        return groupsIds.contains(selectedGroup.id);
+        return groupsIds.contains(card.nmId);
       }).toList();
       final grName = selectedGroup.name;
 
@@ -158,8 +159,7 @@ class _AppBar extends StatelessWidget {
                 ),
               ),
               PopupMenuItem(
-                // value: MainNavigationRouteNames.addGroupsScreen,
-                value: '',
+                value: MainNavigationRouteNames.allGroupsScreen,
                 child: _PopumMenuItemChild(
                   iconData: Icons.group_outlined,
                   text: "Группы",
@@ -168,8 +168,8 @@ class _AppBar extends StatelessWidget {
               PopupMenuItem(
                 value: MainNavigationRouteNames.splashScreen,
                 child: _PopumMenuItemChild(
-                  iconData: Icons.search,
-                  text: "Поиск",
+                  iconData: Icons.filter_alt_outlined,
+                  text: "Фильтр",
                 ),
               )
             ];
@@ -397,7 +397,6 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
             labelColor: selectionInProcess
                 ? Theme.of(context).colorScheme.primary
                 : Colors.white,
-            // indicatorSize: TabBarIndicatorSize.tab,
             onTap: (index) {
               if (selectionInProcess) {
                 return;
@@ -449,7 +448,7 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
                           children: [
                             IconButton(
                                 onPressed: () => combine(),
-                                icon: Icon(Icons.group_remove_outlined,
+                                icon: Icon(Icons.group_add_outlined,
                                     color:
                                         Theme.of(context).colorScheme.primary,
                                     size: MediaQuery.of(context).size.width *

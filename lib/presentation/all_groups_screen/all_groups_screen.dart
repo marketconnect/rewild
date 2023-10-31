@@ -1,6 +1,6 @@
 import 'package:rewild/core/utils/image_constant.dart';
 import 'package:rewild/core/utils/strings.dart';
-import 'package:rewild/presentation/all_groups/all_groups_view_model.dart';
+import 'package:rewild/presentation/all_groups_screen/all_groups_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/custom_image_view.dart';
 import 'package:flutter/material.dart';
@@ -56,12 +56,9 @@ class AllGroupsScreen extends StatelessWidget {
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.grey.withOpacity(0.2),
-
                                       spreadRadius: 1,
                                       blurRadius: 3,
-
-                                      offset: const Offset(
-                                          0, 5), // changes position of shadow
+                                      offset: const Offset(0, 5),
                                     ),
                                   ],
                                   border: Border.all(

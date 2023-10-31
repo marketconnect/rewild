@@ -1,10 +1,10 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/group_model.dart';
 
-import 'package:rewild/presentation/add_group/add_group_screen_view_model.dart';
-import 'package:rewild/presentation/all_cards/all_cards_screen_view_model.dart';
-import 'package:rewild/presentation/all_groups/all_groups_view_model.dart';
-import 'package:rewild/presentation/single_group/single_groups_screen_view_model.dart';
+import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
+import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
+import 'package:rewild/presentation/all_groups_screen/all_groups_view_model.dart';
+import 'package:rewild/presentation/single_group_scrren/single_groups_screen_view_model.dart';
 
 abstract class GroupServiceGroupDataProvider {
   Future<Resource<GroupModel>> get(String name);
