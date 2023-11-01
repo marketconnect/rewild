@@ -1,9 +1,13 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
+import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/seller_service.dart';
 
-class SellerDataProvider implements SellerServiceSellerDataProvider {
+class SellerDataProvider
+    implements
+        SellerServiceSellerDataProvider,
+        AllCardsFilterServiceSellerDataProvider {
   @override
   Future<Resource<int>> insert(SellerModel seller) async {
     try {

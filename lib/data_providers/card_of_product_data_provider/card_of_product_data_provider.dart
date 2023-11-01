@@ -1,13 +1,15 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
+import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/update_service.dart';
 
 class CardOfProductDataProvider
     implements
         CardOfProductServiceCardOfProductDataProvider,
-        UpdateServiceCardOfProductDataProvider {
+        UpdateServiceCardOfProductDataProvider,
+        AllCardsFilterServiceCardsOfProductDataProvider {
   @override
   Future<Resource<int>> insertOrUpdate(CardOfProductModel card) async {
     try {

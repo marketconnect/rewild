@@ -18,6 +18,7 @@ import 'package:rewild/data_providers/seller_data_provider/seller_data_provider.
 import 'package:rewild/data_providers/stock_data_provider.dart/stock_data_provider.dart';
 import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.dart';
 import 'package:rewild/data_providers/warehouse_data_provider.dart';
+import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/auth_service.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/commission_service.dart';
@@ -33,6 +34,8 @@ import 'package:rewild/domain/services/warehouse_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
+import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen.dart';
+import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_screen.dart';
@@ -209,6 +212,11 @@ class _DIContainer {
         ordersHistoryApiClient: _makeOrdersHistoryApiClient(),
       );
 
+  // filter
+  AllCardsFilterService _makeAllCardsFilterService() => AllCardsFilterService(
+        cardsOfProductsDataProvider: _makeCardOfProductDataProvider(),
+        sellerDataProvider: _makeSellerDataProvider(),
+      );
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
       SplashScreenViewModel(
@@ -269,6 +277,14 @@ class _DIContainer {
           BuildContext context) =>
       BottomNavigationViewModel(
           context: context, cardService: _makeCardOfProductService());
+
+  AllCardsFilterScreenViewModel _makeAllCardsFilterScreenViewModel(
+          BuildContext context) =>
+      AllCardsFilterScreenViewModel(
+          allCardsFilterService: _makeAllCardsFilterService(),
+          commissionService: _makeCommissionService(),
+          sellerService: _makeSellerService(),
+          context: context);
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -337,6 +353,15 @@ class ScreenFactoryDefault implements ScreenFactory {
     return ChangeNotifierProvider(
       create: (context) => _diContainer._makeAllGroupsScreenViewModel(context),
       child: const AllGroupsScreen(),
+    );
+  }
+
+  @override
+  Widget makeAllCardsFilterScreen() {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeAllCardsFilterScreenViewModel(context),
+      child: const AllCardsFilterScreen(),
     );
   }
 }

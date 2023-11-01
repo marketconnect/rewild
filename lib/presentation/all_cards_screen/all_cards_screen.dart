@@ -166,7 +166,7 @@ class _AppBar extends StatelessWidget {
                 ),
               ),
               PopupMenuItem(
-                value: MainNavigationRouteNames.splashScreen,
+                value: MainNavigationRouteNames.allCardsFilterScreen,
                 child: _PopumMenuItemChild(
                   iconData: Icons.filter_alt_outlined,
                   text: "Фильтр",

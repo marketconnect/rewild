@@ -7,6 +7,7 @@ abstract class ScreenFactory {
   Widget makeSplashScreen();
   Widget makeBottomNavigationScreen(int num);
   Widget makeAllCardsScreen();
+  Widget makeAllCardsFilterScreen();
   Widget makeMyWebViewScreen();
   Widget makeAllGroupsScreen();
   Widget makeSingleGroupScreen(String name);
@@ -73,6 +74,12 @@ class MainNavigation implements AppNavigation {
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllGroupsScreen(),
         );
+
+      case MainNavigationRouteNames.allCardsFilterScreen:
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeAllCardsFilterScreen(),
+        );
+
       default:
         const widget = Text('Navigation error!!!');
         return MaterialPageRoute(builder: (_) => widget);
