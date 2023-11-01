@@ -40,7 +40,7 @@ class AllCardsFilterService implements AllCardsFilterAllCardsFilterService {
     int brandId = 0;
     for (final card in cards) {
       // get brands
-      if (card.brand != null) {
+      if (card.brand != null && card.brand!.isNotEmpty) {
         // if brand not exists add it
         if (brands.values.where((e) => e == card.brand).toList().isEmpty) {
           brands[brandId] = card.brand!;
@@ -49,7 +49,7 @@ class AllCardsFilterService implements AllCardsFilterAllCardsFilterService {
         }
       }
       // get promo
-      if (card.promoTextCard != null) {
+      if (card.promoTextCard != null && card.promoTextCard!.isNotEmpty) {
         // if promo not exists add it
         if (promos.values
             .where((e) => e == card.promoTextCard)

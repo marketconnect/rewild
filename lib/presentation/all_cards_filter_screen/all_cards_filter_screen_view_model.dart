@@ -45,9 +45,19 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
     suppliers: {},
   );
 
+  int counter = 0;
+
   FilterModel? get outputfilter => _outputfilter;
   void setFilter(FilterModel filter) {
     _outputfilter = filter;
+    final brandsLength = _outputfilter.brands ?? {};
+    final promoLength = _outputfilter.promos ?? {};
+    final suppliersLength = _outputfilter.suppliers ?? {};
+    final subjectsLength = _outputfilter.subjects ?? {};
+    counter = brandsLength.length +
+        promoLength.length +
+        subjectsLength.length +
+        suppliersLength.length;
     notifyListeners();
   }
 
@@ -88,6 +98,32 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clear() {
+    final newFilter = FilterModel(
+      brands: {},
+      subjects: {},
+      promos: {},
+      suppliers: {},
+    );
+    setFilter(newFilter);
+  }
+
+  // Subjects
+  void setAllSubjects() {
+    if (completlyFilledfilter == null ||
+        completlyFilledfilter!.subjects == null) {
+      return;
+    }
+    Map<int, String> allSubjects = Map.from(completlyFilledfilter!.subjects!);
+    FilterModel newFilter = outputfilter!.copyWith(subjects: allSubjects);
+    setFilter(newFilter);
+  }
+
+  void clearSubjects() {
+    FilterModel newFilter = outputfilter!.copyWith(subjects: {});
+    setFilter(newFilter);
+  }
+
   void setSubject(int subject) {
     final subj = completlyFilledfilter!.subjects![subject];
     Map<int, String> prevSubjects = outputfilter!.subjects ?? {};
@@ -96,7 +132,6 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
     setFilter(newFilter);
   }
 
-  // Subjects
   void unSetSubject(int subject) {
     Map<int, String>? prevSubjects = outputfilter!.subjects;
     if (prevSubjects == null) {
@@ -108,6 +143,21 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
   }
 
   // Brand
+  void setAllBrands() {
+    if (completlyFilledfilter == null ||
+        completlyFilledfilter!.brands == null) {
+      return;
+    }
+    Map<int, String> allBrands = Map.from(completlyFilledfilter!.brands!);
+    FilterModel newFilter = outputfilter!.copyWith(brands: allBrands);
+    setFilter(newFilter);
+  }
+
+  void clearBrands() {
+    FilterModel newFilter = outputfilter!.copyWith(brands: {});
+    setFilter(newFilter);
+  }
+
   void setBrand(int brand) {
     final br = completlyFilledfilter!.brands![brand];
     Map<int, String> prevBrands = outputfilter!.brands ?? {};
@@ -127,11 +177,26 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
   }
 
   // Supplier
+  void setAllSuppliers() {
+    if (completlyFilledfilter == null ||
+        completlyFilledfilter!.suppliers == null) {
+      return;
+    }
+    Map<int, String> allSuppliers = Map.from(completlyFilledfilter!.suppliers!);
+    FilterModel newFilter = outputfilter!.copyWith(suppliers: allSuppliers);
+    setFilter(newFilter);
+  }
+
   void setSupplier(int supplier) {
     final supp = completlyFilledfilter!.suppliers![supplier];
     Map<int, String> prevSuppliers = outputfilter!.suppliers ?? {};
     FilterModel newFilter =
         outputfilter!.copyWith(suppliers: prevSuppliers..[supplier] = supp!);
+    setFilter(newFilter);
+  }
+
+  void clearSuppliers() {
+    FilterModel newFilter = outputfilter!.copyWith(suppliers: {});
     setFilter(newFilter);
   }
 
@@ -146,11 +211,26 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
   }
 
   // Promo
+  void setAllPromos() {
+    if (completlyFilledfilter == null ||
+        completlyFilledfilter!.promos == null) {
+      return;
+    }
+    Map<int, String> allPromos = Map.from(completlyFilledfilter!.promos!);
+    FilterModel newFilter = outputfilter!.copyWith(promos: allPromos);
+    setFilter(newFilter);
+  }
+
   void setPromo(int promo) {
     final prom = completlyFilledfilter!.promos![promo];
     Map<int, String> prevPromos = outputfilter!.promos ?? {};
     FilterModel newFilter =
         outputfilter!.copyWith(promos: prevPromos..[promo] = prom!);
+    setFilter(newFilter);
+  }
+
+  void clearPromos() {
+    FilterModel newFilter = outputfilter!.copyWith(promos: {});
     setFilter(newFilter);
   }
 

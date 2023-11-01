@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 import 'package:rewild/widgets/custom_elevated_button.dart';
+import 'package:rewild/widgets/progress_indicator.dart';
 
 class AllCardsScreen extends StatefulWidget {
   const AllCardsScreen({super.key});
@@ -297,7 +298,7 @@ class _EmptyProductsCards extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: loading
-            ? [const CircularProgressIndicator()]
+            ? [const MyProgressIndicator()]
             : [
                 const Text("Вы еще не добавили ни одной карточки"),
                 CustomElevatedButton(

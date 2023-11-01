@@ -9,32 +9,47 @@ class AllCardsFilterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<AllCardsFilterScreenViewModel>();
+    final clear = model.clear;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
             backgroundColor: Colors.transparent,
             automaticallyImplyLeading: false,
-            title: const Text(
-              'Фильтр()',
-              style: TextStyle(
-                fontSize: 16,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1f1f1f),
-              ),
+            title: IconButton(
+              onPressed: () {
+                Navigator.of(context).pushReplacementNamed(
+                  MainNavigationRouteNames.allCardsScreen,
+                );
+              },
+              icon: Icon(Icons.close,
+                  size: MediaQuery.of(context).size.width * 0.07,
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
             ),
             actions: [
-              IconButton(
-                onPressed: () => print("aaa"),
-                icon: const Icon(Icons.done),
+              TextButton(
+                onPressed: () => clear(),
+                child: Text(
+                  "Сброс",
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.04,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.7)),
+                ),
               ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).pushReplacementNamed(
-                    MainNavigationRouteNames.allCardsScreen,
-                  );
-                },
-                icon: const Icon(Icons.close),
+              TextButton(
+                onPressed: () => print("aaa"),
+                child: Text(
+                  "Сохранить",
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.04,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary),
+                ),
               ),
             ]),
         resizeToAvoidBottomInset: false,
@@ -52,20 +67,45 @@ class _Body extends StatelessWidget {
     final model = context.watch<AllCardsFilterScreenViewModel>();
     final completlyFilledfilter = model.completlyFilledfilter;
     final outputFilter = model.outputfilter;
+    // subject
+    final setAllSubjects = model.setAllSubjects;
     final setSubject = model.setSubject;
+    final clearSubjects = model.clearSubjects;
     final unSetSubject = model.unSetSubject;
-    final setPromo = model.setPromo;
-    final unSetPromo = model.unSetPromo;
+    // brand
+    final setAllBrands = model.setAllBrands;
     final setBrand = model.setBrand;
+    final clearBrands = model.clearBrands;
     final unSetBrand = model.unSetBrand;
+    // promo
+    final setAllPromos = model.setAllPromos;
+    final setPromo = model.setPromo;
+    final clearPromos = model.clearPromos;
+    final unSetPromo = model.unSetPromo;
+    // supplier
+    final setAllSuppliers = model.setAllSuppliers;
     final setSupplier = model.setSupplier;
+    final clearSuppliers = model.clearSuppliers;
     final unSetSupplier = model.unSetSupplier;
-    print('subjects here ${completlyFilledfilter!.subjects}');
+
+    final counter = model.counter;
     if (completlyFilledfilter == null) {
-      return const CircularProgressIndicator();
+      return Container();
     }
     return SingleChildScrollView(
         child: Column(children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 5),
+            child: Text(
+              "Фильтр(${counter})",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          )
+        ],
+      ),
       if (completlyFilledfilter.subjects != null &&
           completlyFilledfilter.subjects!.isNotEmpty)
         _Grid(
@@ -73,6 +113,8 @@ class _Body extends StatelessWidget {
             items: completlyFilledfilter.subjects!,
             setCallBack: setSubject,
             activeIds: outputFilter!.subjects!.keys.toList(),
+            clearCallBack: clearSubjects,
+            setAllCallBack: setAllSubjects,
             unSetCallBack: unSetSubject),
       if (completlyFilledfilter.brands != null &&
           completlyFilledfilter.brands!.isNotEmpty)
@@ -81,6 +123,8 @@ class _Body extends StatelessWidget {
             items: completlyFilledfilter.brands!,
             setCallBack: setBrand,
             activeIds: outputFilter!.brands!.keys.toList(),
+            clearCallBack: clearBrands,
+            setAllCallBack: setAllBrands,
             unSetCallBack: unSetBrand),
       if (completlyFilledfilter.suppliers != null &&
           completlyFilledfilter.suppliers!.isNotEmpty)
@@ -89,6 +133,8 @@ class _Body extends StatelessWidget {
             items: completlyFilledfilter.suppliers!,
             setCallBack: setSupplier,
             activeIds: outputFilter!.suppliers!.keys.toList(),
+            clearCallBack: clearSuppliers,
+            setAllCallBack: setAllSuppliers,
             unSetCallBack: unSetSupplier),
       if (completlyFilledfilter.promos != null &&
           completlyFilledfilter.promos!.isNotEmpty)
@@ -97,6 +143,8 @@ class _Body extends StatelessWidget {
             items: completlyFilledfilter.promos!,
             setCallBack: setPromo,
             activeIds: outputFilter!.promos!.keys.toList(),
+            clearCallBack: clearPromos,
+            setAllCallBack: setAllPromos,
             unSetCallBack: unSetPromo),
     ]));
   }
@@ -107,19 +155,25 @@ class _Grid extends StatelessWidget {
       {required this.title,
       required this.items,
       required this.activeIds,
+      required this.setAllCallBack,
       required this.setCallBack,
+      required this.clearCallBack,
       required this.unSetCallBack});
   final Map<int, String> items;
-  final void Function(int id) setCallBack;
-  final void Function(int id) unSetCallBack;
   final List<int> activeIds;
   final String title;
+
+  final void Function(int id) setCallBack;
+  final void Function(int id) unSetCallBack;
+  final void Function() setAllCallBack;
+  final void Function() clearCallBack;
   @override
   Widget build(BuildContext context) {
     int oneRowLength = 0;
     const oneRowLengthMax = 31;
     List<Row> rows = [];
     List<Widget> content = [];
+    final allSelected = activeIds.length == items.length;
 
     for (final id in items.keys) {
       final isActive = activeIds.contains(id);
@@ -150,55 +204,68 @@ class _Grid extends StatelessWidget {
             child: Padding(
                 padding:
                     EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
-                child: item.length > oneRowLengthMax
-                    ? SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        child: AutoSizeText(
-                          item.substring(0, oneRowLengthMax),
-                          style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.04,
-                            color: isActive
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                          ),
-                        ),
-                      )
-                    : AutoSizeText(
-                        item,
-                        maxLines: 2,
-                        style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * 0.04,
-                          color: isActive
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      )),
+                child: AutoSizeText(
+                  item,
+                  maxLines: 2,
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.04,
+                    color: isActive
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                )),
           )));
     }
+    rows.add(Row(children: content));
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-              Text(
-                title,
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.04,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.7)),
-              )
-            ]),
-          ),
-          ...rows
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.95,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.04,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.7)),
+                      ),
+                      GestureDetector(
+                        onTap: () =>
+                            allSelected ? clearCallBack() : setAllCallBack(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Text(
+                            allSelected ? "Очистить" : "Выбрать все",
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.03,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.4)),
+                          ),
+                        ),
+                      )
+                    ]),
+              ),
+            ),
+            ...rows
+          ],
+        ),
       ),
     );
   }
