@@ -71,6 +71,11 @@ class _AllCardsScreenState extends State<AllCardsScreen>
     int selectedGroupIndex = 0;
     final groups = model.groups;
 
+    final filter = model.filterCard;
+    productCards = productCards.where((card) {
+      return filter(card);
+    }).toList();
+
     if (selectedGroup != null) {
       final groupsIds = selectedGroup.cardsNmIds;
 
@@ -137,6 +142,9 @@ class _AppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<AllCardsScreenViewModel>();
+    final filterIsEmpty = model.filterIsEmpty();
+
     return SliverAppBar(
       // AppBar ========================================================== AppBar
       pinned: false,

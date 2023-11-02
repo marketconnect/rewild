@@ -8,6 +8,7 @@ import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/api_clients/warehouse_api_client.dart';
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
 import 'package:rewild/data_providers/commission_data_provider/commission_data_provider.dart';
+import 'package:rewild/data_providers/filter_data_provider/filter_data_provider.dart';
 
 import 'package:rewild/data_providers/group_data_provider/group_data_provider.dart';
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
@@ -138,8 +139,12 @@ class _DIContainer {
   OrdersHistoryDataProvider _makeOrdersHistoryDataProvider() =>
       OrdersHistoryDataProvider();
 
+  // last update
   LastUpdateDayDataProvider _makeLastUpdateDayDataProvider() =>
       LastUpdateDayDataProvider();
+
+  // filter
+  FilterDataProvider _makeFilterDataProvider() => FilterDataProvider();
   // Services ==================================================================
 
   // auth
@@ -215,6 +220,7 @@ class _DIContainer {
   // filter
   AllCardsFilterService _makeAllCardsFilterService() => AllCardsFilterService(
         cardsOfProductsDataProvider: _makeCardOfProductDataProvider(),
+        filterDataProvider: _makeFilterDataProvider(),
         sellerDataProvider: _makeSellerDataProvider(),
       );
   // View models ===============================================================
@@ -230,6 +236,7 @@ class _DIContainer {
           updateService: _makeUpdateService(),
           supplyService: _makeSupplyService(),
           groupsProvider: _makeAllGroupsService(),
+          filterService: _makeAllCardsFilterService(),
           cardsOfProductsService: _makeCardOfProductService(),
           tokenProvider: _makeAuthService());
 

@@ -20,7 +20,7 @@ class FilterDb {
             sectionName TEXT,
             itemId INTEGER,
             itemName TEXT,
-            UNIQUE(sectionName, sectionId, name) ON CONFLICT REPLACE
+            UNIQUE(sectionName, itemId) ON CONFLICT REPLACE
           );
           ''',
     );

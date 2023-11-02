@@ -4,6 +4,7 @@ import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
+import 'package:rewild/domain/entities/filter_model.dart';
 
 import 'package:rewild/domain/entities/group_model.dart';
 
@@ -19,6 +20,11 @@ abstract class AllCardsScreenTokenProvider {
 abstract class AllCardsScreenCardOfProductService {
   Future<Resource<List<CardOfProductModel>>> getAll();
   Future<Resource<int>> delete(String token, List<int> nmIds);
+}
+
+abstract class AllCardsScreenFilterService {
+  Future<Resource<FilterModel>> getCurrentFilter();
+  Future<Resource<void>> deleteFilter();
 }
 
 abstract class AllCardsScreenGroupsService {
@@ -41,6 +47,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
   final AllCardsScreenCardOfProductService cardsOfProductsService;
   final AllCardsScreenUpdateService updateService;
   final AllCardsScreenGroupsService groupsProvider;
+  final AllCardsScreenFilterService filterService;
   // final AllCardsScreenStocksService stocksService;
   // final AllCardsScreenInitStockService initStockService;
   final AllCardsScreenSupplyService supplyService;
@@ -52,7 +59,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
       // required this.stocksService,
       required this.updateService,
       required this.groupsProvider,
-      // required this.initStockService,
+      required this.filterService,
       required this.supplyService,
       required this.cardsOfProductsService}) {
     asyncInit();
@@ -67,6 +74,11 @@ class AllCardsScreenViewModel extends ChangeNotifier {
             cardsNmIds: [],
             fontColor: const Color(0xFFFFFFFF).value));
 
+    _filter = await _fetch(() => filterService.getCurrentFilter());
+    if (_filter == null) {
+      return;
+    }
+
     await _update(false);
     _loading = false;
 
@@ -74,22 +86,34 @@ class AllCardsScreenViewModel extends ChangeNotifier {
     await p();
   }
 
-  bool _loading = true;
-  bool get loading => _loading;
-  bool _mounted = true;
+  // filter
+  FilterModel? _filter;
+  FilterModel? get filter => _filter;
 
-  Future<void> setMounted(bool mounted) async {
-    _mounted = mounted;
-    if (!_mounted) {
-      return;
+  bool filterIsEmpty() {
+    if (_filter == null) {
+      return true;
     }
+
+    if (_filter!.subjects != null && _filter!.subjects!.isNotEmpty ||
+        _filter!.brands != null && _filter!.brands!.isNotEmpty ||
+        _filter!.suppliers != null && _filter!.suppliers!.isNotEmpty ||
+        _filter!.promos != null && _filter!.promos!.isNotEmpty) {
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> resetFilter() async {
+    await _fetch(() => filterService.deleteFilter());
     await _update();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _mounted = false;
+  bool _loading = true;
+  bool get loading => _loading;
+
+  Future<void> setMounted(bool mounted) async {
+    if (context.mounted) await _update();
   }
 
   List<CardOfProductModel> _productCards = [];
@@ -125,7 +149,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
   }
 
   Future<void> _update([bool notify = true]) async {
-    if (!_mounted) {
+    if (!context.mounted) {
       return;
     }
 
@@ -196,7 +220,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
     const timeDuration = TimeConstants.updatePeriod;
 
     Timer.periodic(timeDuration, (Timer t) async {
-      if (!_mounted) {
+      if (!context.mounted) {
         return;
       }
 
@@ -280,6 +304,44 @@ class AllCardsScreenViewModel extends ChangeNotifier {
       _selectedGroup = _groups[index];
     }
     notifyListeners();
+  }
+
+  bool filterCard(CardOfProductModel card) {
+    print("FILTER");
+    if (_filter == null) {
+      return true;
+    }
+
+    // check subject
+    if (_filter!.subjects != null && _filter!.subjects!.isNotEmpty) {
+      final found = _filter!.subjects!.keys.contains(card.subjectId);
+      print('${_filter!.subjects!.keys} -- ${card.subjectId}');
+      if (!found) {
+        return false;
+      }
+    }
+    // check supplier
+    if (_filter!.suppliers != null && _filter!.suppliers!.isNotEmpty) {
+      final found = _filter!.suppliers!.keys.contains(card.supplierId);
+      if (!found) {
+        return false;
+      }
+    }
+    // check brand
+    if (_filter!.brands != null && _filter!.brands!.isNotEmpty) {
+      final found = _filter!.brands!.values.contains(card.brand);
+      if (!found) {
+        return false;
+      }
+    }
+    // check promo
+    if (_filter!.promos != null && _filter!.promos!.isNotEmpty) {
+      final found = _filter!.promos!.values.contains(card.promoTextCard);
+      if (!found) {
+        return false;
+      }
+    }
+    return true;
   }
 
   Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {

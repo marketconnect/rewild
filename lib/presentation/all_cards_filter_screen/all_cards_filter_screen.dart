@@ -11,6 +11,7 @@ class AllCardsFilterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<AllCardsFilterScreenViewModel>();
     final clear = model.clear;
+    final save = model.save;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -42,7 +43,7 @@ class AllCardsFilterScreen extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () => print("aaa"),
+                onPressed: () => save(),
                 child: Text(
                   "Сохранить",
                   style: TextStyle(
@@ -100,7 +101,7 @@ class _Body extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 5),
             child: Text(
-              "Фильтр(${counter})",
+              "Фильтр($counter)",
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           )

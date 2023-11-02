@@ -8,6 +8,7 @@ import 'package:rewild/domain/entities/seller_model.dart';
 abstract class AllCardsFilterAllCardsFilterService {
   Future<Resource<FilterModel>> getCompletlyFilledFilter();
   Future<Resource<void>> setFilter(FilterModel filter);
+  Future<Resource<FilterModel>> getCurrentFilter();
 }
 
 // Commission
@@ -94,6 +95,15 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
     }
 
     _completlyFilledfilter = filter;
+
+    final savedFilter =
+        await _fetch(() => allCardsFilterService.getCurrentFilter());
+
+    if (savedFilter == null) {
+      return;
+    }
+
+    setFilter(savedFilter);
 
     notifyListeners();
   }
@@ -242,6 +252,11 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
     prevPromos.remove(promo);
     FilterModel newFilter = outputfilter!.copyWith(promos: prevPromos);
     setFilter(newFilter);
+  }
+
+  Future<void> save() async {
+    await _fetch(() => allCardsFilterService.setFilter(outputfilter!));
+    if (context.mounted) Navigator.of(context).pop();
   }
 
   // Define a method for fetch data and handling errors
