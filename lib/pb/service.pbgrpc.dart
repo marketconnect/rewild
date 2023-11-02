@@ -280,3 +280,50 @@ abstract class CommissionServiceBase extends $grpc.Service {
   $async.Future<$0.GetCommissionResp> getCommission(
       $grpc.ServiceCall call, $0.GetCommissionReq request);
 }
+
+@$pb.GrpcServiceName('main.OrderService')
+class OrderServiceClient extends $grpc.Client {
+  static final _$getOrdersFromTo =
+      $grpc.ClientMethod<$0.GetOrdersFromToReq, $0.GetOrdersFromToResp>(
+          '/main.OrderService/GetOrdersFromTo',
+          ($0.GetOrdersFromToReq value) => value.writeToBuffer(),
+          ($core.List<$core.int> value) =>
+              $0.GetOrdersFromToResp.fromBuffer(value));
+
+  OrderServiceClient($grpc.ClientChannel channel,
+      {$grpc.CallOptions? options,
+      $core.Iterable<$grpc.ClientInterceptor>? interceptors})
+      : super(channel, options: options, interceptors: interceptors);
+
+  $grpc.ResponseFuture<$0.GetOrdersFromToResp> getOrdersFromTo(
+      $0.GetOrdersFromToReq request,
+      {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getOrdersFromTo, request, options: options);
+  }
+}
+
+@$pb.GrpcServiceName('main.OrderService')
+abstract class OrderServiceBase extends $grpc.Service {
+  $core.String get $name => 'main.OrderService';
+
+  OrderServiceBase() {
+    $addMethod(
+        $grpc.ServiceMethod<$0.GetOrdersFromToReq, $0.GetOrdersFromToResp>(
+            'GetOrdersFromTo',
+            getOrdersFromTo_Pre,
+            false,
+            false,
+            ($core.List<$core.int> value) =>
+                $0.GetOrdersFromToReq.fromBuffer(value),
+            ($0.GetOrdersFromToResp value) => value.writeToBuffer()));
+  }
+
+  $async.Future<$0.GetOrdersFromToResp> getOrdersFromTo_Pre(
+      $grpc.ServiceCall call,
+      $async.Future<$0.GetOrdersFromToReq> request) async {
+    return getOrdersFromTo(call, await request);
+  }
+
+  $async.Future<$0.GetOrdersFromToResp> getOrdersFromTo(
+      $grpc.ServiceCall call, $0.GetOrdersFromToReq request);
+}

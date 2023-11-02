@@ -307,7 +307,6 @@ class AllCardsScreenViewModel extends ChangeNotifier {
   }
 
   bool filterCard(CardOfProductModel card) {
-    print("FILTER");
     if (_filter == null) {
       return true;
     }
@@ -315,7 +314,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
     // check subject
     if (_filter!.subjects != null && _filter!.subjects!.isNotEmpty) {
       final found = _filter!.subjects!.keys.contains(card.subjectId);
-      print('${_filter!.subjects!.keys} -- ${card.subjectId}');
+
       if (!found) {
         return false;
       }

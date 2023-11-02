@@ -52,8 +52,8 @@ class BottomNavigationScreenCardsWidget extends StatelessWidget {
               _Link(
                   text: 'Продавцы',
                   color: Color(0xFF6f42c1),
-                  // route: MainNavigationRouteNames.userInfoScreen,
-                  route: '',
+                  route: MainNavigationRouteNames.allSellersScreen,
+                  // route: '',
                   iconData: Icons.man),
               // _Link(
               //   text: 'Поставки',

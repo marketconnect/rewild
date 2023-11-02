@@ -33,7 +33,7 @@ class App extends StatelessWidget {
           colorScheme: darkColorScheme,
           fontFamily: 'Poppins'),
       debugShowCheckedModeBanner: false,
-      title: 'Marketconnect',
+      title: 'ReWild',
       routes: navigation.routes,
       initialRoute: MainNavigationRouteNames.splashScreen,
       onGenerateRoute: navigation.onGenerateRoute,

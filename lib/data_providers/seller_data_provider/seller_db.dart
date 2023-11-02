@@ -10,21 +10,6 @@ class SellerDb extends SellerModel {
       super.trademark,
       super.legalAddress});
 
-  // final int supplierId;
-  // final String name;
-  // String? fineName;
-  // String? ogrn;
-  // String? trademark;
-  // String? legalAddress;
-
-  // SellerDb(
-  //     {required this.supplierId,
-  //     required this.name,
-  //     this.fineName,
-  //     this.ogrn,
-  //     this.trademark,
-  //     this.legalAddress});
-
   static Future<void> createTable(Database db) async {
     await db.execute('''
           CREATE TABLE IF NOT EXISTS sellers (
@@ -37,11 +22,4 @@ class SellerDb extends SellerModel {
           );
           ''');
   }
-
-  // static Future<void> printTableContent(Database db) async {
-  //   final List<Map<String, dynamic>> rows = await db.query('sellers');
-  //   for (final row in rows) {
-  //     print(row);
-  //   }
-  // }
 }

@@ -22,3 +22,11 @@ DateTime yesterdayEndOfTheDay() {
 Future<void> justWait({required int numberOfSeconds}) async {
   await Future.delayed(Duration(seconds: numberOfSeconds));
 }
+
+DateTime getStartOfDay(DateTime dateTime) {
+  return DateTime(dateTime.year, dateTime.month, dateTime.day);
+}
+
+DateTime getEndOfDay(DateTime dateTime) {
+  return DateTime(dateTime.year, dateTime.month, dateTime.day, 23, 59, 59, 999);
+}

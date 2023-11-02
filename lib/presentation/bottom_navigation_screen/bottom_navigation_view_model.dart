@@ -7,6 +7,7 @@ abstract class BottomNavigationCardService {
 
 class BottomNavigationViewModel extends ChangeNotifier {
   final BottomNavigationCardService cardService;
+
   final BuildContext context;
 
   BottomNavigationViewModel(

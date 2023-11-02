@@ -210,3 +210,44 @@ final $typed_data.Uint8List getCommissionRespDescriptor = $convert.base64Decode(
     'NhdGVnb3J5GAIgASgJUghjYXRlZ29yeRIYCgdzdWJqZWN0GAMgASgJUgdzdWJqZWN0EhAKA2Zi'
     'cxgEIAEoBVIDZmJzEhAKA2ZibxgFIAEoBVIDZmJv');
 
+@$core.Deprecated('Use getOrdersFromToReqDescriptor instead')
+const GetOrdersFromToReq$json = {
+  '1': 'GetOrdersFromToReq',
+  '2': [
+    {'1': 'from', '3': 1, '4': 1, '5': 3, '10': 'from'},
+    {'1': 'to', '3': 2, '4': 1, '5': 3, '10': 'to'},
+    {'1': 'skus', '3': 3, '4': 3, '5': 4, '10': 'skus'},
+  ],
+};
+
+/// Descriptor for `GetOrdersFromToReq`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getOrdersFromToReqDescriptor = $convert.base64Decode(
+    'ChJHZXRPcmRlcnNGcm9tVG9SZXESEgoEZnJvbRgBIAEoA1IEZnJvbRIOCgJ0bxgCIAEoA1ICdG'
+    '8SEgoEc2t1cxgDIAMoBFIEc2t1cw==');
+
+@$core.Deprecated('Use orderDescriptor instead')
+const Order$json = {
+  '1': 'Order',
+  '2': [
+    {'1': 'sku', '3': 1, '4': 1, '5': 4, '10': 'sku'},
+    {'1': 'qty', '3': 2, '4': 1, '5': 4, '10': 'qty'},
+  ],
+};
+
+/// Descriptor for `Order`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List orderDescriptor = $convert.base64Decode(
+    'CgVPcmRlchIQCgNza3UYASABKARSA3NrdRIQCgNxdHkYAiABKARSA3F0eQ==');
+
+@$core.Deprecated('Use getOrdersFromToRespDescriptor instead')
+const GetOrdersFromToResp$json = {
+  '1': 'GetOrdersFromToResp',
+  '2': [
+    {'1': 'orders', '3': 1, '4': 3, '5': 11, '6': '.main.Order', '10': 'orders'},
+  ],
+};
+
+/// Descriptor for `GetOrdersFromToResp`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getOrdersFromToRespDescriptor = $convert.base64Decode(
+    'ChNHZXRPcmRlcnNGcm9tVG9SZXNwEiMKBm9yZGVycxgBIAMoCzILLm1haW4uT3JkZXJSBm9yZG'
+    'Vycw==');
+

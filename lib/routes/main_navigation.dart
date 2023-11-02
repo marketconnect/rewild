@@ -6,10 +6,11 @@ import 'main_navigation_route_names.dart';
 abstract class ScreenFactory {
   Widget makeSplashScreen();
   Widget makeBottomNavigationScreen(int num);
+  Widget makeMyWebViewScreen();
   Widget makeAllCardsScreen();
   Widget makeAllCardsFilterScreen();
-  Widget makeMyWebViewScreen();
   Widget makeAllGroupsScreen();
+  Widget makeAllSellersScreen();
   Widget makeSingleGroupScreen(String name);
   Widget makeSingleCardScreen(int id);
   Widget makeAddGroupsScreen(List<int> cardsIds);
@@ -73,6 +74,11 @@ class MainNavigation implements AppNavigation {
       case MainNavigationRouteNames.allGroupsScreen:
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllGroupsScreen(),
+        );
+
+      case MainNavigationRouteNames.allSellersScreen:
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeAllSellersScreen(),
         );
 
       case MainNavigationRouteNames.allCardsFilterScreen:

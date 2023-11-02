@@ -8,4 +8,5 @@ abstract class MainNavigationRouteNames {
   static const String addGroupsScreen = '/add_groups_screen';
   static const String singleGroupScreen = '/single_group_screen';
   static const String allGroupsScreen = '/all_groups_screen';
+  static const String allSellersScreen = '/all_sellers_screen';
 }

@@ -39,8 +39,10 @@ class ProductCardWidget extends StatelessWidget {
     return Card(
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(3))),
-        color: isSelected ? const Color(0xFFfaecfd) : Colors.white,
-        surfaceTintColor: Colors.white,
+        color: isSelected
+            ? Theme.of(context).colorScheme.surfaceVariant
+            : Theme.of(context).colorScheme.surface,
+        surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

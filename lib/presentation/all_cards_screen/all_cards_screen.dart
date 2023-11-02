@@ -142,9 +142,6 @@ class _AppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AllCardsScreenViewModel>();
-    final filterIsEmpty = model.filterIsEmpty();
-
     return SliverAppBar(
       // AppBar ========================================================== AppBar
       pinned: false,

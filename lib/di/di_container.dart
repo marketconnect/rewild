@@ -1,6 +1,7 @@
 import 'package:rewild/api_clients/auth_service_api_client.dart';
 import 'package:rewild/api_clients/commision_api_client.dart';
 import 'package:rewild/api_clients/details_api_client.dart';
+
 import 'package:rewild/api_clients/orders_history_api_client.dart';
 import 'package:rewild/api_clients/product_card_service_api_client.dart';
 import 'package:rewild/api_clients/seller_api_client.dart';
@@ -26,6 +27,7 @@ import 'package:rewild/domain/services/commission_service.dart';
 import 'package:rewild/domain/services/group_service.dart';
 import 'package:rewild/domain/services/init_stock_service.dart';
 import 'package:rewild/domain/services/orders_history_service.dart';
+
 import 'package:rewild/domain/services/seller_service.dart';
 import 'package:rewild/domain/services/stock_service.dart';
 import 'package:rewild/domain/services/supply_service.dart';
@@ -41,6 +43,8 @@ import 'package:rewild/presentation/all_cards_screen/all_cards_screen.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_screen.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_view_model.dart';
+import 'package:rewild/presentation/all_sellers_screen/all_sellers_screen.dart';
+import 'package:rewild/presentation/all_sellers_screen/all_sellers_view_model.dart';
 import 'package:rewild/presentation/app/app.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_screen.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
@@ -102,6 +106,8 @@ class _DIContainer {
   OrdersHistoryApiClient _makeOrdersHistoryApiClient() =>
       const OrdersHistoryApiClient();
 
+  // orders
+  // OrdersApiClient _makeOrdersApiClient() => const OrdersApiClient();
   // Data providers ============================================================
 
   // secure storage
@@ -145,6 +151,7 @@ class _DIContainer {
 
   // filter
   FilterDataProvider _makeFilterDataProvider() => FilterDataProvider();
+
   // Services ==================================================================
 
   // auth
@@ -223,6 +230,10 @@ class _DIContainer {
         filterDataProvider: _makeFilterDataProvider(),
         sellerDataProvider: _makeSellerDataProvider(),
       );
+
+  // OrderService _makeOrderService() => OrderService(
+  //       orderApiClient: _makeOrdersApiClient(),
+  //     );
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
       SplashScreenViewModel(
@@ -292,6 +303,13 @@ class _DIContainer {
           commissionService: _makeCommissionService(),
           sellerService: _makeSellerService(),
           context: context);
+
+  AllSellersScreenViewModel _makeAllSellersScreenViewModel(
+          BuildContext context) =>
+      AllSellersScreenViewModel(
+          context: context,
+          cardsService: _makeCardOfProductService(),
+          sellersService: _makeSellerService());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -360,6 +378,14 @@ class ScreenFactoryDefault implements ScreenFactory {
     return ChangeNotifierProvider(
       create: (context) => _diContainer._makeAllGroupsScreenViewModel(context),
       child: const AllGroupsScreen(),
+    );
+  }
+
+  @override
+  Widget makeAllSellersScreen() {
+    return ChangeNotifierProvider(
+      create: (context) => _diContainer._makeAllSellersScreenViewModel(context),
+      child: const AllSellersScreen(),
     );
   }
 
