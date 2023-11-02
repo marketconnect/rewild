@@ -340,7 +340,7 @@ class SingleCardScreenViewModel extends ChangeNotifier {
     // is high buyout
     _isHighBuyout = ordersHistory.highBuyout;
 
-    notifyListeners();
+    if (context.mounted) notifyListeners();
   }
 
   // Define a method for fetch data and handling errors

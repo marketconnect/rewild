@@ -3,6 +3,7 @@ import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/commission_model.dart';
 import 'package:rewild/domain/entities/filter_model.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
+import 'package:rewild/routes/main_navigation_route_names.dart';
 
 // filter
 abstract class AllCardsFilterAllCardsFilterService {
@@ -256,7 +257,11 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
 
   Future<void> save() async {
     await _fetch(() => allCardsFilterService.setFilter(outputfilter!));
-    if (context.mounted) Navigator.of(context).pop();
+    if (context.mounted) {
+      Navigator.of(context).pushReplacementNamed(
+        MainNavigationRouteNames.allCardsScreen,
+      );
+    }
   }
 
   // Define a method for fetch data and handling errors

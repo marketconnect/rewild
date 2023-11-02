@@ -45,7 +45,7 @@ class AllCardsFilterScreen extends StatelessWidget {
               TextButton(
                 onPressed: () => save(),
                 child: Text(
-                  "Сохранить",
+                  "Ok",
                   style: TextStyle(
                       fontSize: MediaQuery.of(context).size.width * 0.04,
                       fontWeight: FontWeight.bold,

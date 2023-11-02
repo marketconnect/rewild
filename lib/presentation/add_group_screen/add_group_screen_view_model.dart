@@ -81,9 +81,10 @@ class AddGroupScreenViewModel extends ChangeNotifier {
       await groupsProvider.add(groupsToAdd, productsCardsIds);
     }
 
-    // ignore: use_build_context_synchronously
-    Navigator.of(context).pushReplacementNamed(
-      MainNavigationRouteNames.allCardsScreen,
-    );
+    if (context.mounted) {
+      Navigator.of(context).pushReplacementNamed(
+        MainNavigationRouteNames.allCardsScreen,
+      );
+    }
   }
 }

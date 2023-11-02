@@ -43,7 +43,9 @@ class AllSellersScreenViewModel extends ChangeNotifier {
       if (supId == null) {
         continue;
       }
-      if (_sellers.where((element) => element.supplierId == supId).isNotEmpty) {
+      if (fetchedSellers
+          .where((element) => element.supplierId == supId)
+          .isNotEmpty) {
         continue;
       }
 

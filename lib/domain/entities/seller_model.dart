@@ -35,11 +35,12 @@ class SellerModel {
   }
 
   factory SellerModel.fromJson(Map<String, dynamic> json) {
+    final ogrn = json['ogrn'] ?? json['ogrnip'] ?? "";
     return SellerModel(
       supplierId: json['id'] as int,
       name: json['name'] as String,
       fineName: json['fineName'] ?? "",
-      ogrn: json['ogrn'] ?? "",
+      ogrn: ogrn,
       trademark: json['trademark'] ?? "",
       legalAddress: json['legalAddress'] ?? "",
     );
