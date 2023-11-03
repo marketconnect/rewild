@@ -60,7 +60,7 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
         promoLength.length +
         subjectsLength.length +
         suppliersLength.length;
-    notifyListeners();
+    notify();
   }
 
   void _asyncInit() async {
@@ -106,7 +106,13 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
 
     setFilter(savedFilter);
 
-    notifyListeners();
+    notify();
+  }
+
+  void notify() {
+    if (context.mounted) {
+      notifyListeners();
+    }
   }
 
   void clear() {

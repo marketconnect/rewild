@@ -60,6 +60,7 @@ abstract class CardOfProductServiceCardOfProductDataProvider {
   Future<Resource<List<CardOfProductModel>>> getAll([List<int>? nmIds]);
   Future<Resource<CardOfProductModel>> get(int id);
   Future<Resource<int>> delete(int id);
+  Future<Resource<List<CardOfProductModel>>> getAllBySupplierId(int sellerId);
 }
 
 class CardOfProductService
@@ -127,6 +128,7 @@ class CardOfProductService
 
     // append stocks and init stocks to cards
     for (final card in allCards) {
+      print(card.createdAt);
       // append stocks
       final cardStocks =
           stocks.where((stock) => stock.nmId == card.nmId).toList();
@@ -178,5 +180,10 @@ class CardOfProductService
     }
 
     return Resource.success(ids.length);
+  }
+
+  Future<Resource<List<CardOfProductModel>>> getForSeller(
+      int supplierId) async {
+    return await cardOfProductDataProvider.getAllBySupplierId(supplierId);
   }
 }

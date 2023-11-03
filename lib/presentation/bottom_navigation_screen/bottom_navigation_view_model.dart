@@ -28,6 +28,8 @@ class BottomNavigationViewModel extends ChangeNotifier {
       return;
     }
     _cardsNum = cardsResource.data!;
-    notifyListeners();
+    if (context.mounted) {
+      notifyListeners();
+    }
   }
 }

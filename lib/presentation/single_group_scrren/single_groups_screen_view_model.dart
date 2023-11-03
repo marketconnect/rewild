@@ -29,7 +29,7 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
   bool _isExpanded = false;
   void changeIsExpanded() {
     _isExpanded = !_isExpanded;
-    notifyListeners();
+    notify();
   }
 
   bool get isExpanded => _isExpanded;
@@ -50,7 +50,13 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
       return;
     }
 
-    notifyListeners();
+    notify();
+  }
+
+  void notify() {
+    if (context.mounted) {
+      notifyListeners();
+    }
   }
 
   Future<void> _update() async {
@@ -196,7 +202,7 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
       return;
     }
     await _update();
-    notifyListeners();
+    notify();
   }
 
   // Define a method for fetch data and handling errors

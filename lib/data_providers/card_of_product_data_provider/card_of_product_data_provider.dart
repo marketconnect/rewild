@@ -48,9 +48,10 @@ class CardOfProductDataProvider
         rating,
         reviewRating,
         feedbacks,
-        promoTextCard
+        promoTextCard,
+        createdAt
       ) VALUES(
-        ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+        ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
       )''', [
         card.nmId,
         card.name,
@@ -66,7 +67,8 @@ class CardOfProductDataProvider
         card.rating,
         card.reviewRating,
         card.feedbacks,
-        card.promoTextCard
+        card.promoTextCard,
+        DateTime.now().millisecondsSinceEpoch
       ]);
       return Resource.success(id);
     } catch (e) {
@@ -113,7 +115,6 @@ class CardOfProductDataProvider
   UPDATE cards
   SET
     name = ?,
-    img = ?,
     sellerId = ?,
     tradeMark = ?,
     subjectId = ?,
@@ -131,7 +132,6 @@ class CardOfProductDataProvider
   ''',
         [
           card.name,
-          card.img,
           card.sellerId,
           card.tradeMark,
           card.subjectId,
@@ -180,6 +180,28 @@ class CardOfProductDataProvider
       );
       return Resource.success(
           cards.map((e) => CardOfProductModel.fromMap(e)).toList());
+    } catch (e) {
+      return Resource.error(
+        'Не удалось получить карточки из памяти телефона: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<Resource<List<CardOfProductModel>>> getAllBySupplierId(
+      int sellerId) async {
+    try {
+      final db = await SqfliteService().database;
+      final cards = await db.rawQuery(
+        '''
+          SELECT * FROM cards
+          WHERE sellerId = ?
+        ''',
+        [sellerId],
+      );
+      return Resource.success(
+        cards.map((e) => CardOfProductModel.fromMap(e)).toList(),
+      );
     } catch (e) {
       return Resource.error(
         'Не удалось получить карточки из памяти телефона: ${e.toString()}',

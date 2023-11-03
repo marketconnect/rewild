@@ -318,13 +318,13 @@ class UpdateService
 
     for (final card in fetchedCardsOfProducts) {
       // get already saved card
-      final oldCard = allSavedCardsOfProducts.firstWhere(
-        (e) => e.nmId == card.nmId,
-      );
+      // final oldCard = allSavedCardsOfProducts.firstWhere(
+      //   (e) => e.nmId == card.nmId,
+      // );
 
       // insert img link
-      final img = oldCard.img;
-      card.img = img;
+      // final img = oldCard.img;
+      // card.img = img;
 
       // add the card to db
       final insertResource =

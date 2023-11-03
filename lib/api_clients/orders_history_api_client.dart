@@ -10,7 +10,7 @@ class OrdersHistoryApiClient
   const OrdersHistoryApiClient();
 
   @override
-  Future<Resource<OrdersHistoryModel>> fecth(int nmId) async {
+  Future<Resource<OrdersHistoryModel>> fetch(int nmId) async {
     try {
       var uri = Uri.parse(
           'https://product-order-qnt.wildberries.ru/v2/by-nm/?nm=$nmId');

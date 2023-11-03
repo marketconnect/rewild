@@ -11,7 +11,6 @@ class SellerDataProvider
   @override
   Future<Resource<int>> insert(SellerModel seller) async {
     try {
-      print("insert ${seller.name} --- ${seller.ogrn}");
       final db = await SqfliteService().database;
       final id = await db.rawInsert('''
   INSERT INTO sellers(

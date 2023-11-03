@@ -25,7 +25,9 @@ class AllGroupsScreenViewModel extends ChangeNotifier {
       ));
     }
     _groups = groupsResource.data!;
-    notifyListeners();
+    if (context.mounted) {
+      notifyListeners();
+    }
   }
 
   List<GroupModel> _groups = [];

@@ -35,7 +35,7 @@ class AddGroupScreenViewModel extends ChangeNotifier {
     }
 
     _groups = groupsResource.data!;
-    notifyListeners();
+    notify();
   }
 
   List<GroupModel> _groups = [];
@@ -60,7 +60,7 @@ class AddGroupScreenViewModel extends ChangeNotifier {
     // await groupsProvider.addGroup(newGroup);
     FocusScope.of(context).requestFocus(FocusNode());
     Navigator.of(context).pop();
-    notifyListeners();
+    notify();
   }
 
   final List<String> _selectedGroupsNames = [];
@@ -70,7 +70,13 @@ class AddGroupScreenViewModel extends ChangeNotifier {
     _selectedGroupsNames.contains(name)
         ? _selectedGroupsNames.remove(name)
         : _selectedGroupsNames.add(name);
-    notifyListeners();
+    notify();
+  }
+
+  void notify() {
+    if (context.mounted) {
+      notifyListeners();
+    }
   }
 
   void save() async {

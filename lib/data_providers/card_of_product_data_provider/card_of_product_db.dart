@@ -37,7 +37,8 @@ class CardOfProductDb extends CardOfProductModel {
         rating INTEGER,
         reviewRating REAL,
         feedbacks INTEGER,
-        promoTextCard TEXT
+        promoTextCard TEXT,
+        createdAt INTEGER
       )
       ''',
     );

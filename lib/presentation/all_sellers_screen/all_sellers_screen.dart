@@ -1,10 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/image_constant.dart';
-import 'package:rewild/core/utils/strings.dart';
-import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/presentation/all_sellers_screen/all_sellers_view_model.dart';
-
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/custom_image_view.dart';
 import 'package:flutter/material.dart';
@@ -111,7 +108,7 @@ class _TopRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
+      padding: const EdgeInsets.only(
         left: 8.0,
       ),
       child: Column(
@@ -200,7 +197,7 @@ class _BottomRow extends StatelessWidget {
                 bottom: MediaQuery.of(context).size.height * 0.005,
               ),
               child: Text(
-                "Подробнее",
+                "Данные",
                 style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,

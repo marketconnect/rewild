@@ -56,7 +56,13 @@ class AllSellersScreenViewModel extends ChangeNotifier {
       fetchedSellers.add(seller);
     }
     setSellers(fetchedSellers);
-    notifyListeners();
+    notify();
+  }
+
+  void notify() {
+    if (context.mounted) {
+      notifyListeners();
+    }
   }
 
   Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {
@@ -65,7 +71,7 @@ class AllSellersScreenViewModel extends ChangeNotifier {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(resource.message!),
       ));
-      notifyListeners();
+      notify();
       return null;
     }
     return resource.data;

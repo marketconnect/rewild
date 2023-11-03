@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
+import 'package:rewild/domain/entities/price_history_model.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/domain/entities/size_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
@@ -37,9 +38,13 @@ class CardOfProductModel {
 
   String? promoTextCard;
 
+  int? createdAt;
+
   final List<SizeModel> sizes;
 
   final List<InitialStockModel> initialStocks;
+
+  final List<PriceHistoryModel> priceHistory;
 
   List<InitialStockModel> initialStocksList(
       DateTime dateFrom, DateTime dateTo) {
@@ -74,10 +79,12 @@ class CardOfProductModel {
     this.rating = 0,
     this.reviewRating = 0,
     this.feedbacks = 0,
+    this.createdAt = 0,
     this.promoTextCard = "",
     this.sizes = const [],
     this.initialStocks = const [],
     this.groups = const [],
+    this.priceHistory = const [],
     this.seller,
   });
 
@@ -96,9 +103,11 @@ class CardOfProductModel {
     int? rating,
     double? reviewRating,
     int? feedbacks,
+    int? createdAt,
     String? promoTextCard,
     List<SizeModel>? sizes,
     List<InitialStockModel>? initialStocks,
+    List<PriceHistoryModel>? priceHistory,
   }) {
     return CardOfProductModel(
       nmId: nmId ?? this.nmId,
@@ -117,7 +126,9 @@ class CardOfProductModel {
       feedbacks: feedbacks ?? this.feedbacks,
       promoTextCard: promoTextCard ?? this.promoTextCard,
       sizes: sizes ?? this.sizes,
+      createdAt: createdAt ?? this.createdAt,
       initialStocks: initialStocks ?? this.initialStocks,
+      priceHistory: priceHistory ?? this.priceHistory,
       groups: groups,
       seller: seller,
     );
@@ -199,6 +210,7 @@ class CardOfProductModel {
       'subjectParentId': subjectParentId,
       'brand': brand,
       'supplierId': supplierId,
+      'createdAt': createdAt,
       'basicPriceU': basicPriceU,
       'pics': pics,
       'rating': rating,
@@ -216,6 +228,7 @@ class CardOfProductModel {
       sellerId: map['sellerId'] != null ? map['sellerId'] as int : null,
       tradeMark: map['tradeMark'] != null ? map['tradeMark'] as String : null,
       subjectId: map['subjectId'] != null ? map['subjectId'] as int : null,
+      createdAt: map['createdAt'] != null ? map['createdAt'] as int : null,
       subjectParentId:
           map['subjectParentId'] != null ? map['subjectParentId'] as int : null,
       brand: map['brand'] != null ? map['brand'] as String : null,
