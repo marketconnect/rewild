@@ -5,7 +5,7 @@ import 'package:rewild/presentation/my_web_view/my_web_view_screen_view_model.da
 import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart';
 
 abstract class AuthServiceSecureDataProvider {
-  Future<Resource<void>> update(
+  Future<Resource<void>> updateUsername(
       {String? username, String? token, String? expiredAt, bool? freebie});
   Future<Resource<String>> getToken();
   Future<Resource<String>> getUsername();
@@ -136,7 +136,7 @@ class AuthServiceImpl
     final token = authData.token;
     final freebie = authData.freebie;
     final expiredAt = authData.expiredAt;
-    final saveResource = await secureDataProvider.update(
+    final saveResource = await secureDataProvider.updateUsername(
       token: token,
       expiredAt: expiredAt.toString(),
       freebie: freebie,

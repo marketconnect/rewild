@@ -189,16 +189,17 @@ class CardOfProductDataProvider
 
   @override
   Future<Resource<List<CardOfProductModel>>> getAllBySupplierId(
-      int sellerId) async {
+      int supplierId) async {
     try {
       final db = await SqfliteService().database;
       final cards = await db.rawQuery(
         '''
           SELECT * FROM cards
-          WHERE sellerId = ?
+          WHERE supplierId = ?
         ''',
-        [sellerId],
+        [supplierId],
       );
+
       return Resource.success(
         cards.map((e) => CardOfProductModel.fromMap(e)).toList(),
       );

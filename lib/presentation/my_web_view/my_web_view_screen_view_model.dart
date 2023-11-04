@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
-import 'package:flutter/material.dart';
 
 abstract class MyWebViewScreenViewModelUpdateService {
   Future<Resource<int>> insert(String token, List<CardOfProductModel> cards);
@@ -13,9 +13,11 @@ abstract class MyWebViewScreenViewModelTokenProvider {
   Future<Resource<String>> getToken();
 }
 
-class MyWebViewScreenViewModel extends ChangeNotifier {
+class MyWebViewScreenViewModel extends ResourceChangeNotifier {
   MyWebViewScreenViewModel(
-      {required this.updateService, required this.tokenProvider});
+      {required this.updateService,
+      required this.tokenProvider,
+      required super.context});
   final MyWebViewScreenViewModelUpdateService updateService;
   final MyWebViewScreenViewModelTokenProvider tokenProvider;
   bool isLoading = false;
@@ -24,17 +26,17 @@ class MyWebViewScreenViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   set errorMessage(String? errorMessage) {
     _errorMessage = errorMessage;
-    notifyListeners();
+    notify();
   }
 
   Future<int> saveSiblingCards(String jsonString) async {
     isLoading = true;
-    notifyListeners();
+    notify();
     final cardsListResource = _parseCards(jsonString);
     if (cardsListResource is Error) {
       errorMessage = cardsListResource.message;
       isLoading = false;
-      notifyListeners();
+      notify();
       return 0;
     }
 
@@ -46,7 +48,7 @@ class MyWebViewScreenViewModel extends ChangeNotifier {
       errorMessage = tokenResource.message;
 
       isLoading = false;
-      notifyListeners();
+      notify();
     }
 
     if (tokenResource is Success) {
@@ -54,7 +56,7 @@ class MyWebViewScreenViewModel extends ChangeNotifier {
       final resource = await updateService.insert(token, cardsList);
       if (resource is Success) {
         isLoading = false;
-        notifyListeners();
+        notify();
         return resource.data!;
       }
     }

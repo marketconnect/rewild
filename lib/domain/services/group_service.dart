@@ -4,12 +4,12 @@ import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_view_model.dart';
-import 'package:rewild/presentation/single_group_scrren/single_groups_screen_view_model.dart';
+import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 
 abstract class GroupServiceGroupDataProvider {
   Future<Resource<GroupModel>> get(String name);
   Future<Resource<int>> insert(GroupModel group);
-  Future<Resource<List<GroupModel>>> getAll();
+  Future<Resource<List<GroupModel>>> getAll([List<int>? nmIds]);
   Future<Resource<void>> delete(String name, [int? nmId]);
 }
 
@@ -40,8 +40,8 @@ class GroupService
   }
 
   @override
-  Future<Resource<List<GroupModel>>> getAll() async {
-    final resource = await groupDataProvider.getAll();
+  Future<Resource<List<GroupModel>>> getAll([List<int>? nmIds]) async {
+    final resource = await groupDataProvider.getAll(nmIds);
 
     if (resource is Empty) {
       return Resource.success([]);

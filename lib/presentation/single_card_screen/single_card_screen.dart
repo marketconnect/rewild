@@ -4,6 +4,7 @@ import 'package:rewild/presentation/single_card_screen/single_card_screen_view_m
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rewild/widgets/progress_indicator.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -22,7 +23,7 @@ class SingleCardScreen extends StatelessWidget {
       appBar: AppBar(),
       body: isNull
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: MyProgressIndicator(),
             )
           : SizedBox(
               width: MediaQuery.of(context).size.width,
@@ -128,8 +129,11 @@ class _ExpansionTile extends StatelessWidget {
       final brand = model.brand;
       final tradeMark = model.tradeMark;
 
+      final region = model.region;
+
       widgetsContent.addAll([
         _InfoRowContent(header: "Продавец", text: sellerName),
+        _InfoRowContent(header: "Регион регистрации", text: region),
         _InfoRowContent(header: "Брэнд", text: brand),
         _InfoRowContent(header: "Торг. марка", text: tradeMark),
       ]);
@@ -154,8 +158,8 @@ class _ExpansionTile extends StatelessWidget {
         _InfoRowContent(header: "Предмет", text: subject)
       ]);
       if (commision != null) {
-        widgetsContent.add(
-            _InfoRowContent(header: "Комиссия WB", text: commision.toString()));
+        widgetsContent.add(_InfoRowContent(
+            header: "Комиссия WB", text: '${commision.toString()}%'));
       }
       if (ordersSum != null) {
         widgetsContent.add(_InfoRowContent(
@@ -249,9 +253,9 @@ class _ExpansionTile extends StatelessWidget {
                   ? '$sales шт.'
                   : sales == 0
                       ? '-'
-                      : sales < NumericConstants.supplyThreshold
-                          ? 'поставка $sales шт.'
-                          : 'возврат $sales шт.'),
+                      : sales < -NumericConstants.supplyThreshold
+                          ? 'поставка ${-sales} шт.'
+                          : 'возврат ${-sales} шт.'),
         );
       });
 
@@ -273,10 +277,12 @@ class _InfoRowContent {
   final Widget? child;
 
   _InfoRowContent({
-    required this.header,
+    required String header,
     required this.text,
     this.child,
-  });
+  }) : header = header.contains("склад продавца")
+            ? "${header.replaceFirst("склад продавца", "")} (скл. пр.)"
+            : header;
 }
 
 class _InfoRow extends StatelessWidget {
@@ -460,7 +466,7 @@ class _MainPicture extends StatelessWidget {
     final img = context.watch<SingleCardScreenViewModel>().img;
 
     if (img.isEmpty) {
-      return const CircularProgressIndicator();
+      return const MyProgressIndicator();
     }
     return SizedBox(
       child: CachedNetworkImage(

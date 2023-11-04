@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rewild/routes/main_navigation_route_names.dart';
 
 class BottomNavigationScreenHomeWidget extends StatefulWidget {
   const BottomNavigationScreenHomeWidget({super.key});
@@ -58,8 +59,7 @@ class _BottomNavigationScreenHomeWidgetState
               const _Link(
                 text: 'Добавить API токен',
                 color: Color(0xFF41434e),
-                // route: MainNavigationRouteNames.addApiTokenScreen,
-                route: '',
+                route: MainNavigationRouteNames.apiKeysScreen,
                 iconData: Icons.key,
               ),
               const _Link(

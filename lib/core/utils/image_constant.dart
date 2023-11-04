@@ -13,7 +13,7 @@ class ImageConstant {
 
   static String imgsplash = '$imagePath/undraw_the_search.svg';
 
-  static String imgNotFound = '$imagePath/img_not_found.svg';
+  static String imgNotFound = '$imagePath/img_not_found.png';
 
   static String imageNotFound = 'assets/images/image_not_found.png';
 }

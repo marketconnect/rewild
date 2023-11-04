@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
+import 'package:rewild/widgets/progress_indicator.dart';
 
 class AllCardsFilterScreen extends StatelessWidget {
   const AllCardsFilterScreen({super.key});
@@ -32,7 +33,7 @@ class AllCardsFilterScreen extends StatelessWidget {
               TextButton(
                 onPressed: () => clear(),
                 child: Text(
-                  "Сброс",
+                  "Очистить",
                   style: TextStyle(
                       fontSize: MediaQuery.of(context).size.width * 0.04,
                       fontWeight: FontWeight.bold,
@@ -45,10 +46,10 @@ class AllCardsFilterScreen extends StatelessWidget {
               TextButton(
                 onPressed: () => save(),
                 child: Text(
-                  "Ok",
+                  "Сохранить",
                   style: TextStyle(
                       fontSize: MediaQuery.of(context).size.width * 0.04,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: Theme.of(context).colorScheme.primary),
                 ),
               ),
@@ -91,7 +92,7 @@ class _Body extends StatelessWidget {
 
     final counter = model.counter;
     if (completlyFilledfilter == null) {
-      return Container();
+      return const MyProgressIndicator();
     }
     return SingleChildScrollView(
         child: Column(children: [

@@ -1,30 +1,26 @@
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/group_model.dart';
-import 'package:flutter/material.dart';
 
 abstract class AllGroupsScreenGroupsService {
   Future<Resource<List<GroupModel>>> getAll();
 }
 
-class AllGroupsScreenViewModel extends ChangeNotifier {
+class AllGroupsScreenViewModel extends ResourceChangeNotifier {
   final AllGroupsScreenGroupsService groupsProvider;
-  final BuildContext context;
 
   AllGroupsScreenViewModel(
-      {required this.groupsProvider, required this.context}) {
+      {required this.groupsProvider, required super.context}) {
     _asyncInit();
   }
 
   void _asyncInit() async {
-    final groupsResource = await groupsProvider.getAll();
-    if (groupsResource is Error) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(groupsResource.message!),
-      ));
+    final groups = await fetch(() => groupsProvider.getAll());
+    if (groups == null) {
+      return;
     }
-    _groups = groupsResource.data!;
+    _groups = groups;
     if (context.mounted) {
       notifyListeners();
     }

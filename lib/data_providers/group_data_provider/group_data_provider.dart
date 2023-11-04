@@ -100,11 +100,20 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
   }
 
   @override
-  Future<Resource<List<GroupModel>>> getAll() async {
+  Future<Resource<List<GroupModel>>> getAll([List<int>? nmIds]) async {
     try {
       List<GroupModel> resultGroups = [];
+      List<Map<String, Object?>> groups;
       final db = await SqfliteService().database;
-      final groups = await db.rawQuery('SELECT * FROM groups');
+      if (nmIds != null) {
+        groups = await db.rawQuery(
+          'SELECT * FROM groups WHERE nmId IN (${nmIds.map((e) => '?').join(',')})',
+        );
+      } else {
+        groups = await db.rawQuery('SELECT * FROM groups');
+      }
+      // final
+
       if (groups.isEmpty) {
         return Resource.empty();
       }

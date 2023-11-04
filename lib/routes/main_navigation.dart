@@ -7,13 +7,16 @@ abstract class ScreenFactory {
   Widget makeSplashScreen();
   Widget makeBottomNavigationScreen(int num);
   Widget makeMyWebViewScreen();
+  Widget makeApiKeysScreen();
   Widget makeAllCardsScreen();
   Widget makeAllCardsFilterScreen();
   Widget makeAllGroupsScreen();
-  Widget makeAllSellersScreen();
+  // Widget makeAllSellersScreen();
   Widget makeSingleGroupScreen(String name);
   Widget makeSingleCardScreen(int id);
+  // Widget makeSingleSellerScreen(int supplierId);
   Widget makeAddGroupsScreen(List<int> cardsIds);
+  Widget makeaAllAdvertsScreen();
 }
 
 class MainNavigation implements AppNavigation {
@@ -71,15 +74,31 @@ class MainNavigation implements AppNavigation {
           builder: (_) => screenFactory.makeSingleGroupScreen(groupName),
         );
 
+      case MainNavigationRouteNames.apiKeysScreen:
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeApiKeysScreen(),
+        );
+
+      // case MainNavigationRouteNames.singleSellerScreen:
+      //   final arguments = settings.arguments;
+      //   final supplierId = arguments is int ? arguments : 0;
+      //   return MaterialPageRoute(
+      //     builder: (_) => screenFactory.makeSingleSellerScreen(supplierId),
+      //   );
+
       case MainNavigationRouteNames.allGroupsScreen:
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllGroupsScreen(),
         );
 
-      case MainNavigationRouteNames.allSellersScreen:
+      case MainNavigationRouteNames.allAdvertsScreen:
         return MaterialPageRoute(
-          builder: (_) => screenFactory.makeAllSellersScreen(),
+          builder: (_) => screenFactory.makeAllAdvertsScreen(),
         );
+      // case MainNavigationRouteNames.allSellersScreen:
+      //   return MaterialPageRoute(
+      //     builder: (_) => screenFactory.makeAllSellersScreen(),
+      //   );
 
       case MainNavigationRouteNames.allCardsFilterScreen:
         return MaterialPageRoute(

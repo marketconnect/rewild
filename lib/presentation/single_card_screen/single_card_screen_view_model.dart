@@ -1,5 +1,7 @@
+import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/commission_model.dart';
@@ -10,7 +12,6 @@ import 'package:rewild/domain/entities/stocks_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
 
 import 'package:rewild/domain/entities/warehouse.dart';
-import 'package:flutter/material.dart';
 
 // card
 abstract class SingleCardScreenCardOfProductService {
@@ -56,8 +57,7 @@ abstract class SingleCardScreenSupplyService {
       required DateTime dateTo});
 }
 
-class SingleCardScreenViewModel extends ChangeNotifier {
-  final BuildContext context;
+class SingleCardScreenViewModel extends ResourceChangeNotifier {
   final SingleCardScreenCardOfProductService cardOfProductService;
   final SingleCardScreenSellerService sellerService;
   final SingleCardScreenCommissionService commissionService;
@@ -71,7 +71,7 @@ class SingleCardScreenViewModel extends ChangeNotifier {
 
   SingleCardScreenViewModel(
       {required this.id,
-      required this.context,
+      required super.context,
       required this.initialStocksService,
       required this.stockService,
       required this.sellerService,
@@ -146,6 +146,9 @@ class SingleCardScreenViewModel extends ChangeNotifier {
   double _reviewRating = 0;
   double get reviewRating => _reviewRating;
 
+  // region
+  String _region = '-';
+  String get region => _region;
   // Warehouses
   Map<String, int> _warehouses = {};
   void setWarehouses(Map<String, int> warehouses) {
@@ -229,7 +232,7 @@ class SingleCardScreenViewModel extends ChangeNotifier {
         Uri.parse('https://www.wildberries.ru/catalog/$id/detail.aspx');
 
     // Get card
-    final cardOfProduct = await _fetch(() => cardOfProductService.getOne(id));
+    final cardOfProduct = await fetch(() => cardOfProductService.getOne(id));
     if (cardOfProduct == null) {
       return;
     }
@@ -246,21 +249,27 @@ class SingleCardScreenViewModel extends ChangeNotifier {
     if (_sellerName == "-") {
       if (cardOfProduct.supplierId != null) {
         final seller =
-            await _fetch(() => sellerService.get(cardOfProduct.supplierId!));
+            await fetch(() => sellerService.get(cardOfProduct.supplierId!));
         if (seller == null) {
           return;
         }
         _tradeMark = seller.trademark ?? '-';
         _sellerName = seller.name;
+        // region
+        final ogrn = seller.ogrn;
+        _region = (ogrn != null && ogrn.length > 3)
+            ? "${RegionsNumsConstants.regions[ogrn.substring(3, 5)]}"
+            : "-";
       }
     }
+
     // Commission, category, subject
     if (_subjectId == 0) {
       _subjectId = cardOfProduct.subjectId ?? 0;
     }
     if (_commission == null && _subjectId != 0) {
       final commissionResource =
-          await _fetch(() => commissionService.get(_subjectId));
+          await fetch(() => commissionService.get(_subjectId));
       if (commissionResource == null) {
         return;
       }
@@ -272,7 +281,7 @@ class SingleCardScreenViewModel extends ChangeNotifier {
     // brand
     _brand = cardOfProduct.brand ?? '-';
     // get stocks
-    final stocks = await _fetch(() => stockService.get(id));
+    final stocks = await fetch(() => stockService.get(id));
     if (stocks == null) {
       return;
     }
@@ -287,21 +296,21 @@ class SingleCardScreenViewModel extends ChangeNotifier {
       addWarehouse(resouwarehouse.name, stock.qty);
     }
     // get supplies
-    final supplies = await _fetch(() => supplyService.getForOne(
+    final supplies = await fetch(() => supplyService.getForOne(
             nmId: id,
             dateFrom: yesterdayEndOfTheDay(),
             dateTo: DateTime.now())) ??
         [];
 
     // get initial stocks
-    final initialStocks = await _fetch(() => initialStocksService.get(id));
+    final initialStocks = await fetch(() => initialStocksService.get(id));
     if (initialStocks == null) {
       return;
     }
     // add initial stocks and orders
     for (final initStock in initialStocks) {
       final wh = initStock.wh;
-      final warehouse = await _fetch(() => warehouseService.getById(wh));
+      final warehouse = await fetch(() => warehouseService.getById(wh));
       if (warehouse == null) {
         return;
       }
@@ -331,7 +340,7 @@ class SingleCardScreenViewModel extends ChangeNotifier {
     _supplySum = _supplies.values.isNotEmpty
         ? _supplies.values.reduce((value, element) => value + element)
         : 0;
-    final ordersHistory = await _fetch(() => ordersHistoryService.get(id));
+    final ordersHistory = await fetch(() => ordersHistoryService.get(id));
     if (ordersHistory == null) {
       return;
     }
@@ -341,17 +350,5 @@ class SingleCardScreenViewModel extends ChangeNotifier {
     _isHighBuyout = ordersHistory.highBuyout;
 
     if (context.mounted) notifyListeners();
-  }
-
-  // Define a method for fetch data and handling errors
-  Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {
-    final resource = await callBack();
-    if (resource is Error && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(resource.message!),
-      ));
-      return null;
-    }
-    return resource.data;
   }
 }

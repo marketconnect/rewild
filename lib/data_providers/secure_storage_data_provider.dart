@@ -1,15 +1,18 @@
 import 'dart:math';
 import 'package:android_id/android_id.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/domain/entities/api_key_model.dart';
+import 'package:rewild/domain/services/api_keys_service.dart';
 import 'package:rewild/domain/services/auth_service.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class SecureStorageProviderImpl implements AuthServiceSecureDataProvider {
+class SecureStorageProviderImpl
+    implements AuthServiceSecureDataProvider, ApiKeysScreenApiKeysDataProvider {
   static const _secureStorage = FlutterSecureStorage();
 
   @override
-  Future<Resource<void>> update(
+  Future<Resource<void>> updateUsername(
       {String? username,
       String? token,
       String? expiredAt,
@@ -101,7 +104,7 @@ class SecureStorageProviderImpl implements AuthServiceSecureDataProvider {
         deviceId ??= getRandomString(10);
         // Save username
 
-        await update(username: deviceId);
+        await updateUsername(username: deviceId);
       } on Exception catch (e) {
         return Resource.error(
           e.toString(),
@@ -109,6 +112,33 @@ class SecureStorageProviderImpl implements AuthServiceSecureDataProvider {
       }
     }
     return Resource.success(deviceId);
+  }
+
+  @override
+  Future<Resource<List<ApiKeyModel>>> getAllApiKeys(List<String> types) async {
+    List<ApiKeyModel> apiKeys = [];
+    for (final type in types) {
+      final resource = await _read(key: type);
+      if (resource is Error) {
+        return Resource.error(resource.message!);
+      }
+      if (resource is Success) {
+        final apiKey = ApiKeyModel(token: resource.data!, type: type);
+        apiKeys.add(apiKey);
+      }
+    }
+    return Resource.success(apiKeys);
+  }
+
+  @override
+  Future<Resource<void>> addApiKey(ApiKeyModel apiKey) async {
+    return await _write(key: apiKey.type, value: apiKey.token);
+  }
+
+  @override
+  Future<Resource<void>> deleteApiKey(String apiKeyType) async {
+    await _secureStorage.delete(key: apiKeyType);
+    return Resource.empty();
   }
 
   Future<Resource<String?>> _read({required String key}) async {

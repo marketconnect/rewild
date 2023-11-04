@@ -1,17 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 abstract class BottomNavigationCardService {
   Future<Resource<int>> count();
 }
 
-class BottomNavigationViewModel extends ChangeNotifier {
+class BottomNavigationViewModel extends ResourceChangeNotifier {
   final BottomNavigationCardService cardService;
 
-  final BuildContext context;
-
   BottomNavigationViewModel(
-      {required this.cardService, required this.context}) {
+      {required this.cardService, required super.context}) {
     _asyncInit();
   }
 
@@ -19,17 +17,12 @@ class BottomNavigationViewModel extends ChangeNotifier {
   int get cardsNum => _cardsNum;
 
   void _asyncInit() async {
-    final cardsResource = await cardService.count();
-    if (cardsResource is Error) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(cardsResource.message!),
-      ));
+    final cardsLen = await fetch(() => cardService.count());
+    if (cardsLen == null) {
       return;
     }
-    _cardsNum = cardsResource.data!;
-    if (context.mounted) {
-      notifyListeners();
-    }
+
+    _cardsNum = cardsLen;
+    notify();
   }
 }

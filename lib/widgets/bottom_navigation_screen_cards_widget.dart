@@ -49,12 +49,12 @@ class BottomNavigationScreenCardsWidget extends StatelessWidget {
                 // route: '',
                 iconData: Icons.group_outlined,
               ),
-              _Link(
-                  text: 'Продавцы',
-                  color: Color(0xFF6f42c1),
-                  route: MainNavigationRouteNames.allSellersScreen,
-                  // route: '',
-                  iconData: Icons.man),
+              // _Link(
+              //     text: 'Продавцы',
+              //     color: Color(0xFF6f42c1),
+              //     route: MainNavigationRouteNames.allSellersScreen,
+              //     // route: '',
+              //     iconData: Icons.man),
               // _Link(
               //   text: 'Поставки',
               //   color: Color(0xFF9194a1),

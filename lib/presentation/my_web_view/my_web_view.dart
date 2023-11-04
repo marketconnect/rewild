@@ -4,6 +4,7 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter/material.dart';
+import 'package:rewild/widgets/progress_indicator.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -148,7 +149,7 @@ class _MyWebViewScreenState extends State<MyWebViewScreen> {
           ),
         if (isLoading)
           const Center(
-            child: CircularProgressIndicator(),
+            child: MyProgressIndicator(),
           ),
       ]),
     );

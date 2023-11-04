@@ -124,6 +124,7 @@ class AllCardsFilterService
     if (deleteFilterResource is Error) {
       return Resource.error(deleteFilterResource.message!);
     }
+
     return Resource.empty();
   }
 

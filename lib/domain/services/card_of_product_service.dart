@@ -11,11 +11,11 @@ import 'package:rewild/domain/entities/supply_model.dart';
 
 import 'package:rewild/domain/entities/warehouse.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
-import 'package:rewild/presentation/all_sellers_screen/all_sellers_view_model.dart';
+
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
 
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
-import 'package:rewild/presentation/single_group_scrren/single_groups_screen_view_model.dart';
+import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 
 // API clients
 abstract class CardOfProductServiceSellerApiClient {
@@ -67,8 +67,9 @@ class CardOfProductService
     implements
         SingleCardScreenCardOfProductService,
         BottomNavigationCardService,
+        // SingleSellerCardOfProductService,
         AllCardsScreenCardOfProductService,
-        AllSellersCardsOfProductService,
+        // AllSellersCardsOfProductService,
         SingleGroupScreenViewModelCardsService {
   final CardOfProductServiceWarehouseDataProvider warehouseDataprovider;
   final CardOfProductServiceStockDataProvider stockDataprovider;
@@ -93,6 +94,7 @@ class CardOfProductService
     if (allCardsResource is Error) {
       return Resource.error(allCardsResource.message!);
     }
+
     return Resource.success(allCardsResource.data!.length);
   }
 
@@ -128,7 +130,6 @@ class CardOfProductService
 
     // append stocks and init stocks to cards
     for (final card in allCards) {
-      print(card.createdAt);
       // append stocks
       final cardStocks =
           stocks.where((stock) => stock.nmId == card.nmId).toList();
@@ -182,8 +183,9 @@ class CardOfProductService
     return Resource.success(ids.length);
   }
 
-  Future<Resource<List<CardOfProductModel>>> getForSeller(
-      int supplierId) async {
-    return await cardOfProductDataProvider.getAllBySupplierId(supplierId);
-  }
+  // @override
+  // Future<Resource<List<CardOfProductModel>>> getForSeller(
+  //     int supplierId) async {
+  //   return await cardOfProductDataProvider.getAllBySupplierId(supplierId);
+  // }
 }

@@ -1,10 +1,10 @@
-import 'package:rewild/core/utils/image_constant.dart';
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
-import 'package:rewild/widgets/custom_image_view.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rewild/widgets/empty_widget.dart';
 
 class AllGroupsScreen extends StatelessWidget {
   const AllGroupsScreen({super.key});
@@ -22,23 +22,9 @@ class AllGroupsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 16),
             )),
             body: groups.isEmpty
-                ? Center(
-                    child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CustomImageView(
-                        svgPath: ImageConstant.imgNotFound,
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        width: MediaQuery.of(context).size.width * 0.5,
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.02,
-                      ),
-                      const Text(
-                        'У вас пока нет групп',
-                      ),
-                    ],
-                  ))
+                ? const EmptyWidget(
+                    text: 'У вас пока нет групп',
+                  )
                 : ListView.builder(
                     itemCount: groups.length,
                     itemBuilder: (context, index) {

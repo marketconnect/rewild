@@ -1,5 +1,6 @@
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
@@ -20,11 +21,11 @@ abstract class SingleGroupScreenSellerService {
   Future<Resource<SellerModel>> get(int supplierId);
 }
 
-class SingleGroupScreenViewModel extends ChangeNotifier {
+class SingleGroupScreenViewModel extends ResourceChangeNotifier {
   final SingleGroupScreenGroupsService groupService;
   final SingleGroupScreenViewModelCardsService cardsService;
   final SingleGroupScreenSellerService sellerService;
-  final BuildContext context;
+
   final String name;
   bool _isExpanded = false;
   void changeIsExpanded() {
@@ -39,7 +40,7 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
       required this.groupService,
       required this.cardsService,
       required this.sellerService,
-      required this.context}) {
+      required super.context}) {
     _asyncInit();
   }
 
@@ -53,15 +54,9 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
     notify();
   }
 
-  void notify() {
-    if (context.mounted) {
-      notifyListeners();
-    }
-  }
-
   Future<void> _update() async {
     // group
-    final group = await _fetch(() => groupService.loadGroup(name));
+    final group = await fetch(() => groupService.loadGroup(name));
 
     if (group == null) {
       return;
@@ -70,7 +65,7 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
     // cards
     final cardsIds = group.cardsNmIds;
 
-    final cards = await _fetch(() => cardsService.getAll(cardsIds));
+    final cards = await fetch(() => cardsService.getAll(cardsIds));
     if (cards == null) {
       return;
     }
@@ -95,7 +90,7 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
         continue;
       }
       // seller
-      final seller = await _fetch(() => sellerService.get(card.supplierId!));
+      final seller = await fetch(() => sellerService.get(card.supplierId!));
       if (seller == null) {
         continue;
       }
@@ -192,7 +187,7 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
   int ordersSum = 0;
 
   Future<void> deleteCardFromGroup(int nmId) async {
-    final _ = await _fetch(() => groupService.delete(name, nmId));
+    final _ = await fetch(() => groupService.delete(name, nmId));
     if (cards == null) {
       return;
     }
@@ -203,17 +198,5 @@ class SingleGroupScreenViewModel extends ChangeNotifier {
     }
     await _update();
     notify();
-  }
-
-  // Define a method for fetch data and handling errors
-  Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {
-    final resource = await callBack();
-    if (resource is Error && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(resource.message!),
-      ));
-      return null;
-    }
-    return resource.data;
   }
 }

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 abstract class SplashScreenViewModelAuthService {
@@ -13,23 +14,15 @@ abstract class SplashScreenViewModelUpdateService {
   Future<Resource<void>> fetchAllUserCardsFromServer(String token);
 }
 
-class SplashScreenViewModel extends ChangeNotifier {
-  final BuildContext context;
+class SplashScreenViewModel extends ResourceChangeNotifier {
   final SplashScreenViewModelUpdateService updateService;
 
   final SplashScreenViewModelAuthService authService;
 
-  // Loading
-  // bool _isLoading = false;
-  // bool get isLoading => _isLoading;
-
   String? _token;
 
-  // Error message
-  String? _errorMessage;
-  String? get errorMessage => _errorMessage;
   SplashScreenViewModel({
-    required this.context,
+    required super.context,
     required this.updateService,
     required this.authService,
   }) {
@@ -41,37 +34,27 @@ class SplashScreenViewModel extends ChangeNotifier {
   }
 
   Future auth() async {
-    // _isLoading = true;
-    // notifyListeners();
-
-    final tokenResource = await authService.getToken();
-    if (tokenResource is Error) {
-      _errorMessage = tokenResource.message;
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-        _errorMessage!,
-      )));
+    final token = await fetch(() => authService.getToken());
+    if (token == null) {
+      return;
     }
-    _token = tokenResource.data;
+    _token = token;
     await _checkAuth();
-    Navigator.of(context)
-        .pushReplacementNamed(MainNavigationRouteNames.bottomNavigationScreen);
-    // _isLoading = false;
-    // notifyListeners();
+    if (context.mounted) {
+      Navigator.of(context).pushReplacementNamed(
+          MainNavigationRouteNames.bottomNavigationScreen);
+    }
   }
 
   Future<void> _checkAuth() async {
-    final isAuthResource = await authService.isLogined();
-    if (isAuthResource is Error) {
-      _errorMessage = isAuthResource.message;
+    final isAuth = await fetch(() => authService.isLogined());
+    if (isAuth == null) {
+      return;
     }
-    if (isAuthResource is Success) {
-      final isAuth = isAuthResource.data!;
-      if (isAuth) {
-        if (_token != null) {
-          await updateService.fetchAllUserCardsFromServer(_token!);
-        }
+
+    if (isAuth) {
+      if (_token != null) {
+        await fetch(() => updateService.fetchAllUserCardsFromServer(_token!));
       }
     }
   }

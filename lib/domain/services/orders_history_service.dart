@@ -48,19 +48,7 @@ class OrdersHistoryService implements SingleCardScreenOrdersHistoryService {
         highBuyout: false,
         updatetAt: now,
       );
-      // save to local db
-      // but before delete all previous data
-      // delete
-      final deleteResource = await ordersHistoryDataProvider.delete(nmId);
-      if (deleteResource is Error) {
-        return Resource.error(deleteResource.message!);
-      }
-      // save
-      final saveResource = await ordersHistoryDataProvider
-          .insert(ordersHistoryFromServerResource.data!);
-      if (saveResource is Error) {
-        return Resource.error(saveResource.message!);
-      }
+
       return Resource.success(emptyOrdersHistory);
     }
     // save to local db
@@ -76,6 +64,7 @@ class OrdersHistoryService implements SingleCardScreenOrdersHistoryService {
     if (saveResource is Error) {
       return Resource.error(saveResource.message!);
     }
+
     // return
     return Resource.success(ordersHistoryFromServerResource.data!);
   }

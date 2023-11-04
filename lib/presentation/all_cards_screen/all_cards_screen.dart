@@ -142,6 +142,10 @@ class _AppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<AllCardsScreenViewModel>();
+    final resetFilter = model.resetFilter;
+    final filterIsEmpty = model.filterIsEmpty;
+
     return SliverAppBar(
       // AppBar ========================================================== AppBar
       pinned: false,
@@ -156,28 +160,38 @@ class _AppBar extends StatelessWidget {
             size: 20,
           ),
           itemBuilder: (BuildContext context) {
-            return const [
-              PopupMenuItem(
+            return [
+              const PopupMenuItem(
                 value: MainNavigationRouteNames.myWebViewScreen,
                 child: _PopumMenuItemChild(
                   iconData: Icons.add_circle_outline_rounded,
                   text: "Добавить",
                 ),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: MainNavigationRouteNames.allGroupsScreen,
                 child: _PopumMenuItemChild(
                   iconData: Icons.group_outlined,
                   text: "Группы",
                 ),
               ),
-              PopupMenuItem(
-                value: MainNavigationRouteNames.allCardsFilterScreen,
-                child: _PopumMenuItemChild(
-                  iconData: Icons.filter_alt_outlined,
-                  text: "Фильтр",
-                ),
-              )
+              filterIsEmpty
+                  ? const PopupMenuItem(
+                      value: MainNavigationRouteNames.allCardsFilterScreen,
+                      child: _PopumMenuItemChild(
+                        iconData: Icons.filter_alt_outlined,
+                        text: "Фильтр",
+                      ),
+                    )
+                  : PopupMenuItem(
+                      onTap: () async {
+                        await resetFilter();
+                      },
+                      child: const _PopumMenuItemChild(
+                        iconData: Icons.filter_alt_off_outlined,
+                        text: "Сброс",
+                      ),
+                    )
             ];
           },
         ),

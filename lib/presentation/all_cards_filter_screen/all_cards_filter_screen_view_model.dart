@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/commission_model.dart';
 import 'package:rewild/domain/entities/filter_model.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
@@ -22,13 +23,13 @@ abstract class AllCardsFilterSellerService {
   Future<Resource<SellerModel>> get(int supplierId);
 }
 
-class AllCardsFilterScreenViewModel extends ChangeNotifier {
+class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {
   final AllCardsFilterAllCardsFilterService allCardsFilterService;
   final AllCardsFilterCommissionService commissionService;
   final AllCardsFilterSellerService sellerService;
-  final BuildContext context;
+
   AllCardsFilterScreenViewModel(
-      {required this.context,
+      {required super.context,
       required this.allCardsFilterService,
       required this.sellerService,
       required this.commissionService}) {
@@ -65,7 +66,7 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
 
   void _asyncInit() async {
     final filter =
-        await _fetch(() => allCardsFilterService.getCompletlyFilledFilter());
+        await fetch(() => allCardsFilterService.getCompletlyFilledFilter());
     if (filter == null) {
       return;
     }
@@ -73,7 +74,7 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
     // subject
     if (filter.subjects != null) {
       for (final subjId in filter.subjects!.keys) {
-        final subj = await _fetch(
+        final subj = await fetch(
           () => commissionService.get(subjId),
         );
         if (subj == null) {
@@ -85,7 +86,7 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
 
     if (filter.suppliers != null) {
       for (final suppId in filter.suppliers!.keys) {
-        final seller = await _fetch(
+        final seller = await fetch(
           () => sellerService.get(suppId),
         );
         if (seller == null) {
@@ -98,7 +99,7 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
     _completlyFilledfilter = filter;
 
     final savedFilter =
-        await _fetch(() => allCardsFilterService.getCurrentFilter());
+        await fetch(() => allCardsFilterService.getCurrentFilter());
 
     if (savedFilter == null) {
       return;
@@ -107,12 +108,6 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
     setFilter(savedFilter);
 
     notify();
-  }
-
-  void notify() {
-    if (context.mounted) {
-      notifyListeners();
-    }
   }
 
   void clear() {
@@ -262,23 +257,11 @@ class AllCardsFilterScreenViewModel extends ChangeNotifier {
   }
 
   Future<void> save() async {
-    await _fetch(() => allCardsFilterService.setFilter(outputfilter!));
+    await fetch(() => allCardsFilterService.setFilter(outputfilter!));
     if (context.mounted) {
       Navigator.of(context).pushReplacementNamed(
         MainNavigationRouteNames.allCardsScreen,
       );
     }
-  }
-
-  // Define a method for fetch data and handling errors
-  Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {
-    final resource = await callBack();
-    if (resource is Error && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(resource.message!),
-      ));
-      return null;
-    }
-    return resource.data;
   }
 }

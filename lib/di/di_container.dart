@@ -3,10 +3,12 @@ import 'package:rewild/api_clients/commision_api_client.dart';
 import 'package:rewild/api_clients/details_api_client.dart';
 
 import 'package:rewild/api_clients/orders_history_api_client.dart';
+
 import 'package:rewild/api_clients/product_card_service_api_client.dart';
 import 'package:rewild/api_clients/seller_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/api_clients/warehouse_api_client.dart';
+
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
 import 'package:rewild/data_providers/commission_data_provider/commission_data_provider.dart';
 import 'package:rewild/data_providers/filter_data_provider/filter_data_provider.dart';
@@ -15,12 +17,14 @@ import 'package:rewild/data_providers/group_data_provider/group_data_provider.da
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
 import 'package:rewild/data_providers/orders_history_data_provider/orders_history_data_provider.dart';
+
 import 'package:rewild/data_providers/secure_storage_data_provider.dart';
 import 'package:rewild/data_providers/seller_data_provider/seller_data_provider.dart';
 import 'package:rewild/data_providers/stock_data_provider.dart/stock_data_provider.dart';
 import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.dart';
 import 'package:rewild/data_providers/warehouse_data_provider.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
+import 'package:rewild/domain/services/api_keys_service.dart';
 import 'package:rewild/domain/services/auth_service.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/commission_service.dart';
@@ -43,17 +47,19 @@ import 'package:rewild/presentation/all_cards_screen/all_cards_screen.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_screen.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_view_model.dart';
-import 'package:rewild/presentation/all_sellers_screen/all_sellers_screen.dart';
-import 'package:rewild/presentation/all_sellers_screen/all_sellers_view_model.dart';
+import 'package:rewild/presentation/api_keys_screen/api_keys_screen.dart';
+import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
+
 import 'package:rewild/presentation/app/app.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_screen.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
-import 'package:rewild/presentation/single_group_scrren/single_group_screen.dart';
-import 'package:rewild/presentation/single_group_scrren/single_groups_screen_view_model.dart';
+import 'package:rewild/presentation/single_group_screen/single_group_screen.dart';
+import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 import 'package:rewild/presentation/my_web_view/my_web_view.dart';
 import 'package:rewild/presentation/my_web_view/my_web_view_screen_view_model.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
+
 import 'package:rewild/presentation/splash_screen/splash_screen.dart';
 import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart';
 import 'package:rewild/routes/main_navigation.dart';
@@ -106,6 +112,9 @@ class _DIContainer {
   OrdersHistoryApiClient _makeOrdersHistoryApiClient() =>
       const OrdersHistoryApiClient();
 
+  // price history
+  // PriceHistoryApiClient _makePriceHistoryApiClient() =>
+  //     const PriceHistoryApiClient();
   // orders
   // OrdersApiClient _makeOrdersApiClient() => const OrdersApiClient();
   // Data providers ============================================================
@@ -151,6 +160,13 @@ class _DIContainer {
 
   // filter
   FilterDataProvider _makeFilterDataProvider() => FilterDataProvider();
+
+  // Api keys
+  // ApiKeysDataProvider _makeApiKeysDataProvider() => ApiKeysDataProvider();
+
+  // price history
+  // PriceHistoryDataProvider _makePriceHistoryDataProvider() =>
+  //     const PriceHistoryDataProvider();
 
   // Services ==================================================================
 
@@ -231,6 +247,15 @@ class _DIContainer {
         sellerDataProvider: _makeSellerDataProvider(),
       );
 
+  // Api keys
+  ApiKeysService _makeApiKeysService() => ApiKeysService(
+        apiKeysDataProvider: _makeSecureDataProvider(),
+      );
+
+  // price history
+  // PriceHistoryService _makePriceHistoryService() => PriceHistoryService(
+  //     priceHistoryDataProvider: _makePriceHistoryDataProvider(),
+  //     priceHistoryApiClient: _makePriceHistoryApiClient());
   // OrderService _makeOrderService() => OrderService(
   //       orderApiClient: _makeOrdersApiClient(),
   //     );
@@ -251,8 +276,9 @@ class _DIContainer {
           cardsOfProductsService: _makeCardOfProductService(),
           tokenProvider: _makeAuthService());
 
-  MyWebViewScreenViewModel _makeMyWebViewScreenViewModel() =>
+  MyWebViewScreenViewModel _makeMyWebViewScreenViewModel(context) =>
       MyWebViewScreenViewModel(
+          context: context,
           updateService: _makeUpdateService(),
           tokenProvider: _makeAuthService());
 
@@ -304,12 +330,25 @@ class _DIContainer {
           sellerService: _makeSellerService(),
           context: context);
 
-  AllSellersScreenViewModel _makeAllSellersScreenViewModel(
-          BuildContext context) =>
-      AllSellersScreenViewModel(
-          context: context,
-          cardsService: _makeCardOfProductService(),
-          sellersService: _makeSellerService());
+  ApiKeysScreenViewModel _makeApiKeysScreenViewModel(BuildContext context) =>
+      ApiKeysScreenViewModel(
+          context: context, apiKeysService: _makeApiKeysService());
+
+  // AllSellersScreenViewModel _makeAllSellersScreenViewModel(
+  //         BuildContext context) =>
+  //     AllSellersScreenViewModel(
+  //         context: context,
+  //         cardsService: _makeCardOfProductService(),
+  //         sellersService: _makeSellerService());
+
+  // SingleSellerViewModel _makeSingleSellerScreenViewModel(
+  //         BuildContext context, int id) =>
+  //     SingleSellerViewModel(
+  //       context: context,
+  //       supplireId: id,
+  //       cardOfProductService: _makeCardOfProductService(),
+  //       // priceHistoryService: _makePriceHistoryService()
+  //     );
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -349,9 +388,24 @@ class ScreenFactoryDefault implements ScreenFactory {
   }
 
   @override
+  Widget makeApiKeysScreen() {
+    return ChangeNotifierProvider(
+        create: (context) => _diContainer._makeApiKeysScreenViewModel(context),
+        child: const ApiKeysScreen());
+  }
+
+  // @override
+  // Widget makeSingleSellerScreen(int supplierID) {
+  //   return ChangeNotifierProvider(
+  //       create: (context) =>
+  //           _diContainer._makeSingleSellerScreenViewModel(context, supplierID),
+  //       child: const SingleSellerScreen());
+  // }
+
+  @override
   Widget makeMyWebViewScreen() {
     return ChangeNotifierProvider(
-      create: (context) => _diContainer._makeMyWebViewScreenViewModel(),
+      create: (context) => _diContainer._makeMyWebViewScreenViewModel(context),
       child: const MyWebViewScreen(),
     );
   }
@@ -381,13 +435,13 @@ class ScreenFactoryDefault implements ScreenFactory {
     );
   }
 
-  @override
-  Widget makeAllSellersScreen() {
-    return ChangeNotifierProvider(
-      create: (context) => _diContainer._makeAllSellersScreenViewModel(context),
-      child: const AllSellersScreen(),
-    );
-  }
+  // @override
+  // Widget makeAllSellersScreen() {
+  //   return ChangeNotifierProvider(
+  //     create: (context) => _diContainer._makeAllSellersScreenViewModel(context),
+  //     child: const AllSellersScreen(),
+  //   );
+  // }
 
   @override
   Widget makeAllCardsFilterScreen() {
@@ -396,5 +450,13 @@ class ScreenFactoryDefault implements ScreenFactory {
           _diContainer._makeAllCardsFilterScreenViewModel(context),
       child: const AllCardsFilterScreen(),
     );
+  }
+
+  @override
+  Widget makeaAllAdvertsScreen() {
+    return ChangeNotifierProvider(
+      create: (context) => _diContainer._makeAllAdvertsScreenViewModel(context),
+      child: const AllAdvertsScreen(),
+    )    
   }
 }

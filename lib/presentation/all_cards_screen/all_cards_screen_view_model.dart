@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
+import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/filter_model.dart';
@@ -28,7 +29,7 @@ abstract class AllCardsScreenFilterService {
 }
 
 abstract class AllCardsScreenGroupsService {
-  Future<Resource<List<GroupModel>>> getAll();
+  Future<Resource<List<GroupModel>>> getAll([List<int>? nmIds]);
 }
 
 abstract class AllCardsScreenSupplyService {
@@ -42,21 +43,17 @@ abstract class AllCardsScreenUpdateService {
   Future<Resource<void>> update();
 }
 
-class AllCardsScreenViewModel extends ChangeNotifier {
+class AllCardsScreenViewModel extends ResourceChangeNotifier {
   final AllCardsScreenTokenProvider tokenProvider;
   final AllCardsScreenCardOfProductService cardsOfProductsService;
   final AllCardsScreenUpdateService updateService;
   final AllCardsScreenGroupsService groupsProvider;
   final AllCardsScreenFilterService filterService;
-  // final AllCardsScreenStocksService stocksService;
-  // final AllCardsScreenInitStockService initStockService;
   final AllCardsScreenSupplyService supplyService;
-  final BuildContext context;
 
   AllCardsScreenViewModel(
-      {required this.context,
+      {required super.context,
       required this.tokenProvider,
-      // required this.stocksService,
       required this.updateService,
       required this.groupsProvider,
       required this.filterService,
@@ -74,13 +71,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
             cardsNmIds: [],
             fontColor: const Color(0xFFFFFFFF).value));
 
-    _filter = await _fetch(() => filterService.getCurrentFilter());
-    if (_filter == null) {
-      return;
-    }
-
     await _update(false);
-    _loading = false;
 
     if (context.mounted) notifyListeners();
     await p();
@@ -90,27 +81,30 @@ class AllCardsScreenViewModel extends ChangeNotifier {
   FilterModel? _filter;
   FilterModel? get filter => _filter;
 
-  bool filterIsEmpty() {
+  bool _filterIsEmpty = true;
+  bool get filterIsEmpty => _filterIsEmpty;
+
+  void checkFilter() {
     if (_filter == null) {
-      return true;
+      _filterIsEmpty = true;
+      return;
     }
 
     if (_filter!.subjects != null && _filter!.subjects!.isNotEmpty ||
         _filter!.brands != null && _filter!.brands!.isNotEmpty ||
         _filter!.suppliers != null && _filter!.suppliers!.isNotEmpty ||
         _filter!.promos != null && _filter!.promos!.isNotEmpty) {
-      return false;
+      _filterIsEmpty = false;
+
+      return;
     }
-    return true;
+    _filterIsEmpty = true;
   }
 
   Future<void> resetFilter() async {
-    await _fetch(() => filterService.deleteFilter());
+    await fetch(() => filterService.deleteFilter());
     await _update();
   }
-
-  bool _loading = true;
-  bool get loading => _loading;
 
   Future<void> setMounted(bool mounted) async {
     if (context.mounted) await _update();
@@ -141,7 +135,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
   GroupModel? get selectedGroup => _selectedGroup;
 
   Future<String> _getToken() async {
-    final token = await _fetch(() => tokenProvider.getToken());
+    final token = await fetch(() => tokenProvider.getToken());
     if (token == null) {
       return "";
     }
@@ -149,16 +143,22 @@ class AllCardsScreenViewModel extends ChangeNotifier {
   }
 
   Future<void> _update([bool notify = true]) async {
+    _filter = await fetch(() => filterService.getCurrentFilter());
+    if (_filter == null) {
+      return;
+    }
+    checkFilter();
     if (!context.mounted) {
       return;
     }
 
     // Update
-    await _fetch(() => updateService.update());
+    await fetch(() => updateService.update());
 
     // get cards
     final fetchedCardsOfProducts =
-        await _fetch(() => cardsOfProductsService.getAll());
+        await fetch(() => cardsOfProductsService.getAll());
+
     if (fetchedCardsOfProducts == null) {
       return;
     }
@@ -172,7 +172,6 @@ class AllCardsScreenViewModel extends ChangeNotifier {
 
     final dateFrom = yesterdayEndOfTheDay();
     final dateTo = DateTime.now();
-
     // calculate stocks, initial stocks, supplies, was ordered field
     for (CardOfProductModel card in fetchedCardsOfProducts) {
       card.calculate(dateFrom, dateTo);
@@ -188,18 +187,18 @@ class AllCardsScreenViewModel extends ChangeNotifier {
 
       _productCards.add(card);
     }
-
     // sort by orders sum
     _productCards.sort((a, b) => b.ordersSum.compareTo(a.ordersSum));
 
-    final fetchedGroups = await _fetch(() => groupsProvider.getAll());
+    final fetchedGroups = await fetch(() => groupsProvider.getAll());
     if (fetchedGroups == null) {
       return;
     }
-
+    final cardsNmIds = _productCards.map((card) => card.nmId).toList();
     // append groups
     for (final g in fetchedGroups) {
       if (_groups.where((element) => element.name == g.name).isEmpty) {
+        if (g.cardsNmIds.any((element) => cardsNmIds.contains(element))) {}
         _groups.add(g);
       }
       final cardsWithGroup =
@@ -265,7 +264,7 @@ class AllCardsScreenViewModel extends ChangeNotifier {
 
     final token = await _getToken();
 
-    await _fetch(() => cardsOfProductsService.delete(token, idsForDelete));
+    await fetch(() => cardsOfProductsService.delete(token, idsForDelete));
 
     _update();
   }
@@ -341,17 +340,5 @@ class AllCardsScreenViewModel extends ChangeNotifier {
       }
     }
     return true;
-  }
-
-  Future<T?> _fetch<T>(Future<Resource<T>> Function() callBack) async {
-    final resource = await callBack();
-    if (resource is Error && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(resource.message!),
-      ));
-      notifyListeners();
-      return null;
-    }
-    return resource.data;
   }
 }

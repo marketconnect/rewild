@@ -93,7 +93,7 @@ class RegionsNumsConstants {
   };
 }
 
-class TextConstants {
+class StringConstants {
   static const List<String> months = [
     'Январь',
     'Февраль',
@@ -108,6 +108,8 @@ class TextConstants {
     'Ноябрь',
     'Декабрь'
   ];
+
+  static const List<String> apiKeyTypes = ["Продвижение", "Статистика"];
 }
 
 class ErrorsConstants {

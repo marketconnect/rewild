@@ -2,7 +2,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:rewild/core/utils/image_constant.dart';
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
-import 'package:rewild/presentation/single_group_scrren/single_groups_screen_view_model.dart';
+import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 import 'package:rewild/widgets/custom_image_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';

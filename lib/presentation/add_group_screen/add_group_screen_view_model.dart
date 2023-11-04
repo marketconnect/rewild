@@ -1,5 +1,6 @@
 import 'package:rewild/core/color.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
@@ -11,14 +12,12 @@ abstract class AddGroupScreenGroupsService {
       List<GroupModel> groups, List<int> productsCardsNmIds);
 }
 
-class AddGroupScreenViewModel extends ChangeNotifier {
+class AddGroupScreenViewModel extends ResourceChangeNotifier {
   final AddGroupScreenGroupsService groupsProvider;
-
-  final BuildContext context;
 
   final List<int> productsCardsIds;
   AddGroupScreenViewModel(
-      {required this.context,
+      {required super.context,
       required this.groupsProvider,
       required this.productsCardsIds}) {
     asyncInit();
@@ -71,12 +70,6 @@ class AddGroupScreenViewModel extends ChangeNotifier {
         ? _selectedGroupsNames.remove(name)
         : _selectedGroupsNames.add(name);
     notify();
-  }
-
-  void notify() {
-    if (context.mounted) {
-      notifyListeners();
-    }
   }
 
   void save() async {

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
-import 'package:rewild/domain/entities/price_history_model.dart';
+
 import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/domain/entities/size_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
@@ -44,8 +44,6 @@ class CardOfProductModel {
 
   final List<InitialStockModel> initialStocks;
 
-  final List<PriceHistoryModel> priceHistory;
-
   List<InitialStockModel> initialStocksList(
       DateTime dateFrom, DateTime dateTo) {
     return initialStocks.where((element) {
@@ -84,7 +82,6 @@ class CardOfProductModel {
     this.sizes = const [],
     this.initialStocks = const [],
     this.groups = const [],
-    this.priceHistory = const [],
     this.seller,
   });
 
@@ -107,7 +104,6 @@ class CardOfProductModel {
     String? promoTextCard,
     List<SizeModel>? sizes,
     List<InitialStockModel>? initialStocks,
-    List<PriceHistoryModel>? priceHistory,
   }) {
     return CardOfProductModel(
       nmId: nmId ?? this.nmId,
@@ -128,11 +124,15 @@ class CardOfProductModel {
       sizes: sizes ?? this.sizes,
       createdAt: createdAt ?? this.createdAt,
       initialStocks: initialStocks ?? this.initialStocks,
-      priceHistory: priceHistory ?? this.priceHistory,
       groups: groups,
       seller: seller,
     );
   }
+
+  // List<PriceHistoryModel> priceHistory = [];
+  // void setPriceHistory(List<PriceHistoryModel> p) {
+  //   priceHistory = p;
+  // }
 
   List<SupplyModel> supplies = [];
   void setSupplies(List<SupplyModel> s) {
