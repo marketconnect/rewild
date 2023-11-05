@@ -5,6 +5,7 @@ import 'package:rewild/domain/services/orders_history_service.dart';
 
 class OrdersHistoryDataProvider
     implements OrdersHistoryServiceOrdersHistoryDataProvider {
+  const OrdersHistoryDataProvider();
   @override
   Future<Resource<OrdersHistoryModel>> get(
       int nmId, DateTime dateFrom, DateTime dateTo) async {

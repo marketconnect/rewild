@@ -25,7 +25,7 @@ class AllCardsFilterScreen extends StatelessWidget {
                 );
               },
               icon: Icon(Icons.close,
-                  size: MediaQuery.of(context).size.width * 0.07,
+                  size: model.screenWidth * 0.07,
                   color:
                       Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
             ),
@@ -35,7 +35,7 @@ class AllCardsFilterScreen extends StatelessWidget {
                 child: Text(
                   "Очистить",
                   style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.04,
+                      fontSize: model.screenWidth * 0.04,
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context)
                           .colorScheme
@@ -48,7 +48,7 @@ class AllCardsFilterScreen extends StatelessWidget {
                 child: Text(
                   "Сохранить",
                   style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.04,
+                      fontSize: model.screenWidth * 0.04,
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).colorScheme.primary),
                 ),
@@ -171,6 +171,7 @@ class _Grid extends StatelessWidget {
   final void Function() clearCallBack;
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<AllCardsFilterScreenViewModel>();
     int oneRowLength = 0;
     const oneRowLengthMax = 31;
     List<Row> rows = [];
@@ -196,7 +197,7 @@ class _Grid extends StatelessWidget {
       content.add(GestureDetector(
           onTap: () => isActive ? unSetCallBack(id) : setCallBack(id),
           child: Container(
-            margin: EdgeInsets.all(MediaQuery.of(context).size.width * 0.015),
+            margin: EdgeInsets.all(model.screenWidth * 0.015),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
               color: isActive
@@ -204,13 +205,12 @@ class _Grid extends StatelessWidget {
                   : Theme.of(context).colorScheme.surfaceVariant,
             ),
             child: Padding(
-                padding:
-                    EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
+                padding: EdgeInsets.all(model.screenWidth * 0.02),
                 child: AutoSizeText(
                   item,
                   maxLines: 2,
                   style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.04,
+                    fontSize: model.screenWidth * 0.04,
                     color: isActive
                         ? Theme.of(context).colorScheme.onPrimary
                         : Theme.of(context).colorScheme.onSurfaceVariant,
@@ -228,7 +228,7 @@ class _Grid extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.95,
+              width: model.screenWidth * 0.95,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
@@ -237,7 +237,7 @@ class _Grid extends StatelessWidget {
                       Text(
                         title,
                         style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.04,
+                            fontSize: model.screenWidth * 0.04,
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context)
                                 .colorScheme
@@ -252,8 +252,7 @@ class _Grid extends StatelessWidget {
                           child: Text(
                             allSelected ? "Очистить" : "Выбрать все",
                             style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.03,
+                                fontSize: model.screenWidth * 0.03,
                                 fontWeight: FontWeight.w500,
                                 color: Theme.of(context)
                                     .colorScheme

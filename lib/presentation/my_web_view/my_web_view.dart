@@ -118,8 +118,7 @@ class _MyWebViewScreenState extends State<MyWebViewScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding: EdgeInsets.only(
-                  right: MediaQuery.of(context).size.width * 0.15),
+              padding: EdgeInsets.only(right: model.screenWidth * 0.15),
               child: Text(
                 currentUrl.isWildberriesDetailUrl()
                     ? "Добавить"

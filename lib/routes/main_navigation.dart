@@ -16,7 +16,7 @@ abstract class ScreenFactory {
   Widget makeSingleCardScreen(int id);
   // Widget makeSingleSellerScreen(int supplierId);
   Widget makeAddGroupsScreen(List<int> cardsIds);
-  Widget makeaAllAdvertsScreen();
+  Widget makeAllAdvertsScreen();
 }
 
 class MainNavigation implements AppNavigation {

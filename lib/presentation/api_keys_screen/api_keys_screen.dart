@@ -57,7 +57,7 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
       ),
       floatingActionButton: Container(
         margin: const EdgeInsets.all(3),
-        width: MediaQuery.of(context).size.width,
+        width: model.screenWidth,
         child: FloatingActionButton(
           onPressed: () async {
             if (selectionInProgress) {
@@ -78,12 +78,11 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
           : apiKeys.isEmpty
               ? const EmptyWidget(text: 'Вы еще не добавили ни одного токена')
               : Padding(
-                  padding:
-                      EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+                  padding: EdgeInsets.all(model.screenWidth * 0.05),
                   child: Column(
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.01,
+                        height: model.screenHeight * 0.01,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -94,8 +93,7 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
                           Text(
                             'Ваши токены',
                             style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.06,
+                                fontSize: model.screenWidth * 0.06,
                                 fontWeight: FontWeight.w300,
                                 color: Theme.of(context)
                                     .colorScheme
@@ -116,12 +114,8 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
                                   child: Padding(
                                       padding: const EdgeInsets.all(16.0),
                                       child: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.3,
-                                        height:
-                                            MediaQuery.of(context).size.width *
-                                                0.3,
+                                        width: model.screenWidth * 0.3,
+                                        height: model.screenWidth * 0.3,
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(20),
@@ -285,6 +279,8 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
 
   Future<dynamic> _showModalBottomSheet(BuildContext context,
       List<String> types, Future<void> Function(String key, String type) add) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return showModalBottomSheet(
       context: context,
       builder: (context) => StatefulBuilder(builder:
@@ -298,7 +294,7 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.08,
+                    width: screenWidth * 0.08,
                   ),
                   Text(
                     'Токен',
@@ -311,10 +307,10 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
                 ],
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.01,
+                height: screenHeight * 0.01,
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.08,
+                height: screenHeight * 0.08,
                 child: TextField(
                   showCursor: true,
                   readOnly: true,
@@ -361,7 +357,7 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.08,
+                    width: screenWidth * 0.08,
                   ),
                   Text(
                     'Категория',
@@ -374,10 +370,10 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
                 ],
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.01,
+                height: screenHeight * 0.01,
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.08,
+                height: screenHeight * 0.08,
                 child: DropdownButtonFormField<String>(
                   value: _value,
                   decoration: InputDecoration(
@@ -404,7 +400,7 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
                   },
                 ),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+              SizedBox(height: screenHeight * 0.05),
               ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(

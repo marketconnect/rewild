@@ -5,6 +5,7 @@ import 'package:rewild/domain/services/commission_service.dart';
 
 class CommissionDataProvider
     implements CommissionServiceCommissionDataProvider {
+  const CommissionDataProvider();
   @override
   Future<Resource<CommissionModel>> get(int id) async {
     try {

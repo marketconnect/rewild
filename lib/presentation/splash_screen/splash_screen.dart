@@ -45,7 +45,7 @@ class SplashScreen extends StatelessWidget {
           //         width: screenSize.width * 0.7,
           //       ),
           //       SizedBox(
-          //         height: MediaQuery.of(context).size.height * 0.1,
+          //         height: model.screenHeight * 0.1,
           //       ),
           //       Container(
           //         width: screenSize.width * 0.8,
@@ -64,7 +64,7 @@ class SplashScreen extends StatelessWidget {
           //         ),
           //       ),
           //       SizedBox(
-          //         height: MediaQuery.of(context).size.height * 0.05,
+          //         height: model.screenHeight * 0.05,
           //       ),
           //       // Container(
           //       //   width: screenSize.width * 0.8,
@@ -79,7 +79,7 @@ class SplashScreen extends StatelessWidget {
           //       //     overflow: TextOverflow.ellipsis,
           //       //     textAlign: TextAlign.center,
           //       //     style: TextStyle(
-          //       //         fontSize: MediaQuery.of(context).size.width * 0.04),
+          //       //         fontSize: model.screenWidth * 0.04),
           //       //     // style: theme.textTheme.bodySmall!.copyWith(
           //       //     //   height: 2.12,
           //       //     // ),

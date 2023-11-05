@@ -33,11 +33,11 @@
 //                         children: [
 //                           CustomImageView(
 //                             svgPath: ImageConstant.imgNotFound,
-//                             height: MediaQuery.of(context).size.height * 0.2,
-//                             width: MediaQuery.of(context).size.width * 0.5,
+//                             height: model.screenHeight * 0.2,
+//                             width: model.screenWidth * 0.5,
 //                           ),
 //                           SizedBox(
-//                             height: MediaQuery.of(context).size.height * 0.02,
+//                             height: model.screenHeight * 0.02,
 //                           ),
 //                           const Text(
 //                             'Пусто',
@@ -59,7 +59,7 @@
 //                                 child: Column(
 //                                   children: [
 //                                     Container(
-//                                       width: MediaQuery.of(context).size.width,
+//                                       width: model.screenWidth,
 //                                       decoration: BoxDecoration(
 //                                           border: Border.all(
 //                                             color: Theme.of(context)
@@ -119,11 +119,11 @@
 //       child: Column(
 //         children: [
 //           SizedBox(
-//             height: MediaQuery.of(context).size.height * 0.015,
+//             height: model.screenHeight * 0.015,
 //           ),
 //           SizedBox(
-//             width: MediaQuery.of(context).size.width * 0.8,
-//             height: MediaQuery.of(context).size.height * 0.03,
+//             width: model.screenWidth * 0.8,
+//             height: model.screenHeight * 0.03,
 //             child: AutoSizeText(
 //               name,
 //               maxLines: 4,
@@ -135,8 +135,8 @@
 //             ),
 //           ),
 //           SizedBox(
-//             width: MediaQuery.of(context).size.width * 0.8,
-//             height: MediaQuery.of(context).size.height * 0.03,
+//             width: model.screenWidth * 0.8,
+//             height: model.screenHeight * 0.03,
 //             child: AutoSizeText(
 //               (ogrn != null && ogrn!.length > 3)
 //                   ? "${RegionsNumsConstants.regions[ogrn!.substring(3, 5)]}"
@@ -150,7 +150,7 @@
 //             ),
 //           ),
 //           SizedBox(
-//             height: MediaQuery.of(context).size.height * 0.015,
+//             height: model.screenHeight * 0.015,
 //           ),
 //         ],
 //       ),
@@ -172,11 +172,11 @@
 //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 //               children: [
 //                 SizedBox(
-//                   height: MediaQuery.of(context).size.height * 0.007,
+//                   height: model.screenHeight * 0.007,
 //                 ),
 //                 Text("Добавлен:",
 //                     style: TextStyle(
-//                         fontSize: MediaQuery.of(context).size.width * 0.035,
+//                         fontSize: model.screenWidth * 0.035,
 //                         color: Theme.of(context)
 //                             .colorScheme
 //                             .secondary
@@ -184,13 +184,13 @@
 //                 Text("20.01.2023",
 //                     style: TextStyle(
 //                         fontWeight: FontWeight.bold,
-//                         fontSize: MediaQuery.of(context).size.width * 0.035,
+//                         fontSize: model.screenWidth * 0.035,
 //                         color: Theme.of(context)
 //                             .colorScheme
 //                             .secondary
 //                             .withOpacity(0.5))),
 //                 SizedBox(
-//                   height: MediaQuery.of(context).size.height * 0.007,
+//                   height: model.screenHeight * 0.007,
 //                 ),
 //               ]),
 //         ),
@@ -199,7 +199,7 @@
 //           children: [
 //             Padding(
 //               padding: EdgeInsets.only(
-//                 bottom: MediaQuery.of(context).size.height * 0.005,
+//                 bottom: model.screenHeight * 0.005,
 //               ),
 //               child: Text(
 //                 "Данные",
@@ -210,7 +210,7 @@
 //               ),
 //             ),
 //             SizedBox(
-//               width: MediaQuery.of(context).size.width * 0.015,
+//               width: model.screenWidth * 0.015,
 //             ),
 //             Icon(
 //               Icons.arrow_forward_ios,
@@ -218,7 +218,7 @@
 //               color: Theme.of(context).colorScheme.primary,
 //             ),
 //             SizedBox(
-//               width: MediaQuery.of(context).size.width * 0.02,
+//               width: model.screenWidth * 0.02,
 //             ),
 //           ],
 //         )

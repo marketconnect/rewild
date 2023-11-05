@@ -10,6 +10,7 @@ class SupplyDataProvider
         UpdateServiceSupplyDataProvider,
         SupplyServiceSupplyDataProvider,
         CardOfProductServiceSupplyDataProvider {
+  const SupplyDataProvider();
   @override
   Future<Resource<int>> insert(SupplyModel supply) async {
     try {

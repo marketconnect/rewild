@@ -38,6 +38,7 @@ class _Link extends StatelessWidget {
   final Color color;
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () => Navigator.of(context).pushNamed(route),
       child: Container(
@@ -54,18 +55,17 @@ class _Link extends StatelessWidget {
                 child: Icon(
                   iconData,
                   color: Theme.of(context).colorScheme.background,
-                  size: MediaQuery.of(context).size.width * 0.05,
+                  size: screenWidth * 0.05,
                 ),
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.05,
+              width: screenWidth * 0.05,
             ),
             Text(
               text,
               style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.05,
-                  fontWeight: FontWeight.w500),
+                  fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
             )
           ],
         ),

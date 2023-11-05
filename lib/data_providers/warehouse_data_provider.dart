@@ -8,6 +8,7 @@ class WarehouseDataProvider
     implements
         CardOfProductServiceWarehouseDataProvider,
         WarehouseServiceWarehouseProvider {
+  const WarehouseDataProvider();
   @override
   Future<Resource<bool>> update(List<Warehouse> warehouses) async {
     try {

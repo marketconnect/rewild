@@ -4,6 +4,7 @@ import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/domain/services/group_service.dart';
 
 class GroupDataProvider implements GroupServiceGroupDataProvider {
+  const GroupDataProvider();
   @override
   Future<Resource<int>> insert(GroupModel group) async {
     try {

@@ -6,8 +6,8 @@ import 'package:rewild/pb/message.pb.dart';
 import 'package:rewild/pb/service.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
 
-class AuthApiClientImpl implements AuthServiceAuthApiClient {
-  const AuthApiClientImpl();
+class AuthApiClient implements AuthServiceAuthApiClient {
+  const AuthApiClient();
 
   @override
   Future<Resource<UserAuthData?>> registerUser(

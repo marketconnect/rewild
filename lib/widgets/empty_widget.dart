@@ -11,17 +11,19 @@ class EmptyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Center(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Image.asset(
           ImageConstant.imgNotFound,
-          height: MediaQuery.of(context).size.height * 0.2,
-          width: MediaQuery.of(context).size.width * 0.5,
+          height: screenHeight * 0.2,
+          width: screenWidth * 0.5,
         ),
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.02,
+          height: screenHeight * 0.02,
         ),
         Text(
           text,

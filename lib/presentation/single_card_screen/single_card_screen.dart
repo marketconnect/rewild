@@ -26,7 +26,7 @@ class SingleCardScreen extends StatelessWidget {
               child: MyProgressIndicator(),
             )
           : SizedBox(
-              width: MediaQuery.of(context).size.width,
+              width: model.screenWidth,
               child: SingleChildScrollView(
                 physics: const ScrollPhysics(),
                 child: Column(children: [
@@ -34,25 +34,23 @@ class SingleCardScreen extends StatelessWidget {
                   Column(
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.02,
+                        height: model.screenHeight * 0.02,
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(
-                            horizontal:
-                                MediaQuery.of(context).size.width * 0.05),
+                            horizontal: model.screenWidth * 0.05),
                         child: const _Feedback(),
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.02,
+                        height: model.screenHeight * 0.02,
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(
-                            horizontal:
-                                MediaQuery.of(context).size.width * 0.05),
+                            horizontal: model.screenWidth * 0.05),
                         child: const _Name(),
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.02,
+                        height: model.screenHeight * 0.02,
                       ),
                       Divider(
                           color: Theme.of(context).colorScheme.surfaceVariant),
@@ -103,14 +101,14 @@ class _ExpansionTile extends StatelessWidget {
             getTitle(index),
             style: TextStyle(
                 fontWeight: FontWeight.w600,
-                fontSize: MediaQuery.of(context).size.width * 0.05,
+                fontSize: model.screenWidth * 0.05,
                 color:
                     Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
           ),
           children: [
             ...children,
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.05,
+              height: model.screenHeight * 0.05,
             )
           ],
         ),
@@ -299,9 +297,10 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<SingleCardScreenViewModel>();
     return Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.07,
+      width: model.screenWidth,
+      height: model.screenHeight * 0.07,
       decoration: BoxDecoration(
         color: isDark
             ? Theme.of(parentContext)
@@ -311,18 +310,17 @@ class _InfoRow extends StatelessWidget {
             : Theme.of(parentContext).colorScheme.background,
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.05),
+        padding: EdgeInsets.symmetric(horizontal: model.screenWidth * 0.05),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.3,
+              width: model.screenWidth * 0.3,
               child: AutoSizeText(
                 content.header,
                 style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: MediaQuery.of(context).size.width * 0.04,
+                    fontSize: model.screenWidth * 0.04,
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
@@ -330,7 +328,7 @@ class _InfoRow extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.6,
+              width: model.screenWidth * 0.6,
               child: content.child ??
                   AutoSizeText(
                     content.text,
@@ -338,7 +336,7 @@ class _InfoRow extends StatelessWidget {
                     maxLines: 3,
                     style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: MediaQuery.of(context).size.width * 0.04,
+                        fontSize: model.screenWidth * 0.04,
                         color: Theme.of(context)
                             .colorScheme
                             .onSurface
@@ -357,19 +355,20 @@ class _Name extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<SingleCardScreenViewModel>();
     final text = context.watch<SingleCardScreenViewModel>().name;
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         SizedBox(
-          width: MediaQuery.of(context).size.width * 0.9,
+          width: model.screenWidth * 0.9,
           child: Text(
             text,
             textAlign: TextAlign.left,
             maxLines: 5,
             style: TextStyle(
                 fontWeight: FontWeight.w500,
-                fontSize: MediaQuery.of(context).size.width * 0.06,
+                fontSize: model.screenWidth * 0.06,
                 color:
                     Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
           ),
@@ -398,21 +397,21 @@ class _Feedback extends StatelessWidget {
             Text(
               '$reviewRating',
               style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.04,
+                  fontSize: model.screenWidth * 0.04,
                   color: Theme.of(context).colorScheme.primary),
             ),
             Icon(
               Icons.star,
-              size: MediaQuery.of(context).size.width * 0.04,
+              size: model.screenWidth * 0.04,
               color: Theme.of(context).colorScheme.primary,
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.02,
+              width: model.screenWidth * 0.02,
             ),
             Text(
               '$feedbacks',
               style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.04,
+                  fontSize: model.screenWidth * 0.04,
                   color: Theme.of(context).colorScheme.primary),
             ),
           ],
@@ -432,13 +431,12 @@ class _Feedback extends StatelessWidget {
           child: Row(
             children: [
               Padding(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).size.width * 0.01),
+                padding: EdgeInsets.only(bottom: model.screenWidth * 0.01),
                 child: Text(
                   'Перейти',
                   style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: MediaQuery.of(context).size.width * 0.035,
+                      fontSize: model.screenWidth * 0.035,
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
@@ -447,7 +445,7 @@ class _Feedback extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right,
-                size: MediaQuery.of(context).size.width * 0.07,
+                size: model.screenWidth * 0.07,
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
               )
             ],

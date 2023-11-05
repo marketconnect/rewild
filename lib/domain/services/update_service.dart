@@ -102,9 +102,15 @@ class UpdateService
       required this.lastUpdateDayDataProvider,
       required this.cardOfProductApiClient});
 
-  DateTime updatedAt = DateTime.now();
-  bool timeToUpdated() =>
-      DateTime.now().difference(updatedAt) > TimeConstants.updatePeriod;
+  // Time to update?
+  DateTime? updatedAt;
+  void setUpdatedAt() {
+    updatedAt = DateTime.now();
+  }
+
+  bool timeToUpdated() => updatedAt == null
+      ? true
+      : DateTime.now().difference(updatedAt!) > TimeConstants.updatePeriod;
 
   @override
   Future<Resource<void>> fetchAllUserCardsFromServer(String token) async {
@@ -339,7 +345,7 @@ class UpdateService
         return Resource.error(addStocksResource.message!);
       }
     }
-
+    setUpdatedAt();
     return Resource.empty();
   }
 

@@ -7,6 +7,8 @@ class BottomNavigationScreenCardsWidget extends StatelessWidget {
   final int cardsum;
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
     return SingleChildScrollView(
       child: Column(children: [
         Padding(
@@ -15,13 +17,12 @@ class BottomNavigationScreenCardsWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.1,
+                height: screenHeight * 0.1,
               ),
               Text(
                 'Карточки',
                 style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.07,
-                    fontWeight: FontWeight.bold),
+                    fontSize: screenWidth * 0.07, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -30,7 +31,7 @@ class BottomNavigationScreenCardsWidget extends StatelessWidget {
           cardsNum: cardsum,
         ),
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.05,
+          height: screenHeight * 0.05,
         ),
         const Padding(
           padding: EdgeInsets.all(15.0),
@@ -92,6 +93,7 @@ class _Link extends StatelessWidget {
   final Color color;
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () => Navigator.of(context).pushNamed(route),
       child: Container(
@@ -108,18 +110,17 @@ class _Link extends StatelessWidget {
                 child: Icon(
                   iconData,
                   color: Theme.of(context).colorScheme.background,
-                  size: MediaQuery.of(context).size.width * 0.05,
+                  size: screenWidth * 0.05,
                 ),
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.05,
+              width: screenWidth * 0.05,
             ),
             Text(
               text,
               style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.05,
-                  fontWeight: FontWeight.w500),
+                  fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
             )
           ],
         ),
@@ -134,13 +135,15 @@ class _InfoRow extends StatelessWidget {
   final int cardsNum;
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
       Padding(
         padding: const EdgeInsets.all(20.0),
         child: Text('$cardsNum шт',
             style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
-                fontSize: MediaQuery.of(context).size.width * 0.1,
+                fontSize: screenWidth * 0.1,
                 fontWeight: FontWeight.bold)),
       ),
       TextButton(
@@ -152,8 +155,8 @@ class _InfoRow extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(30),
               ),
-              width: MediaQuery.of(context).size.width * 0.4,
-              height: MediaQuery.of(context).size.height * 0.08,
+              width: screenWidth * 0.4,
+              height: screenHeight * 0.08,
               child: Text(
                 'Добавить',
                 style:

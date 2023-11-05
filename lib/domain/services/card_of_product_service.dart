@@ -10,6 +10,7 @@ import 'package:rewild/domain/entities/stocks_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
 
 import 'package:rewild/domain/entities/warehouse.dart';
+import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
@@ -60,6 +61,7 @@ abstract class CardOfProductServiceCardOfProductDataProvider {
   Future<Resource<List<CardOfProductModel>>> getAll([List<int>? nmIds]);
   Future<Resource<CardOfProductModel>> get(int id);
   Future<Resource<int>> delete(int id);
+  Future<Resource<String>> getImage(int id);
   Future<Resource<List<CardOfProductModel>>> getAllBySupplierId(int sellerId);
 }
 
@@ -67,7 +69,7 @@ class CardOfProductService
     implements
         SingleCardScreenCardOfProductService,
         BottomNavigationCardService,
-        // SingleSellerCardOfProductService,
+        AllAdvertsScreenCardOfProductService,
         AllCardsScreenCardOfProductService,
         // AllSellersCardsOfProductService,
         SingleGroupScreenViewModelCardsService {
@@ -181,6 +183,16 @@ class CardOfProductService
     }
 
     return Resource.success(ids.length);
+  }
+
+  @override
+  Future<Resource<String>> getImagesForNmIds(int id) async {
+    final imgResource = await cardOfProductDataProvider.getImage(id);
+    if (imgResource is Error) {
+      return Resource.error(imgResource.message!);
+    }
+
+    return Resource.success(imgResource.data!);
   }
 
   // @override

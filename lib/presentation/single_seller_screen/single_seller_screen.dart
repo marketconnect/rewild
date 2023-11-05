@@ -33,7 +33,7 @@
 //                       ),
 //                       child: Row(children: [
 //                         SizedBox(
-//                           width: MediaQuery.of(context).size.width * 0.2,
+//                           width: model.screenWidth * 0.2,
 //                           child: Padding(
 //                             padding: const EdgeInsets.all(8.0),
 //                             child: CachedNetworkImage(
@@ -41,8 +41,8 @@
 //                           ),
 //                         ),
 //                         // SizedBox(
-//                         //     width: MediaQuery.of(context).size.width * 0.5,
-//                         //     height: MediaQuery.of(context).size.width * 0.2,
+//                         //     width: model.screenWidth * 0.5,
+//                         //     height: model.screenWidth * 0.2,
 //                         //     child: SfCartesianChart(
 //                         //         // Initialize category axis
 //                         //         primaryXAxis: CategoryAxis(),

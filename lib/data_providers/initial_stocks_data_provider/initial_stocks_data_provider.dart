@@ -10,6 +10,7 @@ class InitialStockDataProvider
         UpdateServiceInitStockDataProvider,
         InitStockServiceInitStockDataProvider,
         CardOfProductServiceInitStockDataProvider {
+  const InitialStockDataProvider();
   @override
   Future<Resource<int>> insert(InitialStockModel initialStock) async {
     try {

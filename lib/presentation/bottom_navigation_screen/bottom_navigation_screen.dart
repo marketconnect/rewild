@@ -34,7 +34,9 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
 
   @override
   Widget build(BuildContext context) {
-    final cardsNum = context.watch<BottomNavigationViewModel>().cardsNum;
+    final model = context.watch<BottomNavigationViewModel>();
+    final cardsNum = model.cardsNum;
+
     List<Widget> widgets = [
       const BottomNavigationScreenHomeWidget(),
       BottomNavigationScreenCardsWidget(cardsum: cardsNum),
@@ -55,7 +57,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
           tabs: [
             GButton(
               icon: _widgetIndex == 0 ? Icons.home : Icons.home_outlined,
-              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
+              padding: EdgeInsets.all(model.screenWidth * 0.02),
               text: 'Главная',
               iconColor: Theme.of(context).colorScheme.primary,
               iconActiveColor: Theme.of(context).colorScheme.primary,
@@ -67,7 +69,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
             ),
             GButton(
               icon: _widgetIndex == 1 ? Icons.image : Icons.image_outlined,
-              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
+              padding: EdgeInsets.all(model.screenWidth * 0.02),
               text: 'Карточки',
               textColor: Theme.of(context).colorScheme.secondary,
               activeBorder: Border.all(
@@ -81,7 +83,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
               icon: _widgetIndex == 2
                   ? Icons.rocket_launch
                   : Icons.rocket_launch_outlined,
-              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
+              padding: EdgeInsets.all(model.screenWidth * 0.02),
               text: 'Реклама',
               textColor: Theme.of(context).colorScheme.secondary,
               activeBorder: Border.all(

@@ -231,7 +231,7 @@ class _BottomMergeBtn extends StatelessWidget {
       // Bottom merge btn ============================================================== Bottom merge btn
       alignment: Alignment.bottomRight,
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.42,
+        width: model.screenWidth * 0.42,
         height: 55,
         margin: const EdgeInsets.only(bottom: 25, right: 25),
         decoration: BoxDecoration(
@@ -247,7 +247,7 @@ class _BottomMergeBtn extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.group_add_outlined,
-                    size: MediaQuery.of(context).size.width * 0.06,
+                    size: model.screenWidth * 0.06,
                     color: Theme.of(context).colorScheme.onPrimary,
                   ),
                   Column(
@@ -255,14 +255,13 @@ class _BottomMergeBtn extends StatelessWidget {
                     children: [
                       Padding(
                         padding: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width * 0.02,
+                          left: model.screenWidth * 0.02,
                         ),
                         child: Text(
                           'В группу',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.04,
+                              fontSize: model.screenWidth * 0.04,
                               color: Theme.of(context).colorScheme.onPrimary),
                         ),
                       ),
@@ -334,10 +333,10 @@ class _EmptyProductsCards extends StatelessWidget {
                       foregroundColor: MaterialStateProperty.all(
                           Theme.of(context).colorScheme.onPrimary)),
                   margin: EdgeInsets.fromLTRB(
-                      MediaQuery.of(context).size.width * 0.3,
-                      MediaQuery.of(context).size.height * 0.05,
-                      MediaQuery.of(context).size.width * 0.3,
-                      MediaQuery.of(context).size.height * 0.05),
+                      model.screenWidth * 0.3,
+                      model.screenHeight * 0.05,
+                      model.screenWidth * 0.3,
+                      model.screenHeight * 0.05),
                 ),
               ],
       ),
@@ -443,8 +442,7 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
                                 icon: Icon(Icons.close,
                                     color:
                                         Theme.of(context).colorScheme.primary,
-                                    size: MediaQuery.of(context).size.width *
-                                        0.08),
+                                    size: model.screenWidth * 0.08),
                                 onPressed: () => onClear(),
                               ),
                             ),
@@ -461,7 +459,7 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
                           ],
                         ),
                         SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
+                          width: model.screenWidth * 0.3,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -471,10 +469,9 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
                                 icon: Icon(Icons.group_add_outlined,
                                     color:
                                         Theme.of(context).colorScheme.primary,
-                                    size: MediaQuery.of(context).size.width *
-                                        0.08)),
+                                    size: model.screenWidth * 0.08)),
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.05,
+                              width: model.screenWidth * 0.05,
                             ),
                             IconButton(
                                 onPressed: () =>
@@ -482,8 +479,7 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
                                 icon: Icon(
                                   Icons.delete_outline,
                                   color: Theme.of(context).colorScheme.primary,
-                                  size:
-                                      MediaQuery.of(context).size.width * 0.08,
+                                  size: model.screenWidth * 0.08,
                                 )),
                           ],
                         ),
@@ -503,7 +499,7 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
                                       ? Colors.transparent
                                       : Theme.of(context).colorScheme.secondary,
                                 )),
-                            width: MediaQuery.of(context).size.width * 0.25,
+                            width: model.screenWidth * 0.25,
                             child: Align(
                               alignment: Alignment.center,
                               child: Text(

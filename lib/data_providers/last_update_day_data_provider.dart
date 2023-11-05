@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LastUpdateDayDataProvider
     implements UpdateServiceLastUpdateDayDataProvider {
+  const LastUpdateDayDataProvider();
   static const updatedAtKey = 'updatedAt';
   @override
   Future<Resource<void>> update() async {

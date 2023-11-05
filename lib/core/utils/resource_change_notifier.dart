@@ -4,8 +4,12 @@ import 'package:rewild/core/utils/resource.dart';
 class ResourceChangeNotifier extends ChangeNotifier {
   final BuildContext context;
 
+  late final Size _screenSize = MediaQuery.of(context).size;
+  double get screenWidth => _screenSize.width;
+  double get screenHeight => _screenSize.height;
+
   ResourceChangeNotifier({required this.context});
-  bool _loading = true;
+  late bool _loading = true;
   bool get loading => _loading;
   void notify() {
     if (context.mounted) {

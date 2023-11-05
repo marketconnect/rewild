@@ -4,6 +4,7 @@ import 'package:rewild/domain/entities/filter_model.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
 
 class FilterDataProvider implements AllCardsFilterFilterDataProvider {
+  const FilterDataProvider();
   @override
   Future<Resource<void>> insert(FilterModel filter) async {
     try {

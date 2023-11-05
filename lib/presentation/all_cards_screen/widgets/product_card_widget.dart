@@ -1,8 +1,10 @@
 import 'package:rewild/core/utils/strings.dart';
+
 import 'package:rewild/domain/entities/card_of_product_model.dart';
-import 'package:rewild/domain/entities/group_model.dart';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:rewild/domain/entities/group_model.dart';
 
 class ProductCardWidget extends StatelessWidget {
   const ProductCardWidget({
@@ -24,6 +26,7 @@ class ProductCardWidget extends StatelessWidget {
     final wasSaled = productCard.wasOrdered;
     final promoTextCard = productCard.promoTextCard;
     final supplySum = productCard.supplySum;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     final supplyText = productCard.supplies.isNotEmpty && supplySum > 0
         ? " (п. ~$supplySum шт.)"
@@ -49,14 +52,14 @@ class ProductCardWidget extends StatelessWidget {
             Row(
               children: [
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.2,
+                  width: screenWidth * 0.2,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: CachedNetworkImage(imageUrl: productCard.img ?? ''),
                   ),
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
+                  width: screenWidth * 0.6,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -65,8 +68,8 @@ class ProductCardWidget extends StatelessWidget {
                         children: [
                           SizedBox(
                             width: productCard.groups.isEmpty || inAnyGroup
-                                ? MediaQuery.of(context).size.width * 0.6
-                                : MediaQuery.of(context).size.width * 0.45,
+                                ? screenWidth * 0.6
+                                : screenWidth * 0.45,
                             child: Text(productCard.name,
                                 overflow: TextOverflow.ellipsis),
                           ),
@@ -83,8 +86,7 @@ class ProductCardWidget extends StatelessWidget {
                           Text('Остатки: $stocksSum шт.',
                               style: TextStyle(
                                   color: const Color(0xFFa1a1a2),
-                                  fontSize: MediaQuery.of(context).size.width *
-                                      0.035)),
+                                  fontSize: screenWidth * 0.035)),
                         ],
                       ),
                       salesSumText == null
@@ -128,26 +130,24 @@ class ProductCardWidget extends StatelessWidget {
               ],
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.15,
+              width: screenWidth * 0.15,
               child: Column(
                 children: [
                   Text('${(price / 100).floor()}₽',
-                      style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * 0.03)),
+                      style: TextStyle(fontSize: screenWidth * 0.03)),
                   if (promoTextCard != null && promoTextCard != "")
                     Container(
                         margin: const EdgeInsets.fromLTRB(0, 5, 5, 0),
                         alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        height: MediaQuery.of(context).size.width * 0.05,
+                        width: screenWidth * 0.2,
+                        height: screenWidth * 0.05,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(2),
                           color: Theme.of(context).colorScheme.errorContainer,
                         ),
                         child: Text("Акция",
                             style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.03,
+                                fontSize: screenWidth * 0.03,
                                 color: Theme.of(context).colorScheme.error))),
                 ],
               ),
@@ -166,19 +166,21 @@ class _Groups extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Column(
         children: groups.isEmpty
             ? [Container()]
             : [
                 Container(
                   alignment: Alignment.center,
-                  width: MediaQuery.of(context).size.width * 0.1,
+                  width: screenWidth * 0.1,
                   height: 18,
                   decoration: BoxDecoration(
                       color: Color(groups[0].bgColor).withOpacity(1.0),
                       borderRadius: BorderRadius.circular(10)),
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.08,
+                    width: screenWidth * 0.08,
                     child: Text(groups[0].name.take(4).toLowerCase(),
                         textAlign: TextAlign.center,
                         style: TextStyle(

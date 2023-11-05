@@ -1,3 +1,4 @@
+import 'package:rewild/api_clients/advert_api_client.dart';
 import 'package:rewild/api_clients/auth_service_api_client.dart';
 import 'package:rewild/api_clients/commision_api_client.dart';
 import 'package:rewild/api_clients/details_api_client.dart';
@@ -23,6 +24,7 @@ import 'package:rewild/data_providers/seller_data_provider/seller_data_provider.
 import 'package:rewild/data_providers/stock_data_provider.dart/stock_data_provider.dart';
 import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.dart';
 import 'package:rewild/data_providers/warehouse_data_provider.dart';
+import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/api_keys_service.dart';
 import 'package:rewild/domain/services/auth_service.dart';
@@ -41,6 +43,8 @@ import 'package:rewild/domain/services/warehouse_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
+import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen.dart';
+import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen.dart';
@@ -86,7 +90,7 @@ class _DIContainer {
 
   // Api clients ===============================================================
   // auth
-  AuthServiceAuthApiClient _makeAuthApiClient() => const AuthApiClientImpl();
+  AuthApiClient _makeAuthApiClient() => const AuthApiClient();
 
   // details
   DetailsApiClient _makeDetailsApiClient() => const DetailsApiClient();
@@ -112,61 +116,53 @@ class _DIContainer {
   OrdersHistoryApiClient _makeOrdersHistoryApiClient() =>
       const OrdersHistoryApiClient();
 
-  // price history
-  // PriceHistoryApiClient _makePriceHistoryApiClient() =>
-  //     const PriceHistoryApiClient();
-  // orders
-  // OrdersApiClient _makeOrdersApiClient() => const OrdersApiClient();
+  // advert
+  AdvertApiClient _makeAdvertApiClient() => const AdvertApiClient();
+
   // Data providers ============================================================
 
   // secure storage
-  SecureStorageProviderImpl _makeSecureDataProvider() =>
-      SecureStorageProviderImpl();
+  SecureStorageProvider _makeSecureDataProvider() =>
+      const SecureStorageProvider();
 
   // card
   CardOfProductDataProvider _makeCardOfProductDataProvider() =>
-      CardOfProductDataProvider();
+      const CardOfProductDataProvider();
 
   // initial stocks
   InitialStockDataProvider _makeInitialStockDataProvider() =>
-      InitialStockDataProvider();
+      const InitialStockDataProvider();
 
   // Commission
   CommissionDataProvider _makeCommissionDataProvider() =>
-      CommissionDataProvider();
+      const CommissionDataProvider();
 
   // stocks
-  StockDataProvider _makeStockDataProvider() => StockDataProvider();
+  StockDataProvider _makeStockDataProvider() => const StockDataProvider();
 
   // groups
-  GroupDataProvider _makeGroupDataProvider() => GroupDataProvider();
+  GroupDataProvider _makeGroupDataProvider() => const GroupDataProvider();
 
   // warehouse
-  WarehouseDataProvider _makeWarehouseDataProvider() => WarehouseDataProvider();
+  WarehouseDataProvider _makeWarehouseDataProvider() =>
+      const WarehouseDataProvider();
 
   // supply
-  SupplyDataProvider _makeSupplyDataProvider() => SupplyDataProvider();
+  SupplyDataProvider _makeSupplyDataProvider() => const SupplyDataProvider();
 
   // seller
-  SellerDataProvider _makeSellerDataProvider() => SellerDataProvider();
+  SellerDataProvider _makeSellerDataProvider() => const SellerDataProvider();
 
   // orders history
   OrdersHistoryDataProvider _makeOrdersHistoryDataProvider() =>
-      OrdersHistoryDataProvider();
+      const OrdersHistoryDataProvider();
 
   // last update
   LastUpdateDayDataProvider _makeLastUpdateDayDataProvider() =>
-      LastUpdateDayDataProvider();
+      const LastUpdateDayDataProvider();
 
   // filter
-  FilterDataProvider _makeFilterDataProvider() => FilterDataProvider();
-
-  // Api keys
-  // ApiKeysDataProvider _makeApiKeysDataProvider() => ApiKeysDataProvider();
-
-  // price history
-  // PriceHistoryDataProvider _makePriceHistoryDataProvider() =>
-  //     const PriceHistoryDataProvider();
+  FilterDataProvider _makeFilterDataProvider() => const FilterDataProvider();
 
   // Services ==================================================================
 
@@ -252,13 +248,10 @@ class _DIContainer {
         apiKeysDataProvider: _makeSecureDataProvider(),
       );
 
-  // price history
-  // PriceHistoryService _makePriceHistoryService() => PriceHistoryService(
-  //     priceHistoryDataProvider: _makePriceHistoryDataProvider(),
-  //     priceHistoryApiClient: _makePriceHistoryApiClient());
-  // OrderService _makeOrderService() => OrderService(
-  //       orderApiClient: _makeOrdersApiClient(),
-  //     );
+  // // advert
+  AdvertService _makeAdvertService() => AdvertService(
+      advertApiClient: _makeAdvertApiClient(),
+      apiKeysDataProvider: _makeSecureDataProvider());
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
       SplashScreenViewModel(
@@ -333,6 +326,14 @@ class _DIContainer {
   ApiKeysScreenViewModel _makeApiKeysScreenViewModel(BuildContext context) =>
       ApiKeysScreenViewModel(
           context: context, apiKeysService: _makeApiKeysService());
+
+  AllAdvertsScreenViewModel _makeAllAdvertsScreenViewModel(
+          BuildContext context) =>
+      AllAdvertsScreenViewModel(
+        context: context,
+        cardOfProductService: _makeCardOfProductService(),
+        advertService: _makeAdvertService(),
+      );
 
   // AllSellersScreenViewModel _makeAllSellersScreenViewModel(
   //         BuildContext context) =>
@@ -435,14 +436,6 @@ class ScreenFactoryDefault implements ScreenFactory {
     );
   }
 
-  // @override
-  // Widget makeAllSellersScreen() {
-  //   return ChangeNotifierProvider(
-  //     create: (context) => _diContainer._makeAllSellersScreenViewModel(context),
-  //     child: const AllSellersScreen(),
-  //   );
-  // }
-
   @override
   Widget makeAllCardsFilterScreen() {
     return ChangeNotifierProvider(
@@ -453,10 +446,10 @@ class ScreenFactoryDefault implements ScreenFactory {
   }
 
   @override
-  Widget makeaAllAdvertsScreen() {
+  Widget makeAllAdvertsScreen() {
     return ChangeNotifierProvider(
       create: (context) => _diContainer._makeAllAdvertsScreenViewModel(context),
       child: const AllAdvertsScreen(),
-    )    
+    );
   }
 }

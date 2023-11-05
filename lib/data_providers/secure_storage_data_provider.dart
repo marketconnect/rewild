@@ -2,14 +2,20 @@ import 'dart:math';
 import 'package:android_id/android_id.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
+import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/api_keys_service.dart';
 import 'package:rewild/domain/services/auth_service.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class SecureStorageProviderImpl
-    implements AuthServiceSecureDataProvider, ApiKeysScreenApiKeysDataProvider {
+class SecureStorageProvider
+    implements
+        AuthServiceSecureDataProvider,
+        ApiKeysServiceApiKeysDataProvider,
+        AdvertServiceApiKeyDataProvider {
   static const _secureStorage = FlutterSecureStorage();
+
+  const SecureStorageProvider();
 
   @override
   Future<Resource<void>> updateUsername(
@@ -112,6 +118,20 @@ class SecureStorageProviderImpl
       }
     }
     return Resource.success(deviceId);
+  }
+
+  @override
+  Future<Resource<ApiKeyModel>> getApiKey(String type) async {
+    final resource = await _read(key: type);
+    if (resource is Error) {
+      return Resource.error(resource.message!);
+    }
+
+    if (resource.data == null) {
+      return Resource.empty();
+    }
+
+    return Resource.success(ApiKeyModel(token: resource.data!, type: type));
   }
 
   @override

@@ -8,6 +8,7 @@ class SellerDataProvider
     implements
         SellerServiceSellerDataProvider,
         AllCardsFilterServiceSellerDataProvider {
+  const SellerDataProvider();
   @override
   Future<Resource<int>> insert(SellerModel seller) async {
     try {

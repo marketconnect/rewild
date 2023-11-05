@@ -36,8 +36,8 @@ class AllGroupsScreen extends StatelessWidget {
                         child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.height * 0.12,
+                              width: model.screenWidth,
+                              height: model.screenHeight * 0.12,
                               decoration: BoxDecoration(
                                   boxShadow: [
                                     BoxShadow(

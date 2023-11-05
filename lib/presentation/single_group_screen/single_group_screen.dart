@@ -25,13 +25,13 @@ class SingleGroupScreen extends StatelessWidget {
               title: Text(name.capitalize()),
               bottom: TabBar(tabs: [
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
+                  width: model.screenWidth * 0.5,
                   child: const Tab(
                     child: Text('Остатки'),
                   ),
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
+                  width: model.screenWidth * 0.5,
                   child: const Tab(
                     child: Text('Заказы'),
                   ),
@@ -86,7 +86,7 @@ class _TabBody extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
+                        width: model.screenWidth,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -115,7 +115,7 @@ class _TabBody extends StatelessWidget {
             ),
           ),
           Container(
-            width: MediaQuery.of(context).size.width,
+            width: model.screenWidth,
             height: 10,
             color:
                 Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
@@ -134,17 +134,18 @@ class _EmptyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<SingleGroupScreenViewModel>();
     return Center(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         CustomImageView(
           svgPath: ImageConstant.imgNotFound,
-          height: MediaQuery.of(context).size.height * 0.2,
-          width: MediaQuery.of(context).size.width * 0.5,
+          height: model.screenHeight * 0.2,
+          width: model.screenWidth * 0.5,
         ),
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.02,
+          height: model.screenHeight * 0.02,
         ),
         const Text(
           'Нет карточек в группе',
@@ -170,11 +171,11 @@ class _CardsList extends StatelessWidget {
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         CustomImageView(
           svgPath: ImageConstant.imgNotFound,
-          height: MediaQuery.of(context).size.height * 0.2,
-          width: MediaQuery.of(context).size.width * 0.5,
+          height: model.screenHeight * 0.2,
+          width: model.screenWidth * 0.5,
         ),
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.02,
+          height: model.screenHeight * 0.02,
         ),
         const Text(
           'Вы не добавили ни одной карточки в группу',
@@ -276,17 +277,17 @@ class _CardsList extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        height: MediaQuery.of(context).size.width * 0.2,
+                        width: model.screenWidth * 0.2,
+                        height: model.screenWidth * 0.2,
                         child: CachedNetworkImage(imageUrl: card.img ?? '')),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.45,
+                      width: model.screenWidth * 0.45,
                       child: Text(card.name, overflow: TextOverflow.ellipsis),
                     ),
                   ],
                 ),
                 Container(
-                  width: MediaQuery.of(context).size.width * 0.12,
+                  width: model.screenWidth * 0.12,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: card.seller!.backgroundColor,
@@ -330,8 +331,8 @@ class _Chart extends StatelessWidget {
     }
 
     return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: expanded ? null : MediaQuery.of(context).size.height * 0.5,
+      width: model.screenWidth,
+      height: expanded ? null : model.screenHeight * 0.5,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 50),
         child: PieChart(

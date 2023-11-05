@@ -27,6 +27,8 @@ class _BottomNavigationScreenHomeWidgetState
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return SingleChildScrollView(
       child: Column(children: [
         Padding(
@@ -35,19 +37,18 @@ class _BottomNavigationScreenHomeWidgetState
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.1,
+                height: screenHeight * 0.1,
               ),
               Text(
                 'Главная',
                 style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.08,
-                    fontWeight: FontWeight.bold),
+                    fontSize: screenWidth * 0.08, fontWeight: FontWeight.bold),
               ),
             ],
           ),
         ),
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.05,
+          height: screenHeight * 0.05,
         ),
         Container(
           decoration: BoxDecoration(
@@ -79,7 +80,7 @@ class _BottomNavigationScreenHomeWidgetState
                       child: Column(
                         children: [
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.02,
+                            height: screenHeight * 0.02,
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -87,33 +88,28 @@ class _BottomNavigationScreenHomeWidgetState
                               Text(
                                 "Напишите нам",
                                 style: TextStyle(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.06,
+                                    fontSize: screenWidth * 0.06,
                                     fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.02,
+                            height: screenHeight * 0.02,
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
                                 "Пожелание в свободной форме:",
-                                style: TextStyle(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.045),
+                                style: TextStyle(fontSize: screenWidth * 0.045),
                               ),
                             ],
                           ),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.01,
+                            height: screenHeight * 0.01,
                           ),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.96,
+                            width: screenWidth * 0.96,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               color: Theme.of(context).colorScheme.background,
@@ -134,7 +130,7 @@ class _BottomNavigationScreenHomeWidgetState
                             ),
                           ),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.05,
+                            height: screenHeight * 0.05,
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -191,7 +187,7 @@ class _BottomNavigationScreenHomeWidgetState
                             ),
                           ),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.07,
+                            height: screenHeight * 0.07,
                           ),
                         ],
                       ),
@@ -219,6 +215,7 @@ class _Link extends StatelessWidget {
   final Color color;
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () => Navigator.of(context).pushNamed(route),
       child: Container(
@@ -236,18 +233,17 @@ class _Link extends StatelessWidget {
                 child: Icon(
                   iconData,
                   color: Theme.of(context).colorScheme.background,
-                  size: MediaQuery.of(context).size.width * 0.05,
+                  size: screenWidth * 0.05,
                 ),
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.05,
+              width: screenWidth * 0.05,
             ),
             Text(
               text,
               style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.05,
-                  fontWeight: FontWeight.w500),
+                  fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
             )
           ],
         ),
@@ -261,6 +257,7 @@ class _Feedback extends StatelessWidget {
   final Function click;
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () => click(),
       child: Container(
@@ -279,18 +276,17 @@ class _Feedback extends StatelessWidget {
                 child: Icon(
                   Icons.feedback_outlined,
                   color: Theme.of(context).colorScheme.background,
-                  size: MediaQuery.of(context).size.width * 0.05,
+                  size: screenWidth * 0.05,
                 ),
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.05,
+              width: screenWidth * 0.05,
             ),
             Text(
               "Обратная связь",
               style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.05,
-                  fontWeight: FontWeight.w500),
+                  fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
             )
           ],
         ),

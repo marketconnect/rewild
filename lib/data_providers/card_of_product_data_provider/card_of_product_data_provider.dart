@@ -10,6 +10,7 @@ class CardOfProductDataProvider
         CardOfProductServiceCardOfProductDataProvider,
         UpdateServiceCardOfProductDataProvider,
         AllCardsFilterServiceCardsOfProductDataProvider {
+  const CardOfProductDataProvider();
   @override
   Future<Resource<int>> insertOrUpdate(CardOfProductModel card) async {
     try {
@@ -25,6 +26,20 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось обновить карточку в памяти телефона: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<Resource<String>> getImage(int id) async {
+    try {
+      final db = await SqfliteService().database;
+      final image = await db.rawQuery('SELECT img FROM cards WHERE nmId = ?',
+          [id]).then((value) => value.first['img']);
+      return Resource.success(image.toString());
+    } catch (e) {
+      return Resource.error(
+        'Не удалось получить картинку из памяти телефона: ${e.toString()}',
       );
     }
   }
