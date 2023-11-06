@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/utils/image_constant.dart';
 import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart';
@@ -11,6 +12,7 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FlutterStatusbarcolor.setStatusBarColor(Colors.black);
     final _ = context.watch<SplashScreenViewModel>();
 
     final screenSize = MediaQuery.of(context).size;
