@@ -52,7 +52,7 @@ dependencies:
   sqflite: ^2.3.0
   share_plus: ^7.2.1
   flutter_spinkit: ^5.2.0
-  # syncfusion_flutter_charts: ^23.1.43
+  google_fonts: ^6.1.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -93,22 +93,8 @@ flutter:
       fonts:
         - asset: assets/fonts/MyFlutterApp.ttf # your font file name and the directory
 
-    - family: Poppins
-      fonts:
-        - asset: assets/fonts/PoppinsSemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/PoppinsRegular.ttf
-          weight: 400
-        - asset: assets/fonts/PoppinsBold.ttf
-          weight: 700
-        - asset: assets/fonts/PoppinsMedium.ttf
-          weight: 500
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/RobotoRomanSemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/RobotoMedium.ttf
-          weight: 500
+  
+  
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

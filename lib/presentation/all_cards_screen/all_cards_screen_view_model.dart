@@ -143,6 +143,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> _update([bool notify = true]) async {
+    // filter
     _filter = await fetch(() => filterService.getCurrentFilter());
     if (_filter == null) {
       return;

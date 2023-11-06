@@ -11,6 +11,7 @@ abstract class GroupServiceGroupDataProvider {
   Future<Resource<int>> insert(GroupModel group);
   Future<Resource<List<GroupModel>>> getAll([List<int>? nmIds]);
   Future<Resource<void>> delete(String name, [int? nmId]);
+  Future<Resource<void>> renameGroup(String groupName, String newGroupName);
 }
 
 class GroupService
@@ -57,5 +58,15 @@ class GroupService
   @override
   Future<Resource<void>> delete(String groupName, int nmId) {
     return groupDataProvider.delete(groupName, nmId);
+  }
+
+  @override
+  Future<Resource<void>> deleteGroup(String groupName) {
+    return groupDataProvider.delete(groupName);
+  }
+
+  @override
+  Future<Resource<void>> renameGroup(String groupName, String newGroupName) {
+    return groupDataProvider.renameGroup(groupName, newGroupName);
   }
 }

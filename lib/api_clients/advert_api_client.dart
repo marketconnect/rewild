@@ -15,6 +15,46 @@ import 'package:rewild/domain/services/advert_service.dart';
 
 class AdvertApiClient implements AdvertServiceAdvertApiClient {
   const AdvertApiClient();
+
+  @override
+  Future<Resource<int>> getCompanyBudget(String token, int advertId) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': advertId.toString()};
+
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/budget", params);
+      var response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        var data = jsonDecode(utf8.decode(response.bodyBytes));
+        if (data == null) {
+          return Resource.empty();
+        }
+
+        return Resource.success(data['total']);
+      } else if (response.statusCode == 429) {
+        return Resource.error(
+          "Ответ API WB: too many requests with this user ID",
+        );
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: кампания не принадлежит продавцу",
+        );
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      }
+    } catch (e) {
+      return Resource.error(e.toString());
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
   @override
   Future<Resource<List<AdvertInfoModel>>> getAdverts(String token) async {
     try {
@@ -76,7 +116,7 @@ class AdvertApiClient implements AdvertServiceAdvertApiClient {
         final stats = json.decode(utf8.decode(response.bodyBytes));
 
         final advType = stats['type'];
-        print("stats: $stats, advType: $advType");
+
         switch (advType) {
           case 4:
             // catalog

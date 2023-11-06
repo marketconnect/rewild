@@ -20,7 +20,7 @@ class BottomNavigationScreenCardsWidget extends StatelessWidget {
                 height: screenHeight * 0.1,
               ),
               Text(
-                'Карточки',
+                'Товары',
                 style: TextStyle(
                     fontSize: screenWidth * 0.07, fontWeight: FontWeight.bold),
               ),
@@ -38,17 +38,17 @@ class BottomNavigationScreenCardsWidget extends StatelessWidget {
           child: Column(
             children: [
               _Link(
-                text: 'Карточки',
+                text: 'Карточки товаров',
                 color: Color(0xFF34d058),
                 route: MainNavigationRouteNames.allCardsScreen,
-                iconData: Icons.image_outlined,
+                iconData: Icons.card_giftcard_outlined,
               ),
               _Link(
                 text: 'Группы',
                 color: Color(0xFF2188ff),
                 route: MainNavigationRouteNames.allGroupsScreen,
                 // route: '',
-                iconData: Icons.group_outlined,
+                iconData: Icons.account_tree_outlined,
               ),
               // _Link(
               //     text: 'Продавцы',

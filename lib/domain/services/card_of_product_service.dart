@@ -186,7 +186,7 @@ class CardOfProductService
   }
 
   @override
-  Future<Resource<String>> getImagesForNmIds(int id) async {
+  Future<Resource<String>> getImageForNmId(int id) async {
     final imgResource = await cardOfProductDataProvider.getImage(id);
     if (imgResource is Error) {
       return Resource.error(imgResource.message!);

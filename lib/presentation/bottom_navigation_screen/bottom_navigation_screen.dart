@@ -68,9 +68,11 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
               borderRadius: BorderRadius.circular(10),
             ),
             GButton(
-              icon: _widgetIndex == 1 ? Icons.image : Icons.image_outlined,
+              icon: _widgetIndex == 1
+                  ? Icons.local_offer
+                  : Icons.local_offer_outlined,
               padding: EdgeInsets.all(model.screenWidth * 0.02),
-              text: 'Карточки',
+              text: 'Товары',
               textColor: Theme.of(context).colorScheme.secondary,
               activeBorder: Border.all(
                 color: Theme.of(context).colorScheme.secondary,

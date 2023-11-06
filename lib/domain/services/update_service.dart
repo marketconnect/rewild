@@ -309,6 +309,7 @@ class UpdateService
           return Resource.error(deleteSuppliesResource.message!);
         }
       }
+
       await lastUpdateDayDataProvider.update();
     }
 
@@ -323,15 +324,6 @@ class UpdateService
     // ADD OTHER INFORMATION FOR EVERY FETCHED CARD
 
     for (final card in fetchedCardsOfProducts) {
-      // get already saved card
-      // final oldCard = allSavedCardsOfProducts.firstWhere(
-      //   (e) => e.nmId == card.nmId,
-      // );
-
-      // insert img link
-      // final img = oldCard.img;
-      // card.img = img;
-
       // add the card to db
       final insertResource =
           await cardOfProductDataProvider.insertOrUpdate(card);

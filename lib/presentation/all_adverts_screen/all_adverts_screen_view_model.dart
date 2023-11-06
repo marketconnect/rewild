@@ -11,10 +11,11 @@ import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
 abstract class AllAdvertsScreenAdvertService {
   Future<Resource<List<Advert>>> getAll();
   Future<Resource<bool>> apiKeyExists();
+  Future<Resource<int>> getBudget(int advertId);
 }
 
 abstract class AllAdvertsScreenCardOfProductService {
-  Future<Resource<String>> getImagesForNmIds(int id);
+  Future<Resource<String>> getImageForNmId(int id);
 }
 
 class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
@@ -46,7 +47,11 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
 
   // images
   Map<int, String> _image = {};
-  void setImages(int advId, String value) {
+  void setImage(Map<int, String> value) {
+    _image = value;
+  }
+
+  void addImage(int advId, String value) {
     _image[advId] = value;
   }
 
@@ -64,6 +69,16 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
     return _cpm[advId] ?? "";
   }
 
+  // budget
+  Map<int, int> _budget = {};
+  void setBudget(int advId, int value) {
+    _budget[advId] = value;
+  }
+
+  int? budget(int advId) {
+    return _budget[advId];
+  }
+
   void _asyncInit() async {
     final resource = await advertService.apiKeyExists();
     if (resource is Error) {
@@ -79,7 +94,9 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
       return;
     }
 
+    List<int> advertIds = [];
     for (final advert in adverts) {
+      advertIds.add(advert.advertId);
       int nmId = 0;
       String cpm = "";
       if (advert is AdvertCatalogueModel) {
@@ -138,21 +155,28 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
           }
         }
         cpm =
-            '${params.first.catalogCPM!.toString()} + ${params.first.searchCPM!.toString()}';
+            '${params.first.searchCPM!.toString()} + ${params.first.catalogCPM!.toString()}';
       }
       // catalog
 
       final image = await fetch(
-        () => cardOfProductService.getImagesForNmIds(nmId),
+        () => cardOfProductService.getImageForNmId(nmId),
       );
       if (image == null) {
         return;
       }
-      setImages(advert.advertId, image);
+      addImage(advert.advertId, image);
       setCpm(advert.advertId, cpm);
     }
-
+    adverts.sort((a, b) => b.status.compareTo(a.status));
     setAdverts(adverts);
     notify();
+    for (final id in advertIds) {
+      final budget = await fetch(() => advertService.getBudget(id));
+      if (budget != null) {
+        setBudget(id, budget);
+        notify();
+      }
+    }
   }
 }

@@ -8,6 +8,7 @@ import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_m
 abstract class AdvertServiceAdvertApiClient {
   Future<Resource<List<AdvertInfoModel>>> getAdverts(String token);
   Future<Resource<Advert>> getAdvertInfo(String token, int id);
+  Future<Resource<int>> getCompanyBudget(String token, int advertId);
 }
 
 abstract class AdvertServiceApiKeyDataProvider {
@@ -33,6 +34,39 @@ class AdvertService implements AllAdvertsScreenAdvertService {
     return Resource.success(true);
   }
 
+  DateTime? budgetLastReq;
+  DateTime? advertsLastReq;
+
+  @override
+  Future<Resource<int>> getBudget(int advertId) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+    // wait request time limit (1/sec)
+    await _ready(budgetLastReq, const Duration(seconds: 1));
+    final budgetResource = await advertApiClient.getCompanyBudget(
+        tokenResource.data!.token, advertId);
+    if (budgetResource is Error) {
+      return Resource.error(budgetResource.message!);
+    }
+    budgetLastReq ??= DateTime.now();
+    return budgetResource;
+  }
+
+  Future<void> _ready(DateTime? lastReq, Duration duration) async {
+    if (lastReq == null) {
+      return;
+    }
+    while (DateTime.now().difference(lastReq) < duration) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    return;
+  }
+
   @override
   Future<Resource<List<Advert>>> getAll() async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
@@ -55,12 +89,11 @@ class AdvertService implements AllAdvertsScreenAdvertService {
         continue;
       }
 
-      await Future.delayed(Duration(milliseconds: 300));
+      await _ready(advertsLastReq, const Duration(milliseconds: 300));
 
       final advInfoResource = await advertApiClient.getAdvertInfo(
           tokenResource.data!.token, advert.advertId);
       if (advInfoResource is Error) {
-        print("ERROR");
         return Resource.error(advInfoResource.message!);
       }
       res.add(advInfoResource.data!);

@@ -1,6 +1,7 @@
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:flutter/material.dart';
+import 'package:rewild/domain/entities/group_model.dart';
 
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/widgets/my_sliver_persistent_header_delegate.dart';
@@ -90,10 +91,16 @@ class _AllCardsScreenState extends State<AllCardsScreen>
     final selectionInProcess = model.selectionInProcess;
 
     final headerSliverBuilderItems = selectionInProcess
-        ? [_HorizontalScrollMenu(selectedGroupIndex)]
+        ? [
+            _HorizontalScrollMenu(
+                selectedGroupIndex: selectedGroupIndex,
+                cardsNmIds: productCards.map((e) => e.nmId).toList())
+          ]
         : [
             const _AppBar(),
-            _HorizontalScrollMenu(selectedGroupIndex),
+            _HorizontalScrollMenu(
+                selectedGroupIndex: selectedGroupIndex,
+                cardsNmIds: productCards.map((e) => e.nmId).toList()),
           ];
 
     return SafeArea(
@@ -375,8 +382,10 @@ class _PopumMenuItemChild extends StatelessWidget {
 }
 
 class _HorizontalScrollMenu extends StatefulWidget {
-  const _HorizontalScrollMenu(this.selectedGroupIndex);
+  const _HorizontalScrollMenu(
+      {required this.selectedGroupIndex, required this.cardsNmIds});
   final int selectedGroupIndex;
+  final List<int> cardsNmIds;
   @override
   State<_HorizontalScrollMenu> createState() => _HorizontalScrollMenuState();
 }
@@ -387,13 +396,24 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<AllCardsScreenViewModel>();
+    final model = context.watch<AllCardsScreenViewModel>();
     final onClear = model.onClearSelected;
     final onDelete = model.deleteCards;
     final combine = model.combine;
     final len = model.selectedLength;
     final selectionInProcess = model.selectionInProcess;
-    final groups = model.groups;
+    List<GroupModel> groups = model.groups;
+    groups = groups.where((group) {
+      if (group.name == "Все") {
+        return true;
+      }
+      for (int id in group.cardsNmIds) {
+        if (widget.cardsNmIds.contains(id)) {
+          return true;
+        }
+      }
+      return false;
+    }).toList();
 
     final isLoading = model.loading;
     final selectGroup = model.selectGroup;

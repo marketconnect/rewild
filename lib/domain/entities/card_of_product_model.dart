@@ -164,10 +164,8 @@ class CardOfProductModel {
               element.sizeOptionId == stock.sizeOptionId;
         });
 
-        if (initialStock.isEmpty) {
-          _ordersSum += stockQty;
-          continue;
-        }
+        //
+        final initStockQty = initialStock.isEmpty ? 0 : initialStock.first.qty;
 
         // calculate supply
         int supplyQty = 0;
@@ -178,14 +176,13 @@ class CardOfProductModel {
             s.wh == stock.wh);
         if (sup.isNotEmpty) {
           supplyQty = sup.first.qty;
-          ordersBeforeSupply = initialStocks.first.qty - sup.first.lastStocks;
+          ordersBeforeSupply = initStockQty - sup.first.lastStocks;
           _supplySum += supplyQty;
         }
 
         // orders sum is
-        _ordersSum += (initialStock.first.qty + supplyQty) -
-            stockQty +
-            ordersBeforeSupply;
+        _ordersSum +=
+            (initStockQty + supplyQty) - stockQty + ordersBeforeSupply;
       }
     }
   }

@@ -2,6 +2,7 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/theme/color_schemes.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 abstract class AppNavigation {
   Map<String, Widget Function(BuildContext)> get routes;
@@ -26,12 +27,12 @@ class App extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: lightColorScheme,
-        fontFamily: 'Poppins',
+        fontFamily: GoogleFonts.roboto().fontFamily,
       ),
       darkTheme: ThemeData(
           useMaterial3: true,
           colorScheme: darkColorScheme,
-          fontFamily: 'Poppins'),
+          fontFamily: GoogleFonts.roboto().fontFamily),
       debugShowCheckedModeBanner: false,
       title: 'ReWild',
       routes: navigation.routes,

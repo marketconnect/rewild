@@ -23,6 +23,21 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
   }
 
   @override
+  Future<Resource<void>> renameGroup(
+      String groupName, String newGroupName) async {
+    try {
+      final db = await SqfliteService().database;
+      await db.rawUpdate(
+        'UPDATE groups SET name = ? WHERE name = ?',
+        [newGroupName, groupName],
+      );
+      return Resource.empty();
+    } catch (e) {
+      return Resource.error(e.toString());
+    }
+  }
+
+  @override
   Future<Resource<void>> delete(String name, [int? nmId]) async {
     try {
       final db = await SqfliteService().database;

@@ -5,6 +5,8 @@ import 'package:rewild/domain/entities/group_model.dart';
 
 abstract class AllGroupsScreenGroupsService {
   Future<Resource<List<GroupModel>>> getAll();
+  Future<Resource<void>> deleteGroup(String groupName);
+  Future<Resource<void>> renameGroup(String groupName, String newGroupName);
 }
 
 class AllGroupsScreenViewModel extends ResourceChangeNotifier {
@@ -24,6 +26,17 @@ class AllGroupsScreenViewModel extends ResourceChangeNotifier {
     if (context.mounted) {
       notifyListeners();
     }
+  }
+
+  Future<void> rename(String oldName, String newName) async {
+    await fetch(() => groupsProvider.renameGroup(oldName, newName));
+
+    _asyncInit();
+  }
+
+  Future<void> delete(String name) async {
+    await fetch(() => groupsProvider.deleteGroup(name));
+    _asyncInit();
   }
 
   List<GroupModel> _groups = [];
