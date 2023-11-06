@@ -12,8 +12,11 @@ abstract class ApiKeysScreenApiKeysService {
 
 class ApiKeysScreenViewModel extends ResourceChangeNotifier {
   final ApiKeysScreenApiKeysService apiKeysService;
-  ApiKeysScreenViewModel(
-      {required super.context, required this.apiKeysService}) {
+  ApiKeysScreenViewModel({
+    required super.context,
+    required this.apiKeysService,
+    required super.internetConnectionChecker,
+  }) {
     _asyncInit();
   }
 

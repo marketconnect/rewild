@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -39,70 +40,77 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
 
     final model = context.watch<BottomNavigationViewModel>();
     final cardsNum = model.cardsNum;
-
+    final adverts = model.adverts;
     List<Widget> widgets = [
       const BottomNavigationScreenHomeWidget(),
       BottomNavigationScreenCardsWidget(cardsum: cardsNum),
-      const BottomNavigationScreenAdvertWidget(),
+      BottomNavigationScreenAdvertWidget(adverts: adverts),
     ];
-    return SafeArea(
-        child: Scaffold(
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: GNav(
-          gap: 8,
-          backgroundColor: Colors.transparent,
-          color: Theme.of(context).colorScheme.onSurface,
-          activeColor: Theme.of(context).colorScheme.onSurface,
-          tabBackgroundColor: Theme.of(context).colorScheme.surface,
-          // selectedIndex: 0,
-          onTabChange: (value) => setIndex(value),
-          tabs: [
-            GButton(
-              icon: _widgetIndex == 0 ? Icons.home : Icons.home_outlined,
-              padding: EdgeInsets.all(model.screenWidth * 0.02),
-              text: 'Главная',
-              iconColor: Theme.of(context).colorScheme.primary,
-              iconActiveColor: Theme.of(context).colorScheme.primary,
-              textColor: Theme.of(context).colorScheme.secondary,
-              activeBorder: Border.all(
-                color: Theme.of(context).colorScheme.secondary,
+    return WillPopScope(
+      onWillPop: () async {
+        // Do something here
+        SystemNavigator.pop();
+        return false;
+      },
+      child: SafeArea(
+          child: Scaffold(
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GNav(
+            gap: 8,
+            backgroundColor: Colors.transparent,
+            color: Theme.of(context).colorScheme.onSurface,
+            activeColor: Theme.of(context).colorScheme.onSurface,
+            tabBackgroundColor: Theme.of(context).colorScheme.surface,
+            // selectedIndex: 0,
+            onTabChange: (value) => setIndex(value),
+            tabs: [
+              GButton(
+                icon: _widgetIndex == 0 ? Icons.home : Icons.home_outlined,
+                padding: EdgeInsets.all(model.screenWidth * 0.02),
+                text: 'Главная',
+                iconColor: Theme.of(context).colorScheme.primary,
+                iconActiveColor: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.secondary,
+                activeBorder: Border.all(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                borderRadius: BorderRadius.circular(10),
               ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            GButton(
-              icon: _widgetIndex == 1
-                  ? Icons.local_offer
-                  : Icons.local_offer_outlined,
-              padding: EdgeInsets.all(model.screenWidth * 0.02),
-              text: 'Товары',
-              textColor: Theme.of(context).colorScheme.secondary,
-              activeBorder: Border.all(
-                color: Theme.of(context).colorScheme.secondary,
+              GButton(
+                icon: _widgetIndex == 1
+                    ? Icons.local_offer
+                    : Icons.local_offer_outlined,
+                padding: EdgeInsets.all(model.screenWidth * 0.02),
+                text: 'Товары',
+                textColor: Theme.of(context).colorScheme.secondary,
+                activeBorder: Border.all(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                iconColor: Theme.of(context).colorScheme.primary,
+                iconActiveColor: Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(10),
               ),
-              iconColor: Theme.of(context).colorScheme.primary,
-              iconActiveColor: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            GButton(
-              icon: _widgetIndex == 2
-                  ? Icons.rocket_launch
-                  : Icons.rocket_launch_outlined,
-              padding: EdgeInsets.all(model.screenWidth * 0.02),
-              text: 'Реклама',
-              textColor: Theme.of(context).colorScheme.secondary,
-              activeBorder: Border.all(
-                color: Theme.of(context).colorScheme.secondary,
+              GButton(
+                icon: _widgetIndex == 2
+                    ? Icons.rocket_launch
+                    : Icons.rocket_launch_outlined,
+                padding: EdgeInsets.all(model.screenWidth * 0.02),
+                text: 'Реклама',
+                textColor: Theme.of(context).colorScheme.secondary,
+                activeBorder: Border.all(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                iconColor: Theme.of(context).colorScheme.primary,
+                iconActiveColor: Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(10),
               ),
-              iconColor: Theme.of(context).colorScheme.primary,
-              iconActiveColor: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      body: widgets[_widgetIndex],
-    ));
+        body: widgets[_widgetIndex],
+      )),
+    );
   }
 }
 

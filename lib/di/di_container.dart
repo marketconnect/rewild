@@ -32,6 +32,7 @@ import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/commission_service.dart';
 import 'package:rewild/domain/services/group_service.dart';
 import 'package:rewild/domain/services/init_stock_service.dart';
+import 'package:rewild/domain/services/internet_connection_checke.dart';
 import 'package:rewild/domain/services/orders_history_service.dart';
 
 import 'package:rewild/domain/services/seller_service.dart';
@@ -166,6 +167,10 @@ class _DIContainer {
 
   // Services ==================================================================
 
+  // check internet connection
+  InternetConnectionCheckerImpl _makeInternetConnectionChecker() =>
+      const InternetConnectionCheckerImpl();
+
   // auth
   AuthServiceImpl _makeAuthService() => AuthServiceImpl(
       secureDataProvider: _makeSecureDataProvider(),
@@ -256,12 +261,14 @@ class _DIContainer {
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
       SplashScreenViewModel(
           context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
           updateService: _makeUpdateService(),
           authService: _makeAuthService());
 
   AllCardsScreenViewModel _makeAllCardsScreenViewModel(context) =>
       AllCardsScreenViewModel(
           context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
           updateService: _makeUpdateService(),
           supplyService: _makeSupplyService(),
           groupsProvider: _makeAllGroupsService(),
@@ -272,12 +279,15 @@ class _DIContainer {
   MyWebViewScreenViewModel _makeMyWebViewScreenViewModel(context) =>
       MyWebViewScreenViewModel(
           context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
           updateService: _makeUpdateService(),
           tokenProvider: _makeAuthService());
 
   SingleCardScreenViewModel _makeSingleCardViewModel(
           BuildContext context, int id) =>
       SingleCardScreenViewModel(
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
           stockService: _makeStockService(),
           id: id,
           ordersHistoryService: _makeOrdersHistoryService(),
@@ -286,7 +296,6 @@ class _DIContainer {
           cardOfProductService: _makeCardOfProductService(),
           initialStocksService: _makeInitialStockService(),
           supplyService: _makeSupplyService(),
-          context: context,
           warehouseService: _makeWarehouseService());
 
   AddGroupScreenViewModel _makeAddGroupScreenViewModel(
@@ -294,13 +303,15 @@ class _DIContainer {
       AddGroupScreenViewModel(
           context: context,
           groupsProvider: _makeAllGroupsService(),
+          internetConnectionChecker: _makeInternetConnectionChecker(),
           productsCardsIds: productsCardsIds);
 
   SingleGroupScreenViewModel _makeSingleGroupScreenViewModel(
           BuildContext context, String name) =>
       SingleGroupScreenViewModel(
-          name: name,
           context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          name: name,
           groupService: _makeAllGroupsService(),
           sellerService: _makeSellerService(),
           cardsService: _makeCardOfProductService());
@@ -308,29 +319,39 @@ class _DIContainer {
   AllGroupsScreenViewModel _makeAllGroupsScreenViewModel(
           BuildContext context) =>
       AllGroupsScreenViewModel(
-          context: context, groupsProvider: _makeAllGroupsService());
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          groupsProvider: _makeAllGroupsService());
 
   BottomNavigationViewModel _makeBottomNavigationViewModel(
           BuildContext context) =>
       BottomNavigationViewModel(
-          context: context, cardService: _makeCardOfProductService());
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          advertService: _makeAdvertService(),
+          cardService: _makeCardOfProductService());
 
   AllCardsFilterScreenViewModel _makeAllCardsFilterScreenViewModel(
           BuildContext context) =>
       AllCardsFilterScreenViewModel(
-          allCardsFilterService: _makeAllCardsFilterService(),
-          commissionService: _makeCommissionService(),
-          sellerService: _makeSellerService(),
-          context: context);
+        context: context,
+        internetConnectionChecker: _makeInternetConnectionChecker(),
+        allCardsFilterService: _makeAllCardsFilterService(),
+        commissionService: _makeCommissionService(),
+        sellerService: _makeSellerService(),
+      );
 
   ApiKeysScreenViewModel _makeApiKeysScreenViewModel(BuildContext context) =>
       ApiKeysScreenViewModel(
-          context: context, apiKeysService: _makeApiKeysService());
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          apiKeysService: _makeApiKeysService());
 
   AllAdvertsScreenViewModel _makeAllAdvertsScreenViewModel(
           BuildContext context) =>
       AllAdvertsScreenViewModel(
         context: context,
+        internetConnectionChecker: _makeInternetConnectionChecker(),
         cardOfProductService: _makeCardOfProductService(),
         advertService: _makeAdvertService(),
       );

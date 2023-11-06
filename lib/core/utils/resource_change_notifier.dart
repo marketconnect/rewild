@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/resource.dart';
 
+abstract class InternetConnectionChecker {
+  Future<bool> checkInternetConnection();
+}
+
 class ResourceChangeNotifier extends ChangeNotifier {
   final BuildContext context;
+  final InternetConnectionChecker internetConnectionChecker;
 
   late final Size _screenSize = MediaQuery.of(context).size;
   double get screenWidth => _screenSize.width;
   double get screenHeight => _screenSize.height;
+  ResourceChangeNotifier(
+      {required this.context, required this.internetConnectionChecker}) {
+    _asyncInit();
+  }
 
-  ResourceChangeNotifier({required this.context});
+  bool isConnected = false;
+
+  void _asyncInit() async {
+    isConnected = await internetConnectionChecker.checkInternetConnection();
+    notify();
+  }
+
   late bool _loading = true;
   bool get loading => _loading;
+
   void notify() {
     if (context.mounted) {
       _loading = false;

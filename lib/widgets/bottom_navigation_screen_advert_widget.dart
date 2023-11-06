@@ -1,16 +1,139 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:rewild/core/constants.dart';
+import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 class BottomNavigationScreenAdvertWidget extends StatelessWidget {
-  const BottomNavigationScreenAdvertWidget({super.key});
-
+  const BottomNavigationScreenAdvertWidget({super.key, required this.adverts});
+  final List<Advert> adverts;
   @override
   Widget build(BuildContext context) {
-    return const SafeArea(
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    return SafeArea(
       child: SingleChildScrollView(
         child: Column(children: [
-          Text('Adverts'),
-          _Link(
+          Padding(
+            padding: const EdgeInsets.only(left: 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: screenHeight * 0.1,
+                ),
+                Text(
+                  'Кампании',
+                  style: TextStyle(
+                      fontSize: screenWidth * 0.07,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 15.0, top: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  'Активные',
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.06,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: screenHeight * 0.05,
+          ),
+          SizedBox(
+            height: screenHeight * 0.2,
+            child: ListView.builder(
+                itemCount: adverts.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  final advType = adverts[index].type;
+                  final icon = advType == 4 // catalog
+                      ? Icons.list_alt
+                      : advType == 5 // card
+                          ? Icons.card_giftcard_outlined
+                          : advType == 6 // search
+                              ? Icons.search
+                              : advType == 7
+                                  ? Icons.rocket_launch_outlined
+                                  : advType == 8
+                                      ? Icons.auto_awesome
+                                      : Icons.two_k_outlined;
+                  return Container(
+                    width: screenWidth * 0.7,
+                    height: screenHeight * 0.2,
+                    padding: const EdgeInsets.all(10),
+                    margin: index == 0
+                        ? EdgeInsets.only(
+                            right: screenWidth * 0.03, left: screenWidth * 0.05)
+                        : EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceVariant
+                              .withOpacity(0.95)),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              icon,
+                              size: screenWidth * 0.06,
+                              color: const Color(0xFF8c56ce),
+                            ),
+                            SizedBox(
+                              width: screenWidth * 0.01,
+                            ),
+                            Text(
+                                '${NumericConstants.advTypes[adverts[index].type]}',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ))
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: screenWidth * 0.5,
+                                child: AutoSizeText(
+                                  adverts[index].name,
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: screenWidth * 0.05,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+          ),
+          SizedBox(
+            height: screenHeight * 0.02,
+          ),
+          Divider(
+            color:
+                Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.95),
+          ),
+          const _Link(
             text: 'Группы',
             color: Color(0xFF2188ff),
             route: MainNavigationRouteNames.allAdvertsScreen,

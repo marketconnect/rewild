@@ -70,8 +70,9 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
   final int id;
 
   SingleCardScreenViewModel(
-      {required this.id,
-      required super.context,
+      {required super.context,
+      required super.internetConnectionChecker,
+      required this.id,
       required this.initialStocksService,
       required this.stockService,
       required this.sellerService,

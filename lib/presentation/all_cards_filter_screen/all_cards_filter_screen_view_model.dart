@@ -30,6 +30,7 @@ class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {
 
   AllCardsFilterScreenViewModel(
       {required super.context,
+      required super.internetConnectionChecker,
       required this.allCardsFilterService,
       required this.sellerService,
       required this.commissionService}) {

@@ -16,4 +16,6 @@ class ImageConstant {
   static String imgNotFound = '$imagePath/img_not_found.png';
 
   static String imageNotFound = 'assets/images/image_not_found.png';
+
+  static String noConnection = '$imagePath/down.png';
 }

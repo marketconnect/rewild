@@ -23,6 +23,7 @@ class SplashScreenViewModel extends ResourceChangeNotifier {
 
   SplashScreenViewModel({
     required super.context,
+    required super.internetConnectionChecker,
     required this.updateService,
     required this.authService,
   }) {
@@ -43,6 +44,12 @@ class SplashScreenViewModel extends ResourceChangeNotifier {
     if (context.mounted) {
       Navigator.of(context).pushReplacementNamed(
           MainNavigationRouteNames.bottomNavigationScreen);
+    }
+  }
+
+  Future<void> reload() async {
+    if (context.mounted && !isConnected) {
+      await _asyncInit();
     }
   }
 

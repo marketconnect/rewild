@@ -19,7 +19,8 @@ class AddGroupScreenViewModel extends ResourceChangeNotifier {
   AddGroupScreenViewModel(
       {required super.context,
       required this.groupsProvider,
-      required this.productsCardsIds}) {
+      required this.productsCardsIds,
+      required super.internetConnectionChecker}) {
     asyncInit();
   }
 

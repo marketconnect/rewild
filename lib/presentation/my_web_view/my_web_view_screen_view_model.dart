@@ -16,6 +16,7 @@ abstract class MyWebViewScreenViewModelTokenProvider {
 class MyWebViewScreenViewModel extends ResourceChangeNotifier {
   MyWebViewScreenViewModel(
       {required this.updateService,
+      required super.internetConnectionChecker,
       required this.tokenProvider,
       required super.context});
   final MyWebViewScreenViewModelUpdateService updateService;

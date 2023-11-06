@@ -53,6 +53,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
 
   AllCardsScreenViewModel(
       {required super.context,
+      required super.internetConnectionChecker,
       required this.tokenProvider,
       required this.updateService,
       required this.groupsProvider,
@@ -63,6 +64,8 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> asyncInit() async {
+    setLoading(true);
+
     _groups.insert(
         0,
         GroupModel(
@@ -72,10 +75,20 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
             fontColor: const Color(0xFFFFFFFF).value));
 
     await _update(false);
+    setLoading(false);
 
-    if (context.mounted) notifyListeners();
     await p();
   }
+
+  // loading
+  bool _loading = true;
+  void setLoading(bool loading) {
+    _loading = loading;
+    notify();
+  }
+
+  @override
+  bool get loading => _loading;
 
   // filter
   FilterModel? _filter;
@@ -154,7 +167,9 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
     }
 
     // Update
-    await fetch(() => updateService.update());
+    if (isConnected) {
+      await fetch(() => updateService.update());
+    }
 
     // get cards
     final fetchedCardsOfProducts =

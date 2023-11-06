@@ -12,8 +12,11 @@ abstract class AllGroupsScreenGroupsService {
 class AllGroupsScreenViewModel extends ResourceChangeNotifier {
   final AllGroupsScreenGroupsService groupsProvider;
 
-  AllGroupsScreenViewModel(
-      {required this.groupsProvider, required super.context}) {
+  AllGroupsScreenViewModel({
+    required this.groupsProvider,
+    required super.context,
+    required super.internetConnectionChecker,
+  }) {
     _asyncInit();
   }
 

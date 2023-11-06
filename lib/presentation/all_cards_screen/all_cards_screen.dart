@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 import 'package:rewild/widgets/custom_elevated_button.dart';
+import 'package:rewild/widgets/no_connection_widget.dart';
 import 'package:rewild/widgets/progress_indicator.dart';
 
 class AllCardsScreen extends StatefulWidget {
@@ -112,31 +113,36 @@ class _AllCardsScreenState extends State<AllCardsScreen>
                 (BuildContext context, bool innerBoxIsScrolled) {
               return headerSliverBuilderItems;
             },
-            body: productCards
-                    .isEmpty // Body ============================================================== Body
-                ? const _EmptyProductsCards()
-                : Stack(children: [
-                    ListView.builder(
-                      itemCount: productCards.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        if (index > (productCards.length - 1)) {
-                          return Container();
-                        }
-                        if (selectionInProcess &&
-                            index == productCards.length - 1) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 50.0),
-                            child: _GestureDetectorCard(
-                                productCard: productCards[index]),
-                          );
-                        }
-                        return _GestureDetectorCard(
-                          productCard: productCards[index],
-                        );
-                      },
-                    ),
-                    if (selectionInProcess) const _BottomMergeBtn()
-                  ]),
+            body: model.loading
+                ? const MyProgressIndicator()
+                : !model.isConnected
+                    ? const NoConnectionWidget(text: "Нет соединения")
+                    : productCards
+                            .isEmpty // Body ============================================================== Body
+                        ? const _EmptyProductsCards()
+                        : Stack(children: [
+                            ListView.builder(
+                              itemCount: productCards.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                if (index > (productCards.length - 1)) {
+                                  return Container();
+                                }
+                                if (selectionInProcess &&
+                                    index == productCards.length - 1) {
+                                  return Padding(
+                                    padding:
+                                        const EdgeInsets.only(bottom: 50.0),
+                                    child: _GestureDetectorCard(
+                                        productCard: productCards[index]),
+                                  );
+                                }
+                                return _GestureDetectorCard(
+                                  productCard: productCards[index],
+                                );
+                              },
+                            ),
+                            if (selectionInProcess) const _BottomMergeBtn()
+                          ]),
           ),
         ),
       ),
@@ -317,35 +323,32 @@ class _EmptyProductsCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AllCardsScreenViewModel>();
-    final loading = model.loading;
 
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: loading
-            ? [const MyProgressIndicator()]
-            : [
-                const Text("Вы еще не добавили ни одной карточки"),
-                CustomElevatedButton(
-                  onTap: () {
-                    Navigator.of(context).pushNamed(
-                      MainNavigationRouteNames.myWebViewScreen,
-                    );
-                  },
-                  text: "Добавить",
-                  buttonStyle: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
-                        Theme.of(context).colorScheme.primary,
-                      ),
-                      foregroundColor: MaterialStateProperty.all(
-                          Theme.of(context).colorScheme.onPrimary)),
-                  margin: EdgeInsets.fromLTRB(
-                      model.screenWidth * 0.3,
-                      model.screenHeight * 0.05,
-                      model.screenWidth * 0.3,
-                      model.screenHeight * 0.05),
+        children: [
+          const Text("Вы еще не добавили ни одной карточки"),
+          CustomElevatedButton(
+            onTap: () {
+              Navigator.of(context).pushNamed(
+                MainNavigationRouteNames.myWebViewScreen,
+              );
+            },
+            text: "Добавить",
+            buttonStyle: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(
+                  Theme.of(context).colorScheme.primary,
                 ),
-              ],
+                foregroundColor: MaterialStateProperty.all(
+                    Theme.of(context).colorScheme.onPrimary)),
+            margin: EdgeInsets.fromLTRB(
+                model.screenWidth * 0.3,
+                model.screenHeight * 0.05,
+                model.screenWidth * 0.3,
+                model.screenHeight * 0.05),
+          ),
+        ],
       ),
     );
   }

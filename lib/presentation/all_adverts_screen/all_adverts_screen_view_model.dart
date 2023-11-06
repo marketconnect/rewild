@@ -23,6 +23,7 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
   final AllAdvertsScreenCardOfProductService cardOfProductService;
   AllAdvertsScreenViewModel({
     required super.context,
+    required super.internetConnectionChecker,
     required this.cardOfProductService,
     required this.advertService,
   }) {
@@ -61,7 +62,11 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
 
   // cpm
   Map<int, String> _cpm = {};
-  void setCpm(int advId, String value) {
+  void setCpm(Map<int, String> value) {
+    _cpm = value;
+  }
+
+  void addCpm(int advId, String value) {
     _cpm[advId] = value;
   }
 
@@ -71,7 +76,11 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
 
   // budget
   Map<int, int> _budget = {};
-  void setBudget(int advId, int value) {
+  void setBudget(Map<int, int> value) {
+    _budget = value;
+  }
+
+  void addBudget(int advId, int value) {
     _budget[advId] = value;
   }
 
@@ -87,6 +96,9 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
 
     setApiKeyExists(resource.data!);
     if (!apiKeyExists) {
+      return;
+    }
+    if (!isConnected) {
       return;
     }
     final adverts = await fetch(() => advertService.getAll());
@@ -166,7 +178,7 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
         return;
       }
       addImage(advert.advertId, image);
-      setCpm(advert.advertId, cpm);
+      addCpm(advert.advertId, cpm);
     }
     adverts.sort((a, b) => b.status.compareTo(a.status));
     setAdverts(adverts);
@@ -174,7 +186,7 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
     for (final id in advertIds) {
       final budget = await fetch(() => advertService.getBudget(id));
       if (budget != null) {
-        setBudget(id, budget);
+        addBudget(id, budget);
         notify();
       }
     }

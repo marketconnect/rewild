@@ -35,12 +35,14 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
 
   bool get isExpanded => _isExpanded;
 
-  SingleGroupScreenViewModel(
-      {required this.name,
-      required this.groupService,
-      required this.cardsService,
-      required this.sellerService,
-      required super.context}) {
+  SingleGroupScreenViewModel({
+    required super.context,
+    required super.internetConnectionChecker,
+    required this.name,
+    required this.groupService,
+    required this.cardsService,
+    required this.sellerService,
+  }) {
     _asyncInit();
   }
 

@@ -7,6 +7,7 @@ import 'package:rewild/core/constants.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/empty_widget.dart';
+import 'package:rewild/widgets/no_connection_widget.dart';
 import 'package:rewild/widgets/progress_indicator.dart';
 
 class AllAdvertsScreen extends StatelessWidget {
@@ -16,6 +17,7 @@ class AllAdvertsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<AllAdvertsScreenViewModel>();
     final loading = model.loading;
+    final isConnected = model.isConnected;
     final adverts = model.adverts;
     final apiKeyExists = model.apiKeyExists;
     final cpm = model.cpm;
@@ -24,84 +26,93 @@ class AllAdvertsScreen extends StatelessWidget {
 
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(title: const Text("Кампании")),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: const Text("Кампании"),
+        scrolledUnderElevation: 2,
+        shadowColor: Colors.black,
+        surfaceTintColor: Colors.transparent,
+      ),
       backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.97),
       body: loading
           ? const MyProgressIndicator()
-          : !apiKeyExists
-              ? const EmptyWidget(text: "Вы не добавили ни одного токена")
-              : Padding(
-                  padding: const EdgeInsets.only(
-                    top: 8.0,
-                  ),
-                  child: ListView.builder(
-                      itemCount: adverts.length,
-                      itemBuilder: (context, index) {
-                        final advert = adverts[index];
-                        return GestureDetector(
-                          onTap: () => Navigator.of(context).pushNamed(
-                            MainNavigationRouteNames.singleCardScreen,
-                            arguments: advert.advertId,
-                          ),
-                          child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 5.0, horizontal: 10),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    width: model.screenWidth,
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant
-                                              .withOpacity(0.1),
+          : !isConnected
+              ? const NoConnectionWidget(text: "Нет соединения")
+              : !apiKeyExists
+                  ? const EmptyWidget(text: "Вы не добавили ни одного токена")
+                  : Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8.0,
+                      ),
+                      child: ListView.builder(
+                          itemCount: adverts.length,
+                          itemBuilder: (context, index) {
+                            final advert = adverts[index];
+                            return GestureDetector(
+                              onTap: () => Navigator.of(context).pushNamed(
+                                MainNavigationRouteNames.singleCardScreen,
+                                arguments: advert.advertId,
+                              ),
+                              child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 5.0, horizontal: 10),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width: model.screenWidth,
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant
+                                                  .withOpacity(0.1),
+                                            ),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .surface,
+                                            borderRadius:
+                                                BorderRadius.circular(2)),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.007,
+                                            ),
+                                            _TopRow(
+                                                image: image(advert.advertId),
+                                                name: advert.name,
+                                                advType: advert.type),
+                                            SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.007,
+                                            ),
+                                            Divider(
+                                              height: 0.5,
+                                              thickness: 1.5,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant
+                                                  .withOpacity(0.1),
+                                            ),
+                                            _BottomRow(
+                                              budget: budget(advert.advertId),
+                                              cpm: cpm(advert.advertId),
+                                              status: advert.status,
+                                            )
+                                          ],
                                         ),
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .surface,
-                                        borderRadius: BorderRadius.circular(2)),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.007,
-                                        ),
-                                        _TopRow(
-                                            image: image(advert.advertId),
-                                            name: advert.name,
-                                            advType: advert.type),
-                                        SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.007,
-                                        ),
-                                        Divider(
-                                          height: 0.5,
-                                          thickness: 1.5,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant
-                                              .withOpacity(0.1),
-                                        ),
-                                        _BottomRow(
-                                          budget: budget(advert.advertId),
-                                          cpm: cpm(advert.advertId),
-                                          status: advert.status,
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              )),
-                        );
-                      }),
-                ),
+                                      ),
+                                    ],
+                                  )),
+                            );
+                          }),
+                    ),
     ));
   }
 }
