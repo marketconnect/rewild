@@ -45,6 +45,20 @@ class FilterDataProvider implements AllCardsFilterFilterDataProvider {
           );
         }
       }
+      // withSales
+      if (filter.withSales != null) {
+        await db.rawInsert(
+          'INSERT INTO filters(sectionName,itemId,itemName) VALUES(?,?,?)',
+          ["withSales", 1, ""],
+        );
+      }
+      // withStocks
+      if (filter.withStocks != null) {
+        await db.rawInsert(
+          'INSERT INTO filters(sectionName,itemId,itemName) VALUES(?,?,?)',
+          ["withStocks", 1, ""],
+        );
+      }
       return Resource.empty();
     } catch (e) {
       return Resource.error(e.toString());
@@ -76,6 +90,8 @@ class FilterDataProvider implements AllCardsFilterFilterDataProvider {
       Map<int, String> brands = {};
       Map<int, String> suppliers = {};
       Map<int, String> promos = {};
+      bool? withSales;
+      bool? withStocks;
 
       for (final row in result) {
         final itemId = row['itemId'] as int?;
@@ -95,12 +111,20 @@ class FilterDataProvider implements AllCardsFilterFilterDataProvider {
         if (row['sectionName'] == 'promos') {
           promos[itemId] = itemName;
         }
+        if (row['sectionName'] == 'withSales') {
+          withSales = true;
+        }
+        if (row['sectionName'] == 'withStocks') {
+          withStocks = false;
+        }
       }
       final newFilter = FilterModel(
           brands: brands,
           promos: promos,
           subjects: subjects,
-          suppliers: suppliers);
+          suppliers: suppliers,
+          withSales: withSales,
+          withStocks: withStocks);
 
       return Resource.success(newFilter);
     } catch (e) {

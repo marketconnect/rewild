@@ -106,7 +106,9 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
     if (_filter!.subjects != null && _filter!.subjects!.isNotEmpty ||
         _filter!.brands != null && _filter!.brands!.isNotEmpty ||
         _filter!.suppliers != null && _filter!.suppliers!.isNotEmpty ||
-        _filter!.promos != null && _filter!.promos!.isNotEmpty) {
+        _filter!.promos != null && _filter!.promos!.isNotEmpty ||
+        _filter!.withSales != null ||
+        _filter!.withStocks != null) {
       _filterIsEmpty = false;
 
       return;
@@ -351,6 +353,20 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
     // check promo
     if (_filter!.promos != null && _filter!.promos!.isNotEmpty) {
       final found = _filter!.promos!.values.contains(card.promoTextCard);
+      if (!found) {
+        return false;
+      }
+    }
+    // check with sales
+    if (_filter!.withSales != null) {
+      final found = card.ordersSum > 0;
+      if (!found) {
+        return false;
+      }
+    }
+    // check with stocks
+    if (_filter!.withStocks != null) {
+      final found = card.stocksSum > 0;
       if (!found) {
         return false;
       }

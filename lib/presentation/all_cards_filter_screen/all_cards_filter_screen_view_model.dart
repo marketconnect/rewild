@@ -43,11 +43,12 @@ class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {
 
   // Output filter
   FilterModel _outputfilter = FilterModel(
-    brands: {},
-    subjects: {},
-    promos: {},
-    suppliers: {},
-  );
+      brands: {},
+      subjects: {},
+      promos: {},
+      suppliers: {},
+      withSales: null,
+      withStocks: null);
 
   int counter = 0;
 
@@ -58,9 +59,13 @@ class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {
     final promoLength = _outputfilter.promos ?? {};
     final suppliersLength = _outputfilter.suppliers ?? {};
     final subjectsLength = _outputfilter.subjects ?? {};
+    final withSalesLength = _outputfilter.withSales == null ? 0 : 1;
+    final withStocksLength = _outputfilter.withStocks == null ? 0 : 1;
     counter = brandsLength.length +
         promoLength.length +
         subjectsLength.length +
+        withSalesLength +
+        withStocksLength +
         suppliersLength.length;
     notify();
   }
@@ -152,6 +157,26 @@ class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {
     }
     prevSubjects.remove(subject);
     FilterModel newFilter = outputfilter!.copyWith(subjects: prevSubjects);
+    setFilter(newFilter);
+  }
+
+  void setWithSales() {
+    FilterModel newFilter = outputfilter!.copyWith(withSales: true);
+    setFilter(newFilter);
+  }
+
+  void unSetWithSales() {
+    FilterModel newFilter = outputfilter!.copyWith(withSales: false);
+    setFilter(newFilter);
+  }
+
+  void setWithStocks() {
+    FilterModel newFilter = outputfilter!.copyWith(withStocks: true);
+    setFilter(newFilter);
+  }
+
+  void unSetWithStocks() {
+    FilterModel newFilter = outputfilter!.copyWith(withStocks: false);
     setFilter(newFilter);
   }
 

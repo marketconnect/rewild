@@ -69,6 +69,12 @@ class _Body extends StatelessWidget {
     final model = context.watch<AllCardsFilterScreenViewModel>();
     final completlyFilledfilter = model.completlyFilledfilter;
     final outputFilter = model.outputfilter;
+    // wasSales
+    final setWithSales = model.setWithSales;
+    final unSetWithSales = model.unSetWithSales;
+    // withStock
+    final setWithStock = model.setWithStocks;
+    final unSetWithStock = model.unSetWithStocks;
     // subject
     final setAllSubjects = model.setAllSubjects;
     final setSubject = model.setSubject;
@@ -94,6 +100,7 @@ class _Body extends StatelessWidget {
     if (completlyFilledfilter == null) {
       return const MyProgressIndicator();
     }
+
     return SingleChildScrollView(
         child: Column(children: [
       Row(
@@ -106,6 +113,37 @@ class _Body extends StatelessWidget {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           )
+        ],
+      ),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Checkbox(
+                  value:
+                      (outputFilter != null && outputFilter.withSales != null),
+                  onChanged: (value) =>
+                      outputFilter != null && outputFilter.withSales == null
+                          ? setWithSales()
+                          : unSetWithSales()),
+              const Text("Только с закзами"),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Checkbox(
+                  value:
+                      (outputFilter != null && outputFilter.withStocks != null),
+                  onChanged: (value) =>
+                      outputFilter != null && outputFilter.withStocks == null
+                          ? setWithStock()
+                          : unSetWithStock()),
+              const Text("Только с остатками"),
+            ],
+          ),
         ],
       ),
       if (completlyFilledfilter.subjects != null &&

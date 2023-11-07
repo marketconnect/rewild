@@ -96,11 +96,12 @@ class AllCardsFilterService
 
     return Resource.success(
       FilterModel(
-        brands: brands,
-        promos: promos,
-        subjects: subjects,
-        suppliers: suppliers,
-      ),
+          brands: brands,
+          promos: promos,
+          subjects: subjects,
+          suppliers: suppliers,
+          withSales: null,
+          withStocks: null),
     );
   }
 
@@ -113,6 +114,8 @@ class AllCardsFilterService
         promos: {},
         subjects: {},
         suppliers: {},
+        withSales: null,
+        withStocks: null,
       ));
     }
     return filterResource;

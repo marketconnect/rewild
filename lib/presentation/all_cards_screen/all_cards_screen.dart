@@ -2,15 +2,11 @@ import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:rewild/domain/entities/group_model.dart';
-
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/widgets/my_sliver_persistent_header_delegate.dart';
 import 'package:rewild/presentation/all_cards_screen/widgets/product_card_widget.dart';
-
 import 'package:provider/provider.dart';
-
 import 'package:rewild/routes/main_navigation_route_names.dart';
-
 import 'package:rewild/widgets/custom_elevated_button.dart';
 import 'package:rewild/widgets/no_connection_widget.dart';
 import 'package:rewild/widgets/progress_indicator.dart';
@@ -73,9 +69,9 @@ class _AllCardsScreenState extends State<AllCardsScreen>
     int selectedGroupIndex = 0;
     final groups = model.groups;
 
-    final filter = model.filterCard;
+    final filterCard = model.filterCard;
     productCards = productCards.where((card) {
-      return filter(card);
+      return filterCard(card);
     }).toList();
 
     if (selectedGroup != null) {
