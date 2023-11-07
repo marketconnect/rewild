@@ -41,10 +41,12 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
     final model = context.watch<BottomNavigationViewModel>();
     final cardsNum = model.cardsNum;
     final adverts = model.adverts;
+    final apiKeyExists = model.apiKeyExists;
     List<Widget> widgets = [
       const BottomNavigationScreenHomeWidget(),
       BottomNavigationScreenCardsWidget(cardsum: cardsNum),
-      BottomNavigationScreenAdvertWidget(adverts: adverts),
+      BottomNavigationScreenAdvertWidget(
+          adverts: adverts, apiKeyExists: apiKeyExists),
     ];
     return WillPopScope(
       onWillPop: () async {

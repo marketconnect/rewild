@@ -23,6 +23,7 @@ class AllAdvertsScreen extends StatelessWidget {
     final cpm = model.cpm;
     final image = model.image;
     final budget = model.budget;
+    print("adverts ${adverts.length}");
 
     return SafeArea(
         child: Scaffold(

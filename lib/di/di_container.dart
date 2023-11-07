@@ -70,6 +70,7 @@ import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart'
 import 'package:rewild/routes/main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rewild/streams/bottom_navigation_screen_stream.dart';
 
 AppFactory makeAppFactory() => _AppFactoryDefault();
 
@@ -88,6 +89,10 @@ class _DIContainer {
   // Factory
   ScreenFactory _makeScreenFactory() => ScreenFactoryDefault(this);
   AppNavigation _makeAppNavigation() => MainNavigation(_makeScreenFactory());
+
+  // Streams
+  BottomNavigationStreamImpl bottomNavigationStream =
+      BottomNavigationStreamImpl();
 
   // Api clients ===============================================================
   // auth
@@ -327,6 +332,7 @@ class _DIContainer {
           BuildContext context) =>
       BottomNavigationViewModel(
           context: context,
+          stream: bottomNavigationStream,
           internetConnectionChecker: _makeInternetConnectionChecker(),
           advertService: _makeAdvertService(),
           cardService: _makeCardOfProductService());

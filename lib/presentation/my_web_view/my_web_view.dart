@@ -125,7 +125,6 @@ class _MyWebViewScreenState extends State<MyWebViewScreen> {
                     : "Выберите карточку",
                 style: const TextStyle(
                   fontSize: 16,
-                  fontFamily: 'Poppins',
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF1f1f1f),
                 ),

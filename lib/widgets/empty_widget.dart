@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/image_constant.dart';
 
@@ -25,8 +26,12 @@ class EmptyWidget extends StatelessWidget {
         SizedBox(
           height: screenHeight * 0.02,
         ),
-        Text(
-          text,
+        SizedBox(
+          width: screenWidth * 0.8,
+          child: AutoSizeText(
+            text,
+            maxLines: 4,
+          ),
         ),
       ],
     ));

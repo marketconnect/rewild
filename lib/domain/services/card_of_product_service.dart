@@ -194,10 +194,4 @@ class CardOfProductService
 
     return Resource.success(imgResource.data!);
   }
-
-  // @override
-  // Future<Resource<List<CardOfProductModel>>> getForSeller(
-  //     int supplierId) async {
-  //   return await cardOfProductDataProvider.getAllBySupplierId(supplierId);
-  // }
 }

@@ -33,6 +33,9 @@ class MyWebViewScreenViewModel extends ResourceChangeNotifier {
   Future<int> saveSiblingCards(String jsonString) async {
     isLoading = true;
     notify();
+    if (jsonString.isEmpty) {
+      return 0;
+    }
     final cardsListResource = _parseCards(jsonString);
     if (cardsListResource is Error) {
       errorMessage = cardsListResource.message;
