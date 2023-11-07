@@ -31,16 +31,19 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     FlutterStatusbarcolor.setStatusBarColor(Colors.white);
 
     final model = context.watch<BottomNavigationViewModel>();
-    final cardsNum = model.cardsNum;
-    final updateCardsScreen = model.updateCardsScreen;
-    final updateAdvertScreen = model.updateAdvertScreen;
-    final adverts = model.adverts;
-    final apiKeyExists = model.apiKeyExists;
+
+    final advertsStream = model.advertsStream;
+    final apiKeyExistsStream = model.apiKeyExistsStream;
+
     List<Widget> widgets = [
       const BottomNavigationScreenHomeWidget(),
-      BottomNavigationScreenCardsWidget(cardsum: cardsNum),
+      BottomNavigationScreenCardsWidget(
+        cardsNumberStream: model.cardsNumberStream,
+      ),
       BottomNavigationScreenAdvertWidget(
-          adverts: adverts, apiKeyExists: apiKeyExists),
+        advertsStream: advertsStream,
+        apiKeyExistsStream: apiKeyExistsStream,
+      ),
     ];
     return WillPopScope(
       onWillPop: () async {
@@ -60,14 +63,6 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             tabBackgroundColor: Theme.of(context).colorScheme.surface,
             // selectedIndex: 0,
             onTabChange: (value) async {
-              if (value == 1) {
-                await updateCardsScreen();
-              } else if (value == 2) {
-                await updateAdvertScreen();
-              } else {
-                await updateCardsScreen();
-                await updateAdvertScreen();
-              }
               setIndex(value);
             },
             tabs: [

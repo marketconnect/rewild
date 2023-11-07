@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:rewild/api_clients/advert_api_client.dart';
 import 'package:rewild/api_clients/auth_service_api_client.dart';
 import 'package:rewild/api_clients/commision_api_client.dart';
@@ -24,6 +26,7 @@ import 'package:rewild/data_providers/seller_data_provider/seller_data_provider.
 import 'package:rewild/data_providers/stock_data_provider.dart/stock_data_provider.dart';
 import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.dart';
 import 'package:rewild/data_providers/warehouse_data_provider.dart';
+import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/api_keys_service.dart';
@@ -85,9 +88,25 @@ class _AppFactoryDefault implements AppFactory {
 
 class _DIContainer {
   _DIContainer();
-  // Factory
+  // Factorys ==================================================================
   ScreenFactory _makeScreenFactory() => ScreenFactoryDefault(this);
   AppNavigation _makeAppNavigation() => MainNavigation(_makeScreenFactory());
+
+  // streams ===================================================================
+
+  // cards number (CardOfProductService --> BottomNavigationViewModel)
+  final cardsNumberStreamController = StreamController<int>.broadcast();
+  Stream<int> get cardsNumberStream => cardsNumberStreamController.stream;
+
+  // Advert (AdvertService ---> BottomNavigationViewModel)
+  final activeAdvertsStreamController =
+      StreamController<List<Advert>>.broadcast();
+  Stream<List<Advert>> get activeAdvertsStream =>
+      activeAdvertsStreamController.stream;
+
+  // Api Key Exist (AdvertService --> BottomNavigationViewModel)
+  final apiKeyExistsStreamController = StreamController<bool>.broadcast();
+  Stream<bool> get apiKeyExistsStream => apiKeyExistsStreamController.stream;
 
   // Api clients ===============================================================
   // auth
@@ -191,6 +210,7 @@ class _DIContainer {
   CardOfProductService _makeCardOfProductService() => CardOfProductService(
         warehouseApiClient: _makeWarehouseApiClient(),
         cardOfProductApiClient: _makeCardOfProductApiClient(),
+        cardsNumberStreamController: cardsNumberStreamController,
         initStockDataProvider: _makeInitialStockDataProvider(),
         supplyDataProvider: _makeSupplyDataProvider(),
         stockDataprovider: _makeStockDataProvider(),
@@ -256,6 +276,8 @@ class _DIContainer {
   // // advert
   AdvertService _makeAdvertService() => AdvertService(
       advertApiClient: _makeAdvertApiClient(),
+      apiKeyExistsStreamController: apiKeyExistsStreamController,
+      activeAdvertsStreamController: activeAdvertsStreamController,
       apiKeysDataProvider: _makeSecureDataProvider());
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
@@ -328,6 +350,9 @@ class _DIContainer {
       BottomNavigationViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
+          advertsStream: activeAdvertsStream,
+          cardsNumberStream: cardsNumberStream,
+          apiKeyExistsStream: apiKeyExistsStream,
           advertService: _makeAdvertService(),
           cardService: _makeCardOfProductService());
 

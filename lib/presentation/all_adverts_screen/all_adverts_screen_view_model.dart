@@ -89,7 +89,6 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
   }
 
   void _asyncInit() async {
-    print("_asyncInit");
     final resource = await advertService.apiKeyExists();
     if (resource is Error) {
       return;

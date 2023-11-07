@@ -2,9 +2,10 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavigationScreenCardsWidget extends StatelessWidget {
-  const BottomNavigationScreenCardsWidget({super.key, required this.cardsum});
+  const BottomNavigationScreenCardsWidget(
+      {super.key, required this.cardsNumberStream});
 
-  final int cardsum;
+  final Stream<int> cardsNumberStream;
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -27,9 +28,17 @@ class BottomNavigationScreenCardsWidget extends StatelessWidget {
             ],
           ),
         ),
-        _InfoRow(
-          cardsNum: cardsum,
-        ),
+        StreamBuilder<int>(
+            stream: cardsNumberStream,
+            builder: (context, snapshot) {
+              int cardsum = 0;
+              if (snapshot.hasData) {
+                cardsum = snapshot.data!;
+              }
+              return _InfoRow(
+                cardsNum: cardsum,
+              );
+            }),
         SizedBox(
           height: screenHeight * 0.05,
         ),

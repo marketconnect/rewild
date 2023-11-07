@@ -4,94 +4,42 @@ import 'package:rewild/domain/entities/advert_base.dart';
 
 // card
 abstract class BottomNavigationCardService {
-  Future<Resource<int>> count();
+  Future<Resource<void>> countAndSendInStream();
 }
 
 // advert
 abstract class BottomNavigationAdvertService {
-  Future<Resource<List<Advert>>> getActive();
-  Future<Resource<bool>> apiKeyExists();
+  Future<Resource<void>> sendActiveAdvertsToStream();
+  Future<Resource<void>> apiKeyExistsSendInStream();
 }
 
 class BottomNavigationViewModel extends ResourceChangeNotifier {
   final BottomNavigationCardService cardService;
   final BottomNavigationAdvertService advertService;
+  final Stream<int> cardsNumberStream;
+  final Stream<List<Advert>> advertsStream;
+  final Stream<bool> apiKeyExistsStream;
 
   BottomNavigationViewModel(
       {required this.cardService,
       required this.advertService,
+      required this.cardsNumberStream,
+      required this.advertsStream,
+      required this.apiKeyExistsStream,
       required super.internetConnectionChecker,
       required super.context}) {
     _asyncInit();
   }
 
-  int _cardsNum = 0;
-  void setCardsNum(int value) {
-    _cardsNum = value;
-  }
-
-  int get cardsNum => _cardsNum;
-  List<Advert> _adverts = [];
-  void setAdverts(List<Advert> value) {
-    _adverts = value;
-  }
-
-  List<Advert> get adverts => _adverts;
-
-  bool _apiKeyExists = false;
-  void setApiKeyExists(bool value) {
-    _apiKeyExists = value;
-  }
-
-  bool get apiKeyExists => _apiKeyExists;
-
-  Future<void> updateIsApiKeySaved() async {
-    final isApiKeySaved = await fetch(() => advertService.apiKeyExists());
-    if (isApiKeySaved == null) {
-      return;
-    }
-    setApiKeyExists(isApiKeySaved);
-  }
-
-  Future<void> updateAdvertScreen() async {
-    print("update advert");
-    final fetchedActiveAdv = await fetch(() => advertService.getActive());
-    if (fetchedActiveAdv == null) {
-      return;
-    }
-    final isApiKeySaved = await fetch(() => advertService.apiKeyExists());
-    if (isApiKeySaved == null) {
-      return;
-    }
-    setApiKeyExists(isApiKeySaved);
-    setAdverts(fetchedActiveAdv);
-  }
-
-  Future<void> updateCardsScreen() async {
-    print("update cards");
-    final cardsLen = await fetch(() => cardService.count());
-    if (cardsLen == null) {
-      return;
-    }
-    _cardsNum = cardsLen;
-  }
-
   void _asyncInit() async {
-    final cardsLen = await fetch(() => cardService.count());
-    if (cardsLen == null) {
-      return;
-    }
-    _cardsNum = cardsLen;
-    final fetchedActiveAdv = await fetch(() => advertService.getActive());
-    if (fetchedActiveAdv == null) {
-      return;
-    }
-    final isApiKeySaved = await fetch(() => advertService.apiKeyExists());
-    if (isApiKeySaved == null) {
-      return;
-    }
-    setApiKeyExists(isApiKeySaved);
-    setAdverts(fetchedActiveAdv);
+    await fetch(() => cardService.countAndSendInStream());
+
+    // _cardsNum = cardsLen;
+
+    await fetch(() => advertService.sendActiveAdvertsToStream());
+
+    await fetch(() => advertService.apiKeyExistsSendInStream());
+
     notify();
   }
 }

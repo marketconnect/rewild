@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 
@@ -20,9 +22,14 @@ class AdvertService
     implements AllAdvertsScreenAdvertService, BottomNavigationAdvertService {
   final AdvertServiceAdvertApiClient advertApiClient;
   final AdvertServiceApiKeyDataProvider apiKeysDataProvider;
+  StreamController<List<Advert>> activeAdvertsStreamController;
+  StreamController<bool> apiKeyExistsStreamController;
 
   AdvertService(
-      {required this.advertApiClient, required this.apiKeysDataProvider});
+      {required this.advertApiClient,
+      required this.apiKeysDataProvider,
+      required this.activeAdvertsStreamController,
+      required this.apiKeyExistsStreamController});
 
   @override
   Future<Resource<bool>> apiKeyExists() async {
@@ -34,6 +41,19 @@ class AdvertService
       return Resource.success(false);
     }
     return Resource.success(true);
+  }
+
+  @override
+  Future<Resource<void>> apiKeyExistsSendInStream() async {
+    final resource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (resource is Error) {
+      return Resource.error(resource.message!);
+    }
+    if (resource is Empty) {
+      return Resource.empty();
+    }
+    apiKeyExistsStreamController.add(true);
+    return Resource.empty();
   }
 
   DateTime? budgetLastReq;
@@ -70,13 +90,13 @@ class AdvertService
   }
 
   @override
-  Future<Resource<List<Advert>>> getActive() async {
+  Future<Resource<void>> sendActiveAdvertsToStream() async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
     }
     if (tokenResource is Empty) {
-      return Resource.empty();
+      return Resource.error("Токен не сохранен");
     }
 
     final advertsResource =
@@ -96,11 +116,12 @@ class AdvertService
       final advInfoResource = await advertApiClient.getAdvertInfo(
           tokenResource.data!.token, advert.advertId);
       if (advInfoResource is Error) {
-        return Resource.error(advInfoResource.message!);
+        return Resource.error(tokenResource.message!);
       }
       res.add(advInfoResource.data!);
     }
-    return Resource.success(res);
+    activeAdvertsStreamController.add(res);
+    return Resource.empty();
   }
 
   @override
