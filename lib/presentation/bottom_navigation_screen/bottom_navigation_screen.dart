@@ -17,18 +17,10 @@ class BottomNavigationScreen extends StatefulWidget
   State<BottomNavigationScreen> createState() => _BottomNavigationScreenState();
 }
 
-class _BottomNavigationScreenState extends State<BottomNavigationScreen>
-    with WidgetsBindingObserver {
+class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   int _widgetIndex = 0;
 
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
-  }
-
-  void setIndex(int index) {
+  Future<void> setIndex(int index) async {
     setState(() {
       _widgetIndex = index;
     });
@@ -40,6 +32,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
 
     final model = context.watch<BottomNavigationViewModel>();
     final cardsNum = model.cardsNum;
+    final updateCardsScreen = model.updateCardsScreen;
+    final updateAdvertScreen = model.updateAdvertScreen;
     final adverts = model.adverts;
     final apiKeyExists = model.apiKeyExists;
     List<Widget> widgets = [
@@ -65,7 +59,17 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
             activeColor: Theme.of(context).colorScheme.onSurface,
             tabBackgroundColor: Theme.of(context).colorScheme.surface,
             // selectedIndex: 0,
-            onTabChange: (value) => setIndex(value),
+            onTabChange: (value) async {
+              if (value == 1) {
+                await updateCardsScreen();
+              } else if (value == 2) {
+                await updateAdvertScreen();
+              } else {
+                await updateCardsScreen();
+                await updateAdvertScreen();
+              }
+              setIndex(value);
+            },
             tabs: [
               GButton(
                 icon: _widgetIndex == 0 ? Icons.home : Icons.home_outlined,

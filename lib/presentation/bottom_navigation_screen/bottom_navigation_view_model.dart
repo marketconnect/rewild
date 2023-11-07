@@ -2,11 +2,6 @@ import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 
-// stream
-abstract class BottomNavigationStream {
-  Stream<int> get numOfCardsStream;
-}
-
 // card
 abstract class BottomNavigationCardService {
   Future<Resource<int>> count();
@@ -21,12 +16,10 @@ abstract class BottomNavigationAdvertService {
 class BottomNavigationViewModel extends ResourceChangeNotifier {
   final BottomNavigationCardService cardService;
   final BottomNavigationAdvertService advertService;
-  final BottomNavigationStream stream;
 
   BottomNavigationViewModel(
       {required this.cardService,
       required this.advertService,
-      required this.stream,
       required super.internetConnectionChecker,
       required super.context}) {
     _asyncInit();
@@ -52,6 +45,37 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
 
   bool get apiKeyExists => _apiKeyExists;
 
+  Future<void> updateIsApiKeySaved() async {
+    final isApiKeySaved = await fetch(() => advertService.apiKeyExists());
+    if (isApiKeySaved == null) {
+      return;
+    }
+    setApiKeyExists(isApiKeySaved);
+  }
+
+  Future<void> updateAdvertScreen() async {
+    print("update advert");
+    final fetchedActiveAdv = await fetch(() => advertService.getActive());
+    if (fetchedActiveAdv == null) {
+      return;
+    }
+    final isApiKeySaved = await fetch(() => advertService.apiKeyExists());
+    if (isApiKeySaved == null) {
+      return;
+    }
+    setApiKeyExists(isApiKeySaved);
+    setAdverts(fetchedActiveAdv);
+  }
+
+  Future<void> updateCardsScreen() async {
+    print("update cards");
+    final cardsLen = await fetch(() => cardService.count());
+    if (cardsLen == null) {
+      return;
+    }
+    _cardsNum = cardsLen;
+  }
+
   void _asyncInit() async {
     final cardsLen = await fetch(() => cardService.count());
     if (cardsLen == null) {
@@ -69,10 +93,5 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
     setApiKeyExists(isApiKeySaved);
     setAdverts(fetchedActiveAdv);
     notify();
-
-    stream.numOfCardsStream.listen((event) {
-      setCardsNum(event);
-      notify();
-    }, onError: (error) {}, onDone: () {});
   }
 }
