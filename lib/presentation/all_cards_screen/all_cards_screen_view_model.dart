@@ -14,24 +14,28 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/resource.dart';
 
+// Token
 abstract class AllCardsScreenTokenProvider {
   Future<Resource<String>> getToken();
 }
 
+// Cards
 abstract class AllCardsScreenCardOfProductService {
   Future<Resource<List<CardOfProductModel>>> getAll();
-  Future<Resource<int>> delete(String token, List<int> nmIds);
 }
 
+// Filter
 abstract class AllCardsScreenFilterService {
   Future<Resource<FilterModel>> getCurrentFilter();
   Future<Resource<void>> deleteFilter();
 }
 
+// Groups
 abstract class AllCardsScreenGroupsService {
   Future<Resource<List<GroupModel>>> getAll([List<int>? nmIds]);
 }
 
+// Supply
 abstract class AllCardsScreenSupplyService {
   Future<Resource<List<SupplyModel>>> getForOne(
       {required int nmId,
@@ -39,8 +43,10 @@ abstract class AllCardsScreenSupplyService {
       required DateTime dateTo});
 }
 
+// Update
 abstract class AllCardsScreenUpdateService {
   Future<Resource<void>> update();
+  Future<Resource<int>> delete(String token, List<int> nmIds);
 }
 
 class AllCardsScreenViewModel extends ResourceChangeNotifier {
@@ -282,7 +288,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
 
     final token = await _getToken();
 
-    await fetch(() => cardsOfProductsService.delete(token, idsForDelete));
+    await fetch(() => updateService.delete(token, idsForDelete));
 
     _update();
   }

@@ -11,6 +11,7 @@ abstract class BottomNavigationCardService {
 abstract class BottomNavigationAdvertService {
   Future<Resource<List<Advert>>> getActiveAdverts();
   Future<Resource<bool>> apiKeyExists();
+  Future<Resource<int>> getBudget(int advertId);
 }
 
 class BottomNavigationViewModel extends ResourceChangeNotifier {
@@ -47,6 +48,18 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
 
   List<Advert> get adverts => _adverts;
 
+  // budget
+  Map<int, int> _budget = {};
+  void setBudget(Map<int, int> value) {
+    _budget = value;
+  }
+
+  void addBudget(int advId, int value) {
+    _budget[advId] = value;
+  }
+
+  Map<int, int> get budget => _budget;
+
   Future<void> updateAdverts() async {
     if (apiKeyExists) {
       final newAdverts = await fetch(() => advertService.getActiveAdverts());
@@ -55,8 +68,15 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
       }
       setAdverts(newAdverts);
     }
-
     notify();
+    final advertIds = _adverts.map((e) => e.advertId).toList();
+    for (final id in advertIds) {
+      final budget = await fetch(() => advertService.getBudget(id));
+      if (budget != null) {
+        addBudget(id, budget);
+        notify();
+      }
+    }
   }
 
   // ApiKeyExists

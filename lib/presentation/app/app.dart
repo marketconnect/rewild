@@ -27,12 +27,12 @@ class App extends StatefulWidget {
 // This widget is the root of the application.
 class _AppState extends State<App> {
   @override
-  void dispose() {
+  Future<void> dispose() async {
     // close every streamControllers
-    print("App dispose");
-    widget.streamControllers.forEach((element) {
-      element.close();
-    });
+
+    for (var element in widget.streamControllers) {
+      await element.close();
+    }
     super.dispose();
   }
 

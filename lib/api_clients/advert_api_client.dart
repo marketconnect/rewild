@@ -70,8 +70,9 @@ class AdvertApiClient implements AdvertServiceAdvertApiClient {
         if (data == null) {
           return Resource.empty();
         }
-        print("in api client $data");
-
+        if (data.length == 0) {
+          return Resource.success([]);
+        }
         return Resource.success(
           List<AdvertInfoModel>.from(
             data.map((x) => AdvertInfoModel.fromJson(x)),

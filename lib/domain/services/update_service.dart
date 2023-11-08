@@ -480,4 +480,32 @@ class UpdateService
     }
     return Resource.success(initialStocksFromServer);
   }
+
+  @override
+  Future<Resource<int>> delete(String token, List<int> ids) async {
+    for (final id in ids) {
+      // delete card from the server
+      final deleteFromServerResource =
+          await cardOfProductApiClient.delete(token, id);
+
+      if (deleteFromServerResource is Error) {
+        return Resource.error(deleteFromServerResource.message!);
+      }
+
+      // delete card from the local storage
+      final deleteResource = await cardOfProductDataProvider.delete(id);
+      if (deleteResource is Error) {
+        return Resource.error(deleteResource.message!);
+      }
+    }
+    // get all cards from local db
+    final cardsInDBResource = await cardOfProductDataProvider.getAll();
+
+    if (cardsInDBResource is Error) {
+      return Resource.error(cardsInDBResource.message!);
+    }
+    final cardsInDB = cardsInDBResource.data!;
+    cardsNumberStreamController.add(cardsInDB.length);
+    return Resource.success(ids.length);
+  }
 }

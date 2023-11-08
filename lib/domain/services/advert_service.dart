@@ -91,11 +91,11 @@ class AdvertService
       return Resource.error(advertsResource.message!);
     }
 
-    List<Advert> res = [];
     if (advertsResource is Empty) {
       return Resource.error(
           'Токен "Продвижение" недействителен. Пожалуйста удалите его.');
     }
+    List<Advert> res = [];
     for (var advert in advertsResource.data!) {
       if (advert.status != 9) {
         continue;

@@ -28,12 +28,6 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   }
 
   @override
-  void dispose() {
-    print("BottomNavigationScreen dispose");
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     FlutterStatusbarcolor.setStatusBarColor(Colors.white);
 
@@ -42,6 +36,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     final adverts = model.adverts;
     final apiKeyExists = model.apiKeyExists;
     final cardsNumber = model.cardsNumber;
+    final budget = model.budget;
 
     List<Widget> widgets = [
       const BottomNavigationScreenHomeWidget(),
@@ -51,6 +46,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
       BottomNavigationScreenAdvertWidget(
         adverts: adverts,
         apiKeyExists: apiKeyExists,
+        budget: budget,
       )
     ];
     return WillPopScope(
