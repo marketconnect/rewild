@@ -4,13 +4,13 @@ import 'package:rewild/domain/entities/advert_base.dart';
 
 // card
 abstract class BottomNavigationCardService {
-  Future<Resource<void>> countAndSendInStream();
+  Future<Resource<int>> count();
 }
 
 // advert
 abstract class BottomNavigationAdvertService {
-  Future<Resource<void>> sendActiveAdvertsToStream();
-  Future<Resource<void>> apiKeyExistsSendInStream();
+  Future<Resource<List<Advert>>> getActiveAdverts();
+  Future<Resource<bool>> apiKeyExists();
 }
 
 class BottomNavigationViewModel extends ResourceChangeNotifier {
@@ -31,14 +31,74 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
     _asyncInit();
   }
 
+  // cards num
+  int _cardsNumber = 0;
+  void setCardsNumber(int value) {
+    _cardsNumber = value;
+  }
+
+  int get cardsNumber => _cardsNumber;
+
+  // Adverts
+  List<Advert> _adverts = [];
+  void setAdverts(List<Advert> value) {
+    _adverts = value;
+  }
+
+  List<Advert> get adverts => _adverts;
+
+  Future<void> updateAdverts() async {
+    if (apiKeyExists) {
+      final newAdverts = await fetch(() => advertService.getActiveAdverts());
+      if (newAdverts == null) {
+        return;
+      }
+      setAdverts(newAdverts);
+    }
+
+    notify();
+  }
+
+  // ApiKeyExists
+  bool _apiKeyExists = false;
+  void setApiKeyExists(bool value) {
+    _apiKeyExists = value;
+  }
+
+  bool get apiKeyExists => _apiKeyExists;
+
   void _asyncInit() async {
-    await fetch(() => cardService.countAndSendInStream());
+    cardsNumberStream.listen((event) {
+      setCardsNumber(event);
+      notify();
+    });
+    apiKeyExistsStream.listen((event) {
+      setApiKeyExists(event);
+      notify();
+    });
 
-    // _cardsNum = cardsLen;
+    advertsStream.listen((event) {
+      setAdverts(event);
+      notify();
+    });
 
-    await fetch(() => advertService.sendActiveAdvertsToStream());
+    final cardsQty = await fetch(() => cardService.count());
+    if (cardsQty == null) {
+      return;
+    }
+    setCardsNumber(cardsQty);
+    final exists = await fetch(() => advertService.apiKeyExists());
+    if (exists == null) {
+      return;
+    }
+    setApiKeyExists(exists);
 
-    await fetch(() => advertService.apiKeyExistsSendInStream());
+    if (apiKeyExists) {
+      final newAdverts = await fetch(() => advertService.getActiveAdverts());
+      if (newAdverts == null) {
+        return;
+      }
+    }
 
     notify();
   }

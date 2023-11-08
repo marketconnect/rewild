@@ -82,10 +82,9 @@ class CardOfProductService
   final CardOfProductServiceCardOfProductDataProvider cardOfProductDataProvider;
   final CardOfProductServiceInitStockDataProvider initStockDataProvider;
   final CardOfProductServiceSupplyDataProvider supplyDataProvider;
-  final StreamController<int> cardsNumberStreamController;
+
   CardOfProductService({
     required this.warehouseDataprovider,
-    required this.cardsNumberStreamController,
     required this.warehouseApiClient,
     required this.cardOfProductApiClient,
     required this.cardOfProductDataProvider,
@@ -95,14 +94,13 @@ class CardOfProductService
   });
 
   @override
-  Future<Resource<void>> countAndSendInStream() async {
+  Future<Resource<int>> count() async {
     final allCardsResource = await cardOfProductDataProvider.getAll();
     if (allCardsResource is Error) {
       return Resource.error(allCardsResource.message!);
     }
 
-    cardsNumberStreamController.add(allCardsResource.data!.length);
-    return Resource.empty();
+    return Resource.success(allCardsResource.data!.length);
   }
 
   @override

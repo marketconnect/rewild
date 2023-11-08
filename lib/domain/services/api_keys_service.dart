@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
@@ -10,7 +12,10 @@ abstract class ApiKeysServiceApiKeysDataProvider {
 
 class ApiKeysService implements ApiKeysScreenApiKeysService {
   final ApiKeysServiceApiKeysDataProvider apiKeysDataProvider;
-  ApiKeysService({required this.apiKeysDataProvider});
+  final StreamController<bool> apiKeyExistsStreamController;
+  ApiKeysService(
+      {required this.apiKeysDataProvider,
+      required this.apiKeyExistsStreamController});
   @override
   Future<Resource<List<ApiKeyModel>>> getAll(List<String> types) async {
     final apiKeysResource = await apiKeysDataProvider.getAllApiKeys(types);
@@ -25,7 +30,14 @@ class ApiKeysService implements ApiKeysScreenApiKeysService {
 
   @override
   Future<Resource<void>> deleteApiKey(String apiKeyType) async {
-    return await apiKeysDataProvider.deleteApiKey(apiKeyType);
+    final ok = await apiKeysDataProvider.deleteApiKey(apiKeyType);
+    if (ok is Error) {
+      return Resource.error(ok.message!);
+    }
+    if (apiKeyType == 'Продвижение') {
+      apiKeyExistsStreamController.add(false);
+    }
+    return Resource.empty();
   }
 
   @override
@@ -34,6 +46,13 @@ class ApiKeysService implements ApiKeysScreenApiKeysService {
       token: key,
       type: type,
     );
-    return await apiKeysDataProvider.addApiKey(apiKey);
+    final ok = await apiKeysDataProvider.addApiKey(apiKey);
+    if (ok is Error) {
+      return Resource.error(ok.message!);
+    }
+    if (type == 'Продвижение') {
+      apiKeyExistsStreamController.add(true);
+    }
+    return Resource.empty();
   }
 }

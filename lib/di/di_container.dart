@@ -82,17 +82,23 @@ class _AppFactoryDefault implements AppFactory {
   _AppFactoryDefault();
   @override
   Widget makeApp() {
-    return App(navigation: _diContainer._makeAppNavigation());
+    return App(
+        navigation: _diContainer._makeAppNavigation(),
+        streamControllers: [
+          _diContainer.apiKeyExistsStreamController,
+          _diContainer.cardsNumberStreamController,
+          _diContainer.activeAdvertsStreamController
+        ]);
   }
 }
 
 class _DIContainer {
   _DIContainer();
-  // Factorys ==================================================================
-  ScreenFactory _makeScreenFactory() => ScreenFactoryDefault(this);
-  AppNavigation _makeAppNavigation() => MainNavigation(_makeScreenFactory());
-
   // streams ===================================================================
+
+  // Api Key Exist (AdvertService --> BottomNavigationViewModel)
+  final apiKeyExistsStreamController = StreamController<bool>.broadcast();
+  Stream<bool> get apiKeyExistsStream => apiKeyExistsStreamController.stream;
 
   // cards number (CardOfProductService --> BottomNavigationViewModel)
   final cardsNumberStreamController = StreamController<int>.broadcast();
@@ -104,9 +110,9 @@ class _DIContainer {
   Stream<List<Advert>> get activeAdvertsStream =>
       activeAdvertsStreamController.stream;
 
-  // Api Key Exist (AdvertService --> BottomNavigationViewModel)
-  final apiKeyExistsStreamController = StreamController<bool>.broadcast();
-  Stream<bool> get apiKeyExistsStream => apiKeyExistsStreamController.stream;
+  // Factorys ==================================================================
+  ScreenFactory _makeScreenFactory() => ScreenFactoryDefault(this);
+  AppNavigation _makeAppNavigation() => MainNavigation(_makeScreenFactory());
 
   // Api clients ===============================================================
   // auth
@@ -201,6 +207,7 @@ class _DIContainer {
         detailsApiClient: _makeDetailsApiClient(),
         initialStockApiClient: _makeStocksApiClient(),
         supplyDataProvider: _makeSupplyDataProvider(),
+        cardsNumberStreamController: cardsNumberStreamController,
         lastUpdateDayDataProvider: _makeLastUpdateDayDataProvider(),
         cardOfProductDataProvider: _makeCardOfProductDataProvider(),
         initialStockDataProvider: _makeInitialStockDataProvider(),
@@ -210,7 +217,6 @@ class _DIContainer {
   CardOfProductService _makeCardOfProductService() => CardOfProductService(
         warehouseApiClient: _makeWarehouseApiClient(),
         cardOfProductApiClient: _makeCardOfProductApiClient(),
-        cardsNumberStreamController: cardsNumberStreamController,
         initStockDataProvider: _makeInitialStockDataProvider(),
         supplyDataProvider: _makeSupplyDataProvider(),
         stockDataprovider: _makeStockDataProvider(),
@@ -271,12 +277,12 @@ class _DIContainer {
   // Api keys
   ApiKeysService _makeApiKeysService() => ApiKeysService(
         apiKeysDataProvider: _makeSecureDataProvider(),
+        apiKeyExistsStreamController: apiKeyExistsStreamController,
       );
 
   // // advert
   AdvertService _makeAdvertService() => AdvertService(
       advertApiClient: _makeAdvertApiClient(),
-      apiKeyExistsStreamController: apiKeyExistsStreamController,
       activeAdvertsStreamController: activeAdvertsStreamController,
       apiKeysDataProvider: _makeSecureDataProvider());
   // View models ===============================================================

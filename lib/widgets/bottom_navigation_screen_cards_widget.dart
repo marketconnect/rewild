@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 class BottomNavigationScreenCardsWidget extends StatelessWidget {
   const BottomNavigationScreenCardsWidget(
-      {super.key, required this.cardsNumberStream});
+      {super.key, required this.cardsNumber});
 
-  final Stream<int> cardsNumberStream;
+  final int cardsNumber;
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -28,17 +28,9 @@ class BottomNavigationScreenCardsWidget extends StatelessWidget {
             ],
           ),
         ),
-        StreamBuilder<int>(
-            stream: cardsNumberStream,
-            builder: (context, snapshot) {
-              int cardsum = 0;
-              if (snapshot.hasData) {
-                cardsum = snapshot.data!;
-              }
-              return _InfoRow(
-                cardsNum: cardsum,
-              );
-            }),
+        _InfoRow(
+          cardsNum: cardsNumber,
+        ),
         SizedBox(
           height: screenHeight * 0.05,
         ),

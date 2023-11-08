@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/theme/color_schemes.g.dart';
 import 'package:flutter/material.dart';
@@ -9,14 +11,31 @@ abstract class AppNavigation {
   Route<Object> onGenerateRoute(RouteSettings settings);
 }
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   final AppNavigation navigation;
+  final List<StreamController> streamControllers;
   const App({
     super.key,
     required this.navigation,
+    required this.streamControllers,
   });
 
-  // This widget is the root of your application.
+  @override
+  State<App> createState() => _AppState();
+}
+
+// This widget is the root of the application.
+class _AppState extends State<App> {
+  @override
+  void dispose() {
+    // close every streamControllers
+    print("App dispose");
+    widget.streamControllers.forEach((element) {
+      element.close();
+    });
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     FlutterStatusbarcolor.setStatusBarColor(
@@ -35,9 +54,9 @@ class App extends StatelessWidget {
           fontFamily: GoogleFonts.roboto().fontFamily),
       debugShowCheckedModeBanner: false,
       title: 'ReWild',
-      routes: navigation.routes,
+      routes: widget.navigation.routes,
       initialRoute: MainNavigationRouteNames.splashScreen,
-      onGenerateRoute: navigation.onGenerateRoute,
+      onGenerateRoute: widget.navigation.onGenerateRoute,
     );
   }
 }

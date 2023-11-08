@@ -23,13 +23,12 @@ class AdvertService
   final AdvertServiceAdvertApiClient advertApiClient;
   final AdvertServiceApiKeyDataProvider apiKeysDataProvider;
   StreamController<List<Advert>> activeAdvertsStreamController;
-  StreamController<bool> apiKeyExistsStreamController;
 
-  AdvertService(
-      {required this.advertApiClient,
-      required this.apiKeysDataProvider,
-      required this.activeAdvertsStreamController,
-      required this.apiKeyExistsStreamController});
+  AdvertService({
+    required this.advertApiClient,
+    required this.apiKeysDataProvider,
+    required this.activeAdvertsStreamController,
+  });
 
   @override
   Future<Resource<bool>> apiKeyExists() async {
@@ -41,19 +40,6 @@ class AdvertService
       return Resource.success(false);
     }
     return Resource.success(true);
-  }
-
-  @override
-  Future<Resource<void>> apiKeyExistsSendInStream() async {
-    final resource = await apiKeysDataProvider.getApiKey('Продвижение');
-    if (resource is Error) {
-      return Resource.error(resource.message!);
-    }
-    if (resource is Empty) {
-      return Resource.empty();
-    }
-    apiKeyExistsStreamController.add(true);
-    return Resource.empty();
   }
 
   DateTime? budgetLastReq;
@@ -90,7 +76,7 @@ class AdvertService
   }
 
   @override
-  Future<Resource<void>> sendActiveAdvertsToStream() async {
+  Future<Resource<List<Advert>>> getActiveAdverts() async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -106,6 +92,10 @@ class AdvertService
     }
 
     List<Advert> res = [];
+    if (advertsResource is Empty) {
+      return Resource.error(
+          'Токен "Продвижение" недействителен. Пожалуйста удалите его.');
+    }
     for (var advert in advertsResource.data!) {
       if (advert.status != 9) {
         continue;
@@ -120,8 +110,8 @@ class AdvertService
       }
       res.add(advInfoResource.data!);
     }
-    activeAdvertsStreamController.add(res);
-    return Resource.empty();
+
+    return Resource.success(res);
   }
 
   @override

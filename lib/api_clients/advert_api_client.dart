@@ -70,6 +70,7 @@ class AdvertApiClient implements AdvertServiceAdvertApiClient {
         if (data == null) {
           return Resource.empty();
         }
+        print("in api client $data");
 
         return Resource.success(
           List<AdvertInfoModel>.from(
@@ -85,9 +86,9 @@ class AdvertApiClient implements AdvertServiceAdvertApiClient {
           "Ответ API WB: Некорректный идентификатор РК",
         );
       } else if (response.statusCode == 401) {
-        return Resource.error(
-          "Ответ API WB: Пустой авторизационный заголовок",
-        );
+        // "Ответ API WB: Пустой авторизационный заголовок",
+
+        return Resource.empty();
       }
     } catch (e) {
       return Resource.error(

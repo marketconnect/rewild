@@ -5,6 +5,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
+
 import 'package:rewild/widgets/bottom_navigation_screen_advert_widget.dart';
 import 'package:rewild/widgets/bottom_navigation_screen_cards_widget.dart';
 import 'package:rewild/widgets/bottom_navigation_screen_home_widget.dart';
@@ -27,23 +28,30 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   }
 
   @override
+  void dispose() {
+    print("BottomNavigationScreen dispose");
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     FlutterStatusbarcolor.setStatusBarColor(Colors.white);
 
     final model = context.watch<BottomNavigationViewModel>();
 
-    final advertsStream = model.advertsStream;
-    final apiKeyExistsStream = model.apiKeyExistsStream;
+    final adverts = model.adverts;
+    final apiKeyExists = model.apiKeyExists;
+    final cardsNumber = model.cardsNumber;
 
     List<Widget> widgets = [
       const BottomNavigationScreenHomeWidget(),
       BottomNavigationScreenCardsWidget(
-        cardsNumberStream: model.cardsNumberStream,
+        cardsNumber: cardsNumber,
       ),
       BottomNavigationScreenAdvertWidget(
-        advertsStream: advertsStream,
-        apiKeyExistsStream: apiKeyExistsStream,
-      ),
+        adverts: adverts,
+        apiKeyExists: apiKeyExists,
+      )
     ];
     return WillPopScope(
       onWillPop: () async {
@@ -64,6 +72,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             // selectedIndex: 0,
             onTabChange: (value) async {
               setIndex(value);
+              await model.updateAdverts();
             },
             tabs: [
               GButton(

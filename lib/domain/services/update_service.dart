@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
@@ -92,9 +94,11 @@ class UpdateService
   final UpdateServiceInitStockDataProvider initialStockDataProvider;
   final UpdateServiceStockDataProvider stockDataProvider;
   final UpdateServiceLastUpdateDayDataProvider lastUpdateDayDataProvider;
+  final StreamController<int> cardsNumberStreamController;
   UpdateService(
       {required this.stockDataProvider,
       required this.detailsApiClient,
+      required this.cardsNumberStreamController,
       required this.initialStockDataProvider,
       required this.cardOfProductDataProvider,
       required this.initialStockApiClient,
@@ -253,7 +257,7 @@ class UpdateService
         }
       }
     }
-
+    cardsNumberStreamController.add(newCards.length + cardsInDB.length);
     return Resource.success(newCards.length);
   }
 
