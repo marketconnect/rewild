@@ -12,6 +12,8 @@ abstract class AdvertServiceAdvertApiClient {
   Future<Resource<List<AdvertInfoModel>>> getAdverts(String token);
   Future<Resource<Advert>> getAdvertInfo(String token, int id);
   Future<Resource<int>> getCompanyBudget(String token, int advertId);
+  Future<Resource<bool>> pauseAdvert(String token, int advertId);
+  Future<Resource<bool>> startAdvert(String token, int advertId);
 }
 
 abstract class AdvertServiceApiKeyDataProvider {
@@ -106,7 +108,7 @@ class AdvertService
       final advInfoResource = await advertApiClient.getAdvertInfo(
           tokenResource.data!.token, advert.advertId);
       if (advInfoResource is Error) {
-        return Resource.error(tokenResource.message!);
+        return Resource.error(advInfoResource.message!);
       }
       res.add(advInfoResource.data!);
     }
@@ -146,5 +148,59 @@ class AdvertService
       res.add(advInfoResource.data!);
     }
     return Resource.success(res);
+  }
+
+  @override
+  Future<Resource<bool>> startAdvert(int advertId) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+    bool done = false;
+    int cont = 0;
+    while (!done) {
+      if (cont > 10) {
+        break;
+      }
+      final advertsResource = await advertApiClient.startAdvert(
+          tokenResource.data!.token, advertId);
+      if (advertsResource is Error) {
+        return Resource.error(advertsResource.message!);
+      }
+      done = advertsResource.data!;
+      await _ready(advertsLastReq, const Duration(milliseconds: 300));
+      cont++;
+    }
+    return Resource.success(done);
+  }
+
+  @override
+  Future<Resource<bool>> stopAdvert(int advertId) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+    bool done = false;
+    int cont = 0;
+    while (!done) {
+      if (cont > 10) {
+        break;
+      }
+      final advertsResource = await advertApiClient.pauseAdvert(
+          tokenResource.data!.token, advertId);
+      if (advertsResource is Error) {
+        return Resource.error(advertsResource.message!);
+      }
+      done = advertsResource.data!;
+      await _ready(advertsLastReq, const Duration(milliseconds: 300));
+      cont++;
+    }
+    return Resource.success(done);
   }
 }

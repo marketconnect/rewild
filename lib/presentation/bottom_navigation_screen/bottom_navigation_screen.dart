@@ -37,6 +37,9 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     final apiKeyExists = model.apiKeyExists;
     final cardsNumber = model.cardsNumber;
     final budget = model.budget;
+    final stopCallback = model.stopAdvert;
+    final startCallback = model.startAdvert;
+    final paused = model.paused;
 
     List<Widget> widgets = [
       const BottomNavigationScreenHomeWidget(),
@@ -46,6 +49,9 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
       BottomNavigationScreenAdvertWidget(
         adverts: adverts,
         apiKeyExists: apiKeyExists,
+        stopCallback: stopCallback,
+        startCallback: startCallback,
+        paused: paused,
         budget: budget,
       )
     ];

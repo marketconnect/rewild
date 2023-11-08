@@ -1,5 +1,6 @@
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
+import 'package:rewild/widgets/bottom_navigation_screen_link_btn.dart';
 
 class BottomNavigationScreenCardsWidget extends StatelessWidget {
   const BottomNavigationScreenCardsWidget(
@@ -38,94 +39,23 @@ class BottomNavigationScreenCardsWidget extends StatelessWidget {
           padding: EdgeInsets.all(15.0),
           child: Column(
             children: [
-              _Link(
+              LinkBtn(
                 text: 'Карточки товаров',
                 color: Color(0xFF34d058),
                 route: MainNavigationRouteNames.allCardsScreen,
                 iconData: Icons.card_giftcard_outlined,
               ),
-              _Link(
+              LinkBtn(
                 text: 'Группы',
                 color: Color(0xFF2188ff),
                 route: MainNavigationRouteNames.allGroupsScreen,
                 // route: '',
                 iconData: Icons.account_tree_outlined,
               ),
-              // _Link(
-              //     text: 'Продавцы',
-              //     color: Color(0xFF6f42c1),
-              //     route: MainNavigationRouteNames.allSellersScreen,
-              //     // route: '',
-              //     iconData: Icons.man),
-              // _Link(
-              //   text: 'Поставки',
-              //   color: Color(0xFF9194a1),
-              //   // route: MainNavigationRouteNames.addApiTokenScreen,
-              //   route: '',
-              //   iconData: Icons.local_shipping_outlined,
-              // ),
-              // _Link(
-              //   text: 'Ваши пожелания',
-              //   color: Color(0xFF41434e),
-              //   // route: MainNavigationRouteNames.addApiTokenScreen,
-              //   route: '',
-              //   iconData: Icons.message_outlined,
-              // ),
             ],
           ),
         )
       ]),
-    );
-  }
-}
-
-class _Link extends StatelessWidget {
-  const _Link({
-    required this.text,
-    required this.route,
-    required this.iconData,
-    required this.color,
-  });
-
-  final String text;
-
-  final String route;
-  final IconData iconData;
-  final Color color;
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(route),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration:
-            BoxDecoration(border: Border.all(color: Colors.transparent)),
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                  color: color, borderRadius: BorderRadius.circular(10)),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Icon(
-                  iconData,
-                  color: Theme.of(context).colorScheme.background,
-                  size: screenWidth * 0.05,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: screenWidth * 0.05,
-            ),
-            Text(
-              text,
-              style: TextStyle(
-                  fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
-            )
-          ],
-        ),
-      ),
     );
   }
 }

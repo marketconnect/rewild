@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class MyProgressIndicator extends StatelessWidget {
-  const MyProgressIndicator({super.key});
-
+  const MyProgressIndicator({super.key, this.size = 50.0});
+  final double size;
   @override
   Widget build(BuildContext context) {
     return SpinKitCircle(
       duration: const Duration(milliseconds: 1000),
-      size: 50.0,
+      size: size,
       itemBuilder: (context, index) {
         final colors = [
           const Color(0xFF83735c),

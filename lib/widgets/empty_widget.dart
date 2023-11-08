@@ -31,6 +31,7 @@ class EmptyWidget extends StatelessWidget {
           child: AutoSizeText(
             text,
             maxLines: 4,
+            textAlign: TextAlign.center,
           ),
         ),
       ],

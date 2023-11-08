@@ -17,6 +17,72 @@ class AdvertApiClient implements AdvertServiceAdvertApiClient {
   const AdvertApiClient();
 
   @override
+  Future<Resource<bool>> pauseAdvert(String token, int advertId) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': advertId.toString()};
+
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v0/pause", params);
+      var response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        return Resource.success(true);
+      } else if (response.statusCode == 422) {
+        //Статус кампании не изменен
+        return Resource.success(false);
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: Некорректный идентификатор РК",
+        );
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      }
+    } catch (e) {
+      return Resource.error("Неизвестная ошибка");
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
+  @override
+  Future<Resource<bool>> startAdvert(String token, int advertId) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': advertId.toString()};
+
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v0/start", params);
+      var response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        return Resource.success(true);
+      } else if (response.statusCode == 422) {
+        //Статус кампании не изменен
+        return Resource.success(false);
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: Некорректный идентификатор РК",
+        );
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      }
+    } catch (e) {
+      return Resource.error("Неизвестная ошибка");
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
+  @override
   Future<Resource<int>> getCompanyBudget(String token, int advertId) async {
     try {
       var headers = {

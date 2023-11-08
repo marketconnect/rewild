@@ -12,6 +12,8 @@ abstract class BottomNavigationAdvertService {
   Future<Resource<List<Advert>>> getActiveAdverts();
   Future<Resource<bool>> apiKeyExists();
   Future<Resource<int>> getBudget(int advertId);
+  Future<Resource<bool>> stopAdvert(int advertId);
+  Future<Resource<bool>> startAdvert(int advertId);
 }
 
 class BottomNavigationViewModel extends ResourceChangeNotifier {
@@ -77,6 +79,43 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
         notify();
       }
     }
+  }
+
+  Map<int, bool> _paused = {};
+  Map<int, bool> get paused => _paused;
+  void setPaused(int advId) {
+    _paused[advId] = true;
+  }
+
+  void unSetPaused(int advId) {
+    _paused[advId] = false;
+  }
+
+  Future<bool> stopAdvert(int id) async {
+    final adv = await fetch(() => advertService.stopAdvert(id));
+    if (adv == null) {
+      return false;
+    }
+    if (adv) {
+      setPaused(id);
+    } else {
+      unSetPaused(id);
+    }
+    notify();
+    return adv;
+  }
+
+  Future<bool> startAdvert(int id) async {
+    final adv = await fetch(() => advertService.stopAdvert(id));
+    if (adv == null) {
+      return false;
+    }
+    if (adv) {
+      unSetPaused(id);
+    } else {
+      setPaused(id);
+    }
+    return adv;
   }
 
   // ApiKeyExists

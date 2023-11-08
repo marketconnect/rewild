@@ -1,17 +1,26 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+
 import 'package:rewild/core/constants.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
+import 'package:rewild/widgets/bottom_navigation_screen_link_btn.dart';
 import 'package:rewild/widgets/empty_widget.dart';
+import 'package:rewild/widgets/progress_indicator.dart';
 
 class BottomNavigationScreenAdvertWidget extends StatelessWidget {
   const BottomNavigationScreenAdvertWidget(
       {super.key,
       required this.adverts,
       required this.apiKeyExists,
+      required this.stopCallback,
+      required this.startCallback,
+      required this.paused,
       required this.budget});
 
+  final Future<bool> Function(int) stopCallback;
+  final Future<bool> Function(int) startCallback;
+  final Map<int, bool> paused;
   final List<Advert> adverts;
   final bool apiKeyExists;
   final Map<int, int> budget;
@@ -72,6 +81,9 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
                   _ActiveAdvertsWidget(
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
+                      paused: paused,
+                      startCallback: startCallback,
+                      stopCallback: stopCallback,
                       budget: budget,
                       adverts: adverts),
                 Padding(
@@ -81,20 +93,20 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
                       SizedBox(
                         height: screenHeight * 0.05,
                       ),
-                      const _Link(
+                      const LinkBtn(
                         text: 'Все кампании',
                         color: Color(0xFF4aa6db),
                         route: MainNavigationRouteNames.allAdvertsScreen,
                         // route: '',
                         iconData: Icons.group_outlined,
                       ),
-                      const _Link(
+                      const LinkBtn(
                         text: 'Добавить API токен',
                         color: Color(0xFFdfb446),
                         route: MainNavigationRouteNames.apiKeysScreen,
                         iconData: Icons.key,
                       ),
-                      const _Link(
+                      const LinkBtn(
                         text: 'Добавить API токен',
                         color: Color(0xFF62d79f),
                         route: MainNavigationRouteNames.apiKeysScreen,
@@ -113,7 +125,10 @@ class _ActiveAdvertsWidget extends StatelessWidget {
   const _ActiveAdvertsWidget({
     required this.screenWidth,
     required this.screenHeight,
+    required this.stopCallback,
+    required this.startCallback,
     required this.adverts,
+    required this.paused,
     required this.budget,
   });
 
@@ -121,9 +136,25 @@ class _ActiveAdvertsWidget extends StatelessWidget {
   final double screenHeight;
   final List<Advert> adverts;
   final Map<int, int> budget;
+  final Map<int, bool> paused;
+  final Future<bool> Function(int) stopCallback;
+  final Future<bool> Function(int) startCallback;
 
   @override
   Widget build(BuildContext context) {
+    adverts.sort((a, b) {
+      final budgetA = budget[a.advertId];
+      final budgetB = budget[b.advertId];
+      if (budgetA == null && budgetB == null) {
+        return 0;
+      } else if (budgetA == null) {
+        return 1; // Move item with null budget to the end
+      } else if (budgetB == null) {
+        return -1; // Move item with null budget to the end
+      } else {
+        return budgetA.compareTo(budgetB); // Sort by budget
+      }
+    });
     return Column(
       children: [
         Padding(
@@ -146,22 +177,15 @@ class _ActiveAdvertsWidget extends StatelessWidget {
         SizedBox(
             height: screenHeight * 0.25,
             child: ListView.builder(
+                // ListView ====================================================
                 itemCount: adverts.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
-                  final advType = adverts[index].type;
                   final budget = this.budget[adverts[index].advertId];
-                  final icon = advType == 4 // catalog
-                      ? Icons.category
-                      : advType == 5 // card
-                          ? Icons.card_giftcard
-                          : advType == 6 // search
-                              ? Icons.search
-                              : advType == 7
-                                  ? Icons.rocket_launch
-                                  : advType == 8
-                                      ? Icons.auto_awesome
-                                      : Icons.two_k;
+                  final isPaused = paused[adverts[index].advertId] ?? false;
+                  final icon =
+                      isPaused ? Icons.toggle_off_outlined : Icons.toggle_on;
+
                   return Container(
                     width: screenWidth * 0.7,
                     height: screenHeight * 0.2,
@@ -179,62 +203,79 @@ class _ActiveAdvertsWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
+                        Column(
                           children: [
-                            Icon(
-                              icon,
-                              size: screenWidth * 0.06,
-                              color: const Color(0xFF8c56ce),
-                            ),
-                            SizedBox(
-                              width: screenWidth * 0.01,
-                            ),
-                            Text(
-                                '${NumericConstants.advTypes[adverts[index].type]}',
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
-                                ))
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: screenWidth * 0.5,
-                                child: AutoSizeText(
-                                  adverts[index].name,
-                                  maxLines: 2,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * 0.05,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (budget != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                            Row(
                               children: [
-                                Text(
-                                  budget.toString(),
-                                  maxLines: 2,
-                                  style: TextStyle(
-                                    fontSize: screenWidth * 0.04,
-                                  ),
+                                Icon(
+                                  icon,
+                                  size: screenWidth * 0.06,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
+                                SizedBox(
+                                  width: screenWidth * 0.01,
+                                ),
+                                Text(
+                                    '${NumericConstants.advTypes[adverts[index].type]}',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ))
                               ],
                             ),
-                          ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: screenWidth * 0.5,
+                                    child: AutoSizeText(
+                                      adverts[index].name,
+                                      maxLines: 2,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: screenWidth * 0.05,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (budget != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Бюджет: ${budget.toString()} руб.',
+                                      maxLines: 2,
+                                      style: TextStyle(
+                                        fontSize: screenWidth * 0.04,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            _ElevatedBtn(
+                              screenWidth: screenWidth,
+                              startCallback: startCallback,
+                              stopCallback: stopCallback,
+                              advertId: adverts[index].advertId,
+                            )
+                          ],
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(top: 10),
                         )
                       ],
                     ),
@@ -251,53 +292,87 @@ class _ActiveAdvertsWidget extends StatelessWidget {
   }
 }
 
-class _Link extends StatelessWidget {
-  const _Link({
-    required this.text,
-    required this.route,
-    required this.iconData,
-    required this.color,
+class _ElevatedBtn extends StatefulWidget {
+  const _ElevatedBtn({
+    required this.advertId,
+    required this.screenWidth,
+    required this.stopCallback,
+    required this.startCallback,
   });
 
-  final String text;
+  final double screenWidth;
+  final Future<bool> Function(int) stopCallback;
+  final Future<bool> Function(int) startCallback;
+  final int advertId;
 
-  final String route;
-  final IconData iconData;
-  final Color color;
+  @override
+  State<_ElevatedBtn> createState() => _ElevatedBtnState();
+}
+
+class _ElevatedBtnState extends State<_ElevatedBtn> {
+  bool isLoading = false;
+  bool active = true;
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(route),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration:
-            BoxDecoration(border: Border.all(color: Colors.transparent)),
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                  color: color, borderRadius: BorderRadius.circular(10)),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Icon(
-                  iconData,
-                  color: Theme.of(context).colorScheme.background,
-                  size: screenWidth * 0.05,
-                ),
+        onTap: () async {
+          if (isLoading) {
+            return;
+          }
+          setState(() {
+            isLoading = true;
+          });
+          bool ok = false;
+          if (active) {
+            ok = await widget.stopCallback(widget.advertId);
+          } else {
+            ok = await widget.startCallback(widget.advertId);
+          }
+
+          setState(() {
+            if (ok) {
+              active = !active;
+            }
+            isLoading = false;
+          });
+        },
+        child: Container(
+          // width: MediaQuery.of(context).size.width * 0.3,
+          padding: EdgeInsets.symmetric(
+              vertical: widget.screenWidth * 0.02,
+              horizontal: widget.screenWidth * 0.04),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.background,
+            borderRadius: BorderRadius.circular(widget.screenWidth * 0.08),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.7),
+                spreadRadius: 1,
+                blurRadius: 1,
+                offset:
+                    const Offset(0, 1.5), // changes the position of the shadow
               ),
-            ),
-            SizedBox(
-              width: screenWidth * 0.05,
-            ),
-            Text(
-              text,
-              style: TextStyle(
-                  fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
-            )
-          ],
-        ),
-      ),
-    );
+            ],
+          ),
+          child: Row(
+            children: [
+              isLoading
+                  ? MyProgressIndicator(size: widget.screenWidth * 0.06)
+                  : Icon(
+                      active ? Icons.stop : Icons.play_arrow,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              SizedBox(
+                width: widget.screenWidth * 0.015,
+              ),
+              Text(
+                active ? "Стоп" : "Старт",
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ));
   }
 }

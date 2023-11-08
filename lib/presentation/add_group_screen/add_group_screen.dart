@@ -2,6 +2,7 @@ import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rewild/widgets/empty_widget.dart';
 
 class AddGroupScreen extends StatefulWidget {
   const AddGroupScreen({super.key});
@@ -148,9 +149,7 @@ class _Body extends StatelessWidget {
     final selectedGroups = model.selectedGroupsNames;
     final selectGroup = model.selectGroup;
     return groups.isEmpty
-        ? const Center(
-            child: Text('У вас нет групп, пожалуйста, добавьте'),
-          )
+        ? const EmptyWidget(text: 'У вас нет групп, пожалуйста, добавьте')
         : Padding(
             padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 0.0),
             child: ListView.builder(

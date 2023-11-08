@@ -182,6 +182,7 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
     }
     adverts.sort((a, b) => b.status.compareTo(a.status));
     setAdverts(adverts);
+
     notify();
     for (final id in advertIds) {
       final budget = await fetch(() => advertService.getBudget(id));

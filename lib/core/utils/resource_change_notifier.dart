@@ -21,10 +21,10 @@ class ResourceChangeNotifier extends ChangeNotifier {
 
   void _asyncInit() async {
     isConnected = await internetConnectionChecker.checkInternetConnection();
-    notify();
   }
 
   late bool _loading = true;
+
   bool get loading => _loading;
 
   void notify() {
