@@ -115,7 +115,9 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
     SqfliteService.printTableContent("groups");
 
     group.calculateOrdersSum();
-    stocksSum = group.stocksSum;
+    stocksSum = group.stocksSum.values
+        .toList()
+        .reduce((value, element) => value + element);
     ordersSum = group.ordersSum;
 
     ordersTotal = ordersSum;

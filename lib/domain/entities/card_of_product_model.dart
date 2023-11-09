@@ -151,8 +151,10 @@ class CardOfProductModel {
     List<InitialStockModel> initialStocksList = initialStocks.where((element) {
       return element.date.isAfter(dateFrom) && element.date.isBefore(dateTo);
     }).toList();
+    List<int> whIds = [];
     for (final size in sizes) {
       for (final stock in size.stocks) {
+        whIds.add(stock.wh);
         // Calculate stocks sum
         final stockQty = stock.qty;
 
@@ -179,10 +181,16 @@ class CardOfProductModel {
           ordersBeforeSupply = initStockQty - sup.first.lastStocks;
           _supplySum += supplyQty;
         }
-
         // orders sum is
         _ordersSum +=
             (initStockQty + supplyQty) - stockQty + ordersBeforeSupply;
+      }
+      final soldInitStocks = initialStocks
+          .where((initStock) => !whIds.contains(initStock.wh))
+          .map((e) => e.qty);
+      if (soldInitStocks.isNotEmpty) {
+        _ordersSum +=
+            soldInitStocks.reduce((value, element) => value + element);
       }
     }
   }

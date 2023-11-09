@@ -11,26 +11,33 @@ class GroupModel {
     this.cards = cards;
   }
 
-  int stocksSum = 0;
+  Map<int, int> stocksSum = {};
   void calculateStocksSum() {
-    stocksSum = 0;
     for (final card in cards) {
       for (final size in card.sizes) {
         for (final stock in size.stocks) {
-          stocksSum += stock.qty;
+          if (!stocksSum.containsKey(card.nmId)) {
+            stocksSum[card.nmId] = stock.qty;
+          } else {
+            stocksSum[card.nmId] = stocksSum[card.nmId]! + stock.qty;
+          }
         }
       }
     }
   }
 
-  int initialStocksSum = 0;
+  Map<int, int> initialStocksSum = {};
   void calculateInitialStocksSum(DateTime dateFrom, DateTime dateTo) {
-    initialStocksSum = 0;
     for (final card in cards) {
       for (final initialStock in card.initialStocks) {
         if (initialStock.date.isAfter(dateFrom) &&
             initialStock.date.isBefore(dateTo)) {
-          initialStocksSum += initialStock.qty;
+          if (!initialStocksSum.containsKey(card.nmId)) {
+            initialStocksSum[card.nmId] = initialStock.qty;
+          } else {
+            initialStocksSum[card.nmId] =
+                initialStocksSum[card.nmId]! + initialStock.qty;
+          }
         }
       }
     }
@@ -38,7 +45,12 @@ class GroupModel {
 
   int ordersSum = 0;
   void calculateOrdersSum() {
-    ordersSum = initialStocksSum - stocksSum;
+    for (final k in initialStocksSum.keys) {
+      if (initialStocksSum[k]! > stocksSum[k]!) {
+        ordersSum += initialStocksSum[k]! - stocksSum[k]!;
+      }
+    }
+    // ordersSum = initialStocksSum - stocksSum;
   }
 
   GroupModel(

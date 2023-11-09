@@ -27,9 +27,6 @@ class ColorsConstants {
         backgroundColor: const Color(0xFFf4511e),
         fontColor: const Color(0xFF050301)),
     ColorsPair(
-        backgroundColor: const Color(0xFF3700b3),
-        fontColor: const Color(0xFFFFFFFF)),
-    ColorsPair(
         backgroundColor: const Color(0xFF5d1049),
         fontColor: const Color(0xFFFFFFFF)),
     ColorsPair(
@@ -40,6 +37,9 @@ class ColorsConstants {
         fontColor: const Color(0xFF050301)),
     ColorsPair(
         backgroundColor: const Color(0xFF232f34),
+        fontColor: const Color(0xFFFFFFFF)),
+    ColorsPair(
+        backgroundColor: const Color(0xFF3700b3),
         fontColor: const Color(0xFFFFFFFF)),
     ColorsPair(
         backgroundColor: const Color(0xFFe52165),

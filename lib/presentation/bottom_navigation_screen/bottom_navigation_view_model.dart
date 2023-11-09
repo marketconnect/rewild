@@ -82,10 +82,11 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
   }
 
   Map<int, bool> _paused = {};
-  Map<int, bool> get paused => _paused;
   void setPaused(int advId) {
     _paused[advId] = true;
   }
+
+  Map<int, bool> get paused => _paused;
 
   void unSetPaused(int advId) {
     _paused[advId] = false;

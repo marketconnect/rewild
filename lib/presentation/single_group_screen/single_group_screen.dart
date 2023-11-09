@@ -1,6 +1,7 @@
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:rewild/core/utils/image_constant.dart';
 import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 import 'package:rewild/widgets/custom_image_view.dart';
@@ -27,22 +28,22 @@ class SingleGroupScreen extends StatelessWidget {
                 SizedBox(
                   width: model.screenWidth * 0.5,
                   child: const Tab(
-                    child: Text('Остатки'),
+                    child: Text('Заказы'),
                   ),
                 ),
                 SizedBox(
                   width: model.screenWidth * 0.5,
                   child: const Tab(
-                    child: Text('Заказы'),
+                    child: Text('Остатки'),
                   ),
-                )
+                ),
               ]),
             ),
             body: const TabBarView(children: [
-              _TabBody(),
               _TabBody(
                 isOrder: true,
               ),
+              _TabBody(),
             ]),
           )),
     );
@@ -161,11 +162,15 @@ class _CardsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<SingleGroupScreenViewModel>();
-    final cards = model.cards;
+    List<CardOfProductModel>? cards = model.cards;
     final ordersTotal = model.ordersTotal;
     final stocksTotal = model.stocksTotal;
     final delete = model.deleteCardFromGroup;
-
+    if (cards != null && isOrder) {
+      cards = cards.where((card) => card.ordersSum > 0).toList();
+    } else if (cards != null && !isOrder) {
+      cards = cards.where((card) => card.stocksSum > 0).toList();
+    }
     if (cards == null) {
       return Center(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -240,22 +245,6 @@ class _CardsList extends StatelessWidget {
                 icon: Icons.share,
                 label: 'Поделиться',
               ),
-              // SlidableAction(
-              //   // An action can be bigger than the others.
-              //   flex: 2,
-              //   onPressed: doNothing,
-              //   backgroundColor: Color(0xFF7BC043),
-              //   foregroundColor: Colors.white,
-              //   icon: Icons.archive,
-              //   label: 'Archive',
-              // ),
-              // SlidableAction(
-              //   onPressed: doNothing,
-              //   backgroundColor: Color(0xFF0392CF),
-              //   foregroundColor: Colors.white,
-              //   icon: Icons.save,
-              //   label: 'Save',
-              // ),
             ],
           ),
 
@@ -306,8 +295,6 @@ class _CardsList extends StatelessWidget {
       }).toList()),
     );
   }
-
-  void doNothing(BuildContext context) {}
 }
 
 class _Chart extends StatelessWidget {
@@ -344,8 +331,8 @@ class _Chart extends StatelessWidget {
             legendPosition: LegendPosition.bottom,
           ),
           chartValuesOptions: const ChartValuesOptions(
-            showChartValues: false,
-          ),
+              showChartValues: true,
+              chartValueBackgroundColor: Colors.transparent),
           chartType: ChartType.ring,
           colorList: colorsList,
         ),
