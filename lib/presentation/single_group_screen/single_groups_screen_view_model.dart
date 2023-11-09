@@ -1,7 +1,6 @@
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
-import 'package:rewild/core/utils/sqflite_service.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/group_model.dart';
@@ -111,8 +110,6 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
 
       _cards!.add(card);
     }
-
-    SqfliteService.printTableContent("groups");
 
     group.calculateOrdersSum();
     stocksSum = group.stocksSum.values

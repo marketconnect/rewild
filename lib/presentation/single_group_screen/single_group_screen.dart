@@ -9,6 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:provider/provider.dart';
+import 'package:rewild/widgets/empty_widget.dart';
 import 'package:share_plus/share_plus.dart';
 
 class SingleGroupScreen extends StatelessWidget {
@@ -24,7 +25,7 @@ class SingleGroupScreen extends StatelessWidget {
           child: Scaffold(
             appBar: AppBar(
               title: Text(name.capitalize()),
-              bottom: TabBar(tabs: [
+              bottom: TabBar(splashFactory: NoSplash.splashFactory, tabs: [
                 SizedBox(
                   width: model.screenWidth * 0.5,
                   child: const Tab(
@@ -69,7 +70,9 @@ class _TabBody extends StatelessWidget {
     final stocksTotal = model.stocksTotal;
 
     if (cards == null || ordersDataMap.isEmpty || stocksDataMap.isEmpty) {
-      return const _EmptyWidget();
+      return const EmptyWidget(
+        text: "Нет групп",
+      );
     }
     double turns = isExpanded ? 0.0 : 0.5;
     return SingleChildScrollView(
@@ -79,39 +82,36 @@ class _TabBody extends StatelessWidget {
             onTap: () {
               changeExpanded();
             },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        width: model.screenWidth,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            AnimatedRotation(
-                              duration: const Duration(milliseconds: 300),
-                              turns: turns,
-                              child: const Icon(
-                                Icons.keyboard_arrow_up_outlined,
-                              ),
-                            )
-                          ],
-                        ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      width: model.screenWidth,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          AnimatedRotation(
+                            duration: const Duration(milliseconds: 300),
+                            turns: turns,
+                            child: const Icon(
+                              Icons.keyboard_arrow_up_outlined,
+                            ),
+                          )
+                        ],
                       ),
                     ),
-                    if (isExpanded)
-                      const SizedBox(
-                        height: 35,
-                      ),
-                    _Chart(
-                      dataMap: isOrder ? ordersDataMap : stocksDataMap,
-                      total: isOrder ? ordersTotal : stocksTotal,
+                  ),
+                  if (isExpanded)
+                    const SizedBox(
+                      height: 35,
                     ),
-                  ],
-                ),
+                  _Chart(
+                    dataMap: isOrder ? ordersDataMap : stocksDataMap,
+                    total: isOrder ? ordersTotal : stocksTotal,
+                  ),
+                ],
               ),
             ),
           ),
@@ -127,32 +127,6 @@ class _TabBody extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _EmptyWidget extends StatelessWidget {
-  const _EmptyWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    final model = context.watch<SingleGroupScreenViewModel>();
-    return Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        CustomImageView(
-          svgPath: ImageConstant.imgNotFound,
-          height: model.screenHeight * 0.2,
-          width: model.screenWidth * 0.5,
-        ),
-        SizedBox(
-          height: model.screenHeight * 0.02,
-        ),
-        const Text(
-          'Нет карточек в группе',
-        ),
-      ],
-    ));
   }
 }
 
@@ -315,6 +289,10 @@ class _Chart extends StatelessWidget {
     for (final entry in dataMap.entries) {
       data[entry.key.name] = entry.value;
       colorsList.add(entry.key.backgroundColor!);
+    }
+
+    if (dataMap.isEmpty) {
+      return const SizedBox();
     }
 
     return SizedBox(
