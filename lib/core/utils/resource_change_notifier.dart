@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/resource.dart';
 
+import 'package:rewild/widgets/alert_widget.dart';
+
 abstract class InternetConnectionChecker {
   Future<bool> checkInternetConnection();
 }
@@ -21,6 +23,18 @@ class ResourceChangeNotifier extends ChangeNotifier {
 
   void _asyncInit() async {
     isConnected = await internetConnectionChecker.checkInternetConnection();
+    if (!context.mounted) {
+      return;
+    }
+    if (!isConnected) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AlertWidget(
+              errorType: ErrorType.network,
+            ),
+          ));
+    }
   }
 
   late bool _loading = true;

@@ -5,10 +5,9 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
-
-import 'package:rewild/widgets/bottom_navigation_screen_advert_widget.dart';
-import 'package:rewild/widgets/bottom_navigation_screen_cards_widget.dart';
-import 'package:rewild/widgets/bottom_navigation_screen_home_widget.dart';
+import 'package:rewild/presentation/bottom_navigation_screen/widgets/bottom_navigation_screen_advert_widget.dart';
+import 'package:rewild/presentation/bottom_navigation_screen/widgets/bottom_navigation_screen_cards_widget.dart';
+import 'package:rewild/presentation/bottom_navigation_screen/widgets/bottom_navigation_screen_home_widget.dart';
 
 class BottomNavigationScreen extends StatefulWidget
     with WidgetsBindingObserver {
@@ -37,8 +36,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     final apiKeyExists = model.apiKeyExists;
     final cardsNumber = model.cardsNumber;
     final budget = model.budget;
-    final stopCallback = model.stopAdvert;
-    final startCallback = model.startAdvert;
+    final callback = model.changeAdvertStatus;
+
     final paused = model.paused;
 
     List<Widget> widgets = [
@@ -49,8 +48,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
       BottomNavigationScreenAdvertWidget(
         adverts: adverts,
         apiKeyExists: apiKeyExists,
-        stopCallback: stopCallback,
-        startCallback: startCallback,
+        callback: callback,
         paused: paused,
         budget: budget,
       )
@@ -74,7 +72,9 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             // selectedIndex: 0,
             onTabChange: (value) async {
               setIndex(value);
-              await model.updateAdverts();
+              if (value == 2) {
+                await model.updateAdverts();
+              }
             },
             tabs: [
               GButton(

@@ -8,7 +8,7 @@ import 'package:rewild/presentation/all_cards_screen/widgets/product_card_widget
 import 'package:provider/provider.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/custom_elevated_button.dart';
-import 'package:rewild/widgets/no_connection_widget.dart';
+
 import 'package:rewild/widgets/progress_indicator.dart';
 
 class AllCardsScreen extends StatefulWidget {
@@ -111,34 +111,31 @@ class _AllCardsScreenState extends State<AllCardsScreen>
             },
             body: model.loading
                 ? const MyProgressIndicator()
-                : !model.isConnected
-                    ? const NoConnectionWidget(text: "Нет соединения")
-                    : productCards
-                            .isEmpty // Body ============================================================== Body
-                        ? const _EmptyProductsCards()
-                        : Stack(children: [
-                            ListView.builder(
-                              itemCount: productCards.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                if (index > (productCards.length - 1)) {
-                                  return Container();
-                                }
-                                if (selectionInProcess &&
-                                    index == productCards.length - 1) {
-                                  return Padding(
-                                    padding:
-                                        const EdgeInsets.only(bottom: 50.0),
-                                    child: _GestureDetectorCard(
-                                        productCard: productCards[index]),
-                                  );
-                                }
-                                return _GestureDetectorCard(
-                                  productCard: productCards[index],
-                                );
-                              },
-                            ),
-                            if (selectionInProcess) const _BottomMergeBtn()
-                          ]),
+                : productCards
+                        .isEmpty // Body ============================================================== Body
+                    ? const _EmptyProductsCards()
+                    : Stack(children: [
+                        ListView.builder(
+                          itemCount: productCards.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            if (index > (productCards.length - 1)) {
+                              return Container();
+                            }
+                            if (selectionInProcess &&
+                                index == productCards.length - 1) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 50.0),
+                                child: _GestureDetectorCard(
+                                    productCard: productCards[index]),
+                              );
+                            }
+                            return _GestureDetectorCard(
+                              productCard: productCards[index],
+                            );
+                          },
+                        ),
+                        if (selectionInProcess) const _BottomMergeBtn()
+                      ]),
           ),
         ),
       ),

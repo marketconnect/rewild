@@ -109,7 +109,7 @@ class StringConstants {
     'Декабрь'
   ];
 
-  static const List<String> apiKeyTypes = ["Продвижение", "Статистика"];
+  static const List<String> apiKeyTypes = ["Статистика", "Продвижение"];
 }
 
 class ErrorsConstants {

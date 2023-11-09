@@ -82,42 +82,80 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
   }
 
   Map<int, bool> _paused = {};
-  void setPaused(int advId) {
-    _paused[advId] = true;
+  Map<int, bool> get paused => _paused;
+  void setPausedMap(Map<int, bool> value) {
+    _paused = value;
   }
 
-  Map<int, bool> get paused => _paused;
+  void setPaused(int advId) {
+    _paused[advId] = true;
+    notify();
+  }
 
   void unSetPaused(int advId) {
     _paused[advId] = false;
-  }
-
-  Future<bool> stopAdvert(int id) async {
-    final adv = await fetch(() => advertService.stopAdvert(id));
-    if (adv == null) {
-      return false;
-    }
-    if (adv) {
-      setPaused(id);
-    } else {
-      unSetPaused(id);
-    }
     notify();
-    return adv;
   }
 
-  Future<bool> startAdvert(int id) async {
-    final adv = await fetch(() => advertService.stopAdvert(id));
-    if (adv == null) {
-      return false;
-    }
-    if (adv) {
-      unSetPaused(id);
+  Future<void> changeAdvertStatus(int advertId) async {
+    final isPaused = paused[advertId] ?? false;
+
+    if (!isPaused) {
+      // now the advert is not paused
+      // stop
+      final adv = await fetch(() => advertService.stopAdvert(advertId));
+
+      if (adv == null || !adv) {
+        // could not stop
+        unSetPaused(advertId); // still active
+        return;
+      }
+      // done
+      setPaused(advertId);
+      return;
     } else {
-      setPaused(id);
+      // now the advert is paused
+      // start
+      final adv = await fetch(() => advertService.startAdvert(advertId));
+
+      if (adv == null || !adv) {
+        // could not start
+        setPaused(advertId); // still paused
+        return;
+      }
+
+      // done
+      unSetPaused(advertId); // now active
+      return;
     }
-    return adv;
   }
+
+  // Future<bool> stopAdvert(int id) async {
+  //   final adv = await fetch(() => advertService.stopAdvert(id));
+  //   if (adv == null) {
+  //     return false;
+  //   }
+  //   if (adv) {
+  //     setPaused(id);
+  //   } else {
+  //     unSetPaused(id);
+  //   }
+  //   notify();
+  //   return adv;
+  // }
+
+  // Future<bool> startAdvert(int id) async {
+  //   final adv = await fetch(() => advertService.stopAdvert(id));
+  //   if (adv == null) {
+  //     return false;
+  //   }
+  //   if (adv) {
+  //     unSetPaused(id);
+  //   } else {
+  //     setPaused(id);
+  //   }
+  //   return adv;
+  // }
 
   // ApiKeyExists
   bool _apiKeyExists = false;

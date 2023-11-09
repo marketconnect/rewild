@@ -13,19 +13,18 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
       {super.key,
       required this.adverts,
       required this.apiKeyExists,
-      required this.stopCallback,
-      required this.startCallback,
+      required this.callback,
       required this.paused,
       required this.budget});
 
-  final Future<bool> Function(int) stopCallback;
-  final Future<bool> Function(int) startCallback;
+  final Future<void> Function(int) callback;
   final Map<int, bool> paused;
   final List<Advert> adverts;
   final bool apiKeyExists;
   final Map<int, int> budget;
   @override
   Widget build(BuildContext context) {
+    print("rebuild with paused $paused");
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
@@ -82,8 +81,7 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
                       paused: paused,
-                      startCallback: startCallback,
-                      stopCallback: stopCallback,
+                      callback: callback,
                       budget: budget,
                       adverts: adverts),
                 Padding(
@@ -125,8 +123,7 @@ class _ActiveAdvertsWidget extends StatelessWidget {
   const _ActiveAdvertsWidget({
     required this.screenWidth,
     required this.screenHeight,
-    required this.stopCallback,
-    required this.startCallback,
+    required this.callback,
     required this.adverts,
     required this.paused,
     required this.budget,
@@ -137,11 +134,11 @@ class _ActiveAdvertsWidget extends StatelessWidget {
   final List<Advert> adverts;
   final Map<int, int> budget;
   final Map<int, bool> paused;
-  final Future<bool> Function(int) stopCallback;
-  final Future<bool> Function(int) startCallback;
+  final Future<void> Function(int) callback;
 
   @override
   Widget build(BuildContext context) {
+    // Sort by budget
     adverts.sort((a, b) {
       final budgetA = budget[a.advertId];
       final budgetB = budget[b.advertId];
@@ -182,9 +179,11 @@ class _ActiveAdvertsWidget extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   final budget = this.budget[adverts[index].advertId];
-                  final isPaused = paused[adverts[index].advertId] ?? false;
+                  final isActive =
+                      paused[adverts[index].advertId] ?? false == false;
+                  print("isActive: $isActive");
                   final icon =
-                      isPaused ? Icons.toggle_off_outlined : Icons.toggle_on;
+                      isActive ? Icons.toggle_on : Icons.toggle_off_outlined;
 
                   return Container(
                     width: screenWidth * 0.7,
@@ -268,8 +267,8 @@ class _ActiveAdvertsWidget extends StatelessWidget {
                           children: [
                             _ElevatedBtn(
                               screenWidth: screenWidth,
-                              startCallback: startCallback,
-                              stopCallback: stopCallback,
+                              callback: callback,
+                              active: isActive,
                               advertId: adverts[index].advertId,
                             )
                           ],
@@ -296,13 +295,14 @@ class _ElevatedBtn extends StatefulWidget {
   const _ElevatedBtn({
     required this.advertId,
     required this.screenWidth,
-    required this.stopCallback,
-    required this.startCallback,
+    required this.callback,
+    required this.active,
   });
 
   final double screenWidth;
-  final Future<bool> Function(int) stopCallback;
-  final Future<bool> Function(int) startCallback;
+  final Future<void> Function(int) callback;
+  final bool active;
+
   final int advertId;
 
   @override
@@ -311,7 +311,7 @@ class _ElevatedBtn extends StatefulWidget {
 
 class _ElevatedBtnState extends State<_ElevatedBtn> {
   bool isLoading = false;
-  bool active = true;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -322,17 +322,10 @@ class _ElevatedBtnState extends State<_ElevatedBtn> {
           setState(() {
             isLoading = true;
           });
-          bool ok = false;
-          if (active) {
-            ok = await widget.stopCallback(widget.advertId);
-          } else {
-            ok = await widget.startCallback(widget.advertId);
-          }
+
+          await widget.callback(widget.advertId);
 
           setState(() {
-            if (ok) {
-              active = !active;
-            }
             isLoading = false;
           });
         },
@@ -359,14 +352,14 @@ class _ElevatedBtnState extends State<_ElevatedBtn> {
               isLoading
                   ? MyProgressIndicator(size: widget.screenWidth * 0.06)
                   : Icon(
-                      active ? Icons.stop : Icons.play_arrow,
+                      widget.active ? Icons.stop : Icons.play_arrow,
                       color: Theme.of(context).colorScheme.primary,
                     ),
               SizedBox(
                 width: widget.screenWidth * 0.015,
               ),
               Text(
-                active ? "Стоп" : "Старт",
+                widget.active ? "Стоп" : "Старт",
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w500),

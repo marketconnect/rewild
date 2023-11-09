@@ -6,10 +6,11 @@ class EmptyWidget extends StatelessWidget {
   const EmptyWidget({
     super.key,
     required this.text,
+    this.img,
   });
 
-  final String text;
-
+  final String? text;
+  final String? img;
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -19,21 +20,23 @@ class EmptyWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Image.asset(
-          ImageConstant.imgNotFound,
+          img ?? ImageConstant.imgNotFound,
           height: screenHeight * 0.2,
           width: screenWidth * 0.5,
         ),
-        SizedBox(
-          height: screenHeight * 0.02,
-        ),
-        SizedBox(
-          width: screenWidth * 0.8,
-          child: AutoSizeText(
-            text,
-            maxLines: 4,
-            textAlign: TextAlign.center,
+        if (text != null)
+          SizedBox(
+            height: screenHeight * 0.02,
           ),
-        ),
+        if (text != null)
+          SizedBox(
+            width: screenWidth * 0.8,
+            child: AutoSizeText(
+              text!,
+              maxLines: 4,
+              textAlign: TextAlign.center,
+            ),
+          ),
       ],
     ));
   }

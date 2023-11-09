@@ -422,7 +422,7 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
                     Padding(
                       padding: const EdgeInsets.all(18.0),
                       child: Text(
-                        'Add',
+                        'Сохранить',
                         style: TextStyle(
                           fontSize: 16,
                           color: Theme.of(context).colorScheme.onPrimary,

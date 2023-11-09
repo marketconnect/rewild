@@ -79,6 +79,7 @@ class AdvertService
 
   @override
   Future<Resource<List<Advert>>> getActiveAdverts() async {
+    print("getActiveAdverts");
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -118,6 +119,7 @@ class AdvertService
 
   @override
   Future<Resource<List<Advert>>> getAll() async {
+    print("getAll");
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -162,7 +164,7 @@ class AdvertService
     bool done = false;
     int cont = 0;
     while (!done) {
-      if (cont > 10) {
+      if (cont >= 20) {
         break;
       }
       final advertsResource = await advertApiClient.startAdvert(
@@ -171,7 +173,7 @@ class AdvertService
         return Resource.error(advertsResource.message!);
       }
       done = advertsResource.data!;
-      await _ready(advertsLastReq, const Duration(milliseconds: 300));
+      await _ready(advertsLastReq, const Duration(milliseconds: 500));
       cont++;
     }
     return Resource.success(done);
@@ -189,7 +191,7 @@ class AdvertService
     bool done = false;
     int cont = 0;
     while (!done) {
-      if (cont > 10) {
+      if (cont >= 20) {
         break;
       }
       final advertsResource = await advertApiClient.pauseAdvert(
@@ -198,7 +200,7 @@ class AdvertService
         return Resource.error(advertsResource.message!);
       }
       done = advertsResource.data!;
-      await _ready(advertsLastReq, const Duration(milliseconds: 300));
+      await _ready(advertsLastReq, const Duration(milliseconds: 500));
       cont++;
     }
     return Resource.success(done);

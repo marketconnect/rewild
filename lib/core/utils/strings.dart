@@ -7,7 +7,7 @@ extension StringExtension on String {
 
   bool isWildberriesDetailUrl() {
     final regex =
-        RegExp(r'^https:\/\/www\.wildberries\.ru\/catalog\/\d+\/detail\.aspx$');
+        RegExp(r'^https:\/\/www\.wildberries\.ru\/catalog\/\d+\/detail\.aspx');
     return regex.hasMatch(this);
   }
 }
