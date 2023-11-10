@@ -37,7 +37,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     final cardsNumber = model.cardsNumber;
     final budget = model.budget;
     final callback = model.changeAdvertStatus;
-
+    final balance = model.balance;
     final paused = model.paused;
 
     List<Widget> widgets = [
@@ -47,6 +47,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
       ),
       BottomNavigationScreenAdvertWidget(
         adverts: adverts,
+        balance: balance,
         apiKeyExists: apiKeyExists,
         callback: callback,
         paused: paused,

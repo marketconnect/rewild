@@ -184,6 +184,38 @@ class AdvertApiClient implements AdvertServiceAdvertApiClient {
   }
 
   @override
+  Future<Resource<int>> balance(String token) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      var uri = Uri.https("advert-api.wb.ru", "/adv/v1/balance");
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        final stats = json.decode(utf8.decode(response.bodyBytes));
+        final balance = stats['balance'];
+        return Resource.success(balance);
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: Некорректный идентификатор продавца",
+        );
+      }
+    } catch (e) {
+      return Resource.error(
+        "Неизвестная ошибка",
+      );
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
+  @override
   Future<Resource<Advert>> getAdvertInfo(String token, int id) async {
     try {
       var headers = {

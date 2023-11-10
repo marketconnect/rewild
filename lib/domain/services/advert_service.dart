@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 
@@ -14,6 +15,7 @@ abstract class AdvertServiceAdvertApiClient {
   Future<Resource<int>> getCompanyBudget(String token, int advertId);
   Future<Resource<bool>> pauseAdvert(String token, int advertId);
   Future<Resource<bool>> startAdvert(String token, int advertId);
+  Future<Resource<int>> balance(String token);
 }
 
 abstract class AdvertServiceApiKeyDataProvider {
@@ -44,8 +46,34 @@ class AdvertService
     return Resource.success(true);
   }
 
-  DateTime? budgetLastReq;
   DateTime? advertsLastReq;
+  DateTime? advertLastReq;
+  DateTime? budgetLastReq;
+  DateTime? pauseLastReq;
+  DateTime? startLastReq;
+  DateTime? balanceLastReq;
+
+  @override
+  Future<Resource<int>> getBallance(int advertId) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+
+    if (balanceLastReq != null) {
+      await _ready(balanceLastReq, APIConstants.balanceDurationBetweenReqInMs);
+    }
+    final balanceResource =
+        await advertApiClient.balance(tokenResource.data!.token);
+    balanceLastReq = DateTime.now();
+    if (balanceResource is Error) {
+      return Resource.error(balanceResource.message!);
+    }
+    return balanceResource;
+  }
 
   @override
   Future<Resource<int>> getBudget(int advertId) async {
@@ -56,30 +84,25 @@ class AdvertService
     if (tokenResource is Empty) {
       return Resource.empty();
     }
-    // wait request time limit (1/sec)
-    await _ready(budgetLastReq, const Duration(seconds: 1));
+
+    // request to API
+
+    if (budgetLastReq != null) {
+      await _ready(budgetLastReq, APIConstants.budgetDurationBetweenReqInMs);
+    }
+
     final budgetResource = await advertApiClient.getCompanyBudget(
         tokenResource.data!.token, advertId);
+    budgetLastReq = DateTime.now();
+
     if (budgetResource is Error) {
       return Resource.error(budgetResource.message!);
     }
-    budgetLastReq ??= DateTime.now();
     return budgetResource;
-  }
-
-  Future<void> _ready(DateTime? lastReq, Duration duration) async {
-    if (lastReq == null) {
-      return;
-    }
-    while (DateTime.now().difference(lastReq) < duration) {
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-    return;
   }
 
   @override
   Future<Resource<List<Advert>>> getActiveAdverts() async {
-    print("getActiveAdverts");
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -88,8 +111,15 @@ class AdvertService
       return Resource.error("Токен не сохранен");
     }
 
+    // request to API
+    if (advertsLastReq != null) {
+      await _ready(advertsLastReq, APIConstants.advertsDurationBetweenReqInMs);
+    }
+
     final advertsResource =
         await advertApiClient.getAdverts(tokenResource.data!.token);
+    advertsLastReq = DateTime.now();
+
     if (advertsResource is Error) {
       return Resource.error(advertsResource.message!);
     }
@@ -99,15 +129,21 @@ class AdvertService
           'Токен "Продвижение" недействителен. Пожалуйста удалите его.');
     }
     List<Advert> res = [];
+
     for (var advert in advertsResource.data!) {
       if (advert.status != 9) {
         continue;
       }
 
-      await _ready(advertsLastReq, const Duration(milliseconds: 300));
+      // requst to API
+      if (advertLastReq != null) {
+        await _ready(advertLastReq, APIConstants.advertDurationBetweenReqInMs);
+      }
 
       final advInfoResource = await advertApiClient.getAdvertInfo(
           tokenResource.data!.token, advert.advertId);
+      advertLastReq = DateTime.now();
+
       if (advInfoResource is Error) {
         return Resource.error(advInfoResource.message!);
       }
@@ -119,7 +155,6 @@ class AdvertService
 
   @override
   Future<Resource<List<Advert>>> getAll() async {
-    print("getAll");
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -128,22 +163,32 @@ class AdvertService
       return Resource.empty();
     }
 
+    // request to API
+
+    if (advertsLastReq != null) {
+      await _ready(advertsLastReq, APIConstants.advertsDurationBetweenReqInMs);
+    }
+
     final advertsResource =
         await advertApiClient.getAdverts(tokenResource.data!.token);
+    advertsLastReq = DateTime.now();
     if (advertsResource is Error) {
       return Resource.error(advertsResource.message!);
     }
 
     List<Advert> res = [];
+
     for (var advert in advertsResource.data!) {
       if (advert.status == 7 || advert.status == 8) {
         continue;
       }
 
-      await _ready(advertsLastReq, const Duration(milliseconds: 300));
+      await _ready(advertLastReq, APIConstants.advertDurationBetweenReqInMs);
 
+      // request
       final advInfoResource = await advertApiClient.getAdvertInfo(
           tokenResource.data!.token, advert.advertId);
+      advertLastReq = DateTime.now();
       if (advInfoResource is Error) {
         return Resource.error(advInfoResource.message!);
       }
@@ -154,33 +199,57 @@ class AdvertService
 
   @override
   Future<Resource<bool>> startAdvert(int advertId) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
-    if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
-    }
+    final tokenResource = await _tryChangeAdvertStatus(
+      advertId,
+      pauseLastReq,
+      APIConstants.startDurationBetweenReqInMs,
+      advertApiClient.startAdvert,
+    );
     if (tokenResource is Empty) {
-      return Resource.empty();
+      return Resource.success(false);
     }
-    bool done = false;
-    int cont = 0;
-    while (!done) {
-      if (cont >= 20) {
-        break;
-      }
-      final advertsResource = await advertApiClient.startAdvert(
-          tokenResource.data!.token, advertId);
-      if (advertsResource is Error) {
-        return Resource.error(advertsResource.message!);
-      }
-      done = advertsResource.data!;
-      await _ready(advertsLastReq, const Duration(milliseconds: 500));
-      cont++;
+    await _ready(advertLastReq, APIConstants.advertDurationBetweenReqInMs);
+    final advertInfoResource =
+        await advertApiClient.getAdvertInfo(tokenResource.data!, advertId);
+    if (advertInfoResource is Error) {
+      return Resource.error(advertInfoResource.message!);
     }
-    return Resource.success(done);
+    final advert = advertInfoResource.data!;
+    if (advert.status == 9) {
+      return Resource.success(true);
+    }
+    return Resource.success(false);
   }
 
   @override
   Future<Resource<bool>> stopAdvert(int advertId) async {
+    final tokenResource = await _tryChangeAdvertStatus(
+      advertId,
+      pauseLastReq,
+      APIConstants.pauseDurationBetweenReqInMs,
+      advertApiClient.pauseAdvert,
+    );
+    if (tokenResource is Empty) {
+      return Resource.success(false);
+    }
+    await _ready(advertLastReq, APIConstants.advertDurationBetweenReqInMs);
+    final advertInfoResource =
+        await advertApiClient.getAdvertInfo(tokenResource.data!, advertId);
+    if (advertInfoResource is Error) {
+      return Resource.error(advertInfoResource.message!);
+    }
+    final advert = advertInfoResource.data!;
+    if (advert.status != 9) {
+      return Resource.success(true);
+    }
+    return Resource.success(false);
+  }
+
+  Future<Resource<String>> _tryChangeAdvertStatus(
+      int advertId,
+      DateTime? lastReqTime,
+      Duration duration,
+      Future<Resource<bool>> Function(String, int) func) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -194,15 +263,30 @@ class AdvertService
       if (cont >= 20) {
         break;
       }
-      final advertsResource = await advertApiClient.pauseAdvert(
-          tokenResource.data!.token, advertId);
-      if (advertsResource is Error) {
-        return Resource.error(advertsResource.message!);
+      if (lastReqTime != null) {
+        await _ready(lastReqTime, duration);
       }
-      done = advertsResource.data!;
-      await _ready(advertsLastReq, const Duration(milliseconds: 500));
+      final resource = await func(tokenResource.data!.token, advertId);
+      lastReqTime = DateTime.now();
+      if (resource is Error) {
+        return Resource.error(resource.message!);
+      }
+      done = resource.data!;
       cont++;
     }
-    return Resource.success(done);
+    if (done) {
+      return Resource.success(tokenResource.data!.token);
+    }
+    return Resource.empty();
+  }
+
+  Future<void> _ready(DateTime? lastReq, Duration duration) async {
+    if (lastReq == null) {
+      return;
+    }
+    while (DateTime.now().difference(lastReq) < duration) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    return;
   }
 }

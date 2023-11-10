@@ -310,7 +310,7 @@ class _Chart extends StatelessWidget {
           ),
           chartValuesOptions: const ChartValuesOptions(
               showChartValues: true,
-              decimalPlaces: 0,
+              decimalPlaces: 1,
               showChartValuesInPercentage: true,
               chartValueBackgroundColor: Colors.transparent),
           chartType: ChartType.ring,

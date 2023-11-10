@@ -11,9 +11,10 @@ class MyProgressIndicator extends StatelessWidget {
       size: size,
       itemBuilder: (context, index) {
         final colors = [
-          const Color(0xFF83735c),
-          const Color(0xFF18191d),
-          const Color(0xFFa9a092)
+          const Color(0xFF21005D),
+          const Color(0xFF6750A4),
+          const Color(0xFF625B71),
+          const Color(0xFF7D5260),
         ];
         final color = colors[index % colors.length];
         return DecoratedBox(

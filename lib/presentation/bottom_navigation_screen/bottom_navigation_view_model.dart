@@ -14,6 +14,7 @@ abstract class BottomNavigationAdvertService {
   Future<Resource<int>> getBudget(int advertId);
   Future<Resource<bool>> stopAdvert(int advertId);
   Future<Resource<bool>> startAdvert(int advertId);
+  Future<Resource<int>> getBallance(int advertId);
 }
 
 class BottomNavigationViewModel extends ResourceChangeNotifier {
@@ -33,6 +34,14 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
       required super.context}) {
     _asyncInit();
   }
+
+  // balance
+  int? _balance;
+  void setBalance(int? value) {
+    _balance = value;
+  }
+
+  int? get balance => _balance;
 
   // cards num
   int _cardsNumber = 0;
@@ -63,13 +72,21 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
   Map<int, int> get budget => _budget;
 
   Future<void> updateAdverts() async {
-    if (apiKeyExists) {
-      final newAdverts = await fetch(() => advertService.getActiveAdverts());
-      if (newAdverts == null) {
-        return;
-      }
-      setAdverts(newAdverts);
+    if (!apiKeyExists) {
+      return;
     }
+    final balance = await fetch(() => advertService.getBallance(0));
+    if (balance == null) {
+      return;
+    }
+    setBalance(balance);
+    notify();
+
+    final newAdverts = await fetch(() => advertService.getActiveAdverts());
+    if (newAdverts == null) {
+      return;
+    }
+    setAdverts(newAdverts);
     notify();
     final advertIds = _adverts.map((e) => e.advertId).toList();
     for (final id in advertIds) {

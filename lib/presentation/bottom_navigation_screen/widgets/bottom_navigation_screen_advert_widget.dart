@@ -14,10 +14,12 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
       required this.adverts,
       required this.apiKeyExists,
       required this.callback,
+      required this.balance,
       required this.paused,
       required this.budget});
 
   final Future<void> Function(int) callback;
+  final int? balance;
   final Map<int, bool> paused;
   final List<Advert> adverts;
   final bool apiKeyExists;
@@ -76,6 +78,21 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
                     ],
                   ),
                 ),
+                Divider(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceVariant
+                      .withOpacity(0.95),
+                ),
+                if (balance != null)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Баланс: $balance руб.",
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
                 if (adverts.isNotEmpty)
                   _ActiveAdvertsWidget(
                       screenWidth: screenWidth,
@@ -92,24 +109,24 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
                         height: screenHeight * 0.05,
                       ),
                       const LinkBtn(
-                        text: 'Все кампании',
+                        text: 'Управление',
                         color: Color(0xFF4aa6db),
                         route: MainNavigationRouteNames.allAdvertsScreen,
                         // route: '',
-                        iconData: Icons.group_outlined,
+                        iconData: Icons.handyman,
                       ),
                       const LinkBtn(
-                        text: 'Добавить API токен',
+                        text: 'Статистика',
                         color: Color(0xFFdfb446),
-                        route: MainNavigationRouteNames.apiKeysScreen,
-                        iconData: Icons.key,
+                        route: MainNavigationRouteNames.allAdvertsScreen,
+                        iconData: Icons.auto_graph_outlined,
                       ),
-                      const LinkBtn(
-                        text: 'Добавить API токен',
-                        color: Color(0xFF62d79f),
-                        route: MainNavigationRouteNames.apiKeysScreen,
-                        iconData: Icons.key,
-                      ),
+                      // const LinkBtn(
+                      //   text: 'Добавить API токен',
+                      //   color: Color(0xFF62d79f),
+                      //   route: MainNavigationRouteNames.apiKeysScreen,
+                      //   iconData: Icons.key,
+                      // ),
                     ],
                   ),
                 ),
@@ -162,14 +179,14 @@ class _ActiveAdvertsWidget extends StatelessWidget {
               Text(
                 'Активные',
                 style: TextStyle(
-                  fontSize: screenWidth * 0.06,
+                  fontSize: screenWidth * 0.05,
                 ),
               ),
             ],
           ),
         ),
         SizedBox(
-          height: screenHeight * 0.05,
+          height: screenHeight * 0.02,
         ),
         SizedBox(
             height: screenHeight * 0.25,
@@ -179,11 +196,10 @@ class _ActiveAdvertsWidget extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   final budget = this.budget[adverts[index].advertId];
-                  final isActive =
-                      paused[adverts[index].advertId] ?? false == false;
-                  print("isActive: $isActive");
+                  final isPaused = paused[adverts[index].advertId] ?? false;
+
                   final icon =
-                      isActive ? Icons.toggle_on : Icons.toggle_off_outlined;
+                      isPaused ? Icons.toggle_off_outlined : Icons.toggle_on;
 
                   return Container(
                     width: screenWidth * 0.7,
@@ -268,7 +284,7 @@ class _ActiveAdvertsWidget extends StatelessWidget {
                             _ElevatedBtn(
                               screenWidth: screenWidth,
                               callback: callback,
-                              active: isActive,
+                              active: !isPaused,
                               advertId: adverts[index].advertId,
                             )
                           ],
