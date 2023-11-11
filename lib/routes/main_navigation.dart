@@ -11,12 +11,11 @@ abstract class ScreenFactory {
   Widget makeAllCardsScreen();
   Widget makeAllCardsFilterScreen();
   Widget makeAllGroupsScreen();
-  // Widget makeAllSellersScreen();
   Widget makeSingleGroupScreen(String name);
   Widget makeSingleCardScreen(int id);
-  // Widget makeSingleSellerScreen(int supplierId);
   Widget makeAddGroupsScreen(List<int> cardsIds);
   Widget makeAllAdvertsScreen();
+  Widget makeAutoStatAdvertScreen(int id);
 }
 
 class MainNavigation implements AppNavigation {
@@ -78,7 +77,12 @@ class MainNavigation implements AppNavigation {
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeApiKeysScreen(),
         );
-
+      case MainNavigationRouteNames.autoStatAdvertScreen:
+        final arguments = settings.arguments;
+        final advertId = arguments is int ? arguments : 0;
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeAutoStatAdvertScreen(advertId),
+        );
       // case MainNavigationRouteNames.singleSellerScreen:
       //   final arguments = settings.arguments;
       //   final supplierId = arguments is int ? arguments : 0;

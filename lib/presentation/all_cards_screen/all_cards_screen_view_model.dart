@@ -231,6 +231,24 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
         card.setGroup(g);
       }
     }
+    // Filter cards
+    _productCards = _productCards.where((card) {
+      return filterCard(card);
+    }).toList();
+    // Filter groups
+    _groups = _groups.where((group) {
+      if (group.name == "Все") {
+        return true;
+      }
+      // Drop extra groups
+      final cardsNmIds = _productCards.map((e) => e.nmId).toList();
+      for (int id in group.cardsNmIds) {
+        if (cardsNmIds.contains(id)) {
+          return true;
+        }
+      }
+      return false;
+    }).toList();
 
     if (!notify) {
       return;

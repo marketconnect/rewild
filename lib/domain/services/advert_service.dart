@@ -6,9 +6,12 @@ import 'package:rewild/domain/entities/advert_base.dart';
 
 import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
+import 'package:rewild/domain/entities/auto_stat.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
+import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
 
+// API
 abstract class AdvertServiceAdvertApiClient {
   Future<Resource<List<AdvertInfoModel>>> getAdverts(String token);
   Future<Resource<Advert>> getAdvertInfo(String token, int id);
@@ -16,14 +19,19 @@ abstract class AdvertServiceAdvertApiClient {
   Future<Resource<bool>> pauseAdvert(String token, int advertId);
   Future<Resource<bool>> startAdvert(String token, int advertId);
   Future<Resource<int>> balance(String token);
+  Future<Resource<AutoStatModel>> getAutoStat(String token, int advertId);
 }
 
+// Api key
 abstract class AdvertServiceApiKeyDataProvider {
   Future<Resource<ApiKeyModel>> getApiKey(String type);
 }
 
 class AdvertService
-    implements AllAdvertsScreenAdvertService, BottomNavigationAdvertService {
+    implements
+        AllAdvertsScreenAdvertService,
+        AutoStatViewModelAdvertService,
+        BottomNavigationAdvertService {
   final AdvertServiceAdvertApiClient advertApiClient;
   final AdvertServiceApiKeyDataProvider apiKeysDataProvider;
   StreamController<List<Advert>> activeAdvertsStreamController;

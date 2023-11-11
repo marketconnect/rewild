@@ -11,6 +11,7 @@ import 'package:rewild/api_clients/product_card_service_api_client.dart';
 import 'package:rewild/api_clients/seller_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/api_clients/warehouse_api_client.dart';
+import 'package:rewild/data_providers/auto_stat_data_provider/auto_stat_data_provider.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
 import 'package:rewild/data_providers/commission_data_provider/commission_data_provider.dart';
@@ -31,6 +32,7 @@ import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/api_keys_service.dart';
 import 'package:rewild/domain/services/auth_service.dart';
+import 'package:rewild/domain/services/auto_stat_service.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/commission_service.dart';
 import 'package:rewild/domain/services/group_service.dart';
@@ -59,6 +61,8 @@ import 'package:rewild/presentation/api_keys_screen/api_keys_screen.dart';
 import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
+import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_screen.dart';
+import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_screen.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_group_screen.dart';
@@ -190,6 +194,10 @@ class _DIContainer {
   // filter
   FilterDataProvider _makeFilterDataProvider() => const FilterDataProvider();
 
+  // auto stat
+  AutoStatDataProvider _makeAutoStatDataProvider() =>
+      const AutoStatDataProvider();
+
   // Services ==================================================================
 
   // check internet connection
@@ -280,11 +288,17 @@ class _DIContainer {
         apiKeyExistsStreamController: apiKeyExistsStreamController,
       );
 
-  // // advert
+  // advert
   AdvertService _makeAdvertService() => AdvertService(
       advertApiClient: _makeAdvertApiClient(),
       activeAdvertsStreamController: activeAdvertsStreamController,
       apiKeysDataProvider: _makeSecureDataProvider());
+
+  // Auto stat
+  AutoStatService _makeAutoStatService() => AutoStatService(
+      advertApiClient: _makeAdvertApiClient(),
+      apiKeysDataProvider: _makeSecureDataProvider(),
+      autoStatDataProvider: _makeAutoStatDataProvider());
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
       SplashScreenViewModel(
@@ -385,6 +399,16 @@ class _DIContainer {
         internetConnectionChecker: _makeInternetConnectionChecker(),
         cardOfProductService: _makeCardOfProductService(),
         advertService: _makeAdvertService(),
+      );
+
+  AutoStatViewModel _makeAutoStatAdvertScreenViewModel(
+          BuildContext context, int advertId) =>
+      AutoStatViewModel(
+        context: context,
+        advertId: advertId,
+        advertService: _makeAdvertService(),
+        autoStatService: _makeAutoStatService(),
+        internetConnectionChecker: _makeInternetConnectionChecker(),
       );
 
   // AllSellersScreenViewModel _makeAllSellersScreenViewModel(
@@ -502,6 +526,15 @@ class ScreenFactoryDefault implements ScreenFactory {
     return ChangeNotifierProvider(
       create: (context) => _diContainer._makeAllAdvertsScreenViewModel(context),
       child: const AllAdvertsScreen(),
+    );
+  }
+
+  @override
+  Widget makeAutoStatAdvertScreen(int id) {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeAutoStatAdvertScreenViewModel(context, id),
+      child: const AutoStatAdvertScreen(),
     );
   }
 }

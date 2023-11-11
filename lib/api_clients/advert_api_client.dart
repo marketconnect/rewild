@@ -11,9 +11,12 @@ import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/advert_recomendation_model.dart';
 import 'package:rewild/domain/entities/advert_search_model.dart';
 import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
+import 'package:rewild/domain/entities/auto_stat.dart';
 import 'package:rewild/domain/services/advert_service.dart';
+import 'package:rewild/domain/services/auto_stat_service.dart';
 
-class AdvertApiClient implements AdvertServiceAdvertApiClient {
+class AdvertApiClient
+    implements AdvertServiceAdvertApiClient, AutoStatServiceAdvertApiClient {
   const AdvertApiClient();
 
   // max 300 requests per minute
@@ -208,6 +211,45 @@ class AdvertApiClient implements AdvertServiceAdvertApiClient {
     } catch (e) {
       return Resource.error(
         "Неизвестная ошибка",
+      );
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
+  @override
+  Future<Resource<AutoStatModel>> getAutoStat(
+      String token, int advertId) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': advertId.toString()};
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat", params);
+      final response = await http.get(uri, headers: headers);
+      print('resp: $response');
+      if (response.statusCode == 200) {
+        final stats = json.decode(utf8.decode(response.bodyBytes));
+        print('stats: $stats');
+        return Resource.success(AutoStatModel.fromJson(stats, advertId));
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: кампания не найдена",
+        );
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      } else if (response.statusCode == 429) {
+        return Resource.error(
+          "Ответ API WB: too many requests with this user ID",
+        );
+      }
+    } catch (e) {
+      return Resource.error(
+        "Неизвестная ошибка $e",
       );
     }
     return Resource.error(

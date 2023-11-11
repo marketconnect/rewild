@@ -21,6 +21,12 @@ class APIConstants {
   // 60 запросов в минуту (1 in sec)
   static const Duration balanceDurationBetweenReqInMs =
       Duration(milliseconds: 1000);
+
+  // 10 запросов в минуту (1 in 6 sec)
+  // just in case make 1 request per 10 sec
+  static const Duration autoStatNumsDurationBetweenReqInMs = Duration(
+    milliseconds: 10000,
+  );
 }
 
 class RegionsNumsConstants {

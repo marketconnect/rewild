@@ -47,10 +47,14 @@ class AllAdvertsScreen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final advert = adverts[index];
                         return GestureDetector(
-                          onTap: () => Navigator.of(context).pushNamed(
-                            MainNavigationRouteNames.singleCardScreen,
-                            arguments: advert.advertId,
-                          ),
+                          onTap: () {
+                            if (advert.type == 8) {
+                              Navigator.of(context).pushNamed(
+                                MainNavigationRouteNames.autoStatAdvertScreen,
+                                arguments: advert.advertId,
+                              );
+                            }
+                          },
                           child: Padding(
                               padding: const EdgeInsets.symmetric(
                                   vertical: 5.0, horizontal: 10),

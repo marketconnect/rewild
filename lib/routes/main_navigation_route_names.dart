@@ -10,4 +10,5 @@ abstract class MainNavigationRouteNames {
   static const String allCardsFilterScreen = '/all_cards_filter_screen';
   static const String allGroupsScreen = '/all_groups_screen';
   static const String allAdvertsScreen = '/all_averts_filter_screen';
+  static const String autoStatAdvertScreen = '/auto_stat_advert_screen';
 }

@@ -69,12 +69,10 @@ class _AllCardsScreenState extends State<AllCardsScreen>
     int selectedGroupIndex = 0;
     final groups = model.groups;
 
-    final filterCard = model.filterCard;
-    productCards = productCards.where((card) {
-      return filterCard(card);
-    }).toList();
+    // final filterCard = model.filterCard;
 
     if (selectedGroup != null) {
+      print(selectedGroup.name);
       final groupsIds = selectedGroup.cardsNmIds;
 
       productCards = productCards.where((card) {
@@ -87,6 +85,7 @@ class _AllCardsScreenState extends State<AllCardsScreen>
 
     final selectionInProcess = model.selectionInProcess;
 
+    print("pr cards length ${productCards.length}");
     final headerSliverBuilderItems = selectionInProcess
         ? [
             _HorizontalScrollMenu(
@@ -399,21 +398,24 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
     final len = model.selectedLength;
     final selectionInProcess = model.selectionInProcess;
     List<GroupModel> groups = model.groups;
-    groups = groups.where((group) {
-      if (group.name == "Все") {
-        return true;
-      }
-      for (int id in group.cardsNmIds) {
-        if (widget.cardsNmIds.contains(id)) {
-          return true;
-        }
-      }
-      return false;
-    }).toList();
+
+    // final groups = initGroups.where((group) {
+    //   if (group.name == "Все") {
+    //     return true;
+    //   }
+    //   for (int id in group.cardsNmIds) {
+    //     if (widget.cardsNmIds.contains(id)) {
+
+    //       return true;
+    //     }
+    //   }
+    //   return false;
+    // }).toList();
 
     final isLoading = model.loading;
     final selectGroup = model.selectGroup;
     final productsCardsIsEmpty = model.productCards.isEmpty;
+
     _tabController = TabController(
       length: selectionInProcess ? 1 : groups.length,
       vsync: this,
