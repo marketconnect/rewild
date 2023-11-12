@@ -202,6 +202,87 @@ class CardOfProductDataProvider
     }
   }
 
+  static Future<Resource<List<CardOfProductModel>>> getAllInBackGround(
+      [List<int>? nmIds]) async {
+    try {
+      final db = await SqfliteService().database;
+      if (nmIds != null) {
+        final cards = await db.rawQuery(
+          '''
+            SELECT * FROM cards
+            WHERE nmId IN (${nmIds.map((e) => '?').join(',')})
+          ''',
+          nmIds,
+        );
+
+        return Resource.success(
+          cards.map((e) => CardOfProductModel.fromMap(e)).toList(),
+        );
+      }
+
+      final cards = await db.rawQuery(
+        '''
+          SELECT * FROM cards
+        ''',
+      );
+      return Resource.success(
+          cards.map((e) => CardOfProductModel.fromMap(e)).toList());
+    } catch (e) {
+      return Resource.error(
+        'Не удалось получить карточки из памяти телефона: ${e.toString()}',
+      );
+    }
+  }
+
+  static Future<Resource<int>> updateInBackGround(
+      CardOfProductModel card) async {
+    try {
+      final db = await SqfliteService().database;
+      final id = await db.rawUpdate(
+        '''
+  UPDATE cards
+  SET
+    name = ?,
+    sellerId = ?,
+    tradeMark = ?,
+    subjectId = ?,
+    subjectParentId = ?,
+    brand = ?,
+    supplierId = ?,
+    basicPriceU = ?,
+    pics = ?,
+    rating = ?,
+    reviewRating = ?,
+    feedbacks = ?,
+    promoTextCard = ?
+  WHERE
+    nmId = ?
+  ''',
+        [
+          card.name,
+          card.sellerId,
+          card.tradeMark,
+          card.subjectId,
+          card.subjectParentId,
+          card.brand,
+          card.supplierId,
+          card.basicPriceU,
+          card.pics,
+          card.rating,
+          card.reviewRating,
+          card.feedbacks,
+          card.promoTextCard,
+          card.nmId
+        ],
+      );
+      return Resource.success(id);
+    } catch (e) {
+      return Resource.error(
+        'Не удалось обновить карточку в памяти телефона: ${e.toString()}',
+      );
+    }
+  }
+
   @override
   Future<Resource<List<CardOfProductModel>>> getAllBySupplierId(
       int supplierId) async {

@@ -30,14 +30,14 @@ class AutoStatService implements AutoStatViewModelAutoStatService {
   });
 
   @override
-  Future<Resource<List<AutoStatModel>>> getAndSaveAutoStat(int advertId) async {
+  Future<Resource<AutoStatModel>> getCurrent(int advertId) async {
     // get all stored auto stats for the auto advert
-    final storedAutoStatsResource = await autoStatDataProvider.getAll(advertId);
-    if (storedAutoStatsResource is Error) {
-      return Resource.error(
-        storedAutoStatsResource.message!,
-      );
-    }
+    // final storedAutoStatsResource = await autoStatDataProvider.getAll(advertId);
+    // if (storedAutoStatsResource is Error) {
+    //   return Resource.error(
+    //     storedAutoStatsResource.message!,
+    //   );
+    // }
     // get token to request API
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
@@ -57,16 +57,15 @@ class AutoStatService implements AutoStatViewModelAutoStatService {
     }
 
     // save current auto stat to database
-    final currentAutoStat = currentAutoStatResource.data!;
-    final saveResource = await autoStatDataProvider.save(currentAutoStat);
-    if (saveResource is Error) {
-      return Resource.error(saveResource.message!);
-    }
+    // final currentAutoStat = currentAutoStatResource.data!;
+    // final saveResource = await autoStatDataProvider.save(currentAutoStat);
+    // if (saveResource is Error) {
+    //   return Resource.error(saveResource.message!);
+    // }
 
-    if (storedAutoStatsResource is Empty) {
-      return Resource.success([currentAutoStat]);
-    }
-    return Resource.success(
-        [...storedAutoStatsResource.data!, currentAutoStat]);
+    // if (storedAutoStatsResource is Empty) {
+    //   return Resource.success([currentAutoStat]);
+    // }
+    return Resource.success(currentAutoStatResource.data!);
   }
 }

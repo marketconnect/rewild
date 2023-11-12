@@ -7,6 +7,7 @@ import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/auto_stat.dart';
+import 'package:rewild/domain/entities/pursued.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
 import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
@@ -27,6 +28,13 @@ abstract class AdvertServiceApiKeyDataProvider {
   Future<Resource<ApiKeyModel>> getApiKey(String type);
 }
 
+// Pursued
+abstract class AdvertServicePursuedDataProvider {
+  Future<Resource<List<PursuedModel>>> getAll();
+  Future<Resource<void>> save(PursuedModel pursued);
+  Future<Resource<void>> delete(PursuedModel pursued);
+}
+
 class AdvertService
     implements
         AllAdvertsScreenAdvertService,
@@ -34,12 +42,14 @@ class AdvertService
         BottomNavigationAdvertService {
   final AdvertServiceAdvertApiClient advertApiClient;
   final AdvertServiceApiKeyDataProvider apiKeysDataProvider;
+  final AdvertServicePursuedDataProvider pursuitsDataProvider;
   StreamController<List<Advert>> activeAdvertsStreamController;
 
   AdvertService({
     required this.advertApiClient,
     required this.apiKeysDataProvider,
     required this.activeAdvertsStreamController,
+    required this.pursuitsDataProvider,
   });
 
   @override
@@ -81,6 +91,39 @@ class AdvertService
       return Resource.error(balanceResource.message!);
     }
     return balanceResource;
+  }
+
+  @override
+  Future<Resource<bool>> deleteFromTrack(int advertId) async {
+    final resource = await pursuitsDataProvider
+        .delete(PursuedModel(parentId: advertId, property: 'auto'));
+    if (resource is Error) {
+      return Resource.error(resource.message!);
+    }
+    return Resource.success(true);
+  }
+
+  @override
+  Future<Resource<bool>> addToTrack(int advertId) async {
+    final resource = await pursuitsDataProvider
+        .save(PursuedModel(parentId: advertId, property: "auto"));
+    if (resource is Error) {
+      return Resource.error(resource.message!);
+    }
+    return Resource.success(true);
+  }
+
+  @override
+  Future<Resource<bool>> isPursued(int advertId) async {
+    final pusuedResource = await pursuitsDataProvider.getAll();
+    if (pusuedResource is Error) {
+      return Resource.error(pusuedResource.message!);
+    }
+    if (pusuedResource is Empty) {
+      return Resource.success(false);
+    }
+    return Resource.success(
+        pusuedResource.data!.any((element) => element.parentId == advertId));
   }
 
   @override

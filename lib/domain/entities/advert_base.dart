@@ -9,6 +9,7 @@ class Advert {
   int dailyBudget;
   int status;
   int type;
+  bool isTracked;
   Advert({
     required this.advertId,
     required this.name,
@@ -19,5 +20,6 @@ class Advert {
     required this.dailyBudget,
     required this.status,
     required this.type,
+    this.isTracked = false,
   });
 }

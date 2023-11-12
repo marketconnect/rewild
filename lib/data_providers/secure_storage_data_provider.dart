@@ -70,6 +70,22 @@ class SecureStorageProvider
     return Resource.success(token);
   }
 
+  // static Future<Resource<String>> getTokenInBackGround() async {
+  //   // read token from local storage
+  //   final resource = await _read(key: 'token');
+  //   if (resource is Error) {
+  //     return Resource.error(
+  //       resource.message!,
+  //     );
+  //   }
+  //   String? token = resource.data;
+  //   if (token == null) {
+  //     return Resource.empty();
+  //   }
+
+  //   return Resource.success(token);
+  // }
+
   @override
   Future<Resource<bool>> tokenNotExpiredInThreeMinutes() async {
     final resource = await _read(key: 'token_expired_at');
@@ -136,6 +152,20 @@ class SecureStorageProvider
     return Resource.success(ApiKeyModel(token: resource.data!, type: type));
   }
 
+  static Future<Resource<ApiKeyModel>> getApiKeyFromBackground(
+      String type) async {
+    final resource = await _read(key: type);
+    if (resource is Error) {
+      return Resource.error(resource.message!);
+    }
+
+    if (resource.data == null) {
+      return Resource.empty();
+    }
+
+    return Resource.success(ApiKeyModel(token: resource.data!, type: type));
+  }
+
   @override
   Future<Resource<List<ApiKeyModel>>> getAllApiKeys(List<String> types) async {
     List<ApiKeyModel> apiKeys = [];
@@ -163,7 +193,7 @@ class SecureStorageProvider
     return Resource.empty();
   }
 
-  Future<Resource<String?>> _read({required String key}) async {
+  static Future<Resource<String?>> _read({required String key}) async {
     try {
       final value = await _secureStorage.read(key: key);
       if (value == null) {

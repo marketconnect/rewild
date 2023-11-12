@@ -21,6 +21,7 @@ import 'package:rewild/data_providers/group_data_provider/group_data_provider.da
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
 import 'package:rewild/data_providers/orders_history_data_provider/orders_history_data_provider.dart';
+import 'package:rewild/data_providers/pursued_data_provider/pursued_data_provider.dart';
 
 import 'package:rewild/data_providers/secure_storage_data_provider.dart';
 import 'package:rewild/data_providers/seller_data_provider/seller_data_provider.dart';
@@ -198,6 +199,9 @@ class _DIContainer {
   AutoStatDataProvider _makeAutoStatDataProvider() =>
       const AutoStatDataProvider();
 
+  // pursued
+  PursuedDataProvider _makePursuedDataProvider() => const PursuedDataProvider();
+
   // Services ==================================================================
 
   // check internet connection
@@ -291,6 +295,7 @@ class _DIContainer {
   // advert
   AdvertService _makeAdvertService() => AdvertService(
       advertApiClient: _makeAdvertApiClient(),
+      pursuitsDataProvider: _makePursuedDataProvider(),
       activeAdvertsStreamController: activeAdvertsStreamController,
       apiKeysDataProvider: _makeSecureDataProvider());
 

@@ -28,6 +28,28 @@ class AutoStatDataProvider implements AutoStatServiceAutoStatDataProvider {
     }
   }
 
+  static Future<Resource<void>> saveInBackground(AutoStatModel autoStat) async {
+    try {
+      final db = await SqfliteService().database;
+      final _ = await db.rawInsert(
+          "INSERT INTO auto_stat (views, clicks, ctr, cpc, spend, advertId, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          [
+            autoStat.views,
+            autoStat.clicks,
+            autoStat.ctr,
+            autoStat.cpc,
+            autoStat.spend,
+            autoStat.advertId,
+            DateTime.now().toIso8601String(),
+          ]);
+      return Resource.empty();
+    } catch (e) {
+      return Resource.error(
+        "Не удалось сохранить статистику: $e",
+      );
+    }
+  }
+
   @override
   Future<Resource<List<AutoStatModel>>> getAll(int advertId) async {
     try {

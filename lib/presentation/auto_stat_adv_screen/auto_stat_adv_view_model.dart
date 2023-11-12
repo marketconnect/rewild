@@ -2,14 +2,18 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
+import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/auto_stat.dart';
 
 abstract class AutoStatViewModelAutoStatService {
-  Future<Resource<List<AutoStatModel>>> getAndSaveAutoStat(int advertId);
+  Future<Resource<AutoStatModel>> getCurrent(int advertId);
 }
 
 abstract class AutoStatViewModelAdvertService {
   Future<Resource<int>> getBudget(int advertId);
+  Future<Resource<bool>> isPursued(int advertId);
+  Future<Resource<bool>> addToTrack(int advertId);
+  Future<Resource<bool>> deleteFromTrack(int advertId);
 }
 
 class AutoStatViewModel extends ResourceChangeNotifier {
@@ -25,6 +29,15 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   }) {
     _asyncInit();
   }
+
+  // is pursued
+  bool? _isPursued;
+  void setPursued(bool value) {
+    _isPursued = value;
+    notify();
+  }
+
+  bool get isPursued => _isPursued ?? false;
 
   // budget
   int? _budget;
@@ -114,63 +127,71 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   List<FlSpot>? get viewsChart => _viewsChart;
 
   Future<void> _asyncInit() async {
-    final budget = await fetch(() => advertService.getBudget(advertId));
-    if (budget == null) {
+    SqfliteService.printTableContent("auto_stat");
+    SqfliteService.printTableContent("pursued");
+    final isPursued = await fetch(() => advertService.isPursued(advertId));
+    if (isPursued == null) {
       return;
     }
-    setBudget(budget);
+    setPursued(isPursued);
+    // BackgroundService.addAutoAdvert(advertId);
+    // final budget = await fetch(() => advertService.getBudget(advertId));
+    // if (budget == null) {
+    //   return;
+    // }
+    // setBudget(budget);
+    // final current
+    // final autoStatList =
+    //     await fetch(() => autoStatService.getAndSaveAutoStat(advertId));
+    // if (autoStatList == null) {
+    //   return;
+    // }
+    // autoStatList.sort(
+    //   (a, b) => a.createdAt.compareTo(b.createdAt),
+    // );
+    // // views
+    // final viewsDiff =
+    //     autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
+    // setViews(viewsDiff);
 
-    final autoStatList =
-        await fetch(() => autoStatService.getAndSaveAutoStat(advertId));
-    if (autoStatList == null) {
-      return;
-    }
-    autoStatList.sort(
-      (a, b) => a.createdAt.compareTo(b.createdAt),
-    );
-    // views
-    final viewsDiff =
-        autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
-    setViews(viewsDiff);
+    // final ctr = autoStatList[autoStatList.length - 1].ctr;
+    // setCtr(ctr);
+    // // ctr diff
+    // final ctrDiff =
+    //     autoStatList[autoStatList.length - 1].ctr - autoStatList[0].ctr;
+    // setCtrDiff(ctrDiff);
 
-    final ctr = autoStatList[autoStatList.length - 1].ctr;
-    setCtr(ctr);
-    // ctr diff
-    final ctrDiff =
-        autoStatList[autoStatList.length - 1].ctr - autoStatList[0].ctr;
-    setCtrDiff(ctrDiff);
+    // // cpc
+    // final cpc = autoStatList[autoStatList.length - 1].cpc;
+    // setCpc(cpc);
 
-    // cpc
-    final cpc = autoStatList[autoStatList.length - 1].cpc;
-    setCpc(cpc);
+    // // cpc diff
+    // final cpcDiff =
+    //     autoStatList[autoStatList.length - 1].cpc - autoStatList[0].cpc;
+    // setCpcDiff(cpcDiff);
 
-    // cpc diff
-    final cpcDiff =
-        autoStatList[autoStatList.length - 1].cpc - autoStatList[0].cpc;
-    setCpcDiff(cpcDiff);
+    // // spent money
+    // final spentMoneyDiff =
+    //     autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend;
 
-    // spent money
-    final spentMoneyDiff =
-        autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend;
+    // setSpentMoney('${spentMoneyDiff.toStringAsFixed(0)}₽');
 
-    setSpentMoney('${spentMoneyDiff.toStringAsFixed(0)}₽');
-
-    final spentTimeDiff = autoStatList[autoStatList.length - 1]
-        .createdAt
-        .difference(autoStatList[0].createdAt)
-        .inSeconds;
-    if (spentTimeDiff > 3600) {
-      setSpentTime('${spentTimeDiff ~/ 3600}ч ${spentTimeDiff % 60}м');
-    } else if (spentTimeDiff > 60) {
-      setSpentTime('${spentTimeDiff ~/ 60}м ${spentTimeDiff % 60}с');
-    } else {
-      setSpentTime('${spentTimeDiff % 60}с');
-    }
-    final flCh = calculateAverageViewsPerMinute(
-        autoStatList.sublist(autoStatList.length - 8, autoStatList.length - 1));
-    print(
-        'flCh.length: ${flCh.length} autoStatList length: ${autoStatList.length}');
-    setViewsChart(flCh);
+    // final spentTimeDiff = autoStatList[autoStatList.length - 1]
+    //     .createdAt
+    //     .difference(autoStatList[0].createdAt)
+    //     .inSeconds;
+    // if (spentTimeDiff > 3600) {
+    //   setSpentTime('${spentTimeDiff ~/ 3600}ч ${spentTimeDiff % 60}м');
+    // } else if (spentTimeDiff > 60) {
+    //   setSpentTime('${spentTimeDiff ~/ 60}м ${spentTimeDiff % 60}с');
+    // } else {
+    //   setSpentTime('${spentTimeDiff % 60}с');
+    // }
+    // final flCh = calculateAverageViewsPerMinute(
+    //     autoStatList.sublist(autoStatList.length - 8, autoStatList.length - 1));
+    // print(
+    //     'flCh.length: ${flCh.length} autoStatList length: ${autoStatList.length}');
+    // setViewsChart(flCh);
   }
 
   List<FlSpot> calculateAverageViewsPerMinute(List<AutoStatModel> statModels) {
@@ -224,5 +245,21 @@ class AutoStatViewModel extends ResourceChangeNotifier {
         DateFormat('yyyy-MM-dd HH:mm:ss').format(emptyBudgetTime);
 
     return formattedTime;
+  }
+
+  Future<void> track() async {
+    final ok = await fetch(() => advertService.addToTrack(advertId));
+    if (ok == null) {
+      return;
+    }
+    setPursued(ok);
+  }
+
+  Future<void> untrack() async {
+    final ok = await fetch(() => advertService.deleteFromTrack(advertId));
+    if (ok == null) {
+      return;
+    }
+    setPursued(ok);
   }
 }

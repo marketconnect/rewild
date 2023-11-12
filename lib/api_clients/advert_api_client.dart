@@ -257,6 +257,46 @@ class AdvertApiClient
     );
   }
 
+  static Future<Resource<AutoStatModel>> getAutoStatInBackground(
+      String token, int advertId) async {
+    try {
+      print('getAutoStatInBackground $advertId $token');
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': advertId.toString()};
+      print('getAutoStatInBackground $params');
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat", params);
+      final response = await http.get(uri, headers: headers);
+      print('resp: $response');
+      if (response.statusCode == 200) {
+        final stats = json.decode(utf8.decode(response.bodyBytes));
+        print('stats: $stats');
+        return Resource.success(AutoStatModel.fromJson(stats, advertId));
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: кампания не найдена",
+        );
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      } else if (response.statusCode == 429) {
+        return Resource.error(
+          "Ответ API WB: too many requests with this user ID",
+        );
+      }
+    } catch (e) {
+      return Resource.error(
+        "Неизвестная ошибка $e",
+      );
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
   @override
   Future<Resource<Advert>> getAdvertInfo(String token, int id) async {
     try {

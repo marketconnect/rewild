@@ -1,4 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
@@ -10,12 +9,24 @@ class AutoStatAdvertScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<AutoStatViewModel>();
     final budget = model.budget;
+    final isPursued = model.isPursued;
+    final track = model.track;
+    final untrack = model.untrack;
     final decoration = BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.surfaceVariant),
         borderRadius: BorderRadius.circular(15),
         color: Theme.of(context).colorScheme.surface);
     return SafeArea(
       child: Scaffold(
+          floatingActionButton: FloatingActionButton(
+            onPressed: () async {
+              if (isPursued) {
+                await untrack();
+                return;
+              }
+              await track();
+            },
+          ),
           backgroundColor:
               Theme.of(context).colorScheme.surface.withOpacity(0.97),
           appBar: AppBar(
@@ -123,24 +134,25 @@ class _SecondRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<AutoStatViewModel>();
     final chrtData = model.viewsChart;
-    if (chrtData == null || chrtData.isEmpty) {
-      return Container();
-    }
-    chrtData.forEach((element) {
-      print(element);
-    });
-    return LineChart(
-      LineChartData(
-          minX: 0,
-          maxX: chrtData
-              .reduce((value, element) => element.x > value.x ? element : value)
-              .x,
-          minY: 0,
-          maxY: chrtData
-              .reduce((value, element) => element.y > value.y ? element : value)
-              .y,
-          lineBarsData: [LineChartBarData(spots: chrtData)]),
-    );
+    return SizedBox();
+    // if (chrtData == null || chrtData.isEmpty) {
+    //   return Container();
+    // }
+    // chrtData.forEach((element) {
+    //   print(element);
+    // });
+    // return LineChart(
+    //   LineChartData(
+    //       minX: 0,
+    //       maxX: chrtData
+    //           .reduce((value, element) => element.x > value.x ? element : value)
+    //           .x,
+    //       minY: 0,
+    //       maxY: chrtData
+    //           .reduce((value, element) => element.y > value.y ? element : value)
+    //           .y,
+    //       lineBarsData: [LineChartBarData(spots: chrtData)]),
+    // );
   }
 }
 
