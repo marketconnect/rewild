@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rewild/core/app_colors.dart';
+
 import 'package:rewild/domain/entities/auto_stat.dart';
 import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
 
@@ -45,13 +45,41 @@ class AutoStatAdvertScreen extends StatelessWidget {
             shadowColor: Colors.black,
             surfaceTintColor: Colors.transparent,
             actions: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  '₽$budget',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+              GestureDetector(
+                onTap: () => print("AGHGHJGHJ"),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: model.screenWidth * 0.06,
+                        height: model.screenWidth * 0.06,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius:
+                              BorderRadius.circular(model.screenWidth),
+                        ),
+                        child: Text(
+                          "CPM",
+                          style: TextStyle(
+                            fontSize: model.screenWidth * 0.015,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.background,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: model.screenWidth * 0.01,
+                      ),
+                      Text(
+                        '$budget₽',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               )
@@ -72,33 +100,7 @@ class AutoStatAdvertScreen extends StatelessWidget {
                 decoration: decoration,
               )
             ],
-          ))
-          // ListView.builder(
-          //     itemCount: autoStats.length,
-          //     itemBuilder: (context, index) {
-          //       return Container(
-          //         decoration: const BoxDecoration(
-          //           border: Border(
-          //             bottom: BorderSide(
-          //               color: Colors.grey,
-          //               width: 0.5,
-          //             ),
-          //           ),
-          //         ),
-          //         child: Column(
-          //           children: [
-          //             Text(autoStats[index].clicks.toString()),
-          //             Text(autoStats[index].cpc.toString()),
-          //             Text(autoStats[index].ctr.toString()),
-          //             Text(autoStats[index].spend.toString()),
-          //             Text(autoStats[index].views.toString()),
-          //             Text(autoStats[index].advertId.toString()),
-          //             Text(autoStats[index].createdAt.toString()),
-          //           ],
-          //         ),
-          //       );
-          //     }),
-          ),
+          ))),
     );
   }
 }
@@ -123,8 +125,9 @@ class _UpperContainer extends StatelessWidget {
         const _FirstRow(),
         Divider(
           color: Theme.of(context).colorScheme.surfaceVariant,
+          height: 0,
         ),
-        const _SecondRow()
+        const Expanded(child: _SecondRow())
       ]),
     );
   }
@@ -137,33 +140,76 @@ class _SecondRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<AutoStatViewModel>();
     final autoStatsList = model.autoStatList;
-    return Column(
-      children: [
-        Row(
-          children: [
-            _Chart(
-              data: autoStatsList,
-            ),
-            _Chart(
-              data: autoStatsList,
-              clicks: true,
-            ),
-          ],
-        ),
-        Row(children: [
-          Container(
-            alignment: Alignment.center,
-            width: MediaQuery.of(context).size.width * 0.45,
-            child: Text("Показы"),
+    return IntrinsicHeight(
+      child: Row(children: [
+        Container(
+          height: double.infinity,
+          width: model.screenWidth * 0.45,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _Chart(
+                data: autoStatsList,
+              ),
+              Container(
+                alignment: Alignment.center,
+                width: MediaQuery.of(context).size.width * 0.45,
+                child: const Text("Показы"),
+              ),
+            ],
           ),
-          Container(
-            alignment: Alignment.center,
-            width: MediaQuery.of(context).size.width * 0.45,
-            child: Text("Клики"),
-          )
-        ])
-      ],
+        ),
+        Container(
+          height: double.infinity,
+          width: 1,
+          color: Theme.of(context).colorScheme.surfaceVariant,
+        ),
+        Container(
+            height: double.infinity,
+            width: model.screenWidth * 0.45,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _Chart(
+                    data: autoStatsList,
+                    clicks: true,
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    width: MediaQuery.of(context).size.width * 0.45,
+                    child: const Text("Клики"),
+                  )
+                ]))
+      ]),
     );
+    // return Column(
+    //   children: [
+    //     Row(
+    //       children: [
+    //         _Chart(
+    //           data: autoStatsList,
+    //         ),
+
+    //         _Chart(
+    //           data: autoStatsList,
+    //           clicks: true,
+    //         ),
+    //       ],
+    //     ),
+    //     Row(children: [
+    //       Container(
+    //         alignment: Alignment.center,
+    //         width: MediaQuery.of(context).size.width * 0.45,
+    //         child: const Text("Показы"),
+    //       ),
+    //       Container(
+    //         alignment: Alignment.center,
+    //         width: MediaQuery.of(context).size.width * 0.45,
+    //         child: const Text("Клики"),
+    //       )
+    //     ])
+    //   ],
+    // );
   }
 }
 
@@ -175,8 +221,8 @@ class _Chart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Color> gradientColors = [
-      AppColors.contentColorCyan,
-      AppColors.contentColorBlue,
+      Theme.of(context).colorScheme.primary,
+      Theme.of(context).colorScheme.onPrimaryContainer,
     ];
 
     List<FlSpot> spots = [];
@@ -187,8 +233,10 @@ class _Chart extends StatelessWidget {
       }
       if (clicks) {
         double clicksDiff = data[i].clicks - data[i - 1].clicks;
+        int viewsDiff = data[i].views - data[i - 1].views;
+        final ctr = viewsDiff == 0 ? 0 : (clicksDiff / viewsDiff) * 100;
         spots.add(FlSpot(data[i].createdAt.millisecondsSinceEpoch.toDouble(),
-            clicksDiff.toDouble()));
+            ctr.toDouble()));
         continue;
       }
       int viewsDiff = data[i].views - data[i - 1].views;
@@ -218,14 +266,14 @@ class _Chart extends StatelessWidget {
                             quarterTurns: 1,
                             child: Text(
                               formattedTime,
-                              style: TextStyle(fontSize: 5),
+                              style: const TextStyle(fontSize: 5),
                             ));
                       })),
-              topTitles: AxisTitles(
+              topTitles: const AxisTitles(
                   sideTitles: SideTitles(
                 showTitles: false,
               )),
-              rightTitles: AxisTitles(
+              rightTitles: const AxisTitles(
                   sideTitles: SideTitles(
                 showTitles: false,
               )),
@@ -236,7 +284,7 @@ class _Chart extends StatelessWidget {
                         return Text(value.toInt().toString());
                       }))),
           borderData: FlBorderData(
-            border: Border(
+            border: const Border(
               top: BorderSide.none,
               right: BorderSide.none,
               left: BorderSide(width: 1),
@@ -247,9 +295,9 @@ class _Chart extends StatelessWidget {
             LineChartBarData(
               spots: spots,
               isCurved: true,
-              color: Colors.blue,
+              color: Theme.of(context).colorScheme.primary,
               barWidth: 2,
-              dotData: FlDotData(show: false),
+              dotData: const FlDotData(show: false),
               belowBarData: BarAreaData(
                 show: true,
                 gradient: LinearGradient(

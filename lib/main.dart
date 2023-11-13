@@ -29,7 +29,7 @@ Future<void> main() async {
   ]);
   await Workmanager().initialize(
     callbackDispatcher,
-    isInDebugMode: true,
+    // isInDebugMode: true,
   );
   await Workmanager().registerPeriodicTask(
     "1",
