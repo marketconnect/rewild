@@ -5,6 +5,8 @@ import 'package:rewild/domain/services/background_service.dart';
 import 'package:workmanager/workmanager.dart';
 
 const fetchBackground = "fetchBackground";
+
+@pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     switch (task) {

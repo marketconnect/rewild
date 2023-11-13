@@ -85,7 +85,6 @@ class _AllCardsScreenState extends State<AllCardsScreen>
 
     final selectionInProcess = model.selectionInProcess;
 
-    print("pr cards length ${productCards.length}");
     final headerSliverBuilderItems = selectionInProcess
         ? [
             _HorizontalScrollMenu(

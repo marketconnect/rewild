@@ -13,6 +13,7 @@ abstract class AutoStatViewModelAdvertService {
   Future<Resource<bool>> isPursued(int advertId);
   Future<Resource<bool>> addToTrack(int advertId);
   Future<Resource<bool>> deleteFromTrack(int advertId);
+  Future<Resource<bool>> isActive(int advertId);
 }
 
 class AutoStatViewModel extends ResourceChangeNotifier {
@@ -28,6 +29,15 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   }) {
     _asyncInit();
   }
+
+  // is active
+  bool? _isActive;
+  void setActive(bool value) {
+    _isActive = value;
+    notify();
+  }
+
+  bool get isActive => _isActive ?? false;
 
   // is pursued
   bool? _isPursued;
@@ -127,11 +137,18 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   Future<void> _asyncInit() async {
     SqfliteService.printTableContent("auto_stat");
     SqfliteService.printTableContent("pursued");
+    final isActive = await fetch(() => advertService.isActive(advertId));
+    if (isActive == null) {
+      return;
+    }
+    setActive(isActive);
+
     final isPursued = await fetch(() => advertService.isPursued(advertId));
     if (isPursued == null) {
       return;
     }
     setPursued(isPursued);
+
     // BackgroundService.addAutoAdvert(advertId);
     final budget = await fetch(() => advertService.getBudget(advertId));
     if (budget == null) {
@@ -140,7 +157,7 @@ class AutoStatViewModel extends ResourceChangeNotifier {
     setBudget(budget);
     // final all
     final autoStatList = await fetch(() => autoStatService.getAll(advertId));
-    if (autoStatList == null) {
+    if (autoStatList == null || autoStatList.isEmpty) {
       return;
     }
     autoStatList.sort(

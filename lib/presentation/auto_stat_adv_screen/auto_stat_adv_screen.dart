@@ -11,6 +11,8 @@ class AutoStatAdvertScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AutoStatViewModel>();
+    final isActive = model.isActive;
+
     final budget = model.budget;
     final isPursued = model.isPursued;
     final track = model.track;
@@ -21,15 +23,43 @@ class AutoStatAdvertScreen extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface);
     return SafeArea(
       child: Scaffold(
-          floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-              if (isPursued) {
-                await untrack();
-                return;
-              }
-              await track();
-            },
-          ),
+          floatingActionButton: isActive
+              ? FloatingActionButton(
+                  onPressed: () async {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (_) => Column(
+                              children: [
+                                Text(
+                                    "${isPursued ? 'Отключить отслеживание' : 'Включить отслеживание'}"),
+                              ],
+                            ));
+                    // if (isPursued) {
+                    //   await untrack();
+                    //   return;
+                    // }
+                    // await track();
+                  },
+                  backgroundColor:
+                      Theme.of(context).colorScheme.tertiaryContainer,
+                  child: Icon(
+                    Icons.track_changes,
+                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  ),
+                )
+              : Container(
+                  margin: const EdgeInsets.all(3),
+                  width: model.screenWidth,
+                  child: FloatingActionButton(
+                    onPressed: () async {},
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: Text("Возобновить показы",
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary)),
+                  )),
+          floatingActionButtonLocation: isActive
+              ? FloatingActionButtonLocation.endFloat
+              : FloatingActionButtonLocation.centerDocked,
           backgroundColor:
               Theme.of(context).colorScheme.surface.withOpacity(0.97),
           appBar: AppBar(
@@ -45,44 +75,55 @@ class AutoStatAdvertScreen extends StatelessWidget {
             shadowColor: Colors.black,
             surfaceTintColor: Colors.transparent,
             actions: [
-              GestureDetector(
-                onTap: () => print("AGHGHJGHJ"),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: model.screenWidth * 0.06,
-                        height: model.screenWidth * 0.06,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius:
-                              BorderRadius.circular(model.screenWidth),
-                        ),
-                        child: Text(
-                          "CPM",
-                          style: TextStyle(
-                            fontSize: model.screenWidth * 0.015,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.background,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: model.screenWidth * 0.01,
-                      ),
-                      Text(
-                        '$budget₽',
+              !isActive
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'не активна',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                            fontSize: model.screenWidth * 0.035,
+                            color: Theme.of(context).colorScheme.outline),
+                      ),
+                    )
+                  : GestureDetector(
+                      onTap: () => print("AGHGHJGHJ"),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: model.screenWidth * 0.06,
+                              height: model.screenWidth * 0.06,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius:
+                                    BorderRadius.circular(model.screenWidth),
+                              ),
+                              child: Text(
+                                "CPM",
+                                style: TextStyle(
+                                  fontSize: model.screenWidth * 0.015,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      Theme.of(context).colorScheme.background,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: model.screenWidth * 0.01,
+                            ),
+                            Text(
+                              '$budget₽',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              )
+                    )
             ],
           ),
           body: SingleChildScrollView(
@@ -142,20 +183,29 @@ class _SecondRow extends StatelessWidget {
     final autoStatsList = model.autoStatList;
     return IntrinsicHeight(
       child: Row(children: [
-        Container(
+        SizedBox(
           height: double.infinity,
           width: model.screenWidth * 0.45,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _Chart(
-                data: autoStatsList,
-              ),
-              Container(
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width * 0.45,
-                child: const Text("Показы"),
-              ),
+              autoStatsList.isEmpty
+                  ? Center(
+                      child: Text(
+                        "Нет данных",
+                        style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.03),
+                      ),
+                    )
+                  : _Chart(
+                      data: autoStatsList,
+                    ),
+              if (autoStatsList.isNotEmpty)
+                Container(
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width * 0.45,
+                  child: const Text("Показы"),
+                ),
             ],
           ),
         ),
@@ -164,21 +214,31 @@ class _SecondRow extends StatelessWidget {
           width: 1,
           color: Theme.of(context).colorScheme.surfaceVariant,
         ),
-        Container(
+        SizedBox(
             height: double.infinity,
             width: model.screenWidth * 0.45,
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _Chart(
-                    data: autoStatsList,
-                    clicks: true,
-                  ),
-                  Container(
-                    alignment: Alignment.center,
-                    width: MediaQuery.of(context).size.width * 0.45,
-                    child: const Text("Клики"),
-                  )
+                  autoStatsList.isEmpty
+                      ? Center(
+                          child: Text(
+                            "Нет данных",
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.03),
+                          ),
+                        )
+                      : _Chart(
+                          data: autoStatsList,
+                          clicks: true,
+                        ),
+                  if (autoStatsList.isNotEmpty)
+                    Container(
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      child: const Text("Клики"),
+                    )
                 ]))
       ]),
     );
