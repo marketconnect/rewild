@@ -30,6 +30,21 @@ class AutoStatService implements AutoStatViewModelAutoStatService {
   });
 
   @override
+  Future<Resource<List<AutoStatModel>>> getAll(int advertId) async {
+    // get all stored auto stats for the auto advert
+    final storedAutoStatsResource = await autoStatDataProvider.getAll(advertId);
+    if (storedAutoStatsResource is Error) {
+      return Resource.error(
+        storedAutoStatsResource.message!,
+      );
+    }
+    if (storedAutoStatsResource is Empty) {
+      return Resource.success([]);
+    }
+    return storedAutoStatsResource;
+  }
+
+  @override
   Future<Resource<AutoStatModel>> getCurrent(int advertId) async {
     // get all stored auto stats for the auto advert
     // final storedAutoStatsResource = await autoStatDataProvider.getAll(advertId);

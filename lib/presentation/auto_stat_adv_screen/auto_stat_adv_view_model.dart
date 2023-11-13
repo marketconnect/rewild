@@ -1,5 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
@@ -7,6 +5,7 @@ import 'package:rewild/domain/entities/auto_stat.dart';
 
 abstract class AutoStatViewModelAutoStatService {
   Future<Resource<AutoStatModel>> getCurrent(int advertId);
+  Future<Resource<List<AutoStatModel>>> getAll(int advertId);
 }
 
 abstract class AutoStatViewModelAdvertService {
@@ -117,14 +116,13 @@ class AutoStatViewModel extends ResourceChangeNotifier {
 
   String get spentMoney => _spentMoney ?? "";
 
-  // Views chart
-  List<FlSpot>? _viewsChart;
-  void setViewsChart(List<FlSpot> value) {
-    _viewsChart = value;
+  List<AutoStatModel> _autoStatList = [];
+  void setAutoStatList(List<AutoStatModel> value) {
+    _autoStatList = value;
     notify();
   }
 
-  List<FlSpot>? get viewsChart => _viewsChart;
+  List<AutoStatModel> get autoStatList => _autoStatList;
 
   Future<void> _asyncInit() async {
     SqfliteService.printTableContent("auto_stat");
@@ -135,46 +133,46 @@ class AutoStatViewModel extends ResourceChangeNotifier {
     }
     setPursued(isPursued);
     // BackgroundService.addAutoAdvert(advertId);
-    // final budget = await fetch(() => advertService.getBudget(advertId));
-    // if (budget == null) {
-    //   return;
-    // }
-    // setBudget(budget);
-    // final current
-    // final autoStatList =
-    //     await fetch(() => autoStatService.getAndSaveAutoStat(advertId));
-    // if (autoStatList == null) {
-    //   return;
-    // }
-    // autoStatList.sort(
-    //   (a, b) => a.createdAt.compareTo(b.createdAt),
-    // );
-    // // views
-    // final viewsDiff =
-    //     autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
-    // setViews(viewsDiff);
+    final budget = await fetch(() => advertService.getBudget(advertId));
+    if (budget == null) {
+      return;
+    }
+    setBudget(budget);
+    // final all
+    final autoStatList = await fetch(() => autoStatService.getAll(advertId));
+    if (autoStatList == null) {
+      return;
+    }
+    autoStatList.sort(
+      (a, b) => a.createdAt.compareTo(b.createdAt),
+    );
+    setAutoStatList(autoStatList);
+    // views
+    final viewsDiff =
+        autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
+    setViews(viewsDiff);
 
-    // final ctr = autoStatList[autoStatList.length - 1].ctr;
-    // setCtr(ctr);
-    // // ctr diff
-    // final ctrDiff =
-    //     autoStatList[autoStatList.length - 1].ctr - autoStatList[0].ctr;
-    // setCtrDiff(ctrDiff);
+    final ctr = autoStatList[autoStatList.length - 1].ctr;
+    setCtr(ctr);
+    // ctr diff
+    final ctrDiff =
+        autoStatList[autoStatList.length - 1].ctr - autoStatList[0].ctr;
+    setCtrDiff(ctrDiff);
 
-    // // cpc
-    // final cpc = autoStatList[autoStatList.length - 1].cpc;
-    // setCpc(cpc);
+    // cpc
+    final cpc = autoStatList[autoStatList.length - 1].cpc;
+    setCpc(cpc);
 
-    // // cpc diff
-    // final cpcDiff =
-    //     autoStatList[autoStatList.length - 1].cpc - autoStatList[0].cpc;
-    // setCpcDiff(cpcDiff);
+    // cpc diff
+    final cpcDiff =
+        autoStatList[autoStatList.length - 1].cpc - autoStatList[0].cpc;
+    setCpcDiff(cpcDiff);
 
-    // // spent money
-    // final spentMoneyDiff =
-    //     autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend;
+    // spent money
+    final spentMoneyDiff =
+        autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend;
 
-    // setSpentMoney('${spentMoneyDiff.toStringAsFixed(0)}₽');
+    setSpentMoney('${spentMoneyDiff.toStringAsFixed(0)}₽');
 
     // final spentTimeDiff = autoStatList[autoStatList.length - 1]
     //     .createdAt
@@ -192,59 +190,6 @@ class AutoStatViewModel extends ResourceChangeNotifier {
     // print(
     //     'flCh.length: ${flCh.length} autoStatList length: ${autoStatList.length}');
     // setViewsChart(flCh);
-  }
-
-  List<FlSpot> calculateAverageViewsPerMinute(List<AutoStatModel> statModels) {
-    List<FlSpot> result = [];
-    if (statModels.isEmpty) {
-      print("empty");
-      return result;
-    }
-
-    bool first = true;
-    AutoStatModel prevStatModel = statModels[0];
-    for (var statModel in statModels) {
-      if (first) {
-        first = false;
-        continue;
-      }
-      final viewsDiff = statModel.views - prevStatModel.views;
-      final durationDiff =
-          statModel.createdAt.difference(prevStatModel.createdAt).inMinutes;
-      if (durationDiff == 0) {
-        continue;
-      }
-      final viewsPerMinute = (viewsDiff / durationDiff).round();
-      result.add(FlSpot(
-        statModel.createdAt
-            .difference(statModels[0].createdAt)
-            .inMinutes
-            .toDouble(),
-        viewsPerMinute.toDouble(),
-      ));
-
-      prevStatModel = statModel;
-    }
-
-    return result;
-  }
-
-  String calculateEmptyBudgetTime(
-      DateTime start, DateTime end, int budgetDifference, int remainingBudget) {
-    // Calculate the duration between the start and end timestamps
-    Duration duration = end.difference(start);
-
-    // Calculate the rate of change in budget per unit time
-    double budgetChangeRate = budgetDifference / duration.inSeconds;
-
-    // Calculate the time when the budget will be empty
-
-    DateTime emptyBudgetTime = start
-        .add(Duration(seconds: (remainingBudget / budgetChangeRate).round()));
-    String formattedTime =
-        DateFormat('yyyy-MM-dd HH:mm:ss').format(emptyBudgetTime);
-
-    return formattedTime;
   }
 
   Future<void> track() async {

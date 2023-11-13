@@ -228,6 +228,9 @@ class AdvertService
     }
 
     List<Advert> res = [];
+    if (advertsResource is Empty) {
+      return Resource.success(res);
+    }
 
     for (var advert in advertsResource.data!) {
       if (advert.status == 7 || advert.status == 8) {

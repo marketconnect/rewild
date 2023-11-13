@@ -1,5 +1,8 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rewild/core/app_colors.dart';
+import 'package:rewild/domain/entities/auto_stat.dart';
 import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
 
 class AutoStatAdvertScreen extends StatelessWidget {
@@ -117,11 +120,11 @@ class _UpperContainer extends StatelessWidget {
       height: model.screenHeight * 0.55,
       decoration: decoration,
       child: Column(children: [
-        _FirstRow(),
+        const _FirstRow(),
         Divider(
           color: Theme.of(context).colorScheme.surfaceVariant,
         ),
-        _SecondRow()
+        const _SecondRow()
       ]),
     );
   }
@@ -133,26 +136,138 @@ class _SecondRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AutoStatViewModel>();
-    final chrtData = model.viewsChart;
-    return SizedBox();
-    // if (chrtData == null || chrtData.isEmpty) {
-    //   return Container();
-    // }
-    // chrtData.forEach((element) {
-    //   print(element);
-    // });
-    // return LineChart(
-    //   LineChartData(
-    //       minX: 0,
-    //       maxX: chrtData
-    //           .reduce((value, element) => element.x > value.x ? element : value)
-    //           .x,
-    //       minY: 0,
-    //       maxY: chrtData
-    //           .reduce((value, element) => element.y > value.y ? element : value)
-    //           .y,
-    //       lineBarsData: [LineChartBarData(spots: chrtData)]),
-    // );
+    final autoStatsList = model.autoStatList;
+    return Column(
+      children: [
+        Row(
+          children: [
+            _Chart(
+              data: autoStatsList,
+            ),
+            _Chart(
+              data: autoStatsList,
+              clicks: true,
+            ),
+          ],
+        ),
+        Row(children: [
+          Container(
+            alignment: Alignment.center,
+            width: MediaQuery.of(context).size.width * 0.45,
+            child: Text("Показы"),
+          ),
+          Container(
+            alignment: Alignment.center,
+            width: MediaQuery.of(context).size.width * 0.45,
+            child: Text("Клики"),
+          )
+        ])
+      ],
+    );
+  }
+}
+
+class _Chart extends StatelessWidget {
+  final List<AutoStatModel> data;
+
+  _Chart({required this.data, this.clicks = false});
+  final bool clicks;
+  @override
+  Widget build(BuildContext context) {
+    List<Color> gradientColors = [
+      AppColors.contentColorCyan,
+      AppColors.contentColorBlue,
+    ];
+
+    List<FlSpot> spots = [];
+
+    for (int i = 0; i < data.length; i++) {
+      if (i == 0) {
+        continue;
+      }
+      if (clicks) {
+        double clicksDiff = data[i].clicks - data[i - 1].clicks;
+        spots.add(FlSpot(data[i].createdAt.millisecondsSinceEpoch.toDouble(),
+            clicksDiff.toDouble()));
+        continue;
+      }
+      int viewsDiff = data[i].views - data[i - 1].views;
+      spots.add(FlSpot(data[i].createdAt.millisecondsSinceEpoch.toDouble(),
+          viewsDiff.toDouble()));
+    }
+
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.45,
+      height: MediaQuery.of(context).size.height * 0.25,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: LineChart(LineChartData(
+          minY: 0,
+          titlesData: FlTitlesData(
+              show: true,
+              bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        // Format the x-axis labels (e.g., using time)
+                        DateTime createdAt =
+                            DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                        String formattedTime =
+                            '${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';
+                        return RotatedBox(
+                            quarterTurns: 1,
+                            child: Text(
+                              formattedTime,
+                              style: TextStyle(fontSize: 5),
+                            ));
+                      })),
+              topTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                showTitles: false,
+              )),
+              rightTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                showTitles: false,
+              )),
+              leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        return Text(value.toInt().toString());
+                      }))),
+          borderData: FlBorderData(
+            border: Border(
+              top: BorderSide.none,
+              right: BorderSide.none,
+              left: BorderSide(width: 1),
+              bottom: BorderSide(width: 1),
+            ),
+          ),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              color: Colors.blue,
+              barWidth: 2,
+              dotData: FlDotData(show: false),
+              belowBarData: BarAreaData(
+                show: true,
+                gradient: LinearGradient(
+                  colors: [
+                    ColorTween(begin: gradientColors[0], end: gradientColors[1])
+                        .lerp(0.2)!
+                        .withOpacity(0.1),
+                    ColorTween(begin: gradientColors[0], end: gradientColors[1])
+                        .lerp(0.2)!
+                        .withOpacity(0.1),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        )),
+      ),
+    );
   }
 }
 
