@@ -17,6 +17,10 @@ class SecureStorageProvider
         AdvertServiceApiKeyDataProvider {
   static const _secureStorage = FlutterSecureStorage();
 
+  AndroidOptions _getAndroidOptions() => const AndroidOptions(
+        encryptedSharedPreferences: true,
+      );
+
   const SecureStorageProvider();
 
   @override
@@ -195,7 +199,11 @@ class SecureStorageProvider
 
   static Future<Resource<String?>> _read({required String key}) async {
     try {
-      final value = await _secureStorage.read(key: key);
+      final value = await _secureStorage.read(
+          key: key,
+          aOptions: const AndroidOptions(
+            encryptedSharedPreferences: true,
+          ));
       if (value == null) {
         return Resource.empty();
       }
@@ -210,7 +218,8 @@ class SecureStorageProvider
   Future<Resource<void>> _write(
       {required String key, required String? value}) async {
     try {
-      await _secureStorage.write(key: key, value: value);
+      await _secureStorage.write(
+          key: key, value: value, aOptions: _getAndroidOptions());
       return Resource.empty();
     } catch (e) {
       return Resource.error(

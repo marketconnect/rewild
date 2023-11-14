@@ -9,7 +9,17 @@ class MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 1,
+            offset: const Offset(0, 0),
+          )
+        ],
+        color: Theme.of(context).colorScheme.background,
+      ),
       child: tabBar,
     );
   }

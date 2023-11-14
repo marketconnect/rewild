@@ -1,7 +1,10 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
+import 'package:rewild/domain/entities/advert_auto_model.dart';
 import 'package:rewild/domain/entities/auto_stat.dart';
+
+import '../../domain/entities/advert_base.dart';
 
 abstract class AutoStatViewModelAutoStatService {
   Future<Resource<AutoStatModel>> getCurrent(int advertId);
@@ -13,7 +16,7 @@ abstract class AutoStatViewModelAdvertService {
   Future<Resource<bool>> isPursued(int advertId);
   Future<Resource<bool>> addToTrack(int advertId);
   Future<Resource<bool>> deleteFromTrack(int advertId);
-  Future<Resource<bool>> isActive(int advertId);
+  Future<Resource<Advert>> AdvertInfo(int advertId);
 }
 
 class AutoStatViewModel extends ResourceChangeNotifier {
@@ -38,6 +41,14 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   }
 
   bool get isActive => _isActive ?? false;
+
+  int? _cpm;
+  void setCpm(int value) {
+    _cpm = value;
+    notify();
+  }
+
+  int get cpm => _cpm ?? 0;
 
   // is pursued
   bool? _isPursued;
@@ -137,11 +148,18 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   Future<void> _asyncInit() async {
     SqfliteService.printTableContent("auto_stat");
     SqfliteService.printTableContent("pursued");
-    final isActive = await fetch(() => advertService.isActive(advertId));
-    if (isActive == null) {
+    final advertInfo = await fetch(() => advertService.AdvertInfo(advertId));
+    if (advertInfo == null) {
       return;
     }
-    setActive(isActive);
+    setActive(advertInfo.status == 9);
+    if (advertInfo.type == 8) {
+      if (advertInfo is AdvertAutoModel &&
+          advertInfo.autoParams != null &&
+          advertInfo.autoParams!.cpm != null) {
+        setCpm(advertInfo.autoParams!.cpm!);
+      }
+    }
 
     final isPursued = await fetch(() => advertService.isPursued(advertId));
     if (isPursued == null) {

@@ -13,10 +13,9 @@ class AutoStatAdvertScreen extends StatelessWidget {
     final model = context.watch<AutoStatViewModel>();
     final isActive = model.isActive;
 
-    final budget = model.budget;
-    final isPursued = model.isPursued;
-    final track = model.track;
-    final untrack = model.untrack;
+    final cpm = model.cpm;
+    // final isPursued = model.isPursued;
+
     final decoration = BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.surfaceVariant),
         borderRadius: BorderRadius.circular(15),
@@ -26,25 +25,12 @@ class AutoStatAdvertScreen extends StatelessWidget {
           floatingActionButton: isActive
               ? FloatingActionButton(
                   onPressed: () async {
-                    showModalBottomSheet(
-                        context: context,
-                        builder: (_) => Column(
-                              children: [
-                                Text(
-                                    "${isPursued ? 'Отключить отслеживание' : 'Включить отслеживание'}"),
-                              ],
-                            ));
-                    // if (isPursued) {
-                    //   await untrack();
-                    //   return;
-                    // }
-                    // await track();
+                    _showModalBottomSheet(context, model);
                   },
-                  backgroundColor:
-                      Theme.of(context).colorScheme.tertiaryContainer,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   child: Icon(
                     Icons.track_changes,
-                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 )
               : Container(
@@ -114,7 +100,7 @@ class AutoStatAdvertScreen extends StatelessWidget {
                               width: model.screenWidth * 0.01,
                             ),
                             Text(
-                              '$budget₽',
+                              '$cpm₽',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).colorScheme.primary,
@@ -142,6 +128,93 @@ class AutoStatAdvertScreen extends StatelessWidget {
               )
             ],
           ))),
+    );
+  }
+
+  Future<dynamic> _showModalBottomSheet(
+      BuildContext context, AutoStatViewModel model) {
+    final isPursued = model.isPursued;
+    return showModalBottomSheet(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        context: context,
+        builder: (context) => _ModalBottomWidget(
+              isPursued: isPursued,
+            ));
+  }
+}
+
+class _ModalBottomWidget extends StatelessWidget {
+  const _ModalBottomWidget({
+    super.key,
+    required this.isPursued,
+  });
+
+  final bool isPursued;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: screenWidth * 0.1,
+                    height: screenWidth * 0.1,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(screenWidth),
+                      color: Theme.of(context).colorScheme.surfaceVariant,
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      size: screenWidth * 0.05,
+                    ),
+                  ),
+                ),
+              ],
+              bottom: TabBar(
+                isScrollable: true,
+                splashFactory: NoSplash.splashFactory,
+                tabs: [
+                  Tab(
+                    // icon: Icon(Icons.chat_bubble),
+                    text: "Общее",
+                  ),
+                  Tab(
+                    // icon: Icon(Icons.video_call),
+                    text: "Уведомления",
+                  ),
+                  Tab(
+                    // icon: Icon(Icons.settings),
+                    text: "A/B-тест",
+                  )
+                ],
+              ),
+            ),
+            body: TabBarView(children: [
+              Container(),
+              Container(),
+              Container(),
+            ])
+            // SizedBox(
+            //   width: screenWidth,
+            //   child: Row(
+            //     children: [
+            //       Text(
+            //           "${isPursued ? 'Отключить отслеживание' : 'Включить отслеживание'}"),
+            //     ],
+            //   ),
+            // ),
+            // ],
+            ),
+      ),
     );
   }
 }
