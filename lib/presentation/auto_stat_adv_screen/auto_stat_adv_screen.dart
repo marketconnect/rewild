@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:rewild/domain/entities/auto_stat.dart';
 import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
+import 'package:rewild/presentation/auto_stat_adv_screen/widgets/modal_bottom_widget.dart';
 
 class AutoStatAdvertScreen extends StatelessWidget {
   const AutoStatAdvertScreen({super.key});
@@ -12,10 +13,7 @@ class AutoStatAdvertScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<AutoStatViewModel>();
     final isActive = model.isActive;
-
     final cpm = model.cpm;
-    // final isPursued = model.isPursued;
-
     final decoration = BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.surfaceVariant),
         borderRadius: BorderRadius.circular(15),
@@ -138,156 +136,11 @@ class AutoStatAdvertScreen extends StatelessWidget {
     return showModalBottomSheet(
         backgroundColor: Theme.of(context).colorScheme.background,
         context: context,
-        builder: (context) => _ModalBottomWidget(
+        isScrollControlled: true,
+        builder: (context) => ModalBottomWidget(
               isActive: isActive,
               isPursued: isPursued,
             ));
-  }
-}
-
-class _ModalBottomWidget extends StatelessWidget {
-  const _ModalBottomWidget({
-    required this.isPursued,
-    required this.isActive,
-  });
-
-  final bool isPursued;
-  final bool isActive;
-
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: DefaultTabController(
-        length: 3,
-        child: Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              automaticallyImplyLeading: false,
-              actions: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      width: screenWidth * 0.1,
-                      height: screenWidth * 0.1,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(screenWidth),
-                        color: Theme.of(context).colorScheme.surfaceVariant,
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        size: screenWidth * 0.05,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-              bottom: const TabBar(
-                isScrollable: true,
-                splashFactory: NoSplash.splashFactory,
-                tabs: [
-                  Tab(
-                    // icon: Icon(Icons.chat_bubble),
-                    text: "Общее",
-                  ),
-                  Tab(
-                    // icon: Icon(Icons.video_call),
-                    text: "Уведомления",
-                  ),
-                  Tab(
-                    // icon: Icon(Icons.settings),
-                    text: "A/B-тест",
-                  )
-                ],
-              ),
-            ),
-            body: TabBarView(children: [
-              SingleChildScrollView(
-                  child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.03,
-                  ),
-                  _ModalBottomCard(
-                    isSwitched: isActive,
-                    text: isActive ? "Приостановить" : "Запустить",
-                    callback: () async {
-                      print("callback");
-                    },
-                  ),
-                  _ModalBottomCard(
-                    isSwitched: isPursued,
-                    text: isPursued ? "Отслеживать" : "Завершить отслеживание",
-                    callback: () async {
-                      print("callback");
-                    },
-                  )
-                ]),
-              )),
-              Container(),
-              Container(),
-            ])),
-      ),
-    );
-  }
-}
-
-class _ModalBottomCard extends StatefulWidget {
-  const _ModalBottomCard(
-      {required this.isSwitched, required this.callback, required this.text});
-
-  final bool isSwitched;
-  final String text;
-  final Future<void> Function() callback;
-
-  @override
-  State<_ModalBottomCard> createState() => _ModalBottomCardState();
-}
-
-class _ModalBottomCardState extends State<_ModalBottomCard> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin:
-          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.015),
-      padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.05),
-      height: MediaQuery.of(context).size.height * 0.1,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
-      ),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(
-          widget.text,
-          style: TextStyle(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSecondaryContainer
-                  .withOpacity(0.8),
-              fontSize: MediaQuery.of(context).size.width * 0.05,
-              fontWeight: FontWeight.w500),
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.2,
-          height: MediaQuery.of(context).size.width * 0.15,
-          child: FittedBox(
-            fit: BoxFit.fill,
-            child: Switch(
-                value: widget.isSwitched,
-                onChanged: (value) async {
-                  print(value);
-                  await widget.callback();
-                }),
-          ),
-        )
-      ]),
-    );
   }
 }
 
@@ -387,34 +240,6 @@ class _SecondRow extends StatelessWidget {
                 ]))
       ]),
     );
-    // return Column(
-    //   children: [
-    //     Row(
-    //       children: [
-    //         _Chart(
-    //           data: autoStatsList,
-    //         ),
-
-    //         _Chart(
-    //           data: autoStatsList,
-    //           clicks: true,
-    //         ),
-    //       ],
-    //     ),
-    //     Row(children: [
-    //       Container(
-    //         alignment: Alignment.center,
-    //         width: MediaQuery.of(context).size.width * 0.45,
-    //         child: const Text("Показы"),
-    //       ),
-    //       Container(
-    //         alignment: Alignment.center,
-    //         width: MediaQuery.of(context).size.width * 0.45,
-    //         child: const Text("Клики"),
-    //       )
-    //     ])
-    //   ],
-    // );
   }
 }
 

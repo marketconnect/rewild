@@ -63,6 +63,30 @@ class SupplyDataProvider
     }
   }
 
+  static Future<Resource<void>> deleteInBackground({
+    required int nmId,
+    int? wh,
+    int? sizeOptionId,
+  }) async {
+    try {
+      final db = await SqfliteService().database;
+      if (wh == null || sizeOptionId == null) {
+        await db.rawDelete('DELETE FROM supplies WHERE nmId = ?', [nmId]);
+        return Resource.empty();
+      }
+      await db.rawDelete(
+          'DELETE FROM supplies WHERE nmId = ? AND wh = ? AND sizeOptionId = ?',
+          [
+            nmId,
+            wh,
+            sizeOptionId,
+          ]);
+      return Resource.empty();
+    } catch (e) {
+      return Resource.error('Не удалось удалить поставки $e');
+    }
+  }
+
   @override
   Future<Resource<SupplyModel>> getOne({
     required int nmId,

@@ -301,13 +301,12 @@ class UpdateService
 
       // save today`s initial stocks to local db and delete supplies
       for (final stock in todayInitialStocksFromServer) {
-        if (stock.nmId == 156138019) {}
-        // save
-        final insertStockresource =
-            await initialStockDataProvider.insert(stock);
-        if (insertStockresource is Error) {
-          return Resource.error(insertStockresource.message!);
-        }
+        // saved in _fetchTodayInitialStocksFromServer
+        // final insertStockresource =
+        //     await initialStockDataProvider.insert(stock);
+        // if (insertStockresource is Error) {
+        //   return Resource.error(insertStockresource.message!);
+        // }
 
         // delete supplies because they are not today`s
         final deleteSuppliesResource =
@@ -354,7 +353,6 @@ class UpdateService
     final dateTo = DateTime.now();
     for (final size in sizes) {
       for (final stock in size.stocks) {
-        if (stock.nmId == 156138019) {}
         // get saved init stock
         final initStockResource = await initialStockDataProvider.getOne(
             nmId: stock.nmId,
@@ -367,7 +365,6 @@ class UpdateService
         }
         // if init stock does not exist
         if (initStockResource is Empty) {
-          if (stock.nmId == 156138019) {}
           // insert zero init stock
           final insertInitStockResource = await initialStockDataProvider.insert(
               InitialStockModel(
@@ -395,7 +392,6 @@ class UpdateService
             }
           }
         } else {
-          if (stock.nmId == 156138019) {}
           // if init stock exists
           final initStock = initStockResource.data!;
           // if stocks difference more than threshold insert supply

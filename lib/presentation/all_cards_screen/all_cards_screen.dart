@@ -63,6 +63,8 @@ class _AllCardsScreenState extends State<AllCardsScreen>
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AllCardsScreenViewModel>();
+    final resetFilter = model.resetFilter;
+    final filterIsEmpty = model.filterIsEmpty;
     mountedCallback = model.setMounted;
     List<CardOfProductModel> productCards = model.productCards;
     final selectedGroup = model.selectedGroup;
@@ -98,6 +100,17 @@ class _AllCardsScreenState extends State<AllCardsScreen>
 
     return SafeArea(
       child: Scaffold(
+        floatingActionButton: filterIsEmpty || selectionInProcess
+            ? null
+            : FloatingActionButton(
+                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                onPressed: () async {
+                  await resetFilter();
+                },
+                child: Icon(
+                  Icons.filter_alt_off_outlined,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                )),
         body: DefaultTabController(
           length: selectionInProcess ? 1 : groups.length,
           child: NestedScrollView(
@@ -117,7 +130,7 @@ class _AllCardsScreenState extends State<AllCardsScreen>
                             if (index > (productCards.length - 1)) {
                               return Container();
                             }
-                            if (selectionInProcess &&
+                            if ((!filterIsEmpty || selectionInProcess) &&
                                 index == productCards.length - 1) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 50.0),
@@ -144,10 +157,6 @@ class _AppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AllCardsScreenViewModel>();
-    final resetFilter = model.resetFilter;
-    final filterIsEmpty = model.filterIsEmpty;
-
     return SliverAppBar(
       // AppBar ========================================================== AppBar
       pinned: false,
@@ -177,23 +186,13 @@ class _AppBar extends StatelessWidget {
                   text: "Группы",
                 ),
               ),
-              filterIsEmpty
-                  ? const PopupMenuItem(
-                      value: MainNavigationRouteNames.allCardsFilterScreen,
-                      child: _PopumMenuItemChild(
-                        iconData: Icons.filter_alt_outlined,
-                        text: "Фильтр",
-                      ),
-                    )
-                  : PopupMenuItem(
-                      onTap: () async {
-                        await resetFilter();
-                      },
-                      child: const _PopumMenuItemChild(
-                        iconData: Icons.filter_alt_off_outlined,
-                        text: "Сброс",
-                      ),
-                    )
+              const PopupMenuItem(
+                value: MainNavigationRouteNames.allCardsFilterScreen,
+                child: _PopumMenuItemChild(
+                  iconData: Icons.filter_alt_outlined,
+                  text: "Фильтр",
+                ),
+              )
             ];
           },
         ),

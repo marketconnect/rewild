@@ -39,6 +39,34 @@ class InitialStockDataProvider
     }
   }
 
+  static Future<Resource<int>> insertInBackground(
+      InitialStockModel initialStock) async {
+    try {
+      final db = await SqfliteService().database;
+      final id = await db.rawInsert('''
+  INSERT INTO initial_stocks(
+    date,
+    nmId,
+    wh,
+    name,
+    sizeOptionId,
+    qty
+  ) VALUES(
+    ?,?,?,?,?,?
+  )''', [
+        initialStock.date.millisecondsSinceEpoch,
+        initialStock.nmId,
+        initialStock.wh,
+        initialStock.name,
+        initialStock.sizeOptionId,
+        initialStock.qty,
+      ]);
+      return Resource.success(id);
+    } catch (e) {
+      return Resource.error('Не удалось сохранить остатки на начало дня $e');
+    }
+  }
+
   Future<Resource<void>> delete(int id) async {
     try {
       final db = await SqfliteService().database;

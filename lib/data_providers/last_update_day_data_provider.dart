@@ -31,6 +31,27 @@ class LastUpdateDayDataProvider
     }
   }
 
+  static Future<Resource<void>> updateInBackground() async {
+    var now = DateTime.now();
+    var formatter = DateFormat('yyyy-MM-dd');
+    String formattedDate = formatter.format(now);
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      final ok = await prefs.setString(updatedAtKey, formattedDate);
+      if (!ok) {
+        return Resource.error(
+            'Не удалось сохранить дату последнего обновления');
+      }
+      return Resource.empty();
+    } catch (e) {
+      return Resource.error(
+          'Не удалось сохранить дату последнего обновления: $e');
+    }
+  }
+
   @override
   Future<Resource<bool>> todayUpdated() async {
     var now = DateTime.now();
