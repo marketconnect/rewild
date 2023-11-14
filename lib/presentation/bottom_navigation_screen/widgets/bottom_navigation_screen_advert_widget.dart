@@ -26,7 +26,6 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
   final Map<int, int> budget;
   @override
   Widget build(BuildContext context) {
-    print("rebuild with paused $paused");
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
@@ -121,12 +120,6 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
                         route: MainNavigationRouteNames.allAdvertsScreen,
                         iconData: Icons.auto_graph_outlined,
                       ),
-                      // const LinkBtn(
-                      //   text: 'Добавить API токен',
-                      //   color: Color(0xFF62d79f),
-                      //   route: MainNavigationRouteNames.apiKeysScreen,
-                      //   iconData: Icons.key,
-                      // ),
                     ],
                   ),
                 ),

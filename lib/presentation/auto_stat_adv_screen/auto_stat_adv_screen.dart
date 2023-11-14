@@ -134,10 +134,12 @@ class AutoStatAdvertScreen extends StatelessWidget {
   Future<dynamic> _showModalBottomSheet(
       BuildContext context, AutoStatViewModel model) {
     final isPursued = model.isPursued;
+    final isActive = model.isActive;
     return showModalBottomSheet(
         backgroundColor: Theme.of(context).colorScheme.background,
         context: context,
         builder: (context) => _ModalBottomWidget(
+              isActive: isActive,
               isPursued: isPursued,
             ));
   }
@@ -145,11 +147,12 @@ class AutoStatAdvertScreen extends StatelessWidget {
 
 class _ModalBottomWidget extends StatelessWidget {
   const _ModalBottomWidget({
-    super.key,
     required this.isPursued,
+    required this.isActive,
   });
 
   final bool isPursued;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
@@ -162,24 +165,28 @@ class _ModalBottomWidget extends StatelessWidget {
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
+              automaticallyImplyLeading: false,
               actions: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    width: screenWidth * 0.1,
-                    height: screenWidth * 0.1,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(screenWidth),
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                    ),
-                    child: Icon(
-                      Icons.close,
-                      size: screenWidth * 0.05,
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: screenWidth * 0.1,
+                      height: screenWidth * 0.1,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(screenWidth),
+                        color: Theme.of(context).colorScheme.surfaceVariant,
+                      ),
+                      child: Icon(
+                        Icons.close,
+                        size: screenWidth * 0.05,
+                      ),
                     ),
                   ),
                 ),
               ],
-              bottom: TabBar(
+              bottom: const TabBar(
                 isScrollable: true,
                 splashFactory: NoSplash.splashFactory,
                 tabs: [
@@ -199,22 +206,87 @@ class _ModalBottomWidget extends StatelessWidget {
               ),
             ),
             body: TabBarView(children: [
+              SingleChildScrollView(
+                  child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.03,
+                  ),
+                  _ModalBottomCard(
+                    isSwitched: isActive,
+                    text: isActive ? "Приостановить" : "Запустить",
+                    callback: () async {
+                      print("callback");
+                    },
+                  ),
+                  _ModalBottomCard(
+                    isSwitched: isPursued,
+                    text: isPursued ? "Отслеживать" : "Завершить отслеживание",
+                    callback: () async {
+                      print("callback");
+                    },
+                  )
+                ]),
+              )),
               Container(),
               Container(),
-              Container(),
-            ])
-            // SizedBox(
-            //   width: screenWidth,
-            //   child: Row(
-            //     children: [
-            //       Text(
-            //           "${isPursued ? 'Отключить отслеживание' : 'Включить отслеживание'}"),
-            //     ],
-            //   ),
-            // ),
-            // ],
-            ),
+            ])),
       ),
+    );
+  }
+}
+
+class _ModalBottomCard extends StatefulWidget {
+  const _ModalBottomCard(
+      {required this.isSwitched, required this.callback, required this.text});
+
+  final bool isSwitched;
+  final String text;
+  final Future<void> Function() callback;
+
+  @override
+  State<_ModalBottomCard> createState() => _ModalBottomCardState();
+}
+
+class _ModalBottomCardState extends State<_ModalBottomCard> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin:
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.015),
+      padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width * 0.05),
+      height: MediaQuery.of(context).size.height * 0.1,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
+      ),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text(
+          widget.text,
+          style: TextStyle(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSecondaryContainer
+                  .withOpacity(0.8),
+              fontSize: MediaQuery.of(context).size.width * 0.05,
+              fontWeight: FontWeight.w500),
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.2,
+          height: MediaQuery.of(context).size.width * 0.15,
+          child: FittedBox(
+            fit: BoxFit.fill,
+            child: Switch(
+                value: widget.isSwitched,
+                onChanged: (value) async {
+                  print(value);
+                  await widget.callback();
+                }),
+          ),
+        )
+      ]),
     );
   }
 }

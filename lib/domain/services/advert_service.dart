@@ -205,7 +205,7 @@ class AdvertService
   }
 
   @override
-  Future<Resource<Advert>> AdvertInfo(int advertId) async {
+  Future<Resource<Advert>> advertInfo(int advertId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);

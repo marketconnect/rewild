@@ -78,7 +78,7 @@ abstract class UpdateServiceStockDataProvider {
 // last update day data provider
 abstract class UpdateServiceLastUpdateDayDataProvider {
   Future<Resource<void>> update();
-  Future<Resource<bool>> updated();
+  Future<Resource<bool>> todayUpdated();
 }
 
 class UpdateService
@@ -279,12 +279,14 @@ class UpdateService
     }
 
     // if it is Today`s first time update - update initial stocks
-    final isUpdatedResource = await lastUpdateDayDataProvider.updated();
+    // were today updated?
+    final isUpdatedResource = await lastUpdateDayDataProvider.todayUpdated();
     if (isUpdatedResource is Error) {
       return Resource.error(isUpdatedResource.message!);
     }
     final isUpdated = isUpdatedResource.data!;
 
+    // were not updated - update
     // Update initial stocks!
     if (!isUpdated) {
       // try to fetch today`s initial stocks from server
@@ -299,6 +301,7 @@ class UpdateService
 
       // save today`s initial stocks to local db and delete supplies
       for (final stock in todayInitialStocksFromServer) {
+        if (stock.nmId == 156138019) {}
         // save
         final insertStockresource =
             await initialStockDataProvider.insert(stock);
@@ -306,7 +309,7 @@ class UpdateService
           return Resource.error(insertStockresource.message!);
         }
 
-        // delete
+        // delete supplies because they are not today`s
         final deleteSuppliesResource =
             await supplyDataProvider.delete(nmId: stock.nmId);
         if (deleteSuppliesResource is Error) {
@@ -314,6 +317,7 @@ class UpdateService
         }
       }
 
+      // set were updated today
       await lastUpdateDayDataProvider.update();
     }
 
@@ -336,7 +340,7 @@ class UpdateService
       }
 
       // add stocks
-      final addStocksResource = await addStocks(card.sizes);
+      final addStocksResource = await _addStocks(card.sizes);
       if (addStocksResource is Error) {
         return Resource.error(addStocksResource.message!);
       }
@@ -345,11 +349,12 @@ class UpdateService
     return Resource.empty();
   }
 
-  Future<Resource<void>> addStocks(List<SizeModel> sizes) async {
+  Future<Resource<void>> _addStocks(List<SizeModel> sizes) async {
     final dateFrom = yesterdayEndOfTheDay();
     final dateTo = DateTime.now();
     for (final size in sizes) {
       for (final stock in size.stocks) {
+        if (stock.nmId == 156138019) {}
         // get saved init stock
         final initStockResource = await initialStockDataProvider.getOne(
             nmId: stock.nmId,
@@ -362,6 +367,7 @@ class UpdateService
         }
         // if init stock does not exist
         if (initStockResource is Empty) {
+          if (stock.nmId == 156138019) {}
           // insert zero init stock
           final insertInitStockResource = await initialStockDataProvider.insert(
               InitialStockModel(
@@ -389,6 +395,7 @@ class UpdateService
             }
           }
         } else {
+          if (stock.nmId == 156138019) {}
           // if init stock exists
           final initStock = initStockResource.data!;
           // if stocks difference more than threshold insert supply

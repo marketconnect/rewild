@@ -68,11 +68,8 @@ class _AllCardsScreenState extends State<AllCardsScreen>
     final selectedGroup = model.selectedGroup;
     int selectedGroupIndex = 0;
     final groups = model.groups;
-
-    // final filterCard = model.filterCard;
-
+    final isLoading = model.loading;
     if (selectedGroup != null) {
-      print(selectedGroup.name);
       final groupsIds = selectedGroup.cardsNmIds;
 
       productCards = productCards.where((card) {
@@ -93,9 +90,10 @@ class _AllCardsScreenState extends State<AllCardsScreen>
           ]
         : [
             const _AppBar(),
-            _HorizontalScrollMenu(
-                selectedGroupIndex: selectedGroupIndex,
-                cardsNmIds: productCards.map((e) => e.nmId).toList()),
+            if (!isLoading)
+              _HorizontalScrollMenu(
+                  selectedGroupIndex: selectedGroupIndex,
+                  cardsNmIds: productCards.map((e) => e.nmId).toList()),
           ];
 
     return SafeArea(

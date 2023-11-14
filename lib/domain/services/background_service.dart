@@ -11,13 +11,11 @@ class BackgroundService {
   static DateTime? autoLastReq;
 
   static fetchAll() async {
-    print("fetchall");
     final pursuedResource = await PursuedDataProvider.getAllInBackground();
     if (pursuedResource is Error) {
       return;
     }
     final pursuedList = pursuedResource.data!;
-    print("pursuedList: ${pursuedList.length}");
     final tokenResource =
         await SecureStorageProvider.getApiKeyFromBackground('Продвижение');
     if (tokenResource is Error || tokenResource is Empty) {
@@ -25,11 +23,8 @@ class BackgroundService {
     }
     final token = tokenResource.data!;
 
-    print("token: $token");
     for (final pursued in pursuedList) {
-      print("p: ${pursued.parentId} - p: ${pursued.property}");
       if (pursued.property == "auto") {
-        print("here");
         // request to API
         if (autoLastReq != null) {
           await _ready(
@@ -39,9 +34,7 @@ class BackgroundService {
         final advertResource = await AdvertApiClient.getAutoStatInBackground(
             token.token, pursued.parentId);
         autoLastReq = DateTime.now();
-        print('advertResource.data ${advertResource.data} ${pursued.parentId}');
         if (advertResource is Error) {
-          print("error ${advertResource.message}!!!!");
           continue;
         }
         final advert = advertResource.data!;
@@ -49,10 +42,8 @@ class BackgroundService {
             await AutoStatDataProvider.saveInBackground(advert);
 
         if (saveResource is Error) {
-          print("savedresource error");
           continue;
         }
-        print("added ${advert.advertId} at ${advert.createdAt}");
       }
     }
   }

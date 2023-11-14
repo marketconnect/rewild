@@ -16,7 +16,7 @@ abstract class AutoStatViewModelAdvertService {
   Future<Resource<bool>> isPursued(int advertId);
   Future<Resource<bool>> addToTrack(int advertId);
   Future<Resource<bool>> deleteFromTrack(int advertId);
-  Future<Resource<Advert>> AdvertInfo(int advertId);
+  Future<Resource<Advert>> advertInfo(int advertId);
 }
 
 class AutoStatViewModel extends ResourceChangeNotifier {
@@ -148,7 +148,7 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   Future<void> _asyncInit() async {
     SqfliteService.printTableContent("auto_stat");
     SqfliteService.printTableContent("pursued");
-    final advertInfo = await fetch(() => advertService.AdvertInfo(advertId));
+    final advertInfo = await fetch(() => advertService.advertInfo(advertId));
     if (advertInfo == null) {
       return;
     }
