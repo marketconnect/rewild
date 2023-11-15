@@ -21,6 +21,8 @@ abstract class AdvertServiceAdvertApiClient {
   Future<Resource<bool>> startAdvert(String token, int advertId);
   Future<Resource<int>> balance(String token);
   Future<Resource<AutoStatModel>> getAutoStat(String token, int advertId);
+  Future<Resource<bool>> changeCpm(String token, int advertId, int type,
+      int cpm, int param, int? instrument);
 }
 
 // Api key
@@ -65,6 +67,7 @@ class AdvertService
   }
 
   DateTime? advertsLastReq;
+  DateTime? changeCpmLastReq;
   DateTime? advertLastReq;
   DateTime? budgetLastReq;
   DateTime? pauseLastReq;
@@ -220,6 +223,34 @@ class AdvertService
     }
 
     return Resource.success(advInfoResource.data!);
+  }
+
+  @override
+  Future<Resource<bool>> setCpm(
+      {required int advertId,
+      required int type,
+      required int cpm,
+      required int param,
+      int? instrument}) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+
+    // request to API
+    if (changeCpmLastReq != null) {
+      await _ready(changeCpmLastReq, APIConstants.cpmDurationBetweenReqInMs);
+    }
+    final changeCpmResource = await advertApiClient.changeCpm(
+        tokenResource.data!.token, advertId, type, cpm, param, instrument);
+    changeCpmLastReq = DateTime.now();
+    if (changeCpmResource is Error) {
+      return Resource.error(changeCpmResource.message!);
+    }
+    return Resource.success(changeCpmResource.data!);
   }
 
   @override

@@ -14,16 +14,20 @@ class AutoStatAdvertScreen extends StatelessWidget {
     final model = context.watch<AutoStatViewModel>();
     final isActive = model.isActive;
     final cpm = model.cpm;
+    final modalBottomState = model.modalBottomState;
+    final save = model.save;
+    final changeActivity = model.changeActivity;
     final decoration = BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.surfaceVariant),
         borderRadius: BorderRadius.circular(15),
         color: Theme.of(context).colorScheme.surface);
+
     return SafeArea(
       child: Scaffold(
           floatingActionButton: isActive
               ? FloatingActionButton(
                   onPressed: () async {
-                    _showModalBottomSheet(context, model);
+                    _showModalBottomSheet(context, modalBottomState, save);
                   },
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   child: Icon(
@@ -35,7 +39,9 @@ class AutoStatAdvertScreen extends StatelessWidget {
                   margin: const EdgeInsets.all(3),
                   width: model.screenWidth,
                   child: FloatingActionButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      await changeActivity();
+                    },
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     child: Text("Возобновить показы",
                         style: TextStyle(
@@ -69,43 +75,39 @@ class AutoStatAdvertScreen extends StatelessWidget {
                             color: Theme.of(context).colorScheme.outline),
                       ),
                     )
-                  : GestureDetector(
-                      onTap: () => print("AGHGHJGHJ"),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: model.screenWidth * 0.06,
-                              height: model.screenWidth * 0.06,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary,
-                                borderRadius:
-                                    BorderRadius.circular(model.screenWidth),
-                              ),
-                              child: Text(
-                                "CPM",
-                                style: TextStyle(
-                                  fontSize: model.screenWidth * 0.015,
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      Theme.of(context).colorScheme.background,
-                                ),
-                              ),
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: model.screenWidth * 0.06,
+                            height: model.screenWidth * 0.06,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius:
+                                  BorderRadius.circular(model.screenWidth),
                             ),
-                            SizedBox(
-                              width: model.screenWidth * 0.01,
-                            ),
-                            Text(
-                              '$cpm₽',
+                            child: Text(
+                              "CPM",
                               style: TextStyle(
+                                fontSize: model.screenWidth * 0.015,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Theme.of(context).colorScheme.background,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(
+                            width: model.screenWidth * 0.01,
+                          ),
+                          Text(
+                            '$cpm₽',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ],
                       ),
                     )
             ],
@@ -130,16 +132,16 @@ class AutoStatAdvertScreen extends StatelessWidget {
   }
 
   Future<dynamic> _showModalBottomSheet(
-      BuildContext context, AutoStatViewModel model) {
-    final isPursued = model.isPursued;
-    final isActive = model.isActive;
+      BuildContext context,
+      ModalBottomWidgetState modalBottomState,
+      Function(ModalBottomWidgetState) save) {
     return showModalBottomSheet(
         backgroundColor: Theme.of(context).colorScheme.background,
         context: context,
         isScrollControlled: true,
         builder: (context) => ModalBottomWidget(
-              isActive: isActive,
-              isPursued: isPursued,
+              state: modalBottomState,
+              saveCallback: save,
             ));
   }
 }
@@ -246,7 +248,7 @@ class _SecondRow extends StatelessWidget {
 class _Chart extends StatelessWidget {
   final List<AutoStatModel> data;
 
-  _Chart({required this.data, this.clicks = false});
+  const _Chart({required this.data, this.clicks = false});
   final bool clicks;
   @override
   Widget build(BuildContext context) {

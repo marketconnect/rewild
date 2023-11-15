@@ -13,6 +13,8 @@ class APIConstants {
   static const Duration pauseDurationBetweenReqInMs =
       Duration(milliseconds: 300);
 
+  static const Duration cpmDurationBetweenReqInMs = Duration(milliseconds: 300);
+
   // 240 запросов в минуту (4 in sec)
   // just in case make 2 requests per minute
   static const Duration budgetDurationBetweenReqInMs =

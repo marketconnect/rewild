@@ -18,8 +18,6 @@ class BackgroundService {
   static DateTime? autoLastReq;
 
   static updateInitialStocks() async {
-    print(
-        "1111111111111 UPDATAEDED INITIAL !STOCKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     // get cards from the local storage
     final cardsOfProductsResource =
         await CardOfProductDataProvider.getAllInBackGround();
@@ -54,12 +52,6 @@ class BackgroundService {
       // set were updated today
       await LastUpdateDayDataProvider.updateInBackground();
     }
-    print(
-        "UPDATAEDED INITIAL !STOCKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    print(
-        "UPDATAEDED INITIAL !STOCKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    print(
-        "UPDATAEDED INITIAL !STOCKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   }
 
   static Future<Resource<List<InitialStockModel>>>

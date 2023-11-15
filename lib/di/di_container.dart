@@ -539,7 +539,7 @@ class ScreenFactoryDefault implements ScreenFactory {
     return ChangeNotifierProvider(
       create: (context) =>
           _diContainer._makeAutoStatAdvertScreenViewModel(context, id),
-      child: AutoStatAdvertScreen(),
+      child: const AutoStatAdvertScreen(),
     );
   }
 }

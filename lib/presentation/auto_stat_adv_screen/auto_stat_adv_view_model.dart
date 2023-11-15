@@ -3,6 +3,7 @@ import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/advert_auto_model.dart';
 import 'package:rewild/domain/entities/auto_stat.dart';
+import 'package:rewild/presentation/auto_stat_adv_screen/widgets/modal_bottom_widget.dart';
 
 import '../../domain/entities/advert_base.dart';
 
@@ -17,6 +18,15 @@ abstract class AutoStatViewModelAdvertService {
   Future<Resource<bool>> addToTrack(int advertId);
   Future<Resource<bool>> deleteFromTrack(int advertId);
   Future<Resource<Advert>> advertInfo(int advertId);
+  Future<Resource<bool>> stopAdvert(int advertId);
+  Future<Resource<bool>> startAdvert(int advertId);
+
+  Future<Resource<bool>> setCpm(
+      {required int advertId,
+      required int type,
+      required int cpm,
+      required int param,
+      int? instrument});
 }
 
 class AutoStatViewModel extends ResourceChangeNotifier {
@@ -33,31 +43,53 @@ class AutoStatViewModel extends ResourceChangeNotifier {
     _asyncInit();
   }
 
+  // for change cpm
+  int subjectId = 0;
+
+  // modal bottom state
+  // is pursued
+  ModalBottomWidgetState _modalBottomState = ModalBottomWidgetState(
+    isPursued: false,
+    isActive: false,
+    cpm: 0,
+  );
+
+  ModalBottomWidgetState get modalBottomState => _modalBottomState;
+
   // is active
   bool? _isActive;
   void setActive(bool value) {
+    _modalBottomState = _modalBottomState.copyWith(
+      isActive: value,
+    );
     _isActive = value;
     notify();
   }
 
   bool get isActive => _isActive ?? false;
 
-  int? _cpm;
-  void setCpm(int value) {
-    _cpm = value;
-    notify();
-  }
-
-  int get cpm => _cpm ?? 0;
-
   // is pursued
   bool? _isPursued;
   void setPursued(bool value) {
+    _modalBottomState = _modalBottomState.copyWith(
+      isPursued: value,
+    );
     _isPursued = value;
     notify();
   }
 
   bool get isPursued => _isPursued ?? false;
+
+  int? _cpm;
+  void setCpm(int value) {
+    _modalBottomState = _modalBottomState.copyWith(
+      cpm: value,
+    );
+    _cpm = value;
+    notify();
+  }
+
+  int get cpm => _cpm ?? 0;
 
   // budget
   int? _budget;
@@ -68,13 +100,13 @@ class AutoStatViewModel extends ResourceChangeNotifier {
 
   int get budget => _budget ?? 0;
   // date and time of a momment when budget will be spent
-  String? _spentTime;
-  void setSpentTime(String value) {
-    _spentTime = value;
-    notify();
-  }
+  // String? _spentTime;
+  // void setSpentTime(String value) {
+  //   _spentTime = value;
+  //   notify();
+  // }
 
-  String get spentTime => _spentTime ?? "";
+  // String get spentTime => _spentTime ?? "";
 
   // views
   int? _views;
@@ -158,6 +190,9 @@ class AutoStatViewModel extends ResourceChangeNotifier {
           advertInfo.autoParams != null &&
           advertInfo.autoParams!.cpm != null) {
         setCpm(advertInfo.autoParams!.cpm!);
+        if (advertInfo.autoParams!.subject != null) {
+          subjectId = advertInfo.autoParams!.subject!.id!;
+        }
       }
     }
 
@@ -208,26 +243,91 @@ class AutoStatViewModel extends ResourceChangeNotifier {
         autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend;
 
     setSpentMoney('${spentMoneyDiff.toStringAsFixed(0)}₽');
-
-    // final spentTimeDiff = autoStatList[autoStatList.length - 1]
-    //     .createdAt
-    //     .difference(autoStatList[0].createdAt)
-    //     .inSeconds;
-    // if (spentTimeDiff > 3600) {
-    //   setSpentTime('${spentTimeDiff ~/ 3600}ч ${spentTimeDiff % 60}м');
-    // } else if (spentTimeDiff > 60) {
-    //   setSpentTime('${spentTimeDiff ~/ 60}м ${spentTimeDiff % 60}с');
-    // } else {
-    //   setSpentTime('${spentTimeDiff % 60}с');
-    // }
-    // final flCh = calculateAverageViewsPerMinute(
-    //     autoStatList.sublist(autoStatList.length - 8, autoStatList.length - 1));
-    // print(
-    //     'flCh.length: ${flCh.length} autoStatList length: ${autoStatList.length}');
-    // setViewsChart(flCh);
   }
 
-  Future<void> track() async {
+  Future<void> save(ModalBottomWidgetState state) async {
+    final isActive = state.isActive;
+    if (isActive != _isActive) {
+      await changeActivity();
+    }
+
+    final isPursued = state.isPursued;
+    if (isPursued != _isPursued) {
+      await changePursue();
+    }
+
+    final cpm = state.cpm;
+    if (cpm != _cpm) {
+      await changeCpm(cpm);
+    }
+
+    _asyncInit();
+  }
+
+  // Cpm callback
+  Future<void> changeCpm(int cpm) async {
+    if (_cpm == null) {
+      return;
+    }
+    await fetch(() => advertService.setCpm(
+        advertId: advertId, cpm: cpm, type: 8, param: subjectId));
+  }
+
+  // Activity callback
+  Future<void> changeActivity() async {
+    if (_isActive == null) {
+      return;
+    }
+    if (_isActive!) {
+      await _stop();
+    } else {
+      await _start();
+    }
+  }
+
+  Future<void> _start() async {
+    final adv = await fetch(() => advertService.startAdvert(advertId));
+    if (adv == null || !adv) {
+      // could not start
+      setActive(false); // still paused
+      return;
+    }
+    // done
+    setActive(true); // now active
+    return;
+  }
+
+  Future<void> _stop() async {
+    final adv = await fetch(() => advertService.stopAdvert(advertId));
+    if (adv == null || !adv) {
+      // could not stop
+      setActive(true); // still active
+      return;
+    }
+    // done
+    setActive(false); // now paused
+    return;
+  }
+
+  // Pursue callback
+  Future<void> changePursue() async {
+    if (_isPursued == null) {
+      return;
+    }
+    if (_isPursued!) {
+      await _untrack();
+    } else {
+      await _track();
+    }
+
+    final isPursued = await fetch(() => advertService.isPursued(advertId));
+    if (isPursued == null) {
+      return;
+    }
+    setPursued(isPursued);
+  }
+
+  Future<void> _track() async {
     final ok = await fetch(() => advertService.addToTrack(advertId));
     if (ok == null) {
       return;
@@ -235,7 +335,7 @@ class AutoStatViewModel extends ResourceChangeNotifier {
     setPursued(ok);
   }
 
-  Future<void> untrack() async {
+  Future<void> _untrack() async {
     final ok = await fetch(() => advertService.deleteFromTrack(advertId));
     if (ok == null) {
       return;

@@ -14,9 +14,9 @@ void callbackDispatcher() {
     switch (task) {
       case everyFifteen:
         await BackgroundService.fetchAll();
-        await BackgroundService.updateInitialStocks();
         break;
       case everyDayAtFiveMinutesAfterMidNight:
+        await BackgroundService.updateInitialStocks();
         break;
     }
     return Future.value(true);

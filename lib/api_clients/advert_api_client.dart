@@ -21,6 +21,48 @@ class AdvertApiClient
 
   // max 300 requests per minute
   @override
+  Future<Resource<bool>> changeCpm(String token, int advertId, int type,
+      int cpm, int param, int? instrument) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final body = {
+        'advertId': advertId,
+        'type': type,
+        'cpm': cpm,
+        // 'param': param.toString(),
+        // 'instrument': instrument.toString()
+      };
+
+      // if (instrument != null) {
+      //   body['instrument'] = instrument.toString();
+      // }
+      final jsonString = json.encode(body);
+      print(jsonString);
+
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v0/cpm");
+
+      var response = await http.post(uri, headers: headers, body: jsonString);
+      if (response.statusCode == 200) {
+        return Resource.success(true);
+      } else if (response.statusCode == 422) {
+        // Size of bid is not changed
+        return Resource.success(false);
+      } else if (response.statusCode == 400) {
+        return Resource.error("Incorrect campaign identifier");
+      } else if (response.statusCode == 401) {
+        return Resource.error("Empty authorization header");
+      }
+    } catch (e) {
+      return Resource.error("Unknown error");
+    }
+    return Resource.error("Unknown error");
+  }
+
+  // max 300 requests per minute
+  @override
   Future<Resource<bool>> pauseAdvert(String token, int advertId) async {
     try {
       var headers = {
