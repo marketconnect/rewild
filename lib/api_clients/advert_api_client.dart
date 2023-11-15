@@ -32,15 +32,9 @@ class AdvertApiClient
         'advertId': advertId,
         'type': type,
         'cpm': cpm,
-        // 'param': param.toString(),
-        // 'instrument': instrument.toString()
       };
 
-      // if (instrument != null) {
-      //   body['instrument'] = instrument.toString();
-      // }
       final jsonString = json.encode(body);
-      print(jsonString);
 
       var uri = Uri.https('advert-api.wb.ru', "/adv/v0/cpm");
 

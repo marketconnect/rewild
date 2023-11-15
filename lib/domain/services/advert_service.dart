@@ -308,6 +308,9 @@ class AdvertService
       APIConstants.startDurationBetweenReqInMs,
       advertApiClient.startAdvert,
     );
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!);
+    }
     if (tokenResource is Empty) {
       return Resource.success(false);
     }

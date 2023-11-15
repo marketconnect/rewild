@@ -1,9 +1,8 @@
-import 'package:fl_chart/fl_chart.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:rewild/domain/entities/auto_stat.dart';
 import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
+import 'package:rewild/presentation/auto_stat_adv_screen/widgets/chart.dart';
 import 'package:rewild/presentation/auto_stat_adv_screen/widgets/modal_bottom_widget.dart';
 
 class AutoStatAdvertScreen extends StatelessWidget {
@@ -113,6 +112,7 @@ class AutoStatAdvertScreen extends StatelessWidget {
             ],
           ),
           body: SingleChildScrollView(
+              // body ================================================== body //
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -120,12 +120,7 @@ class AutoStatAdvertScreen extends StatelessWidget {
               SizedBox(
                 height: model.screenWidth * 0.04,
               ),
-              Container(
-                margin: EdgeInsets.only(left: model.screenWidth * 0.04),
-                width: model.screenWidth * 0.92,
-                height: model.screenHeight * 0.3,
-                decoration: decoration,
-              )
+              _BottomWidget(decoration)
             ],
           ))),
     );
@@ -197,7 +192,7 @@ class _SecondRow extends StatelessWidget {
                             fontSize: MediaQuery.of(context).size.width * 0.03),
                       ),
                     )
-                  : _Chart(
+                  : Chart(
                       data: autoStatsList,
                     ),
               if (autoStatsList.isNotEmpty)
@@ -229,7 +224,7 @@ class _SecondRow extends StatelessWidget {
                                     MediaQuery.of(context).size.width * 0.03),
                           ),
                         )
-                      : _Chart(
+                      : Chart(
                           data: autoStatsList,
                           clicks: true,
                         ),
@@ -245,107 +240,67 @@ class _SecondRow extends StatelessWidget {
   }
 }
 
-class _Chart extends StatelessWidget {
-  final List<AutoStatModel> data;
-
-  const _Chart({required this.data, this.clicks = false});
-  final bool clicks;
+class _BottomWidget extends StatelessWidget {
+  const _BottomWidget(this.decoration);
+  final BoxDecoration decoration;
   @override
   Widget build(BuildContext context) {
-    List<Color> gradientColors = [
-      Theme.of(context).colorScheme.primary,
-      Theme.of(context).colorScheme.onPrimaryContainer,
-    ];
+    final model = context.watch<AutoStatViewModel>();
 
-    List<FlSpot> spots = [];
-
-    for (int i = 0; i < data.length; i++) {
-      if (i == 0) {
-        continue;
-      }
-      if (clicks) {
-        double clicksDiff = data[i].clicks - data[i - 1].clicks;
-        int viewsDiff = data[i].views - data[i - 1].views;
-        final ctr = viewsDiff == 0 ? 0 : (clicksDiff / viewsDiff) * 100;
-        spots.add(FlSpot(data[i].createdAt.millisecondsSinceEpoch.toDouble(),
-            ctr.toDouble()));
-        continue;
-      }
-      int viewsDiff = data[i].views - data[i - 1].views;
-      spots.add(FlSpot(data[i].createdAt.millisecondsSinceEpoch.toDouble(),
-          viewsDiff.toDouble()));
-    }
-
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.45,
-      height: MediaQuery.of(context).size.height * 0.25,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: LineChart(LineChartData(
-          minY: 0,
-          titlesData: FlTitlesData(
-              show: true,
-              bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        // Format the x-axis labels (e.g., using time)
-                        DateTime createdAt =
-                            DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                        String formattedTime =
-                            '${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';
-                        return RotatedBox(
-                            quarterTurns: 1,
-                            child: Text(
-                              formattedTime,
-                              style: const TextStyle(fontSize: 5),
-                            ));
-                      })),
-              topTitles: const AxisTitles(
-                  sideTitles: SideTitles(
-                showTitles: false,
-              )),
-              rightTitles: const AxisTitles(
-                  sideTitles: SideTitles(
-                showTitles: false,
-              )),
-              leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        return Text(value.toInt().toString());
-                      }))),
-          borderData: FlBorderData(
-            border: const Border(
-              top: BorderSide.none,
-              right: BorderSide.none,
-              left: BorderSide(width: 1),
-              bottom: BorderSide(width: 1),
+    final totalClicks = model.totalClicks;
+    final totalViews = model.totalViews;
+    final spentMoney = model.totalSpentMoney;
+    final ctr = model.totalCtr;
+    final cpc = model.cpc;
+    final ctrDiff = model.ctrDiff;
+    return Container(
+      decoration: decoration,
+      height: model.screenHeight * 0.25,
+      margin: EdgeInsets.only(left: model.screenWidth * 0.04),
+      width: model.screenWidth * 0.92,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(
+              "Всего по кампании",
+              style: TextStyle(fontSize: model.screenWidth * 0.05),
             ),
-          ),
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              isCurved: true,
-              color: Theme.of(context).colorScheme.primary,
-              barWidth: 2,
-              dotData: const FlDotData(show: false),
-              belowBarData: BarAreaData(
-                show: true,
-                gradient: LinearGradient(
-                  colors: [
-                    ColorTween(begin: gradientColors[0], end: gradientColors[1])
-                        .lerp(0.2)!
-                        .withOpacity(0.1),
-                    ColorTween(begin: gradientColors[0], end: gradientColors[1])
-                        .lerp(0.2)!
-                        .withOpacity(0.1),
-                  ],
-                ),
+          ]),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                _Cell(
+                    title: "ПОКАЗЫ",
+                    value: totalViews.toString(),
+                    width: model.screenWidth),
+                _Cell(
+                    title: "CTR",
+                    isCtr: true,
+                    value: "$ctr${ctrDiff.isNotEmpty ? ' ($ctrDiff)' : ''}",
+                    width: model.screenWidth),
+                _Cell(
+                    title: "ПОТРАЧЕНО",
+                    value: spentMoney,
+                    width: model.screenWidth),
+              ]),
+              SizedBox(
+                height: model.screenHeight * 0.03,
               ),
-            ),
-          ],
-        )),
+              Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                _Cell(
+                    title: "CPC",
+                    value: cpc.toString(),
+                    width: model.screenWidth),
+                _Cell(
+                    title: "КЛИКИ",
+                    value: "$totalClicks",
+                    width: model.screenWidth),
+              ]),
+            ],
+          )
+        ],
       ),
     );
   }
@@ -357,32 +312,63 @@ class _FirstRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AutoStatViewModel>();
+    final advertName = model.name;
+    final isPursued = model.isPursued;
     final views = model.views;
     final spentMoney = model.spentMoney;
-    final ctr = model.ctr;
-    final ctrDiff = model.ctrDiff;
+    final clicks = model.clicks;
+    final lastCtr = model.lastCtr.toStringAsFixed(2);
+    // final ctrDiff = model.ctrDiff;
     return SizedBox(
       height: model.screenHeight * 0.2,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text('Имя')]),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            _Cell(
-                title: "ПОКАЗЫ",
-                value: views.toString(),
-                width: model.screenWidth),
-            _Cell(
-                title: "CTR",
-                value: "$ctr${ctrDiff.isNotEmpty ? ' ($ctrDiff)' : ''}",
-                width: model.screenWidth),
-            _Cell(
-                title: "ПОТРАЧЕНО",
-                value: spentMoney,
-                width: model.screenWidth),
-          ])
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(
+              advertName,
+              style: TextStyle(
+                  fontSize: model.screenWidth * 0.045,
+                  fontWeight: FontWeight.bold),
+            )
+          ]),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                _Cell(
+                    title: "ПОКАЗЫ",
+                    value: views.toString(),
+                    width: model.screenWidth),
+                _Cell(
+                    title: "CTR",
+                    isCtr: true,
+                    value: lastCtr,
+                    width: model.screenWidth),
+                _Cell(
+                    title: "КЛИКИ",
+                    value: clicks.toString(),
+                    width: model.screenWidth),
+              ]),
+              SizedBox(
+                height: model.screenHeight * 0.01,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    isPursued ? "$spentMoney потрачено" : "не отслеживается",
+                    style: TextStyle(
+                        fontSize: model.screenWidth * 0.03,
+                        fontWeight:
+                            isPursued ? FontWeight.bold : FontWeight.normal,
+                        color:
+                            Theme.of(context).colorScheme.onPrimaryContainer),
+                  ),
+                ],
+              ),
+            ],
+          )
         ],
       ),
     );
@@ -390,11 +376,16 @@ class _FirstRow extends StatelessWidget {
 }
 
 class _Cell extends StatelessWidget {
-  const _Cell({required this.title, required this.value, required this.width});
+  const _Cell(
+      {required this.title,
+      required this.value,
+      required this.width,
+      this.isCtr = false});
 
   final String title;
   final String value;
   final double width;
+  final bool isCtr;
 
   @override
   Widget build(BuildContext context) {
@@ -405,11 +396,11 @@ class _Cell extends StatelessWidget {
           Text(title,
               style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: width * 0.03,
+                  fontSize: isCtr ? width * 0.05 : width * 0.03,
                   color: Theme.of(context).colorScheme.outline)),
-          Text(
-            value,
-          ),
+          AutoSizeText(value,
+              maxLines: 1,
+              style: TextStyle(fontSize: isCtr ? width * 0.05 : width * 0.045)),
         ],
       ),
     );

@@ -33,6 +33,7 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   final AutoStatViewModelAutoStatService autoStatService;
   final AutoStatViewModelAdvertService advertService;
   final int advertId;
+
   AutoStatViewModel({
     required super.context,
     required super.internetConnectionChecker,
@@ -68,6 +69,15 @@ class AutoStatViewModel extends ResourceChangeNotifier {
 
   bool get isActive => _isActive ?? false;
 
+  // name
+  String? _name;
+  void setName(String value) {
+    _name = value;
+    notify();
+  }
+
+  String get name => _name ?? '';
+
   // is pursued
   bool? _isPursued;
   void setPursued(bool value) {
@@ -80,6 +90,7 @@ class AutoStatViewModel extends ResourceChangeNotifier {
 
   bool get isPursued => _isPursued ?? false;
 
+  // cpm
   int? _cpm;
   void setCpm(int value) {
     _modalBottomState = _modalBottomState.copyWith(
@@ -99,16 +110,16 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   }
 
   int get budget => _budget ?? 0;
-  // date and time of a momment when budget will be spent
-  // String? _spentTime;
-  // void setSpentTime(String value) {
-  //   _spentTime = value;
-  //   notify();
-  // }
-
-  // String get spentTime => _spentTime ?? "";
 
   // views
+  int? _totalViews;
+  void setTotalViews(int value) {
+    _totalViews = value;
+    notify();
+  }
+
+  int get totalViews => _totalViews ?? 0;
+
   int? _views;
   void setViews(int value) {
     _views = value;
@@ -117,14 +128,39 @@ class AutoStatViewModel extends ResourceChangeNotifier {
 
   int get views => _views ?? 0;
 
-  // ctr
-  double? _ctr;
-  void setCtr(double value) {
-    _ctr = value;
+  // clicks
+  double? _clicks;
+  void setClicks(double value) {
+    _clicks = value;
     notify();
   }
 
-  double get ctr => _ctr ?? 0;
+  int get clicks => _clicks == null ? 0 : _clicks!.toInt();
+
+  double? _totalClicks;
+  void setTotalClicks(double value) {
+    _totalClicks = value;
+    notify();
+  }
+
+  int get totalClicks => _totalClicks == null ? 0 : _totalClicks!.toInt();
+
+  // ctr
+  double? _lastCtr;
+  void setLastCtr(double value) {
+    _lastCtr = value;
+    notify();
+  }
+
+  double get lastCtr => _lastCtr ?? 0;
+
+  double? _totalCtr;
+  void setTotalCtr(double value) {
+    _totalCtr = value;
+    notify();
+  }
+
+  double get totalCtr => _totalCtr ?? 0;
 
   // ctr diff
   String? _ctrDiff;
@@ -161,6 +197,14 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   double get cpcDiff => _cpcDiff ?? 0;
 
   // spent money
+  String? _totalSpentMoney;
+  void setTotalSpentMoney(String value) {
+    _totalSpentMoney = value;
+    notify();
+  }
+
+  String get totalSpentMoney => _totalSpentMoney ?? "";
+
   String? _spentMoney;
   void setSpentMoney(String value) {
     _spentMoney = value;
@@ -178,6 +222,7 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   List<AutoStatModel> get autoStatList => _autoStatList;
 
   Future<void> _asyncInit() async {
+    // asyncInit ================================================== asyncInit //
     SqfliteService.printTableContent("auto_stat");
     SqfliteService.printTableContent("pursued");
     final advertInfo = await fetch(() => advertService.advertInfo(advertId));
@@ -195,6 +240,8 @@ class AutoStatViewModel extends ResourceChangeNotifier {
         }
       }
     }
+
+    setName(advertInfo.name);
 
     final isPursued = await fetch(() => advertService.isPursued(advertId));
     if (isPursued == null) {
@@ -220,10 +267,30 @@ class AutoStatViewModel extends ResourceChangeNotifier {
     // views
     final viewsDiff =
         autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
+
+    setTotalViews(autoStatList[autoStatList.length - 1].views);
     setViews(viewsDiff);
 
+    // clicks
+    final clicksDiff =
+        autoStatList[autoStatList.length - 1].clicks - autoStatList[0].clicks;
+    setClicks(clicksDiff);
+    setTotalClicks(autoStatList[autoStatList.length - 1].clicks);
+    // ctr
     final ctr = autoStatList[autoStatList.length - 1].ctr;
-    setCtr(ctr);
+    setTotalCtr(ctr);
+
+    // ctr last
+    final lastViewsDif =
+        autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
+    if (lastViewsDif > 0) {
+      final lastCtrDif = (autoStatList[autoStatList.length - 1].clicks -
+              autoStatList[0].clicks) *
+          100 /
+          lastViewsDif;
+      setLastCtr(lastCtrDif);
+    }
+
     // ctr diff
     final ctrDiff =
         autoStatList[autoStatList.length - 1].ctr - autoStatList[0].ctr;
@@ -239,10 +306,11 @@ class AutoStatViewModel extends ResourceChangeNotifier {
     setCpcDiff(cpcDiff);
 
     // spent money
-    final spentMoneyDiff =
-        autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend;
+    setTotalSpentMoney(
+        '${autoStatList[autoStatList.length - 1].spend.toStringAsFixed(0)}₽');
 
-    setSpentMoney('${spentMoneyDiff.toStringAsFixed(0)}₽');
+    setSpentMoney(
+        '${(autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend).toStringAsFixed(0)}₽');
   }
 
   Future<void> save(ModalBottomWidgetState state) async {
