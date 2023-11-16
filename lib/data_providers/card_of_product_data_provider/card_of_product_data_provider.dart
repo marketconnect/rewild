@@ -39,7 +39,7 @@ class CardOfProductDataProvider
       return Resource.success(image.toString());
     } catch (e) {
       return Resource.error(
-        'Не удалось получить картинку из памяти телефона: ${e.toString()}',
+        'Не удалось получить картинку из памяти телефона: ${e.toString()} id:$id',
       );
     }
   }

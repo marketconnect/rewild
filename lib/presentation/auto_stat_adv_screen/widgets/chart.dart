@@ -7,6 +7,16 @@ class Chart extends StatelessWidget {
 
   const Chart({super.key, required this.data, this.clicks = false});
   final bool clicks;
+
+  bool dateInList(DateTime date, List<DateTime> list) {
+    return list.any((element) =>
+        element.day == date.day &&
+        element.month == date.month &&
+        element.year == date.year &&
+        element.hour == date.hour &&
+        element.minute == date.minute);
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Color> gradientColors = [
@@ -22,7 +32,7 @@ class Chart extends StatelessWidget {
       }
       if (clicks) {
         double clicksDiff = data[i].clicks - data[i - 1].clicks;
-        print(data[i].createdAt.millisecondsSinceEpoch.toDouble());
+        // print(data[i].createdAt.millisecondsSinceEpoch.toDouble());
         // int viewsDiff = data[i].views - data[i - 1].views;
         // final ctr = viewsDiff == 0 ? 0 : (clicksDiff / viewsDiff) * 100;
         spots.add(FlSpot(data[i].createdAt.millisecondsSinceEpoch.toDouble(),
@@ -33,6 +43,8 @@ class Chart extends StatelessWidget {
       spots.add(FlSpot(data[i].createdAt.millisecondsSinceEpoch.toDouble(),
           viewsDiff.toDouble()));
     }
+
+    final times = data.map((e) => e.createdAt).toList();
 
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.45,
@@ -48,6 +60,11 @@ class Chart extends StatelessWidget {
                       interval: 1000 * 60 * 60,
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
+                        // final spotTime =
+                        //     DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                        // if (!dateInList(spotTime, times)) {
+                        //   return const SizedBox();
+                        // }
                         DateTime createdAt =
                             DateTime.fromMillisecondsSinceEpoch(value.toInt());
                         String formattedTime =
@@ -120,15 +137,34 @@ class Chart extends StatelessWidget {
                 getTooltipItems: (touchedSpots) {
                   return touchedSpots.map(
                     (LineBarSpot touchedSpot) {
+                      String tooltipText = "";
+                      final index = touchedSpot.spotIndex;
+
+                      final prevTime = spots[index - 1].x;
+                      if (index > 0) {
+                        final timeDif =
+                            (spots[index].x - prevTime.toInt()) / 60000;
+
+                        if (timeDif > 1) {
+                          tooltipText = " за ${timeDif.toStringAsFixed(0)} мин";
+                        }
+                      }
+
                       final textStyle = TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       );
                       return LineTooltipItem(
-                        spots[touchedSpot.spotIndex].y.toStringAsFixed(2),
-                        textStyle,
-                      );
+                          spots[touchedSpot.spotIndex].y.toStringAsFixed(0),
+                          textStyle,
+                          children: [
+                            TextSpan(
+                                text: tooltipText,
+                                style: TextStyle(
+                                  fontSize: 7,
+                                ))
+                          ]);
                     },
                   ).toList();
                 },

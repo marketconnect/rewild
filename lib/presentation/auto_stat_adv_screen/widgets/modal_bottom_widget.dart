@@ -191,7 +191,7 @@ class _ModalBottomWidgetState extends State<ModalBottomWidget> {
                                           .withOpacity(0.8),
                                       fontSize:
                                           MediaQuery.of(context).size.width *
-                                              0.04,
+                                              0.05,
                                       fontWeight: FontWeight.w500),
                                 ),
                               ],
@@ -427,78 +427,89 @@ class _NumericStepButtonState extends State<NumericStepButton> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Container(
-      padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.05),
+      padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.05),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
           border: Border.all(
             color: Theme.of(context).colorScheme.surfaceVariant,
           )),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: screenWidth * 0.05),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '$counter',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 18.0,
-                fontWeight: FontWeight.w500,
-              ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '$counter',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontSize: 18.0,
+              fontWeight: FontWeight.w500,
             ),
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    longPressEnd = false;
-                    setState(() {
-                      if (counter == 0) {
-                        return;
-                      }
-                      counter--;
-                      widget.onChanged(counter);
-                    });
-                  },
-                  onLongPress: () {
-                    _decrease();
-                  },
-                  onLongPressEnd: (details) {
-                    longPressEnd = true;
-                  },
-                  child: Container(
-                    width: screenWidth * 0.1,
-                    height: screenWidth * 0.1,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(screenWidth),
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                    ),
-                    child: Icon(
-                      Icons.remove,
-                      size: screenWidth * 0.05,
+          ),
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  longPressEnd = false;
+                  setState(() {
+                    if (counter == 0) {
+                      return;
+                    }
+                    counter--;
+                    widget.onChanged(counter);
+                  });
+                },
+                onLongPress: () {
+                  _decrease();
+                },
+                onLongPressEnd: (details) {
+                  longPressEnd = true;
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                    color: Colors.transparent,
+                  )),
+                  child: Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.05),
+                    child: Container(
+                      width: screenWidth * 0.1,
+                      height: screenWidth * 0.1,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(screenWidth),
+                        color: Theme.of(context).colorScheme.surfaceVariant,
+                      ),
+                      child: Icon(
+                        Icons.remove,
+                        size: screenWidth * 0.05,
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: screenWidth * 0.05,
-                ),
-                GestureDetector(
-                  onLongPress: () {
-                    longPressEnd = false;
-                    _increase();
-                  },
-                  onLongPressEnd: (details) {
-                    longPressEnd = true;
-                  },
-                  onTap: () {
-                    setState(() {
-                      counter++;
-                      widget.onChanged(counter);
-                    });
-                  },
+              ),
+              GestureDetector(
+                onLongPress: () {
+                  longPressEnd = false;
+                  _increase();
+                },
+                onLongPressEnd: (details) {
+                  longPressEnd = true;
+                },
+                onTap: () {
+                  setState(() {
+                    counter++;
+                    widget.onChanged(counter);
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                    color: Colors.transparent,
+                  )),
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.05),
                     child: Container(
                       width: screenWidth * 0.1,
                       height: screenWidth * 0.1,
@@ -513,10 +524,10 @@ class _NumericStepButtonState extends State<NumericStepButton> {
                     ),
                   ),
                 ),
-              ],
-            )
-          ],
-        ),
+              ),
+            ],
+          )
+        ],
       ),
     );
   }

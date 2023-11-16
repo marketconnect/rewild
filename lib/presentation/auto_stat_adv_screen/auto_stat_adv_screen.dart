@@ -255,7 +255,7 @@ class _BottomWidget extends StatelessWidget {
     final ctrDiff = model.ctrDiff;
     return Container(
       decoration: decoration,
-      height: model.screenHeight * 0.25,
+      height: model.screenHeight * 0.26,
       margin: EdgeInsets.only(left: model.screenWidth * 0.04),
       width: model.screenWidth * 0.92,
       child: Column(
