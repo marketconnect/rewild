@@ -1,23 +1,43 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:rewild/widgets/progress_indicator.dart';
 
 class ModalBottomWidgetState {
   final bool isPursued;
   final bool isActive;
+  final bool trackBudget;
+  final int minBudget;
+  final bool trackcpm;
+  final int minCpm;
   final int cpm;
   ModalBottomWidgetState(
-      {required this.isPursued, required this.isActive, required this.cpm});
+      {required this.trackBudget,
+      required this.minBudget,
+      required this.trackcpm,
+      required this.minCpm,
+      required this.isPursued,
+      required this.isActive,
+      required this.cpm});
 
   ModalBottomWidgetState copyWith({
     bool? isPursued,
     bool? isActive,
     int? cpm,
+    bool? trackBudget,
+    int? minBudget,
+    bool? trackcpm,
+    int? minCpm,
   }) {
     return ModalBottomWidgetState(
       isPursued: isPursued ?? this.isPursued,
       isActive: isActive ?? this.isActive,
       cpm: cpm ?? this.cpm,
+      trackBudget: trackBudget ?? this.trackBudget,
+      minBudget: minBudget ?? this.minBudget,
+      trackcpm: trackcpm ?? this.trackcpm,
+      minCpm: minCpm ?? this.minCpm,
     );
   }
 }
@@ -189,7 +209,79 @@ class _ModalBottomWidgetState extends State<ModalBottomWidget> {
                     // const _Btn()
                   ]),
                 ),
-                Container(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.03,
+                    ),
+                    _ModalBottomCard(
+                      isSwitched: isActive,
+                      text: isActive ? "Приостановить" : "Запустить",
+                      callback: () async {
+                        setState(() {
+                          state = state!.copyWith(
+                            isActive: !isActive,
+                          );
+                        });
+                      },
+                    ),
+                    _ModalBottomCard(
+                      isSwitched: isPursued,
+                      text:
+                          isPursued ? "Завершить отслеживание" : "Отслеживать",
+                      callback: () async {
+                        setState(() {
+                          state = state!.copyWith(
+                            isPursued: !isPursued,
+                          );
+                        });
+                      },
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).size.height * 0.015),
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.transparent,
+                      ),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: screenHeight * 0.05,
+                                ),
+                                Text(
+                                  'Менее чем, ₽',
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer
+                                          .withOpacity(0.8),
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.04,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: screenHeight * 0.01,
+                            ),
+                            NumericStepButton(
+                              currentValue: state!.cpm,
+                              onChanged: (value) => setState(
+                                  () => state = state!.copyWith(cpm: value)),
+                            )
+                          ]),
+                    )
+                    // const _Btn()
+                  ]),
+                ),
                 Container(),
               ])),
         ),
@@ -280,19 +372,14 @@ class _ModalBottomCardState extends State<_ModalBottomCard> {
 }
 
 class NumericStepButton extends StatefulWidget {
-  // final int minValue;
-  // final int maxValue;
   final int currentValue;
-
   final ValueChanged<int> onChanged;
-
   const NumericStepButton(
       {super.key,
       // required this.minValue,
       // required this.maxValue,
       required this.onChanged,
       required this.currentValue});
-
   @override
   State<NumericStepButton> createState() {
     return _NumericStepButtonState();
@@ -301,10 +388,39 @@ class NumericStepButton extends StatefulWidget {
 
 class _NumericStepButtonState extends State<NumericStepButton> {
   int counter = 0;
+  bool longPressEnd = false;
   @override
   void initState() {
     super.initState();
     counter = widget.currentValue;
+  }
+
+  void _increase() {
+    Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (longPressEnd) {
+        timer.cancel();
+        longPressEnd = false;
+        return;
+      }
+      setState(() {
+        counter += 5;
+        widget.onChanged(counter);
+      });
+    });
+  }
+
+  void _decrease() {
+    Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (counter == 0 || longPressEnd) {
+        timer.cancel();
+        longPressEnd = false;
+        return;
+      }
+      setState(() {
+        counter -= 5;
+        widget.onChanged(counter);
+      });
+    });
   }
 
   @override
@@ -336,10 +452,20 @@ class _NumericStepButtonState extends State<NumericStepButton> {
               children: [
                 GestureDetector(
                   onTap: () {
+                    longPressEnd = false;
                     setState(() {
+                      if (counter == 0) {
+                        return;
+                      }
                       counter--;
                       widget.onChanged(counter);
                     });
+                  },
+                  onLongPress: () {
+                    _decrease();
+                  },
+                  onLongPressEnd: (details) {
+                    longPressEnd = true;
                   },
                   child: Container(
                     width: screenWidth * 0.1,
@@ -358,23 +484,32 @@ class _NumericStepButtonState extends State<NumericStepButton> {
                   width: screenWidth * 0.05,
                 ),
                 GestureDetector(
+                  onLongPress: () {
+                    longPressEnd = false;
+                    _increase();
+                  },
+                  onLongPressEnd: (details) {
+                    longPressEnd = true;
+                  },
                   onTap: () {
                     setState(() {
                       counter++;
-
                       widget.onChanged(counter);
                     });
                   },
-                  child: Container(
-                    width: screenWidth * 0.1,
-                    height: screenWidth * 0.1,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(screenWidth),
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                    ),
-                    child: Icon(
-                      Icons.add,
-                      size: screenWidth * 0.05,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: screenWidth * 0.1,
+                      height: screenWidth * 0.1,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(screenWidth),
+                        color: Theme.of(context).colorScheme.surfaceVariant,
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        size: screenWidth * 0.05,
+                      ),
                     ),
                   ),
                 ),

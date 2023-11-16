@@ -249,7 +249,7 @@ class _BottomWidget extends StatelessWidget {
 
     final totalClicks = model.totalClicks;
     final totalViews = model.totalViews;
-    final spentMoney = model.totalSpentMoney;
+    final budget = model.budget;
     final ctr = model.totalCtr;
     final cpc = model.cpc;
     final ctrDiff = model.ctrDiff;
@@ -281,8 +281,8 @@ class _BottomWidget extends StatelessWidget {
                     value: "$ctr${ctrDiff.isNotEmpty ? ' ($ctrDiff)' : ''}",
                     width: model.screenWidth),
                 _Cell(
-                    title: "ПОТРАЧЕНО",
-                    value: spentMoney,
+                    title: "КЛИКИ",
+                    value: "$totalClicks",
                     width: model.screenWidth),
               ]),
               SizedBox(
@@ -294,8 +294,8 @@ class _BottomWidget extends StatelessWidget {
                     value: cpc.toString(),
                     width: model.screenWidth),
                 _Cell(
-                    title: "КЛИКИ",
-                    value: "$totalClicks",
+                    title: "БЮДЖЕТ",
+                    value: '${budget.toString()}₽',
                     width: model.screenWidth),
               ]),
             ],

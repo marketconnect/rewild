@@ -53,6 +53,10 @@ class AutoStatViewModel extends ResourceChangeNotifier {
     isPursued: false,
     isActive: false,
     cpm: 0,
+    trackBudget: false,
+    minBudget: 0,
+    trackcpm: false,
+    minCpm: 0,
   );
 
   ModalBottomWidgetState get modalBottomState => _modalBottomState;

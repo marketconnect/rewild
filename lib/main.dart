@@ -5,8 +5,8 @@ import 'package:rewild/domain/services/background_service.dart';
 import 'package:workmanager/workmanager.dart';
 
 const everyFifteen = "everyFifteen";
-const everyDayAtFiveMinutesAfterMidNight =
-    "fetchEveryDayAtFiveMinutesAfterMidNight";
+const everyDayAtFirstHourAfterMidNight =
+    "fetchEveryDayAtFirstHourAfterMidNight";
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -15,7 +15,7 @@ void callbackDispatcher() {
       case everyFifteen:
         await BackgroundService.fetchAll();
         break;
-      case everyDayAtFiveMinutesAfterMidNight:
+      case everyDayAtFirstHourAfterMidNight:
         await BackgroundService.updateInitialStocks();
         break;
     }
@@ -48,14 +48,17 @@ Future<void> main() async {
   );
 
   DateTime now = DateTime.now();
-  DateTime fifteenMinutesAfterMidNight =
-      DateTime(now.year, now.month, now.day + 1, 0, 15);
+  // to get rid of simultaneous requests at the same time
+  final minutes = now.minute > 15 ? now.minute : now.minute + 15;
 
-  final initialDelay = fifteenMinutesAfterMidNight.difference(now);
+  DateTime firstHourAfterMidNight =
+      DateTime(now.year, now.month, now.day + 1, 0, minutes);
+
+  final initialDelay = firstHourAfterMidNight.difference(now);
 
   await Workmanager().registerPeriodicTask(
-    everyDayAtFiveMinutesAfterMidNight,
-    everyDayAtFiveMinutesAfterMidNight,
+    everyDayAtFirstHourAfterMidNight,
+    everyDayAtFirstHourAfterMidNight,
     frequency: const Duration(days: 1),
     initialDelay: initialDelay,
     constraints: Constraints(

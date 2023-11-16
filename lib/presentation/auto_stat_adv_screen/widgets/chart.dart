@@ -22,6 +22,7 @@ class Chart extends StatelessWidget {
       }
       if (clicks) {
         double clicksDiff = data[i].clicks - data[i - 1].clicks;
+        print(data[i].createdAt.millisecondsSinceEpoch.toDouble());
         // int viewsDiff = data[i].views - data[i - 1].views;
         // final ctr = viewsDiff == 0 ? 0 : (clicksDiff / viewsDiff) * 100;
         spots.add(FlSpot(data[i].createdAt.millisecondsSinceEpoch.toDouble(),
@@ -44,9 +45,9 @@ class Chart extends StatelessWidget {
               show: true,
               bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
+                      interval: 1000 * 60 * 60,
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        // Format the x-axis labels (e.g., using time)
                         DateTime createdAt =
                             DateTime.fromMillisecondsSinceEpoch(value.toInt());
                         String formattedTime =
