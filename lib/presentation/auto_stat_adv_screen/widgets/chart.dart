@@ -44,7 +44,7 @@ class Chart extends StatelessWidget {
           viewsDiff.toDouble()));
     }
 
-    final times = data.map((e) => e.createdAt).toList();
+    // final times = data.map((e) => e.createdAt).toList();
 
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.45,

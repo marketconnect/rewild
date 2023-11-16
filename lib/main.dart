@@ -13,10 +13,18 @@ void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     switch (task) {
       case everyFifteen:
-        await BackgroundService.fetchAll();
+        try {
+          await BackgroundService.fetchAll();
+        } catch (e) {
+          throw Exception(e);
+        }
         break;
       case everyDayAtFirstHourAfterMidNight:
-        await BackgroundService.updateInitialStocks();
+        try {
+          await BackgroundService.updateInitialStocks();
+        } catch (e) {
+          throw Exception(e);
+        }
         break;
     }
     return Future.value(true);
@@ -66,6 +74,8 @@ Future<void> main() async {
     ),
   );
 
+  // NotificationService().initialise();
+  // NotificationService.stylishNotification("a", "htmlString");
   final app = appFactory.makeApp();
   runApp(app);
 }

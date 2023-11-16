@@ -147,33 +147,6 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
     }
   }
 
-  // Future<bool> stopAdvert(int id) async {
-  //   final adv = await fetch(() => advertService.stopAdvert(id));
-  //   if (adv == null) {
-  //     return false;
-  //   }
-  //   if (adv) {
-  //     setPaused(id);
-  //   } else {
-  //     unSetPaused(id);
-  //   }
-  //   notify();
-  //   return adv;
-  // }
-
-  // Future<bool> startAdvert(int id) async {
-  //   final adv = await fetch(() => advertService.stopAdvert(id));
-  //   if (adv == null) {
-  //     return false;
-  //   }
-  //   if (adv) {
-  //     unSetPaused(id);
-  //   } else {
-  //     setPaused(id);
-  //   }
-  //   return adv;
-  // }
-
   // ApiKeyExists
   bool _apiKeyExists = false;
   void setApiKeyExists(bool value) {

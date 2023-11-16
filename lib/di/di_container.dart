@@ -39,6 +39,7 @@ import 'package:rewild/domain/services/commission_service.dart';
 import 'package:rewild/domain/services/group_service.dart';
 import 'package:rewild/domain/services/init_stock_service.dart';
 import 'package:rewild/domain/services/internet_connection_checke.dart';
+
 import 'package:rewild/domain/services/orders_history_service.dart';
 
 import 'package:rewild/domain/services/seller_service.dart';
@@ -99,6 +100,7 @@ class _AppFactoryDefault implements AppFactory {
 
 class _DIContainer {
   _DIContainer();
+
   // streams ===================================================================
 
   // Api Key Exist (AdvertService --> BottomNavigationViewModel)
@@ -415,22 +417,6 @@ class _DIContainer {
         autoStatService: _makeAutoStatService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
-
-  // AllSellersScreenViewModel _makeAllSellersScreenViewModel(
-  //         BuildContext context) =>
-  //     AllSellersScreenViewModel(
-  //         context: context,
-  //         cardsService: _makeCardOfProductService(),
-  //         sellersService: _makeSellerService());
-
-  // SingleSellerViewModel _makeSingleSellerScreenViewModel(
-  //         BuildContext context, int id) =>
-  //     SingleSellerViewModel(
-  //       context: context,
-  //       supplireId: id,
-  //       cardOfProductService: _makeCardOfProductService(),
-  //       // priceHistoryService: _makePriceHistoryService()
-  //     );
 }
 
 class ScreenFactoryDefault implements ScreenFactory {

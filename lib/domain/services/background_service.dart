@@ -1,3 +1,4 @@
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:rewild/api_clients/advert_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/core/constants.dart';
@@ -13,7 +14,47 @@ import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.
 import 'package:rewild/domain/entities/initial_stock_model.dart';
 
 class BackgroundService {
-  BackgroundService();
+  BackgroundService() {
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    // const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('ic_launcher');
+    final DarwinInitializationSettings initializationSettingsDarwin =
+        DarwinInitializationSettings(
+            onDidReceiveLocalNotification: _onDidReceiveLocalNotification);
+    const LinuxInitializationSettings initializationSettingsLinux =
+        LinuxInitializationSettings(defaultActionName: 'Open notification');
+
+    final InitializationSettings initializationSettings =
+        InitializationSettings(
+            android: initializationSettingsAndroid,
+            iOS: initializationSettingsDarwin,
+            linux: initializationSettingsLinux);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse);
+  }
+  static final FlutterLocalNotificationsPlugin
+      _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  void _onDidReceiveLocalNotification(
+      int id, String? title, String? body, String? payload) async {}
+  void _onDidReceiveNotificationResponse(
+      NotificationResponse notificationResponse) async {}
+
+  static Future _instantNotification(String title, String body) async {
+    const AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails('id', 'channel',
+            channelDescription: 'description',
+            importance: Importance.max,
+            priority: Priority.high,
+            ticker: 'ticker');
+
+    const NotificationDetails notificationDetails =
+        NotificationDetails(android: androidNotificationDetails);
+    await _flutterLocalNotificationsPlugin
+        .show(0, title, body, notificationDetails, payload: 'item x');
+  }
 
   static DateTime? autoLastReq;
 
@@ -119,6 +160,9 @@ class BackgroundService {
         }
       }
     }
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    await _instantNotification("Ураааааа", "ЗАНОТИФИКАЦИЯ");
+    print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ");
   }
 
   static Future<void> _ready(DateTime? lastReq, Duration duration) async {
