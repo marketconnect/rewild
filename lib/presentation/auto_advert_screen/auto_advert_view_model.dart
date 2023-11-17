@@ -1,18 +1,20 @@
+import 'package:flutter/foundation.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/advert_auto_model.dart';
 import 'package:rewild/domain/entities/auto_stat.dart';
-import 'package:rewild/presentation/auto_stat_adv_screen/widgets/modal_bottom_widget.dart';
+import 'package:rewild/domain/entities/notificate.dart';
+import 'package:rewild/presentation/auto_advert_screen/widgets/modal_bottom_widget.dart';
 
 import '../../domain/entities/advert_base.dart';
 
-abstract class AutoStatViewModelAutoStatService {
+abstract class AutoAdvertViewModelAutoAdvertService {
   Future<Resource<AutoStatModel>> getCurrent(int advertId);
   Future<Resource<List<AutoStatModel>>> getAll(int advertId);
 }
 
-abstract class AutoStatViewModelAdvertService {
+abstract class AutoAdvertViewModelAdvertService {
   Future<Resource<int>> getBudget(int advertId);
   Future<Resource<bool>> isPursued(int advertId);
   Future<Resource<bool>> addToTrack(int advertId);
@@ -29,21 +31,30 @@ abstract class AutoStatViewModelAdvertService {
       int? instrument});
 }
 
-class AutoStatViewModel extends ResourceChangeNotifier {
-  final AutoStatViewModelAutoStatService autoStatService;
-  final AutoStatViewModelAdvertService advertService;
+abstract class AutoAdvertViewModelNotificationService {
+  Future<Resource<void>> addNotification(NotificationModel notificate);
+  Future<Resource<void>> delete(int parentId, String property);
+  Future<Resource<List<NotificationModel>>> getForParent(int parentId);
+}
+
+class AutoAdvertViewModel extends ResourceChangeNotifier {
+  final AutoAdvertViewModelAutoAdvertService autoStatService;
+  final AutoAdvertViewModelAdvertService advertService;
+  final AutoAdvertViewModelNotificationService notificationService;
   final int advertId;
 
-  AutoStatViewModel({
+  AutoAdvertViewModel({
     required super.context,
     required super.internetConnectionChecker,
     required this.autoStatService,
     required this.advertService,
+    required this.notificationService,
     required this.advertId,
   }) {
     _asyncInit();
   }
 
+  // FIELDS =============================================================== FIELDS
   // for change cpm
   int subjectId = 0;
 
@@ -57,6 +68,7 @@ class AutoStatViewModel extends ResourceChangeNotifier {
     minBudget: 0,
     trackcpm: false,
     minCpm: 0,
+    notifications: {},
   );
 
   ModalBottomWidgetState get modalBottomState => _modalBottomState;
@@ -93,6 +105,21 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   }
 
   bool get isPursued => _isPursued ?? false;
+
+  // notifications
+  Map<String, double>? _notifications;
+  void setNotifications(List<NotificationModel> value) {
+    for (NotificationModel notification in value) {
+      _notifications![notification.property] = notification.minValue ?? 0;
+    }
+    _modalBottomState = _modalBottomState.copyWith(
+      notifications: notifications,
+    );
+    // _notifications = value;
+    notify();
+  }
+
+  Map<String, double> get notifications => _notifications ?? {};
 
   // cpm
   int? _cpm;
@@ -225,11 +252,64 @@ class AutoStatViewModel extends ResourceChangeNotifier {
 
   List<AutoStatModel> get autoStatList => _autoStatList;
 
+  // PUBLIC METHODS ======================================================================== PUBLIC METHODS
+  // saves changes from modal bottom widget to local storage and Wb API
+  // updates screen
+  Future<void> save(ModalBottomWidgetState state) async {
+    final isActive = state.isActive;
+    if (isActive != _isActive) {
+      await changeActivity();
+    }
+
+    final isPursued = state.isPursued;
+    if (isPursued != _isPursued) {
+      await _changePursue();
+    }
+
+    final cpm = state.cpm;
+    if (cpm != _cpm) {
+      await _changeCpm(cpm);
+    }
+
+    final notifications = state.notifications;
+    if (!mapEquals(notifications, _notifications)) {
+      await _changeNotifications(notifications);
+    }
+
+    _asyncInit();
+  }
+
+  // Starts or stops advert
+  Future<void> changeActivity() async {
+    if (_isActive == null) {
+      return;
+    }
+    if (_isActive!) {
+      await _stop();
+    } else {
+      await _start();
+    }
+  }
+
+  // PRIVATE METHODS ======================================================================== PRIVATE METHODS
   Future<void> _asyncInit() async {
-    // asyncInit ================================================== asyncInit //
     SqfliteService.printTableContent("auto_stat");
     SqfliteService.printTableContent("pursued");
-    final advertInfo = await fetch(() => advertService.advertInfo(advertId));
+
+    final values = await Future.wait([
+      fetch(() => advertService.advertInfo(advertId)), // advertInfo
+      fetch(() => advertService.isPursued(advertId)), // isPursued
+      fetch(() => advertService.getBudget(advertId)), // budget
+      fetch(() => autoStatService.getAll(advertId)), // autoStatList
+      fetch(() => notificationService.getForParent(advertId)), // notification
+    ]);
+
+    // Advert Info
+    final advertInfo = values[0] as Advert?;
+    final isPursued = values[1] as bool?;
+    final budget = values[2] as int?;
+    final autoStatList = values[3] as List<AutoStatModel>?;
+    final notificationList = values[4] as List<NotificationModel>?;
     if (advertInfo == null) {
       return;
     }
@@ -247,20 +327,25 @@ class AutoStatViewModel extends ResourceChangeNotifier {
 
     setName(advertInfo.name);
 
-    final isPursued = await fetch(() => advertService.isPursued(advertId));
+    // Pursued
     if (isPursued == null) {
       return;
     }
     setPursued(isPursued);
 
-    // BackgroundService.addAutoAdvert(advertId);
-    final budget = await fetch(() => advertService.getBudget(advertId));
+    // Budget
     if (budget == null) {
       return;
     }
     setBudget(budget);
-    // final all
-    final autoStatList = await fetch(() => autoStatService.getAll(advertId));
+
+    // notification
+    if (notificationList == null) {
+      return;
+    }
+    setNotifications(notificationList);
+
+    // AutoStat List ==================================
     if (autoStatList == null || autoStatList.isEmpty) {
       return;
     }
@@ -268,23 +353,24 @@ class AutoStatViewModel extends ResourceChangeNotifier {
       (a, b) => a.createdAt.compareTo(b.createdAt),
     );
     setAutoStatList(autoStatList);
-    // views
+
+    // set views
     final viewsDiff =
         autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
 
     setTotalViews(autoStatList[autoStatList.length - 1].views);
     setViews(viewsDiff);
 
-    // clicks
+    // set clicks
     final clicksDiff =
         autoStatList[autoStatList.length - 1].clicks - autoStatList[0].clicks;
     setClicks(clicksDiff);
     setTotalClicks(autoStatList[autoStatList.length - 1].clicks);
-    // ctr
+    // set ctr
     final ctr = autoStatList[autoStatList.length - 1].ctr;
     setTotalCtr(ctr);
 
-    // ctr last
+    // set ctr last
     final lastViewsDif =
         autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
     if (lastViewsDif > 0) {
@@ -295,66 +381,26 @@ class AutoStatViewModel extends ResourceChangeNotifier {
       setLastCtr(lastCtrDif);
     }
 
-    // ctr diff
+    // set ctr diff
     final ctrDiff =
         autoStatList[autoStatList.length - 1].ctr - autoStatList[0].ctr;
     setCtrDiff(ctrDiff);
 
-    // cpc
+    // set cpc
     final cpc = autoStatList[autoStatList.length - 1].cpc;
     setCpc(cpc);
 
-    // cpc diff
+    // set cpc diff
     final cpcDiff =
         autoStatList[autoStatList.length - 1].cpc - autoStatList[0].cpc;
     setCpcDiff(cpcDiff);
 
-    // spent money
+    // set spent money
     setTotalSpentMoney(
         '${autoStatList[autoStatList.length - 1].spend.toStringAsFixed(0)}₽');
 
     setSpentMoney(
         '${(autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend).toStringAsFixed(0)}₽');
-  }
-
-  Future<void> save(ModalBottomWidgetState state) async {
-    final isActive = state.isActive;
-    if (isActive != _isActive) {
-      await changeActivity();
-    }
-
-    final isPursued = state.isPursued;
-    if (isPursued != _isPursued) {
-      await changePursue();
-    }
-
-    final cpm = state.cpm;
-    if (cpm != _cpm) {
-      await changeCpm(cpm);
-    }
-
-    _asyncInit();
-  }
-
-  // Cpm callback
-  Future<void> changeCpm(int cpm) async {
-    if (_cpm == null) {
-      return;
-    }
-    await fetch(() => advertService.setCpm(
-        advertId: advertId, cpm: cpm, type: 8, param: subjectId));
-  }
-
-  // Activity callback
-  Future<void> changeActivity() async {
-    if (_isActive == null) {
-      return;
-    }
-    if (_isActive!) {
-      await _stop();
-    } else {
-      await _start();
-    }
   }
 
   Future<void> _start() async {
@@ -382,7 +428,7 @@ class AutoStatViewModel extends ResourceChangeNotifier {
   }
 
   // Pursue callback
-  Future<void> changePursue() async {
+  Future<void> _changePursue() async {
     if (_isPursued == null) {
       return;
     }
@@ -413,5 +459,34 @@ class AutoStatViewModel extends ResourceChangeNotifier {
       return;
     }
     setPursued(ok);
+  }
+
+  Future<void> _changeCpm(int cpm) async {
+    if (_cpm == null) {
+      return;
+    }
+    await fetch(() => advertService.setCpm(
+        advertId: advertId, cpm: cpm, type: 8, param: subjectId));
+  }
+
+  Future<void> _changeNotifications(Map<String, double> notifications) async {
+    if (_cpm == null) {
+      return;
+    }
+    await fetch(() => advertService.setCpm(
+        advertId: advertId, cpm: _cpm!, type: 8, param: subjectId));
+  }
+
+  Future<void> _saveNotification(String property, double minValue) {
+    final newNotification = NotificationModel(
+      parentId: advertId,
+      property: property,
+      minValue: minValue,
+    );
+    return fetch(() => notificationService.addNotification(newNotification));
+  }
+
+  Future<void> _deleteNotification(String property) {
+    return fetch(() => notificationService.delete(advertId, property));
   }
 }

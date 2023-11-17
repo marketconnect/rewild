@@ -20,6 +20,7 @@ import 'package:rewild/data_providers/filter_data_provider/filter_data_provider.
 import 'package:rewild/data_providers/group_data_provider/group_data_provider.dart';
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
+import 'package:rewild/data_providers/notificate_data_provider/notificate_data_provider.dart';
 import 'package:rewild/data_providers/orders_history_data_provider/orders_history_data_provider.dart';
 import 'package:rewild/data_providers/pursued_data_provider/pursued_data_provider.dart';
 
@@ -39,6 +40,7 @@ import 'package:rewild/domain/services/commission_service.dart';
 import 'package:rewild/domain/services/group_service.dart';
 import 'package:rewild/domain/services/init_stock_service.dart';
 import 'package:rewild/domain/services/internet_connection_checke.dart';
+import 'package:rewild/domain/services/notificate_service.dart';
 
 import 'package:rewild/domain/services/orders_history_service.dart';
 
@@ -63,8 +65,8 @@ import 'package:rewild/presentation/api_keys_screen/api_keys_screen.dart';
 import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
-import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_screen.dart';
-import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
+import 'package:rewild/presentation/auto_advert_screen/auto_advert_screen.dart';
+import 'package:rewild/presentation/auto_advert_screen/auto_advert_view_model.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_screen.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_group_screen.dart';
@@ -204,6 +206,10 @@ class _DIContainer {
   // pursued
   PursuedDataProvider _makePursuedDataProvider() => const PursuedDataProvider();
 
+  // notification
+  NotificationDataProvider _makeNotificationDataProvider() =>
+      const NotificationDataProvider();
+
   // Services ==================================================================
 
   // check internet connection
@@ -302,10 +308,16 @@ class _DIContainer {
       apiKeysDataProvider: _makeSecureDataProvider());
 
   // Auto stat
-  AutoStatService _makeAutoStatService() => AutoStatService(
+  AutoAdvertService _makeAutoStatService() => AutoAdvertService(
       advertApiClient: _makeAdvertApiClient(),
       apiKeysDataProvider: _makeSecureDataProvider(),
       autoStatDataProvider: _makeAutoStatDataProvider());
+
+  // notification
+  NotificationService _makeNotificationService() => NotificationService(
+        notificationDataProvider: _makeNotificationDataProvider(),
+      );
+
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
       SplashScreenViewModel(
@@ -408,13 +420,14 @@ class _DIContainer {
         advertService: _makeAdvertService(),
       );
 
-  AutoStatViewModel _makeAutoStatAdvertScreenViewModel(
+  AutoAdvertViewModel _makeAutoStatAdvertScreenViewModel(
           BuildContext context, int advertId) =>
-      AutoStatViewModel(
+      AutoAdvertViewModel(
         context: context,
         advertId: advertId,
         advertService: _makeAdvertService(),
         autoStatService: _makeAutoStatService(),
+        notificationService: _makeNotificationService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
 }
@@ -525,7 +538,7 @@ class ScreenFactoryDefault implements ScreenFactory {
     return ChangeNotifierProvider(
       create: (context) =>
           _diContainer._makeAutoStatAdvertScreenViewModel(context, id),
-      child: const AutoStatAdvertScreen(),
+      child: const AutoAdvertScreen(),
     );
   }
 }

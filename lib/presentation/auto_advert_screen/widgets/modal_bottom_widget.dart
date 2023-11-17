@@ -1,7 +1,7 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:rewild/widgets/progress_indicator.dart';
 
 class ModalBottomWidgetState {
@@ -12,6 +12,7 @@ class ModalBottomWidgetState {
   final bool trackcpm;
   final int minCpm;
   final int cpm;
+  final Map<String, double> notifications;
   ModalBottomWidgetState(
       {required this.trackBudget,
       required this.minBudget,
@@ -19,6 +20,7 @@ class ModalBottomWidgetState {
       required this.minCpm,
       required this.isPursued,
       required this.isActive,
+      required this.notifications,
       required this.cpm});
 
   ModalBottomWidgetState copyWith({
@@ -29,6 +31,7 @@ class ModalBottomWidgetState {
     int? minBudget,
     bool? trackcpm,
     int? minCpm,
+    Map<String, double>? notifications,
   }) {
     return ModalBottomWidgetState(
       isPursued: isPursued ?? this.isPursued,
@@ -38,6 +41,7 @@ class ModalBottomWidgetState {
       minBudget: minBudget ?? this.minBudget,
       trackcpm: trackcpm ?? this.trackcpm,
       minCpm: minCpm ?? this.minCpm,
+      notifications: notifications ?? this.notifications,
     );
   }
 }

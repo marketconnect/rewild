@@ -57,8 +57,14 @@ class AuthServiceImpl
 
   @override
   Future<Resource<String>> getToken() async {
+    final values = await Future.wait(
+        [secureDataProvider.getUsername(), secureDataProvider.getToken()]);
+
+    // Advert Info
+    final userNameResource = values[0];
+    final getTokenResource = values[1];
     // get user name
-    final userNameResource = await secureDataProvider.getUsername();
+    // final userNameResource = await secureDataProvider.getUsername();
     if (userNameResource is Error) {
       return Resource.error(
         userNameResource.message!,
@@ -67,7 +73,7 @@ class AuthServiceImpl
     final userName = userNameResource.data!;
 
     // get token from secure storage
-    final getTokenResource = await secureDataProvider.getToken();
+    // final getTokenResource = await secureDataProvider.getToken();
     if (getTokenResource is Error) {
       return Resource.error(
         getTokenResource.message!,

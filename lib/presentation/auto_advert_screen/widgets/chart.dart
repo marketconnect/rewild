@@ -161,7 +161,7 @@ class Chart extends StatelessWidget {
                           children: [
                             TextSpan(
                                 text: tooltipText,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 7,
                                 ))
                           ]);

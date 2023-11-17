@@ -15,11 +15,14 @@ class SecureStorageProvider
         ApiKeysServiceApiKeysDataProvider,
         AutoStatServiceApiKeyDataProvider,
         AdvertServiceApiKeyDataProvider {
-  static const _secureStorage = FlutterSecureStorage();
+  static const _secureStorage = FlutterSecureStorage(
+      aOptions: AndroidOptions(
+    encryptedSharedPreferences: true,
+  ));
 
-  AndroidOptions _getAndroidOptions() => const AndroidOptions(
-        encryptedSharedPreferences: true,
-      );
+  //  AndroidOptions _getAndroidOptions() => const AndroidOptions(
+  //       encryptedSharedPreferences: true,
+  //     );
 
   const SecureStorageProvider();
 
@@ -193,7 +196,10 @@ class SecureStorageProvider
 
   @override
   Future<Resource<void>> deleteApiKey(String apiKeyType) async {
-    await _secureStorage.delete(key: apiKeyType);
+    await _secureStorage.delete(
+        key: apiKeyType,
+        aOptions: const AndroidOptions(encryptedSharedPreferences: true));
+
     return Resource.empty();
   }
 
@@ -219,7 +225,11 @@ class SecureStorageProvider
       {required String key, required String? value}) async {
     try {
       await _secureStorage.write(
-          key: key, value: value, aOptions: _getAndroidOptions());
+          key: key,
+          value: value,
+          aOptions: const AndroidOptions(
+            encryptedSharedPreferences: true,
+          ));
       return Resource.empty();
     } catch (e) {
       return Resource.error(
@@ -234,5 +244,20 @@ class SecureStorageProvider
     Random rnd = Random();
     return String.fromCharCodes(Iterable.generate(
         length, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+  }
+
+  // STATIC METHODS ========================================================== STATIC METHODS
+  static Future<Resource<ApiKeyModel>> getApiKeyInBackground(
+      String type) async {
+    final resource = await _read(key: type);
+    if (resource is Error) {
+      return Resource.error(resource.message!);
+    }
+
+    if (resource.data == null) {
+      return Resource.empty();
+    }
+
+    return Resource.success(ApiKeyModel(token: resource.data!, type: type));
   }
 }

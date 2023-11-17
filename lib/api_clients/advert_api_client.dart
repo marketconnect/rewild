@@ -278,42 +278,6 @@ class AdvertApiClient
     );
   }
 
-  static Future<Resource<AutoStatModel>> getAutoStatInBackground(
-      String token, int advertId) async {
-    try {
-      var headers = {
-        'Authorization': token,
-        'Content-Type': 'application/json'
-      };
-      final params = {'id': advertId.toString()};
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat", params);
-      final response = await http.get(uri, headers: headers);
-      if (response.statusCode == 200) {
-        final stats = json.decode(utf8.decode(response.bodyBytes));
-        return Resource.success(AutoStatModel.fromJson(stats, advertId));
-      } else if (response.statusCode == 400) {
-        return Resource.error(
-          "Ответ API WB: кампания не найдена",
-        );
-      } else if (response.statusCode == 401) {
-        return Resource.error(
-          "Ответ API WB: Пустой авторизационный заголовок",
-        );
-      } else if (response.statusCode == 429) {
-        return Resource.error(
-          "Ответ API WB: too many requests with this user ID",
-        );
-      }
-    } catch (e) {
-      return Resource.error(
-        "Неизвестная ошибка $e",
-      );
-    }
-    return Resource.error(
-      "Неизвестная ошибка",
-    );
-  }
-
   @override
   Future<Resource<Advert>> getAdvertInfo(String token, int id) async {
     try {
@@ -376,6 +340,82 @@ class AdvertApiClient
       return Resource.error(
         "Неизвестная ошибка: $e",
       );
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
+  // STATIC METHODS ====================================================================== STATIC METHODS
+  static Future<Resource<AutoStatModel>> getAutoStatInBackground(
+      String token, int advertId) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': advertId.toString()};
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat", params);
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        final stats = json.decode(utf8.decode(response.bodyBytes));
+        return Resource.success(AutoStatModel.fromJson(stats, advertId));
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: кампания не найдена",
+        );
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      } else if (response.statusCode == 429) {
+        return Resource.error(
+          "Ответ API WB: too many requests with this user ID",
+        );
+      }
+    } catch (e) {
+      return Resource.error(
+        "Неизвестная ошибка $e",
+      );
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
+  static Future<Resource<int>> getCompanyBudgetInBackground(
+      String token, int advertId) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': advertId.toString()};
+
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/budget", params);
+      var response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        var data = jsonDecode(utf8.decode(response.bodyBytes));
+        if (data == null) {
+          return Resource.empty();
+        }
+
+        return Resource.success(data['total']);
+      } else if (response.statusCode == 429) {
+        return Resource.error(
+          "Ответ API WB: too many requests with this user ID",
+        );
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: кампания не принадлежит продавцу",
+        );
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      }
+    } catch (e) {
+      return Resource.error(e.toString());
     }
     return Resource.error(
       "Неизвестная ошибка",

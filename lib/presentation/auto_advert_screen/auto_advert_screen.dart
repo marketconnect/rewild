@@ -1,16 +1,16 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
-import 'package:rewild/presentation/auto_stat_adv_screen/widgets/chart.dart';
-import 'package:rewild/presentation/auto_stat_adv_screen/widgets/modal_bottom_widget.dart';
+import 'package:rewild/presentation/auto_advert_screen/auto_advert_view_model.dart';
+import 'package:rewild/presentation/auto_advert_screen/widgets/chart.dart';
+import 'package:rewild/presentation/auto_advert_screen/widgets/modal_bottom_widget.dart';
 
-class AutoStatAdvertScreen extends StatelessWidget {
-  const AutoStatAdvertScreen({super.key});
+class AutoAdvertScreen extends StatelessWidget {
+  const AutoAdvertScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AutoStatViewModel>();
+    final model = context.watch<AutoAdvertViewModel>();
     final isActive = model.isActive;
     final cpm = model.cpm;
     final modalBottomState = model.modalBottomState;
@@ -150,7 +150,7 @@ class _UpperContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AutoStatViewModel>();
+    final model = context.watch<AutoAdvertViewModel>();
     return Container(
       margin: EdgeInsets.only(
           left: model.screenWidth * 0.04, top: model.screenWidth * 0.04),
@@ -174,7 +174,7 @@ class _SecondRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AutoStatViewModel>();
+    final model = context.watch<AutoAdvertViewModel>();
     final autoStatsList = model.autoStatList;
     return IntrinsicHeight(
       child: Row(children: [
@@ -245,7 +245,7 @@ class _BottomWidget extends StatelessWidget {
   final BoxDecoration decoration;
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AutoStatViewModel>();
+    final model = context.watch<AutoAdvertViewModel>();
 
     final totalClicks = model.totalClicks;
     final totalViews = model.totalViews;
@@ -311,7 +311,7 @@ class _FirstRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AutoStatViewModel>();
+    final model = context.watch<AutoAdvertViewModel>();
     final advertName = model.name;
     final isPursued = model.isPursued;
     final views = model.views;

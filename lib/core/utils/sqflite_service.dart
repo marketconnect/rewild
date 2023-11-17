@@ -59,7 +59,7 @@ class SqfliteService {
     await FilterDb.createTable(db);
     await AutoStatDb.createTable(db);
     await PursuedDb.createTable(db);
-    await NotificateDb.createTable(db);
+    await NotificationDb.createTable(db);
   }
 
   static Future<void> printTableContent(String tableName) async {

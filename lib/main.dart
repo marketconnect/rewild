@@ -42,10 +42,12 @@ Future<void> main() async {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+
   await Workmanager().initialize(
     callbackDispatcher,
     // isInDebugMode: true,
   );
+
   await Workmanager().registerPeriodicTask(
     everyFifteen,
     everyFifteen,
@@ -54,6 +56,8 @@ Future<void> main() async {
       networkType: NetworkType.connected,
     ),
   );
+
+  BackgroundService.initial();
 
   DateTime now = DateTime.now();
   // to get rid of simultaneous requests at the same time
@@ -74,8 +78,6 @@ Future<void> main() async {
     ),
   );
 
-  // NotificationService().initialise();
-  // NotificationService.stylishNotification("a", "htmlString");
   final app = appFactory.makeApp();
   runApp(app);
 }

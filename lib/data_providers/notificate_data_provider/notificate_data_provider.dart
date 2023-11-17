@@ -1,15 +1,18 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/notificate.dart';
+import 'package:rewild/domain/services/notificate_service.dart';
 
-class NotificateDataProvider {
-  const NotificateDataProvider();
+class NotificationDataProvider
+    implements NotificationServiceNotificationDataProvider {
+  const NotificationDataProvider();
 
-  Future<Resource<void>> save(NotificateModel notificate) async {
+  @override
+  Future<Resource<void>> save(NotificationModel notificate) async {
     try {
       final db = await SqfliteService().database;
       final _ = await db.rawInsert(
-          "INSERT INTO notificate (parentId, property, minValue, maxValue, changed) VALUES (?, ?, ?, ?, ?)",
+          "INSERT INTO notification (parentId, property, minValue, maxValue, changed) VALUES (?, ?, ?, ?, ?)",
           [
             notificate.parentId,
             notificate.property,
@@ -23,24 +26,46 @@ class NotificateDataProvider {
     }
   }
 
-  Future<Resource<List<NotificateModel>>> getAll() async {
+  @override
+  Future<Resource<List<NotificationModel>>> getForParent(int parentId) async {
     try {
       final db = await SqfliteService().database;
-      final notificates = await db.rawQuery('SELECT * FROM notificate');
+      final notificates = await db.rawQuery(
+          'SELECT * FROM notification WHERE parentId = ?', [parentId]);
+
+      if (notificates.isEmpty) {
+        return Resource.empty();
+      }
       return Resource.success(
-          notificates.map((e) => NotificateModel.fromMap(e)).toList());
+          notificates.map((e) => NotificationModel.fromMap(e)).toList());
     } catch (e) {
       return Resource.error(e.toString());
     }
   }
 
-  Future<Resource<void>> delete(NotificateModel notificate) async {
+  @override
+  Future<Resource<List<NotificationModel>>> getAll() async {
+    try {
+      final db = await SqfliteService().database;
+      final notifications = await db.rawQuery('SELECT * FROM notification');
+      if (notifications.isEmpty) {
+        return Resource.empty();
+      }
+      return Resource.success(
+          notifications.map((e) => NotificationModel.fromMap(e)).toList());
+    } catch (e) {
+      return Resource.error(e.toString());
+    }
+  }
+
+  @override
+  Future<Resource<void>> delete(int parentId, String property) async {
     try {
       final db = await SqfliteService().database;
       final _ = await db.rawDelete(
-          "DELETE FROM notificate WHERE parentId = ? AND property = ?", [
-        notificate.parentId,
-        notificate.property,
+          "DELETE FROM notification WHERE parentId = ? AND property = ?", [
+        parentId,
+        property,
       ]);
       return Resource.empty();
     } catch (e) {
@@ -48,12 +73,16 @@ class NotificateDataProvider {
     }
   }
 
-  static Future<Resource<List<NotificateModel>>> getAllInBackground() async {
+  static Future<Resource<List<NotificationModel>>> getAllInBackground() async {
     try {
       final db = await SqfliteService().database;
-      final notificates = await db.rawQuery('SELECT * FROM notificate');
+      final notifications = await db.rawQuery('SELECT * FROM notification');
+
+      if (notifications.isEmpty) {
+        Resource.success([]);
+      }
       return Resource.success(
-          notificates.map((e) => NotificateModel.fromMap(e)).toList());
+          notifications.map((e) => NotificationModel.fromMap(e)).toList());
     } catch (e) {
       return Resource.error(e.toString());
     }

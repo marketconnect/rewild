@@ -9,7 +9,7 @@ import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/auto_stat.dart';
 import 'package:rewild/domain/entities/pursued.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
-import 'package:rewild/presentation/auto_stat_adv_screen/auto_stat_adv_view_model.dart';
+import 'package:rewild/presentation/auto_advert_screen/auto_advert_view_model.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
 
 // API
@@ -40,7 +40,7 @@ abstract class AdvertServicePursuedDataProvider {
 class AdvertService
     implements
         AllAdvertsScreenAdvertService,
-        AutoStatViewModelAdvertService,
+        AutoAdvertViewModelAdvertService,
         BottomNavigationAdvertService {
   final AdvertServiceAdvertApiClient advertApiClient;
   final AdvertServiceApiKeyDataProvider apiKeysDataProvider;

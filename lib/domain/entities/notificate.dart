@@ -1,13 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-class NotificateModel {
+class NotificationModel {
   int parentId;
   String property;
   double? minValue;
   double? maxValue;
   bool? changed;
-  NotificateModel({
+  NotificationModel({
     required this.parentId,
     required this.property,
     this.minValue,
@@ -15,19 +15,19 @@ class NotificateModel {
     this.changed,
   });
 
-  NotificateModel copyWith({
+  NotificationModel copyWith({
     int? parentId,
     String? property,
     double? minValue,
     double? maxValue,
-    bool? trigger,
+    bool? changed,
   }) {
-    return NotificateModel(
+    return NotificationModel(
       parentId: parentId ?? this.parentId,
       property: property ?? this.property,
       minValue: minValue ?? this.minValue,
       maxValue: maxValue ?? this.maxValue,
-      changed: trigger ?? this.changed,
+      changed: changed ?? this.changed,
     );
   }
 
@@ -41,8 +41,8 @@ class NotificateModel {
     };
   }
 
-  factory NotificateModel.fromMap(Map<String, dynamic> map) {
-    return NotificateModel(
+  factory NotificationModel.fromMap(Map<String, dynamic> map) {
+    return NotificationModel(
       parentId: map['parentId'] as int,
       property: map['property'] as String,
       minValue: map['minValue'] != null ? map['minValue'] as double : null,
@@ -53,8 +53,8 @@ class NotificateModel {
 
   String toJson() => json.encode(toMap());
 
-  factory NotificateModel.fromJson(String source) =>
-      NotificateModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory NotificationModel.fromJson(String source) =>
+      NotificationModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -62,7 +62,7 @@ class NotificateModel {
   }
 
   @override
-  bool operator ==(covariant NotificateModel other) {
+  bool operator ==(covariant NotificationModel other) {
     if (identical(this, other)) return true;
 
     return other.parentId == parentId &&

@@ -1,8 +1,8 @@
 import 'package:rewild/domain/entities/notificate.dart';
 import 'package:sqflite/sqflite.dart';
 
-class NotificateDb extends NotificateModel {
-  NotificateDb(
+class NotificationDb extends NotificationModel {
+  NotificationDb(
       {required super.parentId,
       required super.property,
       super.minValue,
@@ -11,12 +11,13 @@ class NotificateDb extends NotificateModel {
 
   static Future<void> createTable(Database db) async {
     await db.execute('''
-          CREATE TABLE IF NOT EXISTS notificate (
+          CREATE TABLE IF NOT EXISTS notification (
             parentId INTEGER,
             property TEXT,
             minValue REAL,
             maxValue REAL,
-            changed INTEGER
+            changed INTEGER,
+            UNIQUE(parentId, property, minValue, maxValue, changed) ON CONFLICT REPLACE
           )
           ''');
   }

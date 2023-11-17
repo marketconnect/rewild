@@ -133,13 +133,19 @@ class AllCardsFilterService
 
   @override
   Future<Resource<void>> setFilter(FilterModel filter) async {
+    final values = await Future.wait(
+        [filterDataProvider.delete(), filterDataProvider.insert(filter)]);
+
+    // Advert Info
+    final deleteFilterResource = values[0];
+    final insertFilterResource = values[1];
     // delete previous filter
-    final deleteFilterResource = await filterDataProvider.delete();
+    // final deleteFilterResource = await filterDataProvider.delete();
     if (deleteFilterResource is Error) {
       return Resource.error(deleteFilterResource.message!);
     }
     // insert new
-    final insertFilterResource = await filterDataProvider.insert(filter);
+    // final insertFilterResource = await filterDataProvider.insert(filter);
     if (insertFilterResource is Error) {
       return Resource.error(insertFilterResource.message!);
     }
