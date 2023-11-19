@@ -11,7 +11,7 @@ import 'package:rewild/api_clients/product_card_service_api_client.dart';
 import 'package:rewild/api_clients/seller_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/api_clients/warehouse_api_client.dart';
-import 'package:rewild/data_providers/auto_stat_data_provider/auto_stat_data_provider.dart';
+import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data_provider.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
 import 'package:rewild/data_providers/commission_data_provider/commission_data_provider.dart';
@@ -22,7 +22,6 @@ import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stock
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
 import 'package:rewild/data_providers/notificate_data_provider/notificate_data_provider.dart';
 import 'package:rewild/data_providers/orders_history_data_provider/orders_history_data_provider.dart';
-import 'package:rewild/data_providers/pursued_data_provider/pursued_data_provider.dart';
 
 import 'package:rewild/data_providers/secure_storage_data_provider.dart';
 import 'package:rewild/data_providers/seller_data_provider/seller_data_provider.dart';
@@ -55,6 +54,7 @@ import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
+import 'package:rewild/presentation/all_adverts_stats_screen/all_adverts_stats_screen.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen.dart';
@@ -65,8 +65,9 @@ import 'package:rewild/presentation/api_keys_screen/api_keys_screen.dart';
 import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
-import 'package:rewild/presentation/auto_advert_screen/auto_advert_screen.dart';
-import 'package:rewild/presentation/auto_advert_screen/auto_advert_view_model.dart';
+import 'package:rewild/presentation/card_notification_screen/card_notification_screen.dart';
+import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_screen.dart';
+import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_screen.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_group_screen.dart';
@@ -95,7 +96,7 @@ class _AppFactoryDefault implements AppFactory {
         streamControllers: [
           _diContainer.apiKeyExistsStreamController,
           _diContainer.cardsNumberStreamController,
-          _diContainer.activeAdvertsStreamController
+          // _diContainer.activeAdvertsStreamController
         ]);
   }
 }
@@ -200,11 +201,11 @@ class _DIContainer {
   FilterDataProvider _makeFilterDataProvider() => const FilterDataProvider();
 
   // auto stat
-  AutoStatDataProvider _makeAutoStatDataProvider() =>
-      const AutoStatDataProvider();
+  AdvertStatDataProvider _makeAutoStatDataProvider() =>
+      const AdvertStatDataProvider();
 
   // pursued
-  PursuedDataProvider _makePursuedDataProvider() => const PursuedDataProvider();
+  // PursuedDataProvider _makePursuedDataProvider() => const PursuedDataProvider();
 
   // notification
   NotificationDataProvider _makeNotificationDataProvider() =>
@@ -303,8 +304,8 @@ class _DIContainer {
   // advert
   AdvertService _makeAdvertService() => AdvertService(
       advertApiClient: _makeAdvertApiClient(),
-      pursuitsDataProvider: _makePursuedDataProvider(),
-      activeAdvertsStreamController: activeAdvertsStreamController,
+      // pursuitsDataProvider: _makePursuedDataProvider(),
+      // activeAdvertsStreamController: activeAdvertsStreamController,
       apiKeysDataProvider: _makeSecureDataProvider());
 
   // Auto stat
@@ -389,7 +390,7 @@ class _DIContainer {
       BottomNavigationViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
-          advertsStream: activeAdvertsStream,
+          // advertsStream: activeAdvertsStream,
           cardsNumberStream: cardsNumberStream,
           apiKeyExistsStream: apiKeyExistsStream,
           advertService: _makeAdvertService(),
@@ -420,13 +421,13 @@ class _DIContainer {
         advertService: _makeAdvertService(),
       );
 
-  AutoAdvertViewModel _makeAutoStatAdvertScreenViewModel(
+  SingleAdvertStatsViewModel _makeAutoStatAdvertScreenViewModel(
           BuildContext context, int advertId) =>
-      AutoAdvertViewModel(
+      SingleAdvertStatsViewModel(
         context: context,
         advertId: advertId,
         advertService: _makeAdvertService(),
-        autoStatService: _makeAutoStatService(),
+        advertStatService: _makeAutoStatService(),
         notificationService: _makeNotificationService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
@@ -534,11 +535,21 @@ class ScreenFactoryDefault implements ScreenFactory {
   }
 
   @override
-  Widget makeAutoStatAdvertScreen(int id) {
+  Widget makeSingleStatAdvertScreen(int id) {
     return ChangeNotifierProvider(
       create: (context) =>
           _diContainer._makeAutoStatAdvertScreenViewModel(context, id),
-      child: const AutoAdvertScreen(),
+      child: const SingleAdvertStatsScreen(),
     );
+  }
+
+  @override
+  Widget makeManageAdvertsScreen() {
+    // TODO: implement makeManageAdvertsScreen
+    return const AllAdvertsStatsScreen();
+  }
+
+  Widget makeCardNotificationsSettingsScreen() {
+    return const CardNotificationSettingsScreen();
   }
 }

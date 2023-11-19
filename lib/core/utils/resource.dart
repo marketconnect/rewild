@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 sealed class Resource<T> {
   final T? data;
   final String? message;
@@ -21,6 +23,7 @@ sealed class Resource<T> {
 
   factory Resource.error(String message,
       [T? data, String? info, String? error, String? stackTrace]) {
+    debugPrint("Error from rewsource: $message");
     return Error<T>(
         message: message,
         data: data,

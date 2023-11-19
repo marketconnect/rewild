@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/strings.dart';
-import 'package:rewild/data_providers/auto_stat_data_provider/auto_stat_db.dart';
+import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_db.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_db.dart';
 import 'package:rewild/data_providers/filter_data_provider/filter_db.dart';
-import 'package:rewild/data_providers/notificate_data_provider/notificate_db.dart';
-import 'package:rewild/data_providers/pursued_data_provider/pursued_db.dart';
+import 'package:rewild/data_providers/notificate_data_provider/notification_db.dart';
 
 import 'package:sqflite/sqflite.dart';
 // ignore: depend_on_referenced_packages
@@ -57,8 +56,7 @@ class SqfliteService {
     await SupplyDb.createTable(db);
     await OrdersHistoryDb.createTable(db);
     await FilterDb.createTable(db);
-    await AutoStatDb.createTable(db);
-    await PursuedDb.createTable(db);
+    await AdvertStatDb.createTable(db);
     await NotificationDb.createTable(db);
   }
 

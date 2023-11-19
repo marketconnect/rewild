@@ -1,13 +1,18 @@
 import 'dart:convert';
 
+import 'package:rewild/core/constants.dart';
+
+import 'package:rewild/domain/entities/background_notifier.dart';
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
+import 'package:rewild/domain/entities/notification.dart';
 
 import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/domain/entities/size_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
+import 'package:rewild/domain/services/notification_content.dart';
 
-class CardOfProductModel {
+class CardOfProductModel extends BackgroundNotifier {
   int nmId = 0;
 
   String name;
@@ -195,6 +200,38 @@ class CardOfProductModel {
     }
   }
 
+  int _calculateAllStocks([int? sizeId]) {
+    int stocksSum = 0;
+    for (final size in sizes) {
+      if (sizeId == null && sizeId != size.optionId) {
+        continue;
+      }
+      for (final stock in size.stocks) {
+        final stockQty = stock.qty;
+        stocksSum += stockQty;
+      }
+    }
+    return stocksSum;
+  }
+
+  int _calculateAllStocksForWh(int wh, [int? sizeId]) {
+    int stocksSum = 0;
+    for (final size in sizes) {
+      if (sizeId == null && sizeId != size.optionId) {
+        continue;
+      }
+      for (final stock in size.stocks) {
+        final stockWh = stock.wh;
+        if (wh != stockWh) {
+          continue;
+        }
+        final stockQty = stock.qty;
+        stocksSum += stockQty;
+      }
+    }
+    return stocksSum;
+  }
+
   bool wasOrdered = false;
   void setWasOrdered() {
     wasOrdered = true;
@@ -298,5 +335,158 @@ class CardOfProductModel {
         reviewRating.hashCode ^
         feedbacks.hashCode ^
         promoTextCard.hashCode;
+  }
+
+  @override
+  List<NotificationContent> notifications(
+      List<NotificationModel> notifications) {
+    List<NotificationContent> result = [];
+    for (final notification in notifications) {
+      switch (notification.condition) {
+        case NotificationConditionConstants.nameChanged:
+          _checkNameCondition(notification, result);
+          break;
+        case NotificationConditionConstants.picsChanged:
+          _checkPicsCondition(notification, result);
+          break;
+        case NotificationConditionConstants.priceChanged:
+          _checkPriceCondition(notification, result);
+          break;
+        case NotificationConditionConstants.promoChanged:
+          _checkPromoCondition(notification, result);
+          break;
+        case NotificationConditionConstants.reviewRatingChanged:
+          _checkReviewRatingCondition(notification, result);
+          break;
+        case NotificationConditionConstants.stocksLessThan:
+          _checkStocksLessThanCondition(notification, result);
+          break;
+
+        case NotificationConditionConstants.sizeStocksLessThan:
+          _checkSizeStocksLessCondition(notification, result);
+          break;
+        case NotificationConditionConstants.stocksInWhLessThan:
+          _checkStocksInWhLessThanCondition(notification, result);
+          break;
+        case NotificationConditionConstants.sizeStocksInWhLessThan:
+          _checkSizeInWhStocksLessThanCondition(notification, result);
+          break;
+
+        default:
+          break;
+      }
+    }
+    return result;
+  }
+
+  void _checkNameCondition(
+      NotificationModel notification, List<NotificationContent> result) {
+    if (notification.value != name) {
+      result.add(NotificationContent(
+        title: "Изменено наименование карточки $nmId",
+        body: "Новое наименование: $name",
+      ));
+    }
+  }
+
+  void _checkPicsCondition(
+      NotificationModel notification, List<NotificationContent> result) {
+    final nPics = int.tryParse(notification.value) ?? 0;
+    if (nPics != pics) {
+      result.add(NotificationContent(
+        title: "Изменено кол-во картинок карточки $nmId",
+        body: "Новое кол-во картинок: $pics, было $nPics",
+      ));
+    }
+  }
+
+  void _checkPriceCondition(
+      NotificationModel notification, List<NotificationContent> result) {
+    final nPrice = int.tryParse(notification.value) ?? 0;
+
+    if (nPrice != basicPriceU) {
+      result.add(NotificationContent(
+        title: "Изменена цена товара $nmId",
+        body: "Новая цена: $basicPriceU, было $nPrice",
+      ));
+    }
+  }
+
+  void _checkPromoCondition(
+      NotificationModel notification, List<NotificationContent> result) {
+    if (notification.value != promoTextCard) {
+      result.add(NotificationContent(
+        title: "Изменена акция карточки $nmId",
+        body: "Новая акция: $promoTextCard",
+      ));
+    }
+  }
+
+  void _checkReviewRatingCondition(
+      NotificationModel notification, List<NotificationContent> result) {
+    final nReviewRating = int.tryParse(notification.value) ?? 0;
+
+    if (nReviewRating != reviewRating) {
+      result.add(NotificationContent(
+        title: "Изменен рейтинг карточки $nmId",
+        body: "Новый рейтинг: $reviewRating, был $nReviewRating",
+      ));
+    }
+  }
+
+  void _checkStocksLessThanCondition(
+      NotificationModel notification, List<NotificationContent> result) {
+    final stocksQty = _calculateAllStocks();
+    final nStocks = int.tryParse(notification.value) ?? 0;
+    final stocksDif = nStocks - stocksQty;
+    if (stocksDif > 0) {
+      result.add(NotificationContent(
+        title: "Изменено кол-во остатков на складах $nmId",
+        body: "Новое кол-во на всех складах: $stocksSum меньше, чем $nStocks",
+      ));
+    }
+  }
+
+  void _checkStocksInWhLessThanCondition(
+      NotificationModel notification, List<NotificationContent> result) {
+    final wh = notification.wh ?? 0;
+    final nStocks = int.tryParse(notification.value) ?? 0;
+    final stocksSum = _calculateAllStocksForWh(wh);
+    final stocksDif = stocksSum - nStocks;
+    if (stocksDif < 0) {
+      result.add(NotificationContent(
+        title: "Изменено кол-во остатков на складе $nmId",
+        body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
+      ));
+    }
+  }
+
+  void _checkSizeStocksLessCondition(
+      NotificationModel notification, List<NotificationContent> result) {
+    final nSize = notification.sizeId ?? 0;
+    final nStocks = int.tryParse(notification.value) ?? 0;
+    final stocksSum = _calculateAllStocks(nSize);
+    final stocksDif = stocksSum - nStocks;
+    if (stocksDif < 0) {
+      result.add(NotificationContent(
+        title: "Изменено кол-во остатков на складе $nmId  для размера $nSize",
+        body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
+      ));
+    }
+  }
+
+  void _checkSizeInWhStocksLessThanCondition(
+      NotificationModel notification, List<NotificationContent> result) {
+    final nSize = notification.sizeId ?? 0;
+    final nStocks = int.tryParse(notification.value) ?? 0;
+    final wh = notification.wh ?? 0;
+    final stocksSumForWh = _calculateAllStocksForWh(wh, nSize);
+    final stocksDif = stocksSumForWh - nStocks;
+    if (stocksDif < 0) {
+      result.add(NotificationContent(
+        title: "Изменено кол-во остатков на складе $nmId  для размера $nSize",
+        body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
+      ));
+    }
   }
 }

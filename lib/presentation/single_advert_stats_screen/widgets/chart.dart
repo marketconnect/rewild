@@ -1,9 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:rewild/domain/entities/auto_stat.dart';
+import 'package:rewild/domain/entities/advert_stat.dart';
 
 class Chart extends StatelessWidget {
-  final List<AutoStatModel> data;
+  final List<AdvertStatModel> data;
 
   const Chart({super.key, required this.data, this.clicks = false});
   final bool clicks;
@@ -140,8 +140,8 @@ class Chart extends StatelessWidget {
                       String tooltipText = "";
                       final index = touchedSpot.spotIndex;
 
-                      final prevTime = spots[index - 1].x;
                       if (index > 0) {
+                        final prevTime = spots[index - 1].x;
                         final timeDif =
                             (spots[index].x - prevTime.toInt()) / 60000;
 

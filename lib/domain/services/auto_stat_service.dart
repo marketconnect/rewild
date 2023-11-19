@@ -1,8 +1,8 @@
 // Auto stat
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
-import 'package:rewild/domain/entities/auto_stat.dart';
-import 'package:rewild/presentation/auto_advert_screen/auto_advert_view_model.dart';
+import 'package:rewild/domain/entities/advert_stat.dart';
+import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 
 // Api key
 abstract class AutoStatServiceApiKeyDataProvider {
@@ -10,16 +10,17 @@ abstract class AutoStatServiceApiKeyDataProvider {
 }
 
 abstract class AutoStatServiceAdvertApiClient {
-  Future<Resource<AutoStatModel>> getAutoStat(String token, int advertId);
+  Future<Resource<AdvertStatModel>> getAutoStat(String token, int advertId);
 }
 
-abstract class AutoStatServiceAutoStatDataProvider {
-  Future<Resource<List<AutoStatModel>>> getAll(int advertId);
-  Future<Resource<void>> save(AutoStatModel autoStat);
+abstract class AutoStatServiceAdvertStatDataProvider {
+  Future<Resource<List<AdvertStatModel>>> getAll(int advertId);
+  Future<Resource<void>> save(AdvertStatModel autoStat);
 }
 
-class AutoAdvertService implements AutoAdvertViewModelAutoAdvertService {
-  final AutoStatServiceAutoStatDataProvider autoStatDataProvider;
+class AutoAdvertService
+    implements SingleAdvertStatsViewModelAdvertStatsService {
+  final AutoStatServiceAdvertStatDataProvider autoStatDataProvider;
   final AutoStatServiceAdvertApiClient advertApiClient;
   final AutoStatServiceApiKeyDataProvider apiKeysDataProvider;
 
@@ -30,7 +31,7 @@ class AutoAdvertService implements AutoAdvertViewModelAutoAdvertService {
   });
 
   @override
-  Future<Resource<List<AutoStatModel>>> getAll(int advertId) async {
+  Future<Resource<List<AdvertStatModel>>> getAll(int advertId) async {
     // get all stored auto stats for the auto advert
     final storedAutoStatsResource = await autoStatDataProvider.getAll(advertId);
     if (storedAutoStatsResource is Error) {
@@ -45,7 +46,7 @@ class AutoAdvertService implements AutoAdvertViewModelAutoAdvertService {
   }
 
   @override
-  Future<Resource<AutoStatModel>> getCurrent(int advertId) async {
+  Future<Resource<AdvertStatModel>> getCurrent(int advertId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);

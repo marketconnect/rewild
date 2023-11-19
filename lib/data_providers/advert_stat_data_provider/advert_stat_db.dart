@@ -1,8 +1,8 @@
-import 'package:rewild/domain/entities/auto_stat.dart';
+import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:sqflite/sqflite.dart';
 
-class AutoStatDb extends AutoStatModel {
-  AutoStatDb(
+class AdvertStatDb extends AdvertStatModel {
+  AdvertStatDb(
       {required super.views,
       required super.clicks,
       required super.ctr,
@@ -14,14 +14,14 @@ class AutoStatDb extends AutoStatModel {
   static Future<void> createTable(Database db) async {
     await db.execute(
       '''
-          CREATE TABLE IF NOT EXISTS auto_stat (
+          CREATE TABLE IF NOT EXISTS advert_stat (
             views INTEGER,
             clicks REAL,
             ctr REAL,
             cpc REAL,
             spend INTEGER,
             advertId INTEGER,
-            createdAt INTEGER
+            createdAt TEXT
           )
           ''',
     );

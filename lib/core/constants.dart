@@ -19,7 +19,8 @@ class APIConstants {
   // just in case make 2 requests per minute
   static const Duration budgetDurationBetweenReqInMs =
       Duration(milliseconds: 500);
-
+  static const Duration wordsDurationBetweenReqInMs =
+      Duration(milliseconds: 500);
   // 60 запросов в минуту (1 in sec)
   static const Duration balanceDurationBetweenReqInMs =
       Duration(milliseconds: 1000);
@@ -27,6 +28,9 @@ class APIConstants {
   // 10 запросов в минуту (1 in 6 sec)
   // just in case make 1 request per 10 sec
   static const Duration autoStatNumsDurationBetweenReqInMs = Duration(
+    milliseconds: 10000,
+  );
+  static const Duration fullStatNumsDurationBetweenReqInMs = Duration(
     milliseconds: 10000,
   );
 }
@@ -167,4 +171,36 @@ class NumericConstants {
     9: "идут показы",
     11: "приостановленно",
   };
+}
+
+class NotificationConditionConstants {
+  static const int budgetLessThan = 1;
+  static const int priceChanged = 2;
+  static const int promoChanged = 3;
+  static const int nameChanged = 4;
+  static const int picsChanged = 5;
+  static const int reviewRatingChanged = 6;
+  static const int stocksLessThan = 7;
+  static const int stocksInWhLessThan = 8;
+  static const int sizeStocksLessThan = 9;
+  static const int sizeStocksInWhLessThan = 10;
+}
+
+// WB constants
+class AdvertStatusConstants {
+  static const int deleted = -1;
+  static const int readyToStart = 4;
+  static const int finished = 7;
+  static const int refused = 8;
+  static const int active = 9;
+  static const int paused = 11;
+}
+
+class AdvertTypeConstants {
+  static const int inCatalog = 4;
+  static const int inCard = 5;
+  static const int inSearch = 6;
+  static const int inRecomendation = 7;
+  static const int auto = 8;
+  static const int searchPlusCatalog = 9;
 }

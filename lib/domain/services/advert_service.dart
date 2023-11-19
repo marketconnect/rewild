@@ -6,10 +6,10 @@ import 'package:rewild/domain/entities/advert_base.dart';
 
 import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
-import 'package:rewild/domain/entities/auto_stat.dart';
-import 'package:rewild/domain/entities/pursued.dart';
+import 'package:rewild/domain/entities/advert_stat.dart';
+
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
-import 'package:rewild/presentation/auto_advert_screen/auto_advert_view_model.dart';
+import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
 
 // API
@@ -20,7 +20,7 @@ abstract class AdvertServiceAdvertApiClient {
   Future<Resource<bool>> pauseAdvert(String token, int advertId);
   Future<Resource<bool>> startAdvert(String token, int advertId);
   Future<Resource<int>> balance(String token);
-  Future<Resource<AutoStatModel>> getAutoStat(String token, int advertId);
+  Future<Resource<AdvertStatModel>> getAutoStat(String token, int advertId);
   Future<Resource<bool>> changeCpm(String token, int advertId, int type,
       int cpm, int param, int? instrument);
 }
@@ -31,27 +31,27 @@ abstract class AdvertServiceApiKeyDataProvider {
 }
 
 // Pursued
-abstract class AdvertServicePursuedDataProvider {
-  Future<Resource<List<PursuedModel>>> getAll();
-  Future<Resource<void>> save(PursuedModel pursued);
-  Future<Resource<void>> delete(PursuedModel pursued);
-}
+// abstract class AdvertServicePursuedDataProvider {
+//   Future<Resource<List<PursuedModel>>> getAll();
+//   Future<Resource<void>> save(PursuedModel pursued);
+//   Future<Resource<void>> delete(PursuedModel pursued);
+// }
 
 class AdvertService
     implements
         AllAdvertsScreenAdvertService,
-        AutoAdvertViewModelAdvertService,
+        SingleAdvertStatsViewModelAdvertService,
         BottomNavigationAdvertService {
   final AdvertServiceAdvertApiClient advertApiClient;
   final AdvertServiceApiKeyDataProvider apiKeysDataProvider;
-  final AdvertServicePursuedDataProvider pursuitsDataProvider;
-  StreamController<List<Advert>> activeAdvertsStreamController;
+  // final AdvertServicePursuedDataProvider pursuitsDataProvider;
+  // StreamController<List<Advert>> activeAdvertsStreamController;
 
   AdvertService({
     required this.advertApiClient,
     required this.apiKeysDataProvider,
-    required this.activeAdvertsStreamController,
-    required this.pursuitsDataProvider,
+    // required this.activeAdvertsStreamController,
+    // required this.pursuitsDataProvider,
   });
 
   @override
@@ -96,38 +96,38 @@ class AdvertService
     return balanceResource;
   }
 
-  @override
-  Future<Resource<bool>> deleteFromTrack(int advertId) async {
-    final resource = await pursuitsDataProvider
-        .delete(PursuedModel(parentId: advertId, property: 'auto'));
-    if (resource is Error) {
-      return Resource.error(resource.message!);
-    }
-    return Resource.success(true);
-  }
+  // @override
+  // Future<Resource<bool>> deleteFromTrack(int advertId) async {
+  //   final resource = await pursuitsDataProvider
+  //       .delete(PursuedModel(parentId: advertId, property: 'auto'));
+  //   if (resource is Error) {
+  //     return Resource.error(resource.message!);
+  //   }
+  //   return Resource.success(true);
+  // }
 
-  @override
-  Future<Resource<bool>> addToTrack(int advertId) async {
-    final resource = await pursuitsDataProvider
-        .save(PursuedModel(parentId: advertId, property: "auto"));
-    if (resource is Error) {
-      return Resource.error(resource.message!);
-    }
-    return Resource.success(true);
-  }
+  // @override
+  // Future<Resource<bool>> addToTrack(int advertId) async {
+  //   final resource = await pursuitsDataProvider
+  //       .save(PursuedModel(parentId: advertId, property: "auto"));
+  //   if (resource is Error) {
+  //     return Resource.error(resource.message!);
+  //   }
+  //   return Resource.success(true);
+  // }
 
-  @override
-  Future<Resource<bool>> isPursued(int advertId) async {
-    final pusuedResource = await pursuitsDataProvider.getAll();
-    if (pusuedResource is Error) {
-      return Resource.error(pusuedResource.message!);
-    }
-    if (pusuedResource is Empty) {
-      return Resource.success(false);
-    }
-    return Resource.success(
-        pusuedResource.data!.any((element) => element.parentId == advertId));
-  }
+  // @override
+  // Future<Resource<bool>> isPursued(int advertId) async {
+  //   final pusuedResource = await pursuitsDataProvider.getAll();
+  //   if (pusuedResource is Error) {
+  //     return Resource.error(pusuedResource.message!);
+  //   }
+  //   if (pusuedResource is Empty) {
+  //     return Resource.success(false);
+  //   }
+  //   return Resource.success(
+  //       pusuedResource.data!.any((element) => element.parentId == advertId));
+  // }
 
   @override
   Future<Resource<int>> getBudget(int advertId) async {
@@ -156,7 +156,7 @@ class AdvertService
   }
 
   @override
-  Future<Resource<List<Advert>>> getActiveAdverts() async {
+  Future<Resource<List<Advert>>> getAllAdverts() async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -185,7 +185,7 @@ class AdvertService
     List<Advert> res = [];
 
     for (var advert in advertsResource.data!) {
-      if (advert.status != 9) {
+      if (advert.status != 9 && advert.status != 11) {
         continue;
       }
 

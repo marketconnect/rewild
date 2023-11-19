@@ -103,13 +103,14 @@ class _AllCardsScreenState extends State<AllCardsScreen>
         floatingActionButton: filterIsEmpty || selectionInProcess
             ? null
             : FloatingActionButton(
-                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                backgroundColor:
+                    Theme.of(context).colorScheme.tertiaryContainer,
                 onPressed: () async {
                   await resetFilter();
                 },
                 child: Icon(
                   Icons.filter_alt_off_outlined,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: Theme.of(context).colorScheme.onTertiaryContainer,
                 )),
         body: DefaultTabController(
           length: selectionInProcess ? 1 : groups.length,

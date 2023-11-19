@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-class AutoStatModel {
+class AdvertStatModel {
   int advertId;
   int views;
   double clicks;
@@ -10,7 +10,7 @@ class AutoStatModel {
   int spend;
   DateTime createdAt;
 
-  AutoStatModel({
+  AdvertStatModel({
     required this.views,
     required this.clicks,
     required this.ctr,
@@ -20,7 +20,7 @@ class AutoStatModel {
     required this.createdAt,
   });
 
-  AutoStatModel copyWith({
+  AdvertStatModel copyWith({
     int? views,
     double? clicks,
     double? ctr,
@@ -28,7 +28,7 @@ class AutoStatModel {
     int? spend,
     int? advertId,
   }) {
-    return AutoStatModel(
+    return AdvertStatModel(
       views: views ?? this.views,
       clicks: clicks ?? this.clicks,
       ctr: ctr ?? this.ctr,
@@ -51,12 +51,14 @@ class AutoStatModel {
     };
   }
 
-  factory AutoStatModel.fromMap(Map<String, dynamic> map, int advertId) {
+  factory AdvertStatModel.fromMap(Map<String, dynamic> map, int advertId) {
     final clicks = map['clicks'] is double
         ? map['clicks']
         : (map['clicks'] as int).toDouble();
+
     final ctr =
         map['ctr'] is double ? map['ctr'] : (map['ctr'] as int).toDouble();
+
     final cpc =
         map['cpc'] is double ? map['cpc'] : (map['cpc'] as int).toDouble();
 
@@ -64,12 +66,20 @@ class AutoStatModel {
         ? DateTime.parse(map['createdAt'])
         : DateTime.now();
 
-    return AutoStatModel(
+    // for auto 'spend' for search 'sum'
+    int? spend = map['spend'];
+
+    if (spend == null) {
+      final sum = map['sum'] as double;
+      spend = sum > 0 ? sum.toInt() : 0;
+    }
+
+    return AdvertStatModel(
       views: map['views'] as int,
       clicks: clicks,
       ctr: ctr,
       cpc: cpc,
-      spend: map['spend'] as int,
+      spend: spend,
       advertId: advertId,
       createdAt: createdAt,
     );
@@ -77,8 +87,8 @@ class AutoStatModel {
 
   String toJson() => json.encode(toMap());
 
-  factory AutoStatModel.fromJson(Map<String, dynamic> source, int advertId) =>
-      AutoStatModel.fromMap(source, advertId);
+  factory AdvertStatModel.fromJson(Map<String, dynamic> source, int advertId) =>
+      AdvertStatModel.fromMap(source, advertId);
 
   @override
   String toString() {
@@ -86,7 +96,7 @@ class AutoStatModel {
   }
 
   @override
-  bool operator ==(covariant AutoStatModel other) {
+  bool operator ==(covariant AdvertStatModel other) {
     if (identical(this, other)) return true;
 
     return other.views == views &&

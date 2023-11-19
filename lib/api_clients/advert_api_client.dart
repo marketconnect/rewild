@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:http/http.dart' as http;
 import 'package:rewild/domain/entities/advert_auto_model.dart';
@@ -11,7 +12,7 @@ import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/advert_recomendation_model.dart';
 import 'package:rewild/domain/entities/advert_search_model.dart';
 import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
-import 'package:rewild/domain/entities/auto_stat.dart';
+import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/auto_stat_service.dart';
 
@@ -241,8 +242,45 @@ class AdvertApiClient
     );
   }
 
+  Future<Resource<AdvertStatModel>> getSearchStat(
+      String token, int advertId) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': advertId.toString()};
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        final stats = json.decode(utf8.decode(response.bodyBytes));
+        final total = stats['stat'][0];
+        return Resource.success(AdvertStatModel.fromJson(total, advertId));
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: кампания не найдена",
+        );
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      } else if (response.statusCode == 429) {
+        return Resource.error(
+          "Ответ API WB: too many requests with this user ID",
+        );
+      }
+    } catch (e) {
+      return Resource.error(
+        "Неизвестная ошибка $e",
+      );
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
   @override
-  Future<Resource<AutoStatModel>> getAutoStat(
+  Future<Resource<AdvertStatModel>> getAutoStat(
       String token, int advertId) async {
     try {
       var headers = {
@@ -254,7 +292,7 @@ class AdvertApiClient
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
-        return Resource.success(AutoStatModel.fromJson(stats, advertId));
+        return Resource.success(AdvertStatModel.fromJson(stats, advertId));
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
@@ -297,23 +335,23 @@ class AdvertApiClient
         final advType = stats['type'];
 
         switch (advType) {
-          case 4:
+          case AdvertTypeConstants.inCatalog:
             // catalog
             return Resource.success(AdvertCatalogueModel.fromJson(stats));
 
-          case 5:
+          case AdvertTypeConstants.inCard:
             // card
             return Resource.success(AdvertCardModel.fromJson(stats));
-          case 6:
+          case AdvertTypeConstants.inSearch:
             // search
             return Resource.success(AdvertSearchModel.fromJson(stats));
-          case 7:
+          case AdvertTypeConstants.inRecomendation:
             // recomendation
             return Resource.success(AdvertRecomendaionModel.fromJson(stats));
-          case 8:
+          case AdvertTypeConstants.auto:
             // auto
             return Resource.success(AdvertAutoModel.fromJson(stats));
-          case 9:
+          case AdvertTypeConstants.searchPlusCatalog:
             // search+catalogue
             return Resource.success(
                 AdvertSearchPlusCatalogueModel.fromJson(stats));
@@ -347,7 +385,129 @@ class AdvertApiClient
   }
 
   // STATIC METHODS ====================================================================== STATIC METHODS
-  static Future<Resource<AutoStatModel>> getAutoStatInBackground(
+  static Future<Resource<AdvertStatModel>> getFullStatInBackground(
+      String token, int advertId) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': advertId.toString()};
+
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/fullstat", params);
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        final stats = json.decode(utf8.decode(response.bodyBytes));
+        // final total = stats['stat'][0];
+        return Resource.success(AdvertStatModel.fromJson(stats, advertId));
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: кампания не найдена",
+        );
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      } else if (response.statusCode == 429) {
+        return Resource.error(
+          "Ответ API WB: too many requests with this user ID",
+        );
+      }
+    } catch (e) {
+      return Resource.error(
+        "Неизвестная ошибка $e",
+      );
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
+  static Future<Resource<AdvertStatModel>> getSearchStatInBackground(
+      String token, int advertId) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': advertId.toString()};
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        final stats = json.decode(utf8.decode(response.bodyBytes));
+        final total = stats['stat'][0];
+        return Resource.success(AdvertStatModel.fromJson(total, advertId));
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: кампания не найдена",
+        );
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+        );
+      } else if (response.statusCode == 429) {
+        return Resource.error(
+          "Ответ API WB: too many requests with this user ID",
+        );
+      }
+    } catch (e) {
+      return Resource.error(
+        "Неизвестная ошибка $e",
+      );
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
+  static Future<Resource<List<AdvertInfoModel>>> getAdvertsInBackground(
+      String token) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      var uri = Uri.parse('https://advert-api.wb.ru/adv/v0/adverts');
+      var response = await http.get(uri, headers: headers);
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(utf8.decode(response.bodyBytes));
+        if (data == null) {
+          return Resource.empty();
+        }
+        if (data.length == 0) {
+          return Resource.success([]);
+        }
+
+        return Resource.success(
+          List<AdvertInfoModel>.from(
+            data.map((x) => AdvertInfoModel.fromJson(x)),
+          ),
+        );
+      } else if (response.statusCode == 429) {
+        return Resource.error(
+          "Ответ API WB: Кампании не найдены",
+        );
+      } else if (response.statusCode == 400) {
+        return Resource.error(
+          "Ответ API WB: Некорректный идентификатор РК",
+        );
+      } else if (response.statusCode == 401) {
+        // "Ответ API WB: Пустой авторизационный заголовок",
+
+        return Resource.empty();
+      }
+    } catch (e) {
+      return Resource.error(
+        "Ошибка при обращении к WB продвижение список кампаний: $e",
+      );
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+    );
+  }
+
+  static Future<Resource<AdvertStatModel>> getAutoStatInBackground(
       String token, int advertId) async {
     try {
       var headers = {
@@ -359,7 +519,7 @@ class AdvertApiClient
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
-        return Resource.success(AutoStatModel.fromJson(stats, advertId));
+        return Resource.success(AdvertStatModel.fromJson(stats, advertId));
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",

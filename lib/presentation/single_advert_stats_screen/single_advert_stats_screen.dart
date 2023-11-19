@@ -1,21 +1,22 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rewild/presentation/auto_advert_screen/auto_advert_view_model.dart';
-import 'package:rewild/presentation/auto_advert_screen/widgets/chart.dart';
-import 'package:rewild/presentation/auto_advert_screen/widgets/modal_bottom_widget.dart';
+import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
+import 'package:rewild/presentation/single_advert_stats_screen/widgets/chart.dart';
 
-class AutoAdvertScreen extends StatelessWidget {
-  const AutoAdvertScreen({super.key});
+class SingleAdvertStatsScreen extends StatelessWidget {
+  const SingleAdvertStatsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AutoAdvertViewModel>();
+    final model = context.watch<SingleAdvertStatsViewModel>();
     final isActive = model.isActive;
     final cpm = model.cpm;
-    final modalBottomState = model.modalBottomState;
-    final save = model.save;
-    final changeActivity = model.changeActivity;
+    final title = model.title;
+
+    // final modalBottomState = model.modalBottomState;
+    // final save = model.save;
+    final start = model.start;
     final decoration = BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.surfaceVariant),
         borderRadius: BorderRadius.circular(15),
@@ -23,38 +24,27 @@ class AutoAdvertScreen extends StatelessWidget {
 
     return SafeArea(
       child: Scaffold(
-          floatingActionButton: isActive
-              ? FloatingActionButton(
-                  onPressed: () async {
-                    _showModalBottomSheet(context, modalBottomState, save);
-                  },
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  child: Icon(
-                    Icons.track_changes,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                )
-              : Container(
-                  margin: const EdgeInsets.all(3),
-                  width: model.screenWidth,
-                  child: FloatingActionButton(
-                    onPressed: () async {
-                      await changeActivity();
-                    },
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    child: Text("Возобновить показы",
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary)),
-                  )),
-          floatingActionButtonLocation: isActive
-              ? FloatingActionButtonLocation.endFloat
-              : FloatingActionButtonLocation.centerDocked,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () async {
+              if (!isActive) {
+                await start();
+              } else {}
+            },
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: Icon(
+              isActive
+                  ? Icons.notification_add_outlined
+                  : Icons.play_arrow_outlined,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           backgroundColor:
               Theme.of(context).colorScheme.surface.withOpacity(0.97),
           appBar: AppBar(
             centerTitle: true,
-            title: const Text('Автоматическая',
-                style: TextStyle(
+            title: Text(title,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF1f1f1f),
@@ -126,19 +116,19 @@ class AutoAdvertScreen extends StatelessWidget {
     );
   }
 
-  Future<dynamic> _showModalBottomSheet(
-      BuildContext context,
-      ModalBottomWidgetState modalBottomState,
-      Function(ModalBottomWidgetState) save) {
-    return showModalBottomSheet(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        context: context,
-        isScrollControlled: true,
-        builder: (context) => ModalBottomWidget(
-              state: modalBottomState,
-              saveCallback: save,
-            ));
-  }
+  // Future<dynamic> _showModalBottomSheet(
+  //     BuildContext context,
+  //     ModalBottomWidgetState modalBottomState,
+  //     Function(ModalBottomWidgetState) save) {
+  //   return showModalBottomSheet(
+  //       backgroundColor: Theme.of(context).colorScheme.background,
+  //       context: context,
+  //       isScrollControlled: true,
+  //       builder: (context) => ModalBottomWidget(
+  //             state: modalBottomState,
+  //             saveCallback: save,
+  //           ));
+  // }
 }
 
 class _UpperContainer extends StatelessWidget {
@@ -150,7 +140,7 @@ class _UpperContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AutoAdvertViewModel>();
+    final model = context.watch<SingleAdvertStatsViewModel>();
     return Container(
       margin: EdgeInsets.only(
           left: model.screenWidth * 0.04, top: model.screenWidth * 0.04),
@@ -174,7 +164,8 @@ class _SecondRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AutoAdvertViewModel>();
+    final model = context.watch<SingleAdvertStatsViewModel>();
+    final isActive = model.isActive;
     final autoStatsList = model.autoStatList;
     return IntrinsicHeight(
       child: Row(children: [
@@ -184,7 +175,7 @@ class _SecondRow extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              autoStatsList.isEmpty
+              autoStatsList.isEmpty || !isActive
                   ? Center(
                       child: Text(
                         "Нет данных",
@@ -195,7 +186,7 @@ class _SecondRow extends StatelessWidget {
                   : Chart(
                       data: autoStatsList,
                     ),
-              if (autoStatsList.isNotEmpty)
+              if (autoStatsList.isNotEmpty && isActive)
                 Container(
                   alignment: Alignment.center,
                   width: MediaQuery.of(context).size.width * 0.45,
@@ -215,7 +206,7 @@ class _SecondRow extends StatelessWidget {
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  autoStatsList.isEmpty
+                  autoStatsList.isEmpty || !isActive
                       ? Center(
                           child: Text(
                             "Нет данных",
@@ -228,7 +219,7 @@ class _SecondRow extends StatelessWidget {
                           data: autoStatsList,
                           clicks: true,
                         ),
-                  if (autoStatsList.isNotEmpty)
+                  if (autoStatsList.isNotEmpty && isActive)
                     Container(
                       alignment: Alignment.center,
                       width: MediaQuery.of(context).size.width * 0.45,
@@ -245,7 +236,7 @@ class _BottomWidget extends StatelessWidget {
   final BoxDecoration decoration;
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AutoAdvertViewModel>();
+    final model = context.watch<SingleAdvertStatsViewModel>();
 
     final totalClicks = model.totalClicks;
     final totalViews = model.totalViews;
@@ -311,9 +302,9 @@ class _FirstRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AutoAdvertViewModel>();
+    final model = context.watch<SingleAdvertStatsViewModel>();
     final advertName = model.name;
-    final isPursued = model.isPursued;
+    // final isPursued = model.isPursued;
     final views = model.views;
     final spentMoney = model.spentMoney;
     final clicks = model.clicks;
@@ -357,11 +348,10 @@ class _FirstRow extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    isPursued ? "$spentMoney потрачено" : "не отслеживается",
+                    "$spentMoney потрачено",
                     style: TextStyle(
                         fontSize: model.screenWidth * 0.03,
-                        fontWeight:
-                            isPursued ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: FontWeight.bold,
                         color:
                             Theme.of(context).colorScheme.onPrimaryContainer),
                   ),

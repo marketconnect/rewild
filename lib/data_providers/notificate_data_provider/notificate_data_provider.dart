@@ -1,6 +1,6 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
-import 'package:rewild/domain/entities/notificate.dart';
+import 'package:rewild/domain/entities/notification.dart';
 import 'package:rewild/domain/services/notificate_service.dart';
 
 class NotificationDataProvider
@@ -12,13 +12,13 @@ class NotificationDataProvider
     try {
       final db = await SqfliteService().database;
       final _ = await db.rawInsert(
-          "INSERT INTO notification (parentId, property, minValue, maxValue, changed) VALUES (?, ?, ?, ?, ?)",
+          "INSERT INTO notifications (parentId, condition, value, sizeId, wh) VALUES (?, ?, ?, ?, ?)",
           [
             notificate.parentId,
-            notificate.property,
-            notificate.minValue ?? 0,
-            notificate.maxValue ?? 0,
-            notificate.changed ?? 0
+            notificate.condition,
+            notificate.value,
+            notificate.sizeId,
+            notificate.wh
           ]);
       return Resource.empty();
     } catch (e) {
@@ -31,7 +31,7 @@ class NotificationDataProvider
     try {
       final db = await SqfliteService().database;
       final notificates = await db.rawQuery(
-          'SELECT * FROM notification WHERE parentId = ?', [parentId]);
+          'SELECT * FROM notifications WHERE parentId = ?', [parentId]);
 
       if (notificates.isEmpty) {
         return Resource.empty();
@@ -47,7 +47,7 @@ class NotificationDataProvider
   Future<Resource<List<NotificationModel>>> getAll() async {
     try {
       final db = await SqfliteService().database;
-      final notifications = await db.rawQuery('SELECT * FROM notification');
+      final notifications = await db.rawQuery('SELECT * FROM notifications');
       if (notifications.isEmpty) {
         return Resource.empty();
       }
@@ -59,14 +59,13 @@ class NotificationDataProvider
   }
 
   @override
-  Future<Resource<void>> delete(int parentId, String property) async {
+  Future<Resource<void>> delete(
+      int parentId, String property, String condition) async {
     try {
       final db = await SqfliteService().database;
       final _ = await db.rawDelete(
-          "DELETE FROM notification WHERE parentId = ? AND property = ?", [
-        parentId,
-        property,
-      ]);
+          "DELETE FROM notifications WHERE parentId = ? AND condition = ?",
+          [parentId, condition]);
       return Resource.empty();
     } catch (e) {
       return Resource.error(e.toString());
@@ -76,7 +75,7 @@ class NotificationDataProvider
   static Future<Resource<List<NotificationModel>>> getAllInBackground() async {
     try {
       final db = await SqfliteService().database;
-      final notifications = await db.rawQuery('SELECT * FROM notification');
+      final notifications = await db.rawQuery('SELECT * FROM notifications');
 
       if (notifications.isEmpty) {
         Resource.success([]);

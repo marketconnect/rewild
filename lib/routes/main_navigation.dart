@@ -15,7 +15,9 @@ abstract class ScreenFactory {
   Widget makeSingleCardScreen(int id);
   Widget makeAddGroupsScreen(List<int> cardsIds);
   Widget makeAllAdvertsScreen();
-  Widget makeAutoStatAdvertScreen(int id);
+  Widget makeSingleStatAdvertScreen(int id);
+  Widget makeManageAdvertsScreen();
+  Widget makeCardNotificationsSettingsScreen();
 }
 
 class MainNavigation implements AppNavigation {
@@ -77,19 +79,20 @@ class MainNavigation implements AppNavigation {
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeApiKeysScreen(),
         );
-      case MainNavigationRouteNames.autoStatAdvertScreen:
+      case MainNavigationRouteNames.singleAdvertStatsScreen:
         final arguments = settings.arguments;
         final advertId = arguments is int ? arguments : 0;
         return MaterialPageRoute(
-          builder: (_) => screenFactory.makeAutoStatAdvertScreen(advertId),
+          builder: (_) => screenFactory.makeSingleStatAdvertScreen(advertId),
         );
-      // case MainNavigationRouteNames.singleSellerScreen:
-      //   final arguments = settings.arguments;
-      //   final supplierId = arguments is int ? arguments : 0;
-      //   return MaterialPageRoute(
-      //     builder: (_) => screenFactory.makeSingleSellerScreen(supplierId),
-      //   );
-
+      case MainNavigationRouteNames.manageAdvertsScreen:
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeManageAdvertsScreen(),
+        );
+      case MainNavigationRouteNames.cardNotificationsSettingsScreen:
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeCardNotificationsSettingsScreen(),
+        );
       case MainNavigationRouteNames.allGroupsScreen:
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllGroupsScreen(),

@@ -4,6 +4,7 @@ import 'package:rewild/presentation/single_card_screen/single_card_screen_view_m
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/progress_indicator.dart';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -20,7 +21,17 @@ class SingleCardScreen extends StatelessWidget {
 
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () => Navigator.of(context).pushNamed(
+                  MainNavigationRouteNames.cardNotificationsSettingsScreen),
+              icon: Icon(
+                Icons.notification_add_outlined,
+                color: Theme.of(context).colorScheme.primary,
+              ))
+        ],
+      ),
       body: isNull
           ? const Center(
               child: MyProgressIndicator(),

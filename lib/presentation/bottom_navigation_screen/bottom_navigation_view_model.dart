@@ -9,7 +9,7 @@ abstract class BottomNavigationCardService {
 
 // advert
 abstract class BottomNavigationAdvertService {
-  Future<Resource<List<Advert>>> getActiveAdverts();
+  Future<Resource<List<Advert>>> getAllAdverts();
   Future<Resource<bool>> apiKeyExists();
   Future<Resource<int>> getBudget(int advertId);
   Future<Resource<bool>> stopAdvert(int advertId);
@@ -21,18 +21,49 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
   final BottomNavigationCardService cardService;
   final BottomNavigationAdvertService advertService;
   final Stream<int> cardsNumberStream;
-  final Stream<List<Advert>> advertsStream;
+  // final Stream<List<Advert>> advertsStream;
   final Stream<bool> apiKeyExistsStream;
 
   BottomNavigationViewModel(
       {required this.cardService,
       required this.advertService,
       required this.cardsNumberStream,
-      required this.advertsStream,
+      // required this.advertsStream,
       required this.apiKeyExistsStream,
       required super.internetConnectionChecker,
       required super.context}) {
     _asyncInit();
+  }
+
+  void _asyncInit() async {
+    cardsNumberStream.listen((event) {
+      setCardsNumber(event);
+      notify();
+    });
+    apiKeyExistsStream.listen((event) {
+      setApiKeyExists(event);
+      notify();
+    });
+
+    final cardsQty = await fetch(() => cardService.count());
+    if (cardsQty == null) {
+      return;
+    }
+    setCardsNumber(cardsQty);
+    final exists = await fetch(() => advertService.apiKeyExists());
+    if (exists == null) {
+      return;
+    }
+    setApiKeyExists(exists);
+
+    if (apiKeyExists) {
+      final newAdverts = await fetch(() => advertService.getAllAdverts());
+      if (newAdverts == null) {
+        return;
+      }
+    }
+
+    notify();
   }
 
   // balance
@@ -82,17 +113,21 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
     setBalance(balance);
     notify();
 
-    final newAdverts = await fetch(() => advertService.getActiveAdverts());
+    final newAdverts = await fetch(() => advertService.getAllAdverts());
     if (newAdverts == null) {
       return;
     }
     setAdverts(newAdverts);
     notify();
-    final advertIds = _adverts.map((e) => e.advertId).toList();
-    for (final id in advertIds) {
-      final budget = await fetch(() => advertService.getBudget(id));
+    // final advertIds = _adverts.map((e) => e.advertId).toList();
+    for (final advert in _adverts) {
+      if (advert.status == 11) {
+        setPaused(advert.advertId);
+      }
+      final budget =
+          await fetch(() => advertService.getBudget(advert.advertId));
       if (budget != null) {
-        addBudget(id, budget);
+        addBudget(advert.advertId, budget);
         notify();
       }
     }
@@ -154,40 +189,4 @@ class BottomNavigationViewModel extends ResourceChangeNotifier {
   }
 
   bool get apiKeyExists => _apiKeyExists;
-
-  void _asyncInit() async {
-    cardsNumberStream.listen((event) {
-      setCardsNumber(event);
-      notify();
-    });
-    apiKeyExistsStream.listen((event) {
-      setApiKeyExists(event);
-      notify();
-    });
-
-    advertsStream.listen((event) {
-      setAdverts(event);
-      notify();
-    });
-
-    final cardsQty = await fetch(() => cardService.count());
-    if (cardsQty == null) {
-      return;
-    }
-    setCardsNumber(cardsQty);
-    final exists = await fetch(() => advertService.apiKeyExists());
-    if (exists == null) {
-      return;
-    }
-    setApiKeyExists(exists);
-
-    if (apiKeyExists) {
-      final newAdverts = await fetch(() => advertService.getActiveAdverts());
-      if (newAdverts == null) {
-        return;
-      }
-    }
-
-    notify();
-  }
 }

@@ -93,7 +93,7 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
                     ],
                   ),
                 if (adverts.isNotEmpty)
-                  _ActiveAdvertsWidget(
+                  _AllAdvertsWidget(
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
                       paused: paused,
@@ -110,7 +110,7 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
                       const LinkBtn(
                         text: 'Управление',
                         color: Color(0xFF4aa6db),
-                        route: MainNavigationRouteNames.allAdvertsScreen,
+                        route: MainNavigationRouteNames.manageAdvertsScreen,
                         // route: '',
                         iconData: Icons.handyman,
                       ),
@@ -129,8 +129,8 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
   }
 }
 
-class _ActiveAdvertsWidget extends StatelessWidget {
-  const _ActiveAdvertsWidget({
+class _AllAdvertsWidget extends StatelessWidget {
+  const _AllAdvertsWidget({
     required this.screenWidth,
     required this.screenHeight,
     required this.callback,
@@ -152,6 +152,10 @@ class _ActiveAdvertsWidget extends StatelessWidget {
     adverts.sort((a, b) {
       final budgetA = budget[a.advertId];
       final budgetB = budget[b.advertId];
+      final status = a.status;
+      if (status == AdvertStatusConstants.paused) {
+        return 1; // Move paused items to the end
+      }
       if (budgetA == null && budgetB == null) {
         return 0;
       } else if (budgetA == null) {
@@ -162,6 +166,7 @@ class _ActiveAdvertsWidget extends StatelessWidget {
         return budgetA.compareTo(budgetB); // Sort by budget
       }
     });
+
     return Column(
       children: [
         Padding(
@@ -361,7 +366,9 @@ class _ElevatedBtnState extends State<_ElevatedBtn> {
               isLoading
                   ? MyProgressIndicator(size: widget.screenWidth * 0.06)
                   : Icon(
-                      widget.active ? Icons.stop : Icons.play_arrow,
+                      widget.active
+                          ? Icons.stop_outlined
+                          : Icons.play_arrow_sharp,
                       color: Theme.of(context).colorScheme.primary,
                     ),
               SizedBox(
