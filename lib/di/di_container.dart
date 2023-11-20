@@ -52,9 +52,10 @@ import 'package:rewild/domain/services/warehouse_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
+import 'package:rewild/presentation/adverts_tools_screen/adverts_tools_view_model.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
-import 'package:rewild/presentation/all_adverts_stats_screen/all_adverts_stats_screen.dart';
+import 'package:rewild/presentation/adverts_tools_screen/adverts_tools_screen.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen.dart';
@@ -65,6 +66,8 @@ import 'package:rewild/presentation/api_keys_screen/api_keys_screen.dart';
 import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
+import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_screen.dart';
+import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_view_model.dart';
 import 'package:rewild/presentation/card_notification_screen/card_notification_screen.dart';
 import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_screen.dart';
@@ -439,6 +442,19 @@ class _DIContainer {
           notificationService: _makeNotificationService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
           context: context);
+
+  AutoStatsWordsViewModel _makeAutoStatWordsViewModel(
+          BuildContext context, int advertId) =>
+      AutoStatsWordsViewModel(advertId,
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          autoStatsWordsAutoStatsService: _makeAutoStatService());
+
+  AdvertsToolsViewModel _makeAdvertsToolsViewModel(BuildContext context) =>
+      AdvertsToolsViewModel(
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          advertService: _makeAdvertService());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -552,9 +568,20 @@ class ScreenFactoryDefault implements ScreenFactory {
   }
 
   @override
-  Widget makeManageAdvertsScreen() {
-    // TODO: implement makeManageAdvertsScreen
-    return const AllAdvertsStatsScreen();
+  Widget makeAdvertsToolsScreen() {
+    return ChangeNotifierProvider(
+      create: (context) => _diContainer._makeAdvertsToolsViewModel(context),
+      child: const AdvertsToolsScreen(),
+    );
+  }
+
+  @override
+  Widget makeAutoStatsWordsScreen(int id) {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeAutoStatWordsViewModel(context, id),
+      child: const AutoStatsWordsScreen(),
+    );
   }
 
   @override

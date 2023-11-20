@@ -442,7 +442,7 @@ class CardOfProductModel extends BackgroundNotifier {
     if (stocksDif > 0) {
       result.add(NotificationContent(
         title: "Изменено кол-во остатков на складах $nmId",
-        body: "Новое кол-во на всех складах: $stocksSum меньше, чем $nStocks",
+        body: "Новое кол-во на всех складах: $stocksQty меньше, чем $nStocks",
       ));
     }
   }

@@ -5,20 +5,21 @@ import 'package:rewild/presentation/card_notification_screen/card_notification_v
 import 'main_navigation_route_names.dart';
 
 abstract class ScreenFactory {
-  Widget makeSplashScreen();
-  Widget makeBottomNavigationScreen(int num);
-  Widget makeMyWebViewScreen();
-  Widget makeApiKeysScreen();
-  Widget makeAllCardsScreen();
-  Widget makeAllCardsFilterScreen();
-  Widget makeAllGroupsScreen();
-  Widget makeSingleGroupScreen(String name);
-  Widget makeSingleCardScreen(int id);
   Widget makeAddGroupsScreen(List<int> cardsIds);
   Widget makeAllAdvertsScreen();
-  Widget makeSingleStatAdvertScreen(int id);
-  Widget makeManageAdvertsScreen();
+  Widget makeAllCardsFilterScreen();
+  Widget makeAllCardsScreen();
+  Widget makeAllGroupsScreen();
+  Widget makeApiKeysScreen();
+  Widget makeAutoStatsWordsScreen(int id);
+  Widget makeBottomNavigationScreen(int num);
   Widget makeCardNotificationsSettingsScreen(CardNotificationState state);
+  Widget makeSplashScreen();
+  Widget makeMyWebViewScreen();
+  Widget makeAdvertsToolsScreen();
+  Widget makeSingleGroupScreen(String name);
+  Widget makeSingleCardScreen(int id);
+  Widget makeSingleStatAdvertScreen(int id);
 }
 
 class MainNavigation implements AppNavigation {
@@ -88,7 +89,7 @@ class MainNavigation implements AppNavigation {
         );
       case MainNavigationRouteNames.manageAdvertsScreen:
         return MaterialPageRoute(
-          builder: (_) => screenFactory.makeManageAdvertsScreen(),
+          builder: (_) => screenFactory.makeAdvertsToolsScreen(),
         );
       case MainNavigationRouteNames.cardNotificationsSettingsScreen:
         final arguments = settings.arguments;
@@ -109,10 +110,12 @@ class MainNavigation implements AppNavigation {
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllAdvertsScreen(),
         );
-      // case MainNavigationRouteNames.allSellersScreen:
-      //   return MaterialPageRoute(
-      //     builder: (_) => screenFactory.makeAllSellersScreen(),
-      //   );
+      case MainNavigationRouteNames.autoStatWordsScreen:
+        final arguments = settings.arguments;
+        final advertId = arguments is int ? arguments : 0;
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeAutoStatsWordsScreen(advertId),
+        );
 
       case MainNavigationRouteNames.allCardsFilterScreen:
         return MaterialPageRoute(

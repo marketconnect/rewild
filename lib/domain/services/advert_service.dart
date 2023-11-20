@@ -7,6 +7,7 @@ import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
+import 'package:rewild/presentation/adverts_tools_screen/adverts_tools_view_model.dart';
 
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
@@ -41,6 +42,7 @@ class AdvertService
     implements
         AllAdvertsScreenAdvertService,
         SingleAdvertStatsViewModelAdvertService,
+        AdvertsToolsAdvertService,
         BottomNavigationAdvertService {
   final AdvertServiceAdvertApiClient advertApiClient;
   final AdvertServiceApiKeyDataProvider apiKeysDataProvider;
@@ -251,6 +253,46 @@ class AdvertService
       return Resource.error(changeCpmResource.message!);
     }
     return Resource.success(changeCpmResource.data!);
+  }
+
+  @override
+  Future<Resource<List<AdvertInfoModel>>> getByType(int type) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+
+    // request to API
+
+    if (advertsLastReq != null) {
+      await _ready(advertsLastReq, APIConstants.advertsDurationBetweenReqInMs);
+    }
+
+    final advertsResource =
+        await advertApiClient.getAdverts(tokenResource.data!.token);
+    advertsLastReq = DateTime.now();
+    if (advertsResource is Error) {
+      return Resource.error(advertsResource.message!);
+    }
+
+    List<AdvertInfoModel> res = [];
+    if (advertsResource is Empty) {
+      return Resource.success(res);
+    }
+
+    for (var advert in advertsResource.data!) {
+      if (advert.status == 7 || advert.status == 8) {
+        continue;
+      }
+      if (advert.type != type) {
+        continue;
+      }
+      res.add(advert);
+    }
+    return Resource.success(res);
   }
 
   @override

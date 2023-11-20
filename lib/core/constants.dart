@@ -30,6 +30,9 @@ class APIConstants {
   static const Duration autoStatNumsDurationBetweenReqInMs = Duration(
     milliseconds: 10000,
   );
+  static const Duration autoStatWordsNumsDurationBetweenReqInMs = Duration(
+    milliseconds: 10000,
+  );
   static const Duration fullStatNumsDurationBetweenReqInMs = Duration(
     milliseconds: 10000,
   );
