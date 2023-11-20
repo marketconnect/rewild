@@ -1,5 +1,6 @@
 import 'package:rewild/presentation/app/app.dart';
 import 'package:flutter/material.dart';
+import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
 
 import 'main_navigation_route_names.dart';
 
@@ -17,7 +18,7 @@ abstract class ScreenFactory {
   Widget makeAllAdvertsScreen();
   Widget makeSingleStatAdvertScreen(int id);
   Widget makeManageAdvertsScreen();
-  Widget makeCardNotificationsSettingsScreen();
+  Widget makeCardNotificationsSettingsScreen(CardNotificationState state);
 }
 
 class MainNavigation implements AppNavigation {
@@ -90,8 +91,14 @@ class MainNavigation implements AppNavigation {
           builder: (_) => screenFactory.makeManageAdvertsScreen(),
         );
       case MainNavigationRouteNames.cardNotificationsSettingsScreen:
+        final arguments = settings.arguments;
+        final state = arguments is CardNotificationState
+            ? arguments
+            : CardNotificationState.empty();
+
         return MaterialPageRoute(
-          builder: (_) => screenFactory.makeCardNotificationsSettingsScreen(),
+          builder: (_) =>
+              screenFactory.makeCardNotificationsSettingsScreen(state),
         );
       case MainNavigationRouteNames.allGroupsScreen:
         return MaterialPageRoute(

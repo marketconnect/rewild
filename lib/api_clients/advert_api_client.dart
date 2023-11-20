@@ -20,6 +20,41 @@ class AdvertApiClient
     implements AdvertServiceAdvertApiClient, AutoStatServiceAdvertApiClient {
   const AdvertApiClient();
 
+  // max 10 requests per minute
+  @override
+  Future<Resource<bool>> setAutoExcludedKw(
+      String token, int advertId, List<String> excludedKw) async {
+    try {
+      var headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+
+      // final params = {'id': advertId.toString()};
+      final body = {
+        'id': advertId.toString(),
+        'excluded': excludedKw,
+      };
+
+      final jsonString = json.encode(body);
+
+      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/set-excluded");
+      var response = await http.post(uri, headers: headers, body: jsonString);
+      if (response.statusCode == 200) {
+        return Resource.success(true);
+      } else if (response.statusCode == 422) {
+        // Size of bid is not changed
+        return Resource.success(false);
+      } else if (response.statusCode == 400) {
+        return Resource.error("Incorrect campaign identifier");
+      } else if (response.statusCode == 401) {
+        return Resource.error("Empty authorization header");
+      }
+    } catch (e) {
+      return Resource.error("Unknown error");
+    }
+  }
+
   // max 300 requests per minute
   @override
   Future<Resource<bool>> changeCpm(String token, int advertId, int type,
@@ -148,7 +183,7 @@ class AdvertApiClient
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
-          "Ответ API WB: кампания не принадлежит продавцу",
+          "Ответ API WB: кампания $advertId не принадлежит продавцу",
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
@@ -567,7 +602,7 @@ class AdvertApiClient
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
-          "Ответ API WB: кампания не принадлежит продавцу",
+          "Ответ API WB: кампания $advertId не принадлежит продавцу",
         );
       } else if (response.statusCode == 401) {
         return Resource.error(

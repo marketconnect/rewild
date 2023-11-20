@@ -96,8 +96,6 @@ class BackgroundService {
 
   // update all every n minutes
   static fetchAll() async {
-    print(
-        "FETCH_ALL =========================================================================  ");
     // since the token does not uses for card of products details request
     // make it nullable
     String? token;
@@ -147,7 +145,7 @@ class BackgroundService {
         .toList();
     // ids
     List<int> cardsIds = cardsNotifications.map((e) => e.parentId).toList();
-    List<int> advertsIds = cardsNotifications.map((e) => e.parentId).toList();
+    List<int> advertsIds = advertsNotifications.map((e) => e.parentId).toList();
 
     List<NotificationContent> notificationContents = [];
 

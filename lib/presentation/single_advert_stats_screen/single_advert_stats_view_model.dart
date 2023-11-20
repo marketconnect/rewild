@@ -10,7 +10,6 @@ import 'package:rewild/domain/entities/advert_search_model.dart';
 import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:rewild/domain/entities/notification.dart';
-import 'package:rewild/presentation/single_advert_stats_screen/widgets/modal_bottom_widget.dart';
 
 import '../../domain/entities/advert_base.dart';
 
@@ -36,8 +35,8 @@ abstract class SingleAdvertStatsViewModelAdvertService {
 
 abstract class SingleAdvertStatsViewModelNotificationService {
   Future<Resource<void>> addNotification(NotificationModel notificate);
-  Future<Resource<void>> delete(
-      int parentId, String property, String condition);
+  // Future<Resource<void>> delete(
+  //     int parentId, String property, String condition);
   Future<Resource<List<NotificationModel>>> getAll();
   Future<Resource<List<NotificationModel>>> getForParent(int parentId);
 }
@@ -401,24 +400,24 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   // PUBLIC METHODS ======================================================================== PUBLIC METHODS
   // saves changes from modal bottom widget to local storage and Wb API
   // updates screen
-  Future<void> save(ModalBottomWidgetState state) async {
-    final isActive = state.isActive;
-    if (isActive != _isActive) {
-      await start();
-    }
+  // Future<void> save(ModalBottomWidgetState state) async {
+  //   final isActive = state.isActive;
+  //   if (isActive != _isActive) {
+  //     await start();
+  //   }
 
-    final cpm = state.cpm;
-    if (cpm != _cpm) {
-      await _changeCpm(cpm);
-    }
+  //   final cpm = state.cpm;
+  //   if (cpm != _cpm) {
+  //     await _changeCpm(cpm);
+  //   }
 
-    // final minBudget = state.minBudget;
-    // if (minBudget != _modalBottomState.minBudget) {
-    //   await _changeMinBudgetNotification(minBudget);
-    // }
+  //   // final minBudget = state.minBudget;
+  //   // if (minBudget != _modalBottomState.minBudget) {
+  //   //   await _changeMinBudgetNotification(minBudget);
+  //   // }
 
-    _asyncInit();
-  }
+  //   _asyncInit();
+  // }
 
   // Starts or stops advert
   Future<void> start() async {

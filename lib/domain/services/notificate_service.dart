@@ -1,17 +1,19 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/notification.dart';
+import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 
 abstract class NotificationServiceNotificationDataProvider {
   Future<Resource<List<NotificationModel>>> getAll();
   Future<Resource<void>> save(NotificationModel notificate);
-  Future<Resource<void>> delete(
-      int parentId, String property, String condition);
+  Future<Resource<void>> deleteAll(int parentId);
   Future<Resource<List<NotificationModel>>> getForParent(int parentId);
 }
 
 class NotificationService
-    implements SingleAdvertStatsViewModelNotificationService {
+    implements
+        SingleAdvertStatsViewModelNotificationService,
+        CardNotificationNotificationService {
   final NotificationServiceNotificationDataProvider notificationDataProvider;
   NotificationService({required this.notificationDataProvider});
 
@@ -23,6 +25,25 @@ class NotificationService
     }
 
     return resource;
+  }
+
+  @override
+  Future<Resource<void>> addForParent(
+      List<NotificationModel> notifications) async {
+    final parentId = notifications.first.parentId;
+
+    final resource = await notificationDataProvider.deleteAll(parentId);
+    if (resource is Error) {
+      return Resource.error(resource.message!);
+    }
+    for (final notification in notifications) {
+      final resource = await notificationDataProvider.save(notification);
+      if (resource is Error) {
+        return Resource.error(resource.message!);
+      }
+    }
+
+    return Resource.empty();
   }
 
   @override
@@ -46,18 +67,6 @@ class NotificationService
 
     if (resource is Empty) {
       return Resource.success([]);
-    }
-
-    return resource;
-  }
-
-  @override
-  Future<Resource<void>> delete(
-      int parentId, String property, String condition) async {
-    final resource =
-        await notificationDataProvider.delete(parentId, property, condition);
-    if (resource is Error) {
-      return Resource.error(resource.message!);
     }
 
     return resource;

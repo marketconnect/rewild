@@ -59,13 +59,13 @@ class NotificationDataProvider
   }
 
   @override
-  Future<Resource<void>> delete(
-      int parentId, String property, String condition) async {
+  Future<Resource<void>> deleteAll(int parentId) async {
     try {
       final db = await SqfliteService().database;
-      final _ = await db.rawDelete(
-          "DELETE FROM notifications WHERE parentId = ? AND condition = ?",
-          [parentId, condition]);
+      final _ =
+          await db.rawDelete("DELETE FROM notifications WHERE parentId = ?", [
+        parentId,
+      ]);
       return Resource.empty();
     } catch (e) {
       return Resource.error(e.toString());

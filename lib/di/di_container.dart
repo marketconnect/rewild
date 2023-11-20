@@ -66,6 +66,7 @@ import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
 import 'package:rewild/presentation/card_notification_screen/card_notification_screen.dart';
+import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_screen.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_screen.dart';
@@ -431,6 +432,13 @@ class _DIContainer {
         notificationService: _makeNotificationService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
+
+  CardNotificationViewModel _makeCardNotificationSettingsViewModel(
+          BuildContext context, CardNotificationState state) =>
+      CardNotificationViewModel(state,
+          notificationService: _makeNotificationService(),
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          context: context);
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -549,7 +557,12 @@ class ScreenFactoryDefault implements ScreenFactory {
     return const AllAdvertsStatsScreen();
   }
 
-  Widget makeCardNotificationsSettingsScreen() {
-    return const CardNotificationSettingsScreen();
+  @override
+  Widget makeCardNotificationsSettingsScreen(CardNotificationState state) {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeCardNotificationSettingsViewModel(context, state),
+      child: const CardNotificationSettingsScreen(),
+    );
   }
 }

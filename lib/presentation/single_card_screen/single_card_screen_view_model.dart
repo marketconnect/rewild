@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
@@ -12,6 +13,8 @@ import 'package:rewild/domain/entities/stocks_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
 
 import 'package:rewild/domain/entities/warehouse.dart';
+import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
+import 'package:rewild/routes/main_navigation_route_names.dart';
 
 // card
 abstract class SingleCardScreenCardOfProductService {
@@ -84,6 +87,137 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
     asyncInit();
   }
 
+  // Async init ================================================================
+  Future<void> asyncInit() async {
+    // Set Uri
+    websiteUri =
+        Uri.parse('https://www.wildberries.ru/catalog/$id/detail.aspx');
+
+    // Get card
+    final cardOfProduct = await fetch(() => cardOfProductService.getOne(id));
+    if (cardOfProduct == null) {
+      return;
+    }
+
+    _isNull = false;
+
+    // name, img, feedbacks, reviewRating
+    _name = cardOfProduct.name;
+    _img = cardOfProduct.img!.replaceFirst("/tm/", "/big/");
+    _feedbacks = cardOfProduct.feedbacks ?? 0;
+    _reviewRating = cardOfProduct.reviewRating ?? 0;
+    _price = cardOfProduct.basicPriceU ?? 0;
+    _pics = cardOfProduct.pics ?? 0;
+    _promo = cardOfProduct.promoTextCard ?? '';
+
+    // Seller
+    if (_sellerName == "-") {
+      if (cardOfProduct.supplierId != null) {
+        final seller =
+            await fetch(() => sellerService.get(cardOfProduct.supplierId!));
+        if (seller == null) {
+          return;
+        }
+        _tradeMark = seller.trademark ?? '-';
+        _sellerName = seller.name;
+        // region
+        final ogrn = seller.ogrn;
+        _region = (ogrn != null && ogrn.length > 3)
+            ? "${RegionsNumsConstants.regions[ogrn.substring(3, 5)]}"
+            : "-";
+      }
+    }
+
+    // Commission, category, subject
+    if (_subjectId == 0) {
+      _subjectId = cardOfProduct.subjectId ?? 0;
+    }
+    if (_commission == null && _subjectId != 0) {
+      final commissionResource =
+          await fetch(() => commissionService.get(_subjectId));
+      if (commissionResource == null) {
+        return;
+      }
+      _commission = commissionResource.commission;
+      _category = commissionResource.category;
+      _subject = commissionResource.subject;
+    }
+
+    // brand
+    _brand = cardOfProduct.brand ?? '-';
+    // get stocks
+    final stocks = await fetch(() => stockService.get(id));
+    if (stocks == null) {
+      return;
+    }
+
+    //  add stocks
+    for (final stock in stocks) {
+      final resource = await warehouseService.getById(stock.wh);
+      final resouwarehouse = resource.data;
+      if (resouwarehouse == null) {
+        return;
+      }
+      _notificationScreenWarehouses[resouwarehouse] = stock.qty;
+      addWarehouse(resouwarehouse.name, stock.qty);
+    }
+    // get supplies
+    final supplies = await fetch(() => supplyService.getForOne(
+            nmId: id,
+            dateFrom: yesterdayEndOfTheDay(),
+            dateTo: DateTime.now())) ??
+        [];
+
+    // get initial stocks
+    final initialStocks = await fetch(() => initialStocksService.get(id));
+    if (initialStocks == null) {
+      return;
+    }
+    // add initial stocks and orders
+    for (final initStock in initialStocks) {
+      final wh = initStock.wh;
+      final warehouse = await fetch(() => warehouseService.getById(wh));
+      if (warehouse == null) {
+        return;
+      }
+
+      addInitialStock(warehouse.name, initStock.qty);
+
+      // orders
+      final stock = warehouses[warehouse.name] ?? 0;
+      final iSt = _initialStocks[warehouse.name] ?? 0;
+      int supplyQty = 0;
+      final supply = supplies.where((element) =>
+          element.nmId == id &&
+          element.wh == wh &&
+          element.sizeOptionId == initStock.sizeOptionId);
+      if (supply.isNotEmpty) {
+        supplyQty = supply.first.qty;
+      }
+      addSupply(warehouse.name, supplyQty);
+      final qty = iSt + supplyQty - stock;
+      addOrder(warehouse.name, qty);
+      _stocksSum += stock;
+    }
+
+    _initStocksSum = _initialStocks.values.isNotEmpty
+        ? _initialStocks.values.reduce((value, element) => value + element)
+        : 0;
+    _supplySum = _supplies.values.isNotEmpty
+        ? _supplies.values.reduce((value, element) => value + element)
+        : 0;
+    final ordersHistory = await fetch(() => ordersHistoryService.get(id));
+    if (ordersHistory == null) {
+      return;
+    }
+
+    _totalOrdersQty = ordersHistory.qty;
+    // is high buyout
+    _isHighBuyout = ordersHistory.highBuyout;
+
+    notify();
+  }
+
   final List<String> listTilesNames = [
     'Общая информация',
     'Карточка',
@@ -94,6 +228,22 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
     return listTilesNames[index];
   }
 
+  // stet for notification screen
+
+  String _promo = '';
+
+  // price
+  int _price = 0;
+
+  // pics
+  int _pics = 0;
+
+  Map<Warehouse, int> _notificationScreenWarehouses = {};
+  // review rating
+  double _reviewRating = 0;
+  double get reviewRating => _reviewRating;
+
+  //
   // Uri
   Uri? websiteUri;
   // Name
@@ -144,8 +294,6 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
   int _feedbacks = 0;
   int get feedbacks => _feedbacks;
   // Review rating
-  double _reviewRating = 0;
-  double get reviewRating => _reviewRating;
 
   // region
   String _region = '-';
@@ -226,130 +374,18 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
   bool _isNull = true;
   bool get isNull => _isNull;
 
-  // Async init ================================================================
-  Future<void> asyncInit() async {
-    // Set Uri
-    websiteUri =
-        Uri.parse('https://www.wildberries.ru/catalog/$id/detail.aspx');
-
-    // Get card
-    final cardOfProduct = await fetch(() => cardOfProductService.getOne(id));
-    if (cardOfProduct == null) {
-      return;
-    }
-
-    _isNull = false;
-
-    // name, img, feedbacks, reviewRating
-    _name = cardOfProduct.name;
-    _img = cardOfProduct.img!.replaceFirst("/tm/", "/big/");
-    _feedbacks = cardOfProduct.feedbacks ?? 0;
-    _reviewRating = cardOfProduct.reviewRating ?? 0;
-
-    // Seller
-    if (_sellerName == "-") {
-      if (cardOfProduct.supplierId != null) {
-        final seller =
-            await fetch(() => sellerService.get(cardOfProduct.supplierId!));
-        if (seller == null) {
-          return;
-        }
-        _tradeMark = seller.trademark ?? '-';
-        _sellerName = seller.name;
-        // region
-        final ogrn = seller.ogrn;
-        _region = (ogrn != null && ogrn.length > 3)
-            ? "${RegionsNumsConstants.regions[ogrn.substring(3, 5)]}"
-            : "-";
-      }
-    }
-
-    // Commission, category, subject
-    if (_subjectId == 0) {
-      _subjectId = cardOfProduct.subjectId ?? 0;
-    }
-    if (_commission == null && _subjectId != 0) {
-      final commissionResource =
-          await fetch(() => commissionService.get(_subjectId));
-      if (commissionResource == null) {
-        return;
-      }
-      _commission = commissionResource.commission;
-      _category = commissionResource.category;
-      _subject = commissionResource.subject;
-    }
-
-    // brand
-    _brand = cardOfProduct.brand ?? '-';
-    // get stocks
-    final stocks = await fetch(() => stockService.get(id));
-    if (stocks == null) {
-      return;
-    }
-
-    //  add stocks
-    for (final stock in stocks) {
-      final resource = await warehouseService.getById(stock.wh);
-      final resouwarehouse = resource.data;
-      if (resouwarehouse == null) {
-        return;
-      }
-      addWarehouse(resouwarehouse.name, stock.qty);
-    }
-    // get supplies
-    final supplies = await fetch(() => supplyService.getForOne(
-            nmId: id,
-            dateFrom: yesterdayEndOfTheDay(),
-            dateTo: DateTime.now())) ??
-        [];
-
-    // get initial stocks
-    final initialStocks = await fetch(() => initialStocksService.get(id));
-    if (initialStocks == null) {
-      return;
-    }
-    // add initial stocks and orders
-    for (final initStock in initialStocks) {
-      final wh = initStock.wh;
-      final warehouse = await fetch(() => warehouseService.getById(wh));
-      if (warehouse == null) {
-        return;
-      }
-
-      addInitialStock(warehouse.name, initStock.qty);
-
-      // orders
-      final stock = warehouses[warehouse.name] ?? 0;
-      final iSt = _initialStocks[warehouse.name] ?? 0;
-      int supplyQty = 0;
-      final supply = supplies.where((element) =>
-          element.nmId == id &&
-          element.wh == wh &&
-          element.sizeOptionId == initStock.sizeOptionId);
-      if (supply.isNotEmpty) {
-        supplyQty = supply.first.qty;
-      }
-      addSupply(warehouse.name, supplyQty);
-      final qty = iSt + supplyQty - stock;
-      addOrder(warehouse.name, qty);
-      _stocksSum += stock;
-    }
-
-    _initStocksSum = _initialStocks.values.isNotEmpty
-        ? _initialStocks.values.reduce((value, element) => value + element)
-        : 0;
-    _supplySum = _supplies.values.isNotEmpty
-        ? _supplies.values.reduce((value, element) => value + element)
-        : 0;
-    final ordersHistory = await fetch(() => ordersHistoryService.get(id));
-    if (ordersHistory == null) {
-      return;
-    }
-
-    _totalOrdersQty = ordersHistory.qty;
-    // is high buyout
-    _isHighBuyout = ordersHistory.highBuyout;
-
-    if (context.mounted) notifyListeners();
+  void notificationsScreen() {
+    final state = CardNotificationState(
+      nmId: id,
+      price: _price,
+      promo: _promo,
+      name: _name,
+      pics: _pics,
+      reviewRating: _reviewRating,
+      warehouses: _notificationScreenWarehouses,
+    );
+    Navigator.of(context).pushNamed(
+        MainNavigationRouteNames.cardNotificationsSettingsScreen,
+        arguments: state);
   }
 }
