@@ -65,7 +65,6 @@ class AdvertApiClient
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
-
       var uri =
           Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat-words", params);
       var response = await http.get(uri, headers: headers);
@@ -73,9 +72,9 @@ class AdvertApiClient
         // Parse the JSON string into a Map
         Map<String, dynamic> jsonData =
             json.decode(utf8.decode(response.bodyBytes));
-
+        var data = jsonData['words'];
         // Use the fromMap method
-        AutoStatWord autoStatWord = AutoStatWord.fromMap(jsonData);
+        AutoStatWord autoStatWord = AutoStatWord.fromMap(data);
 
         return Resource.success(autoStatWord);
       }

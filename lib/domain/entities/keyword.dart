@@ -18,7 +18,7 @@ class Keyword {
   }
 
   factory Keyword.fromMap(Map<String, dynamic> map) {
-    print('keyword: $map');
+    // print('keyword: $map');
     return Keyword(
       id: map['id'],
       keyword: map['keyword'],

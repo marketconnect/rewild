@@ -7,7 +7,8 @@ import 'package:rewild/domain/entities/notification.dart';
 import 'package:rewild/domain/entities/warehouse.dart';
 
 abstract class CardNotificationNotificationService {
-  Future<Resource<void>> addForParent(List<NotificationModel> notifications);
+  Future<Resource<void>> addForParent(
+      List<NotificationModel> notifications, int parentId);
   Future<Resource<List<NotificationModel>>> getForParent(int bnmId);
 }
 
@@ -91,7 +92,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
   List<NotificationModel> get notifications => _notifications;
 
   Future<void> save() async {
-    await notificationService.addForParent(_notifications);
+    await notificationService.addForParent(_notifications, state.nmId);
     if (context.mounted) Navigator.of(context).pop();
   }
 

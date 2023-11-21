@@ -143,7 +143,6 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
   static Future<Resource<List<CardOfProductModel>>> getInBackground(
       List<int> ids) async {
     try {
-      print("getInBackground");
       final params = {
         'appType': '1',
         'curr': 'rub',

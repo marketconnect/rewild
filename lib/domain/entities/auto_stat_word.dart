@@ -1,14 +1,12 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import 'package:rewild/domain/entities/excluded_word.dart';
 import 'package:rewild/domain/entities/keyword.dart';
 
 class AutoStatWord {
   final List<Keyword> keywords;
-  final List<ExcludedWord> excluded;
+  final List<String> excluded;
   AutoStatWord({
     required this.keywords,
     required this.excluded,
@@ -16,7 +14,7 @@ class AutoStatWord {
 
   AutoStatWord copyWith({
     List<Keyword>? keywords,
-    List<ExcludedWord>? excluded,
+    List<String>? excluded,
   }) {
     return AutoStatWord(
       keywords: keywords ?? this.keywords,
@@ -27,7 +25,7 @@ class AutoStatWord {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'keywords': keywords.map((x) => x.toMap()).toList(),
-      'excluded': excluded.map((x) => x.toMap()).toList(),
+      'excluded': excluded.map((x) => x).toList(),
     };
   }
 
@@ -36,9 +34,8 @@ class AutoStatWord {
       map['keywords']?.map((x) => Keyword.fromMap(x)),
     );
 
-    List<ExcludedWord> excluded = List<ExcludedWord>.from(
-      map['excluded']?.map((x) => ExcludedWord.fromMap(x)),
-    );
+    List<String> excluded =
+        map['excluded'].map<String>((e) => e.toString()).toList();
 
     return AutoStatWord(
       keywords: keywords,

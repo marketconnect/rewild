@@ -447,6 +447,7 @@ class _DIContainer {
           BuildContext context, int advertId) =>
       AutoStatsWordsViewModel(advertId,
           context: context,
+          autoStatsWordsAdvertService: _makeAdvertService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
           autoStatsWordsAutoStatsService: _makeAutoStatService());
 

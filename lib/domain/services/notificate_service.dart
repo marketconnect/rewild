@@ -29,8 +29,8 @@ class NotificationService
 
   @override
   Future<Resource<void>> addForParent(
-      List<NotificationModel> notifications) async {
-    final parentId = notifications.first.parentId;
+      List<NotificationModel> notifications, int parentId) async {
+    // final parentId = notifications.first.parentId;
 
     final resource = await notificationDataProvider.deleteAll(parentId);
     if (resource is Error) {
