@@ -23,10 +23,10 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
         // '26302833;20887620;20823213;24830115;24830116;25749439;26301248;26302127;26462923;27491053;36868396;40163780;175962393;36868145;36010990;20823214;27492305;26301885;20822923'
       };
 
-      var uri = Uri.parse('https://card.wb.ru/cards/detail')
+      final uri = Uri.parse('https://card.wb.ru/cards/detail')
           .replace(queryParameters: params);
 
-      var response = await http.get(uri, headers: {
+      final response = await http.get(uri, headers: {
         'Accept': '*/*',
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'ru-RU,ru;q=0.9',
@@ -44,8 +44,8 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
             'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
       });
       if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        var productCardsJson = data['data']['products'];
+        final data = jsonDecode(response.body);
+        final productCardsJson = data['data']['products'];
         List<CardOfProductModel> resultProductCardsList = [];
         // Mapping
         for (final json in productCardsJson) {
@@ -153,12 +153,12 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
         'nm': ids.join(";")
       };
 
-      var uri = Uri.parse('https://card.wb.ru/cards/detail')
+      final uri = Uri.parse('https://card.wb.ru/cards/detail')
           .replace(queryParameters: params);
-      var response = await http.get(uri);
+      final response = await http.get(uri);
       if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        var productCardsJson = data['data']['products'];
+        final data = jsonDecode(response.body);
+        final productCardsJson = data['data']['products'];
         List<CardOfProductModel> resultProductCardsList = [];
         // Mapping
         for (final json in productCardsJson) {

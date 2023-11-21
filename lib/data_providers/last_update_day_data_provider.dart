@@ -11,8 +11,8 @@ class LastUpdateDayDataProvider
   static const updatedAtKey = 'updatedAt';
   @override
   Future<Resource<void>> update() async {
-    var now = DateTime.now();
-    var formatter = DateFormat('yyyy-MM-dd');
+    final now = DateTime.now();
+    final formatter = DateFormat('yyyy-MM-dd');
     String formattedDate = formatter.format(now);
 
     try {
@@ -32,8 +32,8 @@ class LastUpdateDayDataProvider
   }
 
   static Future<Resource<void>> updateInBackground() async {
-    var now = DateTime.now();
-    var formatter = DateFormat('yyyy-MM-dd');
+    final now = DateTime.now();
+    final formatter = DateFormat('yyyy-MM-dd');
     String formattedDate = formatter.format(now);
 
     try {
@@ -54,8 +54,8 @@ class LastUpdateDayDataProvider
 
   @override
   Future<Resource<bool>> todayUpdated() async {
-    var now = DateTime.now();
-    var formatter = DateFormat('yyyy-MM-dd');
+    final now = DateTime.now();
+    final formatter = DateFormat('yyyy-MM-dd');
     String formattedDate = formatter.format(now);
     try {
       final prefs = await SharedPreferences.getInstance();

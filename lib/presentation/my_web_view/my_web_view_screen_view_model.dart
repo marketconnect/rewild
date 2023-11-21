@@ -73,7 +73,7 @@ class MyWebViewScreenViewModel extends ResourceChangeNotifier {
       List<dynamic> jsonList = json.decode(jsonString);
       List<CardOfProductModel> cards = [];
 
-      for (var jsonObject in jsonList) {
+      for (final jsonObject in jsonList) {
         cards.add(
             CardOfProductModel(nmId: jsonObject['id'], img: jsonObject['img']));
       }

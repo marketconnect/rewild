@@ -434,7 +434,7 @@ class _Feedback extends StatelessWidget {
             if (link == null) {
               return;
             }
-            var urllaunchable = await canLaunchUrl(
+            final urllaunchable = await canLaunchUrl(
                 link); //canLaunch is from url_launcher package
             if (urllaunchable) {
               await launchUrl(

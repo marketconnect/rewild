@@ -148,7 +148,7 @@ class AdvertService
     }
     List<Advert> res = [];
 
-    for (var advert in advertsResource.data!) {
+    for (final advert in advertsResource.data!) {
       if (advert.status != 9 && advert.status != 11) {
         continue;
       }
@@ -271,7 +271,7 @@ class AdvertService
       return Resource.success(res);
     }
 
-    for (var advert in advertsResource.data!) {
+    for (final advert in advertsResource.data!) {
       if (advert.status == 7 || advert.status == 8) {
         continue;
       }
@@ -311,7 +311,7 @@ class AdvertService
       return Resource.success(res);
     }
 
-    for (var advert in advertsResource.data!) {
+    for (final advert in advertsResource.data!) {
       if (advert.status == 7 || advert.status == 8) {
         continue;
       }

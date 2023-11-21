@@ -152,6 +152,9 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
 
         break;
       case NotificationConditionConstants.stocksLessThan:
+        final v = state.warehouses.entries
+            .fold(0, (previousValue, element) => previousValue + element.value)
+            .toString();
         _notifications.add(NotificationModel(
             condition: NotificationConditionConstants.stocksLessThan,
             value: state.warehouses.entries

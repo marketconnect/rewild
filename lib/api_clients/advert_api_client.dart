@@ -26,7 +26,7 @@ class AdvertApiClient
   Future<Resource<bool>> setAutoSetExcluded(
       String token, int advertId, List<String> excludedKw) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
@@ -36,12 +36,11 @@ class AdvertApiClient
         'excluded': excludedKw,
       };
 
-      print(body);
       final jsonString = json.encode(body);
 
-      var uri =
+      final uri =
           Uri.https('advert-api.wb.ru', "/adv/v1/auto/set-excluded", params);
-      var response = await http.post(uri, headers: headers, body: jsonString);
+      final response = await http.post(uri, headers: headers, body: jsonString);
       if (response.statusCode == 200) {
         return Resource.success(true);
       } else if (response.statusCode == 422) {
@@ -63,19 +62,19 @@ class AdvertApiClient
   Future<Resource<AutoStatWord>> autoStatWords(
       String token, int advertId) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
-      var uri =
+      final uri =
           Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat-words", params);
-      var response = await http.get(uri, headers: headers);
+      final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         // Parse the JSON string into a Map
         Map<String, dynamic> jsonData =
             json.decode(utf8.decode(response.bodyBytes));
-        var data = jsonData['words'];
+        final data = jsonData['words'];
         // Use the fromMap method
         AutoStatWord autoStatWord = AutoStatWord.fromMap(data);
 
@@ -97,7 +96,7 @@ class AdvertApiClient
   Future<Resource<bool>> changeCpm(String token, int advertId, int type,
       int cpm, int param, int? instrument) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
@@ -109,9 +108,9 @@ class AdvertApiClient
 
       final jsonString = json.encode(body);
 
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v0/cpm");
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v0/cpm");
 
-      var response = await http.post(uri, headers: headers, body: jsonString);
+      final response = await http.post(uri, headers: headers, body: jsonString);
       if (response.statusCode == 200) {
         return Resource.success(true);
       } else if (response.statusCode == 422) {
@@ -132,14 +131,14 @@ class AdvertApiClient
   @override
   Future<Resource<bool>> pauseAdvert(String token, int advertId) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
 
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v0/pause", params);
-      var response = await http.get(uri, headers: headers);
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v0/pause", params);
+      final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         return Resource.success(true);
       } else if (response.statusCode == 422) {
@@ -166,14 +165,14 @@ class AdvertApiClient
   @override
   Future<Resource<bool>> startAdvert(String token, int advertId) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
 
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v0/start", params);
-      var response = await http.get(uri, headers: headers);
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v0/start", params);
+      final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         return Resource.success(true);
       } else if (response.statusCode == 422) {
@@ -199,16 +198,16 @@ class AdvertApiClient
   @override
   Future<Resource<int>> getCompanyBudget(String token, int advertId) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
 
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/budget", params);
-      var response = await http.get(uri, headers: headers);
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v1/budget", params);
+      final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
-        var data = jsonDecode(utf8.decode(response.bodyBytes));
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
         if (data == null) {
           return Resource.empty();
         }
@@ -238,15 +237,15 @@ class AdvertApiClient
   @override
   Future<Resource<List<AdvertInfoModel>>> getAdverts(String token) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      var uri = Uri.parse('https://advert-api.wb.ru/adv/v0/adverts');
-      var response = await http.get(uri, headers: headers);
+      final uri = Uri.parse('https://advert-api.wb.ru/adv/v0/adverts');
+      final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
-        var data = jsonDecode(utf8.decode(response.bodyBytes));
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
         if (data == null) {
           return Resource.empty();
         }
@@ -285,11 +284,11 @@ class AdvertApiClient
   @override
   Future<Resource<int>> balance(String token) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      var uri = Uri.https("advert-api.wb.ru", "/adv/v1/balance");
+      final uri = Uri.https("advert-api.wb.ru", "/adv/v1/balance");
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
@@ -317,12 +316,12 @@ class AdvertApiClient
   Future<Resource<AdvertStatModel>> getSearchStat(
       String token, int advertId) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
@@ -355,12 +354,12 @@ class AdvertApiClient
   Future<Resource<AdvertStatModel>> getAutoStat(
       String token, int advertId) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat", params);
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
@@ -391,14 +390,14 @@ class AdvertApiClient
   @override
   Future<Resource<Advert>> getAdvertInfo(String token, int id) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
 
       final params = {'id': id.toString()};
 
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v0/advert", params);
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v0/advert", params);
 
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
@@ -460,13 +459,13 @@ class AdvertApiClient
   static Future<Resource<AdvertStatModel>> getFullStatInBackground(
       String token, int advertId) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
 
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/fullstat", params);
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v1/fullstat", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
@@ -498,12 +497,12 @@ class AdvertApiClient
   static Future<Resource<AdvertStatModel>> getSearchStatInBackground(
       String token, int advertId) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
@@ -535,15 +534,15 @@ class AdvertApiClient
   static Future<Resource<List<AdvertInfoModel>>> getAdvertsInBackground(
       String token) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      var uri = Uri.parse('https://advert-api.wb.ru/adv/v0/adverts');
-      var response = await http.get(uri, headers: headers);
+      final uri = Uri.parse('https://advert-api.wb.ru/adv/v0/adverts');
+      final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
-        var data = jsonDecode(utf8.decode(response.bodyBytes));
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
         if (data == null) {
           return Resource.empty();
         }
@@ -582,12 +581,12 @@ class AdvertApiClient
   static Future<Resource<AdvertStatModel>> getAutoStatInBackground(
       String token, int advertId) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat", params);
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
@@ -618,16 +617,16 @@ class AdvertApiClient
   static Future<Resource<int>> getCompanyBudgetInBackground(
       String token, int advertId) async {
     try {
-      var headers = {
+      final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final params = {'id': advertId.toString()};
 
-      var uri = Uri.https('advert-api.wb.ru', "/adv/v1/budget", params);
-      var response = await http.get(uri, headers: headers);
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v1/budget", params);
+      final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
-        var data = jsonDecode(utf8.decode(response.bodyBytes));
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
         if (data == null) {
           return Resource.empty();
         }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_db.dart';
+import 'package:rewild/data_providers/background_message_data_provider/background_message_db.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_db.dart';
 import 'package:rewild/data_providers/filter_data_provider/filter_db.dart';
@@ -37,7 +38,7 @@ class SqfliteService {
   Future<Database> _initialize() async {
     final path = await fullPath;
 
-    var database = await openDatabase(
+    final database = await openDatabase(
       path,
       version: 1,
       onCreate: create,
@@ -58,6 +59,7 @@ class SqfliteService {
     await FilterDb.createTable(db);
     await AdvertStatDb.createTable(db);
     await NotificationDb.createTable(db);
+    await BackgroundMessageDb.createTable(db);
   }
 
   static Future<void> printTableContent(String tableName) async {

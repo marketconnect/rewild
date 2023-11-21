@@ -12,17 +12,17 @@ class OrdersHistoryApiClient
   @override
   Future<Resource<OrdersHistoryModel>> fetch(int nmId) async {
     try {
-      var uri = Uri.parse(
+      final uri = Uri.parse(
           'https://product-order-qnt.wildberries.ru/v2/by-nm/?nm=$nmId');
 
-      var response = await http.get(uri);
+      final response = await http.get(uri);
       if (response.statusCode == 200) {
         final bodyList = jsonDecode(response.body);
 
         if (bodyList.length == 0) {
           return Resource.empty();
         }
-        var json = jsonDecode(response.body)[0];
+        final json = jsonDecode(response.body)[0];
         // Mapping
         final qty = json['qnt'] ?? 0;
         final highBuyout = json['highBuyout'] ?? false;

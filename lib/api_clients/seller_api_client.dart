@@ -10,11 +10,11 @@ class SellerApiClient implements SellerServiceSelerApiClient {
   @override
   Future<Resource<SellerModel>> fetchSeller(int supplierId) async {
     try {
-      var uri = Uri.parse(
+      final uri = Uri.parse(
           'https://www.wildberries.ru/webapi/seller/data/short/$supplierId');
-      var response = await http.get(uri);
+      final response = await http.get(uri);
       if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
+        final data = jsonDecode(response.body);
         SellerModel resultSeller = SellerModel.fromJson(data);
 
         return Resource.success(resultSeller);

@@ -18,14 +18,14 @@ class WarehouseApiClient
       'longitude': '37.6201',
     };
 
-    var uri =
+    final uri =
         Uri.parse('https://www.wildberries.ru/webapi/spa/product/deliveryinfo')
             .replace(queryParameters: params);
-    var response = await http.get(uri);
+    final response = await http.get(uri);
 
     if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      var warehouses = data['value']['times'];
+      final data = jsonDecode(response.body);
+      final warehouses = data['value']['times'];
       List<Warehouse> resultWarehousesList = [];
 
       for (final warehouse in warehouses) {

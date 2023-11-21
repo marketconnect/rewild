@@ -384,6 +384,7 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
       reviewRating: _reviewRating,
       warehouses: _notificationScreenWarehouses,
     );
+
     Navigator.of(context).pushNamed(
         MainNavigationRouteNames.cardNotificationsSettingsScreen,
         arguments: state);

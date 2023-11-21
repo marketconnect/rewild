@@ -5,7 +5,7 @@ class InternetConnectionCheckerImpl implements InternetConnectionChecker {
   const InternetConnectionCheckerImpl();
   @override
   Future<bool> checkInternetConnection() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
+    final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile ||
         connectivityResult == ConnectivityResult.wifi) {
       return true; // Internet connection is available

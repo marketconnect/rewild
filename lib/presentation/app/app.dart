@@ -30,7 +30,7 @@ class _AppState extends State<App> {
   Future<void> dispose() async {
     // close every streamControllers
 
-    for (var element in widget.streamControllers) {
+    for (final element in widget.streamControllers) {
       await element.close();
     }
     super.dispose();

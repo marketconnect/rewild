@@ -1,5 +1,6 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
+import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/advert_auto_model.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/advert_card_model.dart';
@@ -30,65 +31,9 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
     _asyncInit();
   }
 
-  // adverts
-  late List<Advert> _adverts = [];
-  void setAdverts(List<Advert> value) {
-    _adverts = value;
-  }
-
-  List<Advert> get adverts => _adverts;
-
-  // api key
-  bool _apiKeyExists = false;
-  void setApiKeyExists(bool value) {
-    _apiKeyExists = value;
-  }
-
-  bool get apiKeyExists => _apiKeyExists;
-
-  // images
-  Map<int, String> _image = {};
-  void setImage(Map<int, String> value) {
-    _image = value;
-  }
-
-  void addImage(int advId, String value) {
-    _image[advId] = value;
-  }
-
-  String image(int advId) {
-    return _image[advId] ?? "";
-  }
-
-  // cpm
-  Map<int, String> _cpm = {};
-  void setCpm(Map<int, String> value) {
-    _cpm = value;
-  }
-
-  void addCpm(int advId, String value) {
-    _cpm[advId] = value;
-  }
-
-  String cpm(int advId) {
-    return _cpm[advId] ?? "";
-  }
-
-  // budget
-  Map<int, int> _budget = {};
-  void setBudget(Map<int, int> value) {
-    _budget = value;
-  }
-
-  void addBudget(int advId, int value) {
-    _budget[advId] = value;
-  }
-
-  int? budget(int advId) {
-    return _budget[advId];
-  }
-
   void _asyncInit() async {
+    SqfliteService.printTableContent('background_messages');
+    SqfliteService.printTableContent('notifications');
     final resource = await advertService.apiKeyExists();
     if (resource is Error) {
       return;
@@ -191,5 +136,63 @@ class AllAdvertsScreenViewModel extends ResourceChangeNotifier {
         notify();
       }
     }
+  }
+
+  // adverts
+  late List<Advert> _adverts = [];
+  void setAdverts(List<Advert> value) {
+    _adverts = value;
+  }
+
+  List<Advert> get adverts => _adverts;
+
+  // api key
+  bool _apiKeyExists = false;
+  void setApiKeyExists(bool value) {
+    _apiKeyExists = value;
+  }
+
+  bool get apiKeyExists => _apiKeyExists;
+
+  // images
+  Map<int, String> _image = {};
+  void setImage(Map<int, String> value) {
+    _image = value;
+  }
+
+  void addImage(int advId, String value) {
+    _image[advId] = value;
+  }
+
+  String image(int advId) {
+    return _image[advId] ?? "";
+  }
+
+  // cpm
+  Map<int, String> _cpm = {};
+  void setCpm(Map<int, String> value) {
+    _cpm = value;
+  }
+
+  void addCpm(int advId, String value) {
+    _cpm[advId] = value;
+  }
+
+  String cpm(int advId) {
+    return _cpm[advId] ?? "";
+  }
+
+  // budget
+  Map<int, int> _budget = {};
+  void setBudget(Map<int, int> value) {
+    _budget = value;
+  }
+
+  void addBudget(int advId, int value) {
+    _budget[advId] = value;
+  }
+
+  int? budget(int advId) {
+    return _budget[advId];
   }
 }

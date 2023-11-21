@@ -6,6 +6,7 @@ import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data_provider.dart';
+import 'package:rewild/data_providers/background_message_data_provider/background_message_data_provider.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
@@ -18,6 +19,7 @@ import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.
 import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
+import 'package:rewild/domain/entities/background_message.dart';
 
 import 'package:rewild/domain/entities/initial_stock_model.dart';
 import 'package:rewild/domain/entities/notification.dart';
@@ -114,12 +116,13 @@ class BackgroundService {
       token = tokenResource.data!.token;
     }
 
-    // fetch adverts
+    // Adverts for single advert stat screen
+    // fetch adverts from API Wb
     final advertResource = await fetchAdverts(token);
     if (advertResource is Error) {
       return Resource.error(advertResource.message!);
     }
-    // save all
+    // save all fetched adverts
     if (advertResource is Success) {
       for (final advert in advertResource.data!) {
         await AdvertStatDataProvider.saveInBackground(advert);
@@ -133,8 +136,10 @@ class BackgroundService {
       return;
     }
 
+    // Notifications
     final notifications = notificationResource.data!;
 
+    // separate cards and verts notifications
     List<NotificationModel> cardsNotifications = notifications
         .where((element) =>
             element.condition != NotificationConditionConstants.budgetLessThan)
@@ -143,17 +148,24 @@ class BackgroundService {
         .where((element) =>
             element.condition == NotificationConditionConstants.budgetLessThan)
         .toList();
+
     // ids
     List<int> cardsIds = cardsNotifications.map((e) => e.parentId).toList();
     List<int> advertsIds = advertsNotifications.map((e) => e.parentId).toList();
 
-    List<NotificationContent> notificationContents = [];
-
-    // fetch cards
+    // fetch cards from Wb
     final cardsResource = await DetailsApiClient.getInBackground(cardsIds);
     if (cardsResource is Error) {
       return Resource.error(cardsResource.message!);
     }
+
+    // get notification contents for cards
+
+    // list to save notification contents
+    List<NotificationContent> notificationContents = [];
+
+    // insert notification contents to the list
+    // and update notification in local db with current value
     if (cardsResource is Success) {
       for (final card in cardsResource.data!) {
         final notificationsList = cardsNotifications
@@ -170,44 +182,85 @@ class BackgroundService {
       }
     }
 
+    // get adverts budget from Wb for notification
     if (token != null) {
-      for (final advertId in advertsIds) {
-        // fetch budget
-        final budgetResource = await budgetRequest(token, advertId);
-        if (budgetResource is Error) {
-          return Resource.error(budgetResource.message!);
-        }
-        if (budgetResource is Empty) {
-          continue;
-        }
-        final budget = budgetResource.data!;
-        final notificationsList = advertsNotifications
-            .where((element) => element.parentId == advertId)
-            .toList();
-        if (notificationsList.isEmpty) {
-          continue;
-        }
-        final nBudg = int.tryParse(notificationsList.first.value) ?? 0;
-        if (budget < nBudg) {
-          final title = "Бюджет кампании $advertId";
-          final body = "Бюджет: $budget, был $nBudg";
-          final notContent = NotificationContent(
-            title: title,
-            body: body,
-          );
-          NotificationDataProvider.saveInBackground(NotificationModel(
-            parentId: advertId,
-            condition: NotificationConditionConstants.budgetLessThan,
-            value: budget.toString(),
-          ));
-          notificationContents.add(notContent);
-        }
+      final fetchedAdvertBudgetNotifications =
+          await _fetchAdvertBudgets(token, advertsIds, advertsNotifications);
+
+      if (fetchedAdvertBudgetNotifications is Error) {
+        return Resource.error(fetchedAdvertBudgetNotifications.message!);
+      }
+      if (fetchedAdvertBudgetNotifications is Success) {
+        notificationContents.addAll(fetchedAdvertBudgetNotifications.data!);
       }
     }
 
-    for (final notCont in notificationContents) {
-      await _instantNotification(notCont.title, notCont.body);
+    // if there are no notifications return
+    if (notificationContents.isEmpty) {
+      return;
     }
+
+    // save all new notifications to local db
+    for (final notCont in notificationContents) {
+      final subj =
+          notCont.condition == NotificationConditionConstants.budgetLessThan
+              ? BackgroundMessage.advert
+              : BackgroundMessage.card;
+      final message = BackgroundMessage(
+          subject: subj,
+          dateTime: DateTime.now(),
+          condition: notCont.condition!,
+          header: notCont.title,
+          message: notCont.body,
+          id: notCont.id);
+      await BackgroundMessageDataProvider.saveInBackground(message);
+    }
+
+    // notify user
+    await _instantNotification("У вас есть сообщение от ReWild", '');
+  }
+
+  static Future<Resource<List<NotificationContent>>> _fetchAdvertBudgets(
+      String token,
+      List<int> advertsIds,
+      List<NotificationModel> advertsNotifications) async {
+    List<NotificationContent> notificationContents = [];
+    for (final advertId in advertsIds) {
+      // fetch budget
+      final budgetResource = await budgetRequest(token, advertId);
+      if (budgetResource is Error) {
+        return Resource.error(budgetResource.message!);
+      }
+      if (budgetResource is Empty) {
+        continue;
+      }
+      final budget = budgetResource.data!;
+      final notificationsList = advertsNotifications
+          .where((element) => element.parentId == advertId)
+          .toList();
+      if (notificationsList.isEmpty) {
+        continue;
+      }
+      final nBudg = int.tryParse(notificationsList.first.value) ?? 0;
+      if (budget < nBudg) {
+        final title = "Бюджет кампании $advertId";
+        final body = "Бюджет: $budget, был $nBudg";
+        final notContent = NotificationContent(
+          id: advertId,
+          condition: NotificationConditionConstants.budgetLessThan,
+          newValue: budget.toString(),
+          title: title,
+          body: body,
+        );
+        NotificationDataProvider.saveInBackground(NotificationModel(
+          parentId: advertId,
+          condition: NotificationConditionConstants.budgetLessThan,
+          value: budget.toString(),
+        ));
+        notificationContents.add(notContent);
+      }
+    }
+    return Resource.success(notificationContents);
   }
 
   static Future<Resource<List<AdvertStatModel>>> fetchAdverts(

@@ -20,17 +20,17 @@
 //         );
 //       }
 
-//       var uri = Uri.parse(link);
+//       final uri = Uri.parse(link);
 
 //       List<PriceHistoryModel> priceHistoryList = [];
-//       var response = await http.get(uri);
+//       final response = await http.get(uri);
 //       if (response.statusCode == 200) {
 //         final bodyList = jsonDecode(response.body);
 
 //         if (bodyList.length == 0) {
 //           return Resource.empty();
 //         }
-//         var json = jsonDecode(response.body);
+//         final json = jsonDecode(response.body);
 //         // Mapping
 
 //         for (final priceHistory in json) {

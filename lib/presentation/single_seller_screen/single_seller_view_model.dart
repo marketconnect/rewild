@@ -55,7 +55,7 @@
 //     //   return;
 //     // }
 
-//     // for (var i = 0; i < cards.length; i++) {
+//     // for (final i = 0; i < cards.length; i++) {
 //     //   final prHistory = allPriceHistory
 //     //       .where((priceHistory) => priceHistory.nmId == cards[i].nmId)
 //     //       .toList();
