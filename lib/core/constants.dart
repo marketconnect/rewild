@@ -36,6 +36,10 @@ class APIConstants {
   static const Duration fullStatNumsDurationBetweenReqInMs = Duration(
     milliseconds: 10000,
   );
+
+  static const Duration autoSetExcludedDurationBetweenReqInMs = Duration(
+    milliseconds: 10000,
+  );
 }
 
 class RegionsNumsConstants {
@@ -187,6 +191,7 @@ class NotificationConditionConstants {
   static const int stocksInWhLessThan = 8;
   static const int sizeStocksLessThan = 9;
   static const int sizeStocksInWhLessThan = 10;
+  static const int stocksMoreThan = 11;
 }
 
 // WB constants

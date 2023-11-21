@@ -86,4 +86,23 @@ class NotificationDataProvider
       return Resource.error(e.toString());
     }
   }
+
+  static Future<Resource<void>> saveInBackground(
+      NotificationModel notificate) async {
+    try {
+      final db = await SqfliteService().database;
+      final _ = await db.rawInsert(
+          "INSERT INTO notifications (parentId, condition, value, sizeId, wh) VALUES (?, ?, ?, ?, ?)",
+          [
+            notificate.parentId,
+            notificate.condition,
+            notificate.value,
+            notificate.sizeId,
+            notificate.wh
+          ]);
+      return Resource.empty();
+    } catch (e) {
+      return Resource.error(e.toString());
+    }
+  }
 }

@@ -2,6 +2,7 @@ import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/auto_stat_word.dart';
+import 'package:rewild/domain/entities/keyword.dart';
 
 abstract class AutoStatsWordsAutoStatsService {
   Future<Resource<AutoStatWord>> getAutoStatWords(int advertId);
@@ -9,6 +10,7 @@ abstract class AutoStatsWordsAutoStatsService {
 
 abstract class AutoStatsWordsAdvertService {
   Future<Resource<Advert>> advertInfo(int advertId);
+  Future<Resource<bool>> setAutoExcluded(int advertId, List<String> excluded);
 }
 
 class AutoStatsWordsViewModel extends ResourceChangeNotifier {
@@ -36,6 +38,7 @@ class AutoStatsWordsViewModel extends ResourceChangeNotifier {
       return;
     }
 
+    autoStatsWordRes.keywords.sort((a, b) => a.count.compareTo(b.count));
     _autoStatWord = autoStatsWordRes;
     if (advertInfo == null) {
       return;
@@ -49,4 +52,30 @@ class AutoStatsWordsViewModel extends ResourceChangeNotifier {
   String? get name => _name ?? '';
   AutoStatWord? _autoStatWord;
   AutoStatWord? get autoStatWord => _autoStatWord;
+
+  void moveToExcluded(String word) {
+    if (_autoStatWord == null) {
+      return;
+    }
+    _autoStatWord!.keywords.removeWhere((element) => element.keyword == word);
+    _autoStatWord!.excluded.add(word);
+    notify();
+  }
+
+  void moveToKeywords(String word) {
+    if (_autoStatWord == null) {
+      return;
+    }
+    _autoStatWord!.excluded.removeWhere((element) => element == word);
+    _autoStatWord!.keywords.insert(0, Keyword(keyword: word, count: 1));
+    notify();
+  }
+
+  Future<void> save() async {
+    if (_autoStatWord == null) {
+      return;
+    }
+    await fetch(() => autoStatsWordsAdvertService.setAutoExcluded(
+        advertId, _autoStatWord!.excluded));
+  }
 }

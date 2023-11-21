@@ -160,6 +160,12 @@ class BackgroundService {
             .where((element) => element.parentId == card.nmId)
             .toList();
         final notContentList = card.notifications(notificationsList);
+        for (final notContent in notContentList) {
+          NotificationDataProvider.saveInBackground(NotificationModel(
+              parentId: card.nmId,
+              condition: notContent.condition!,
+              value: notContent.newValue!));
+        }
         notificationContents.addAll(notContentList);
       }
     }
@@ -185,7 +191,15 @@ class BackgroundService {
         if (budget < nBudg) {
           final title = "Бюджет кампании $advertId";
           final body = "Бюджет: $budget, был $nBudg";
-          final notContent = NotificationContent(title: title, body: body);
+          final notContent = NotificationContent(
+            title: title,
+            body: body,
+          );
+          NotificationDataProvider.saveInBackground(NotificationModel(
+            parentId: advertId,
+            condition: NotificationConditionConstants.budgetLessThan,
+            value: budget.toString(),
+          ));
           notificationContents.add(notContent);
         }
       }

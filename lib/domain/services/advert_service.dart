@@ -19,12 +19,15 @@ abstract class AdvertServiceAdvertApiClient {
   Future<Resource<List<AdvertInfoModel>>> getAdverts(String token);
   Future<Resource<Advert>> getAdvertInfo(String token, int id);
   Future<Resource<int>> getCompanyBudget(String token, int advertId);
-  Future<Resource<bool>> pauseAdvert(String token, int advertId);
-  Future<Resource<bool>> startAdvert(String token, int advertId);
   Future<Resource<int>> balance(String token);
   Future<Resource<AdvertStatModel>> getAutoStat(String token, int advertId);
+  // Post
+  Future<Resource<bool>> pauseAdvert(String token, int advertId);
+  Future<Resource<bool>> startAdvert(String token, int advertId);
   Future<Resource<bool>> changeCpm(String token, int advertId, int type,
       int cpm, int param, int? instrument);
+  Future<Resource<bool>> setAutoSetExcluded(
+      String token, int advertId, List<String> excludedKw);
 }
 
 // Api key
@@ -66,6 +69,7 @@ class AdvertService
   DateTime? pauseLastReq;
   DateTime? startLastReq;
   DateTime? balanceLastReq;
+  DateTime? autoExcludedLastReq;
 
   @override
   Future<Resource<int>> getBallance(int advertId) async {
@@ -183,6 +187,32 @@ class AdvertService
     }
 
     return Resource.success(advInfoResource.data!);
+  }
+
+  @override
+  Future<Resource<bool>> setAutoExcluded(
+      int advertId, List<String> excluded) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+
+    // request to API
+    if (autoExcludedLastReq != null) {
+      await _ready(autoExcludedLastReq,
+          APIConstants.autoSetExcludedDurationBetweenReqInMs);
+    }
+
+    final autoExcludedResource = await advertApiClient.setAutoSetExcluded(
+        tokenResource.data!.token, advertId, excluded);
+    autoExcludedLastReq = DateTime.now();
+    if (autoExcludedResource is Error) {
+      return Resource.error(autoExcludedResource.message!);
+    }
+    return Resource.success(autoExcludedResource.data!);
   }
 
   @override
