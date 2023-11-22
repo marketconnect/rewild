@@ -45,3 +45,24 @@ DateTime getStartOfDay(DateTime dateTime) {
 DateTime getEndOfDay(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day, 23, 59, 59, 999);
 }
+
+String formatDateTime(DateTime dateTime) {
+  DateTime now = DateTime.now();
+  DateTime today = DateTime(now.year, now.month, now.day);
+  DateTime yesterday = DateTime(now.year, now.month, now.day - 1);
+  DateTime dayBeforeYesterday = DateTime(now.year, now.month, now.day - 2);
+
+  if (dateTime.isAfter(today)) {
+    // If the DateTime is today, return the time in hh:mm format
+    return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  } else if (dateTime.isAfter(yesterday)) {
+    // If the DateTime is yesterday, return 'yesterday'
+    return 'Вчера';
+  } else if (dateTime.isAfter(dayBeforeYesterday)) {
+    // If the DateTime is the day before yesterday, return '2 days ago'
+    return '2 дня назад';
+  } else {
+    // For any other date, return the date in yyyy-MM-dd format
+    return '${dateTime.day.toString().padLeft(2, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.year}';
+  }
+}

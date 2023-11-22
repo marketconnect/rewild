@@ -1,10 +1,10 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class BackgroundMessage {
   final int subject;
   final int id;
   final int condition;
+  final String value;
   // final String header;
   // final String message;
   final DateTime dateTime;
@@ -13,6 +13,7 @@ class BackgroundMessage {
     required this.subject,
     required this.id,
     required this.condition,
+    required this.value,
     required this.dateTime,
   });
 
@@ -23,12 +24,14 @@ class BackgroundMessage {
     int? subject,
     int? id,
     int? condition,
+    String? value,
     DateTime? dateTime,
   }) {
     return BackgroundMessage(
       subject: subject ?? this.subject,
       id: id ?? this.id,
       condition: condition ?? this.condition,
+      value: value ?? this.value,
       dateTime: dateTime ?? this.dateTime,
     );
   }
@@ -38,6 +41,7 @@ class BackgroundMessage {
       'subject': subject,
       'id': id,
       'condition': condition,
+      'value': value,
       'dateTime': dateTime.millisecondsSinceEpoch,
     };
   }
@@ -47,6 +51,7 @@ class BackgroundMessage {
       subject: map['subject'] as int,
       id: map['id'] as int,
       condition: map['condition'] as int,
+      value: map['value'] as String,
       dateTime: DateTime.fromMillisecondsSinceEpoch(map['dateTime'] as int),
     );
   }
@@ -58,7 +63,7 @@ class BackgroundMessage {
 
   @override
   String toString() {
-    return 'BackgroundMessage(subject: $subject, id: $id, condition: $condition, dateTime: $dateTime)';
+    return 'BackgroundMessage(subject: $subject, id: $id, condition: $condition, value: $value, dateTime: $dateTime)';
   }
 
   @override
@@ -68,6 +73,7 @@ class BackgroundMessage {
     return other.subject == subject &&
         other.id == id &&
         other.condition == condition &&
+        other.value == value &&
         other.dateTime == dateTime;
   }
 
@@ -76,6 +82,7 @@ class BackgroundMessage {
     return subject.hashCode ^
         id.hashCode ^
         condition.hashCode ^
+        value.hashCode ^
         dateTime.hashCode;
   }
 }

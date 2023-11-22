@@ -72,8 +72,8 @@ import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
 import 'package:rewild/presentation/app/app.dart';
 import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_screen.dart';
 import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_view_model.dart';
-import 'package:rewild/presentation/background_notifications_sreen/background_notifications_screen.dart';
-import 'package:rewild/presentation/background_notifications_sreen/background_notifications_view_model.dart';
+import 'package:rewild/presentation/background_notifications_screen/background_notifications_screen.dart';
+import 'package:rewild/presentation/background_notifications_screen/background_notifications_view_model.dart';
 
 import 'package:rewild/presentation/card_notification_screen/card_notification_screen.dart';
 import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';

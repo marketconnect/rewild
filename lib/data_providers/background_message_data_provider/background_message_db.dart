@@ -6,7 +6,8 @@ class BackgroundMessageDb extends BackgroundMessage {
       {required super.dateTime,
       required super.subject,
       required super.id,
-      required super.condition});
+      required super.condition,
+      required super.value});
 
   static Future<void> createTable(Database db) async {
     await db.execute('''
@@ -14,6 +15,7 @@ class BackgroundMessageDb extends BackgroundMessage {
             dateTime INTEGER,
             subject INTEGER,
             id INTEGER,
+            value TEXT,
             condition INTEGER,
             UNIQUE(id, subject, condition) ON CONFLICT REPLACE
           )

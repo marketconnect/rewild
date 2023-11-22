@@ -49,6 +49,11 @@ abstract class AllCardsScreenUpdateService {
   Future<Resource<int>> delete(String token, List<int> nmIds);
 }
 
+// Notifications
+abstract class AllCardsScreenNotificationsService {
+  Future<Resource<List<int>>> getAllIds();
+}
+
 class AllCardsScreenViewModel extends ResourceChangeNotifier {
   final AllCardsScreenTokenProvider tokenProvider;
   final AllCardsScreenCardOfProductService cardsOfProductsService;

@@ -209,6 +209,7 @@ class BackgroundService {
           subject: subj,
           dateTime: DateTime.now(),
           condition: notCont.condition!,
+          value: notCont.newValue!,
           // header: notCont.title,
           // message: notCont.body,
           id: notCont.id);
