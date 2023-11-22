@@ -1,4 +1,5 @@
 abstract class MainNavigationRouteNames {
+  static const String advertNotificationScreen = '/advert_notification_screen';
   static const String apiKeysScreen = '/api_keys_screen';
   static const String autoStatWordsScreen = '/auto_stat_words';
   static const String splashScreen = '/splash_screen';

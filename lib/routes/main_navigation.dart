@@ -1,3 +1,4 @@
+import 'package:rewild/presentation/advert_notification_screen/advert_notification_view_model.dart';
 import 'package:rewild/presentation/app/app.dart';
 import 'package:flutter/material.dart';
 import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
@@ -5,6 +6,7 @@ import 'package:rewild/presentation/card_notification_screen/card_notification_v
 import 'main_navigation_route_names.dart';
 
 abstract class ScreenFactory {
+  Widget makeAdvertNotificationScreen(AdvertNotificationState state);
   Widget makeAddGroupsScreen(List<int> cardsIds);
   Widget makeAllAdvertsScreen();
   Widget makeAllCardsFilterScreen();
@@ -120,6 +122,15 @@ class MainNavigation implements AppNavigation {
       case MainNavigationRouteNames.allCardsFilterScreen:
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllCardsFilterScreen(),
+        );
+
+      case MainNavigationRouteNames.advertNotificationScreen:
+        final arguments = settings.arguments;
+        final state = arguments is AdvertNotificationState
+            ? arguments
+            : AdvertNotificationState.empty();
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeAdvertNotificationScreen(state),
         );
 
       default:

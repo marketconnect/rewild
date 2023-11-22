@@ -13,7 +13,7 @@ class SingleAdvertStatsScreen extends StatelessWidget {
     final isActive = model.isActive;
     final cpm = model.cpm;
     final title = model.title;
-
+    final openNotificationSettings = model.notificationsScreen;
     // final modalBottomState = model.modalBottomState;
     // final save = model.save;
     final start = model.start;
@@ -28,7 +28,9 @@ class SingleAdvertStatsScreen extends StatelessWidget {
             onPressed: () async {
               if (!isActive) {
                 await start();
-              } else {}
+              } else {
+                openNotificationSettings();
+              }
             },
             backgroundColor: Theme.of(context).colorScheme.primary,
             child: Icon(

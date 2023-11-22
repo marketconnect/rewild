@@ -1,5 +1,6 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/notification.dart';
+import 'package:rewild/presentation/advert_notification_screen/advert_notification_view_model.dart';
 import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 
@@ -13,6 +14,7 @@ abstract class NotificationServiceNotificationDataProvider {
 class NotificationService
     implements
         SingleAdvertStatsViewModelNotificationService,
+        AdvertNotificationNotificationService,
         CardNotificationNotificationService {
   final NotificationServiceNotificationDataProvider notificationDataProvider;
   NotificationService({required this.notificationDataProvider});

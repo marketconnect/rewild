@@ -73,6 +73,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
 
   Future<void> _asyncInit() async {
     SqfliteService.printTableContent('notifications');
+    SqfliteService.printTableContent('background_messages');
     final savedNotifications =
         await fetch(() => notificationService.getForParent(state.nmId));
     if (savedNotifications == null) {
@@ -157,10 +158,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
             .toString();
         _notifications.add(NotificationModel(
             condition: NotificationConditionConstants.stocksLessThan,
-            value: state.warehouses.entries
-                .fold(0,
-                    (previousValue, element) => previousValue + element.value)
-                .toString(),
+            value: v,
             parentId: state.nmId));
 
         break;

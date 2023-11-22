@@ -4,6 +4,7 @@ import 'package:rewild/api_clients/details_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
+import 'package:rewild/core/utils/lists.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data_provider.dart';
 import 'package:rewild/data_providers/background_message_data_provider/background_message_data_provider.dart';
@@ -154,7 +155,8 @@ class BackgroundService {
     List<int> advertsIds = advertsNotifications.map((e) => e.parentId).toList();
 
     // fetch cards from Wb
-    final cardsResource = await DetailsApiClient.getInBackground(cardsIds);
+    final cardsResource =
+        await DetailsApiClient.getInBackground(cardsIds.unique() as List<int>);
     if (cardsResource is Error) {
       return Resource.error(cardsResource.message!);
     }
@@ -171,6 +173,7 @@ class BackgroundService {
         final notificationsList = cardsNotifications
             .where((element) => element.parentId == card.nmId)
             .toList();
+        print("background call card.notifications: for ${card.nmId}");
         final notContentList = card.notifications(notificationsList);
         for (final notContent in notContentList) {
           NotificationDataProvider.saveInBackground(NotificationModel(
@@ -184,8 +187,8 @@ class BackgroundService {
 
     // get adverts budget from Wb for notification
     if (token != null) {
-      final fetchedAdvertBudgetNotifications =
-          await _fetchAdvertBudgets(token, advertsIds, advertsNotifications);
+      final fetchedAdvertBudgetNotifications = await _fetchAdvertBudgets(
+          token, advertsIds.unique() as List<int>, advertsNotifications);
 
       if (fetchedAdvertBudgetNotifications is Error) {
         return Resource.error(fetchedAdvertBudgetNotifications.message!);
@@ -200,12 +203,9 @@ class BackgroundService {
       return;
     }
 
-    // save all new notifications to local db
+    // save all new notifications and messages to local db
     for (final notCont in notificationContents) {
-      final subj =
-          notCont.condition == NotificationConditionConstants.budgetLessThan
-              ? BackgroundMessage.advert
-              : BackgroundMessage.card;
+      int subj = _getSubject(notCont);
       final message = BackgroundMessage(
           subject: subj,
           dateTime: DateTime.now(),
@@ -213,11 +213,23 @@ class BackgroundService {
           header: notCont.title,
           message: notCont.body,
           id: notCont.id);
+      await NotificationDataProvider.saveInBackground(NotificationModel(
+          parentId: notCont.id,
+          condition: notCont.condition!,
+          value: notCont.newValue!));
       await BackgroundMessageDataProvider.saveInBackground(message);
     }
 
     // notify user
     await _instantNotification("У вас есть сообщение от ReWild", '');
+  }
+
+  static int _getSubject(NotificationContent notCont) {
+    final subj =
+        notCont.condition == NotificationConditionConstants.budgetLessThan
+            ? BackgroundMessage.advert
+            : BackgroundMessage.card;
+    return subj;
   }
 
   static Future<Resource<List<NotificationContent>>> _fetchAdvertBudgets(

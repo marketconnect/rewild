@@ -18,7 +18,8 @@ class BackgroundMessageDb extends BackgroundMessage {
             dateTime INTEGER,
             subject INTEGER,
             id INTEGER,
-            condition INTEGER
+            condition INTEGER,
+            UNIQUE(id, subject, condition) ON CONFLICT REPLACE
           )
           ''');
   }

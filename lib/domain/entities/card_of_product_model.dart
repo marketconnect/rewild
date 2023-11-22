@@ -134,11 +134,6 @@ class CardOfProductModel extends BackgroundNotifier {
     );
   }
 
-  // List<PriceHistoryModel> priceHistory = [];
-  // void setPriceHistory(List<PriceHistoryModel> p) {
-  //   priceHistory = p;
-  // }
-
   List<SupplyModel> supplies = [];
   void setSupplies(List<SupplyModel> s) {
     supplies = s;
@@ -201,17 +196,17 @@ class CardOfProductModel extends BackgroundNotifier {
   }
 
   int _calculateAllStocks([int? sizeId]) {
-    int stocksSum = 0;
+    int allStocksSum = 0;
     for (final size in sizes) {
-      if (sizeId == null && sizeId != size.optionId) {
+      if (sizeId != null && sizeId != size.optionId) {
         continue;
       }
       for (final stock in size.stocks) {
         final stockQty = stock.qty;
-        stocksSum += stockQty;
+        allStocksSum += stockQty;
       }
     }
-    return stocksSum;
+    return allStocksSum;
   }
 
   int _calculateAllStocksForWh(int wh, [int? sizeId]) {
@@ -340,9 +335,9 @@ class CardOfProductModel extends BackgroundNotifier {
   @override
   List<NotificationContent> notifications(
       List<NotificationModel> notifications) {
-    print("launched notification with notifications $notifications");
     List<NotificationContent> result = [];
     for (final notification in notifications) {
+      print('candition: ${notification.condition}');
       switch (notification.condition) {
         case NotificationConditionConstants.nameChanged:
           _checkNameCondition(notification, result);
@@ -441,7 +436,7 @@ class CardOfProductModel extends BackgroundNotifier {
   void _checkReviewRatingCondition(
       NotificationModel notification, List<NotificationContent> result) {
     final nReviewRating = int.tryParse(notification.value) ?? 0;
-
+    print("In Card entity check review rating condition $reviewRating ");
     if (nReviewRating != reviewRating) {
       result.add(NotificationContent(
         id: nmId,

@@ -52,6 +52,8 @@ import 'package:rewild/domain/services/warehouse_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
+import 'package:rewild/presentation/advert_notification_screen/advert_notification_screen.dart';
+import 'package:rewild/presentation/advert_notification_screen/advert_notification_view_model.dart';
 import 'package:rewild/presentation/adverts_tools_screen/adverts_tools_view_model.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
@@ -68,6 +70,7 @@ import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
 import 'package:rewild/presentation/app/app.dart';
 import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_screen.dart';
 import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_view_model.dart';
+
 import 'package:rewild/presentation/card_notification_screen/card_notification_screen.dart';
 import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_screen.dart';
@@ -456,6 +459,13 @@ class _DIContainer {
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
           advertService: _makeAdvertService());
+
+  AdvertNotificationViewModel _makeAdvertNotificationViewModel(
+          BuildContext context, AdvertNotificationState state) =>
+      AdvertNotificationViewModel(state,
+          context: context,
+          notificationService: _makeNotificationService(),
+          internetConnectionChecker: _makeInternetConnectionChecker());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -591,6 +601,15 @@ class ScreenFactoryDefault implements ScreenFactory {
       create: (context) =>
           _diContainer._makeCardNotificationSettingsViewModel(context, state),
       child: const CardNotificationSettingsScreen(),
+    );
+  }
+
+  @override
+  Widget makeAdvertNotificationScreen(AdvertNotificationState state) {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeAdvertNotificationViewModel(context, state),
+      child: const AdvertNotificationSettingsScreen(),
     );
   }
 }
