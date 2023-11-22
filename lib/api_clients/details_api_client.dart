@@ -220,7 +220,7 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
           final reviewRating = reviewRatingRaw is int
               ? reviewRatingRaw.toDouble()
               : reviewRatingRaw;
-          print("in details api client review rating: $reviewRatingRaw");
+
           CardOfProductModel newCardModel = CardOfProductModel(
               nmId: json['id'],
               name: json['name'] ?? "",
@@ -236,13 +236,7 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
               reviewRating: reviewRating,
               feedbacks: json['feedbacks'] ?? 0,
               promoTextCard: json['promoTextCard'] ?? "",
-              sizes: fetchedSizes
-              // img: img
-              );
-
-          // newCardModel.initialStocks.addAll(initStocks);
-          // newCardModel.seller = seller;
-
+              sizes: fetchedSizes);
           resultProductCardsList.add(newCardModel);
         }
 

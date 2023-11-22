@@ -12,6 +12,7 @@ import 'package:rewild/api_clients/seller_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/api_clients/warehouse_api_client.dart';
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data_provider.dart';
+import 'package:rewild/data_providers/background_message_data_provider/background_message_data_provider.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
 import 'package:rewild/data_providers/commission_data_provider/commission_data_provider.dart';
@@ -34,6 +35,7 @@ import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/api_keys_service.dart';
 import 'package:rewild/domain/services/auth_service.dart';
 import 'package:rewild/domain/services/auto_stat_service.dart';
+import 'package:rewild/domain/services/background_message_service.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/commission_service.dart';
 import 'package:rewild/domain/services/group_service.dart';
@@ -70,6 +72,8 @@ import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
 import 'package:rewild/presentation/app/app.dart';
 import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_screen.dart';
 import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_view_model.dart';
+import 'package:rewild/presentation/background_notifications_sreen/background_notifications_screen.dart';
+import 'package:rewild/presentation/background_notifications_sreen/background_notifications_view_model.dart';
 
 import 'package:rewild/presentation/card_notification_screen/card_notification_screen.dart';
 import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
@@ -211,8 +215,9 @@ class _DIContainer {
   AdvertStatDataProvider _makeAutoStatDataProvider() =>
       const AdvertStatDataProvider();
 
-  // pursued
-  // PursuedDataProvider _makePursuedDataProvider() => const PursuedDataProvider();
+  // background messages
+  BackgroundMessageDataProvider _makeBackgroundMessageDataProvider() =>
+      const BackgroundMessageDataProvider();
 
   // notification
   NotificationDataProvider _makeNotificationDataProvider() =>
@@ -325,6 +330,11 @@ class _DIContainer {
   NotificationService _makeNotificationService() => NotificationService(
         notificationDataProvider: _makeNotificationDataProvider(),
       );
+
+  // background message
+  BackgroundMessageService _makeBackgroundMessageService() =>
+      BackgroundMessageService(
+          backgroundMessageDataProvider: _makeBackgroundMessageDataProvider());
 
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
@@ -466,6 +476,14 @@ class _DIContainer {
           context: context,
           notificationService: _makeNotificationService(),
           internetConnectionChecker: _makeInternetConnectionChecker());
+
+  BackgroundNotificationsViewModel _makeBackgroundNotificationsViewModel(
+          BuildContext context) =>
+      BackgroundNotificationsViewModel(
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          backgroundNotificationsBackgroundMessageService:
+              _makeBackgroundMessageService());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -610,6 +628,15 @@ class ScreenFactoryDefault implements ScreenFactory {
       create: (context) =>
           _diContainer._makeAdvertNotificationViewModel(context, state),
       child: const AdvertNotificationSettingsScreen(),
+    );
+  }
+
+  @override
+  Widget makeBackgroundNotificationsScreen() {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeBackgroundNotificationsViewModel(context),
+      child: const BackgroundNotificationsScreen(),
     );
   }
 }

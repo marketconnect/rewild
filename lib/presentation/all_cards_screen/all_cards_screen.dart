@@ -11,61 +11,55 @@ import 'package:rewild/widgets/custom_elevated_button.dart';
 
 import 'package:rewild/widgets/progress_indicator.dart';
 
-class AllCardsScreen extends StatefulWidget {
+class AllCardsScreen extends StatelessWidget {
   const AllCardsScreen({super.key});
 
-  @override
-  State<AllCardsScreen> createState() => _AllCardsScreenState();
-}
+  // void Function(bool)? mountedCallback;
+  // @override
+  // void initState() {
+  //   WidgetsBinding.instance.addObserver(this);
+  //   super.initState();
+  // }
 
-class _AllCardsScreenState extends State<AllCardsScreen>
-    with WidgetsBindingObserver {
-  void Function(bool)? mountedCallback;
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
-  }
+  // @override
+  // void dispose() {
+  //   // WidgetsBinding.instance.removeObserver(this);
+  //   super.dispose();
+  // }
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (mountedCallback == null) {
-      return;
-    }
-    switch (state) {
-      case AppLifecycleState.resumed:
-        debugPrint("app in resumed");
-        mountedCallback!(true);
-        break;
-      case AppLifecycleState.inactive:
-        debugPrint("app in inactive");
-        mountedCallback!(false);
-        break;
-      case AppLifecycleState.paused:
-        debugPrint("app in paused");
-        mountedCallback!(false);
-        break;
-      case AppLifecycleState.detached:
-        debugPrint("app in detached");
-        mountedCallback!(false);
-        break;
-      default:
-        break;
-    }
-  }
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   // if (mountedCallback == null) {
+  //   //   return;
+  //   // }
+  //   switch (state) {
+  //     case AppLifecycleState.resumed:
+  //       debugPrint("app in resumed");
+  //       // mountedCallback!(true);
+  //       break;
+  //     case AppLifecycleState.inactive:
+  //       debugPrint("app in inactive");
+  //       // mountedCallback!(false);
+  //       break;
+  //     case AppLifecycleState.paused:
+  //       debugPrint("app in paused");
+  //       // mountedCallback!(false);
+  //       break;
+  //     case AppLifecycleState.detached:
+  //       debugPrint("app in detached");
+  //       // mountedCallback!(false);
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AllCardsScreenViewModel>();
     final resetFilter = model.resetFilter;
     final filterIsEmpty = model.filterIsEmpty;
-    mountedCallback = model.setMounted;
+    // mountedCallback = model.setMounted;
     List<CardOfProductModel> productCards = model.productCards;
     final selectedGroup = model.selectedGroup;
     int selectedGroupIndex = 0;

@@ -173,7 +173,6 @@ class BackgroundService {
         final notificationsList = cardsNotifications
             .where((element) => element.parentId == card.nmId)
             .toList();
-        print("background call card.notifications: for ${card.nmId}");
         final notContentList = card.notifications(notificationsList);
         for (final notContent in notContentList) {
           NotificationDataProvider.saveInBackground(NotificationModel(
@@ -210,8 +209,8 @@ class BackgroundService {
           subject: subj,
           dateTime: DateTime.now(),
           condition: notCont.condition!,
-          header: notCont.title,
-          message: notCont.body,
+          // header: notCont.title,
+          // message: notCont.body,
           id: notCont.id);
       await NotificationDataProvider.saveInBackground(NotificationModel(
           parentId: notCont.id,
@@ -255,14 +254,14 @@ class BackgroundService {
       }
       final nBudg = int.tryParse(notificationsList.first.value) ?? 0;
       if (budget < nBudg) {
-        final title = "Бюджет кампании $advertId";
-        final body = "Бюджет: $budget, был $nBudg";
+        // final title = "Бюджет кампании $advertId";
+        // final body = "Бюджет: $budget, был $nBudg";
         final notContent = NotificationContent(
           id: advertId,
           condition: NotificationConditionConstants.budgetLessThan,
           newValue: budget.toString(),
-          title: title,
-          body: body,
+          // title: title,
+          // body: body,
         );
         NotificationDataProvider.saveInBackground(NotificationModel(
           parentId: advertId,

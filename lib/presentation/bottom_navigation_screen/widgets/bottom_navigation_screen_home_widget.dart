@@ -58,6 +58,12 @@ class _BottomNavigationScreenHomeWidgetState
           child: Column(
             children: [
               const _Link(
+                text: 'Уведомления',
+                color: Color(0xFFfb8532),
+                route: MainNavigationRouteNames.backgroundNotificationsScreen,
+                iconData: Icons.share_arrival_time_outlined,
+              ),
+              const _Link(
                 text: 'Добавить API токен',
                 color: Color(0xFF41434e),
                 route: MainNavigationRouteNames.apiKeysScreen,
@@ -65,7 +71,7 @@ class _BottomNavigationScreenHomeWidgetState
               ),
               const _Link(
                 text: 'Наш сайт',
-                color: Color(0xFFfb8532),
+                color: Color(0xFFf9c513),
                 // route: MainNavigationRouteNames.userInfoScreen,
                 route: '',
                 iconData: Icons.emoji_emotions_outlined,
@@ -269,7 +275,7 @@ class _Feedback extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                  color: const Color(0xFFf9c513),
+                  color: Color(0xFF2188ff),
                   borderRadius: BorderRadius.circular(10)),
               child: Padding(
                 padding: const EdgeInsets.all(12.0),

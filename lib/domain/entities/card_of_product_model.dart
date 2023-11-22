@@ -337,7 +337,6 @@ class CardOfProductModel extends BackgroundNotifier {
       List<NotificationModel> notifications) {
     List<NotificationContent> result = [];
     for (final notification in notifications) {
-      print('candition: ${notification.condition}');
       switch (notification.condition) {
         case NotificationConditionConstants.nameChanged:
           _checkNameCondition(notification, result);
@@ -382,8 +381,8 @@ class CardOfProductModel extends BackgroundNotifier {
     if (notification.value != name) {
       result.add(NotificationContent(
         id: nmId,
-        title: "Изменено наименование карточки $nmId",
-        body: "Новое наименование: $name",
+        // title: "Изменено наименование карточки $nmId",
+        // body: "Новое наименование: $name",
         condition: NotificationConditionConstants.nameChanged,
         newValue: name,
       ));
@@ -396,8 +395,8 @@ class CardOfProductModel extends BackgroundNotifier {
     if (nPics != pics) {
       result.add(NotificationContent(
         id: nmId,
-        title: "Изменено кол-во картинок карточки $nmId",
-        body: "Новое кол-во картинок: $pics, было $nPics",
+        // title: "Изменено кол-во картинок карточки $nmId",
+        // body: "Новое кол-во картинок: $pics, было $nPics",
         condition: NotificationConditionConstants.picsChanged,
         newValue: pics.toString(),
       ));
@@ -408,12 +407,11 @@ class CardOfProductModel extends BackgroundNotifier {
       NotificationModel notification, List<NotificationContent> result) {
     final nPrice = int.tryParse(notification.value) ?? 0;
 
-    print("check price condition $basicPriceU ");
     if (nPrice != basicPriceU) {
       result.add(NotificationContent(
         id: nmId,
-        title: "Изменена цена товара $nmId",
-        body: "Новая цена: $basicPriceU, было $nPrice",
+        // title: "Изменена цена товара $nmId",
+        // body: "Новая цена: $basicPriceU, было $nPrice",
         condition: NotificationConditionConstants.priceChanged,
         newValue: basicPriceU.toString(),
       ));
@@ -425,8 +423,8 @@ class CardOfProductModel extends BackgroundNotifier {
     if (notification.value != promoTextCard) {
       result.add(NotificationContent(
         id: nmId,
-        title: "Изменена акция карточки $nmId",
-        body: "Новая акция: $promoTextCard",
+        // title: "Изменена акция карточки $nmId",
+        // body: "Новая акция: $promoTextCard",
         condition: NotificationConditionConstants.promoChanged,
         newValue: promoTextCard,
       ));
@@ -435,13 +433,12 @@ class CardOfProductModel extends BackgroundNotifier {
 
   void _checkReviewRatingCondition(
       NotificationModel notification, List<NotificationContent> result) {
-    final nReviewRating = int.tryParse(notification.value) ?? 0;
-    print("In Card entity check review rating condition $reviewRating ");
+    final nReviewRating = double.tryParse(notification.value) ?? 0;
     if (nReviewRating != reviewRating) {
       result.add(NotificationContent(
         id: nmId,
-        title: "Изменен рейтинг карточки $nmId",
-        body: "Новый рейтинг: $reviewRating, был $nReviewRating",
+        // title: "Изменен рейтинг карточки $nmId",
+        // body: "Новый рейтинг: $reviewRating, был $nReviewRating",
         condition: NotificationConditionConstants.reviewRatingChanged,
         newValue: reviewRating.toString(),
       ));
@@ -453,12 +450,11 @@ class CardOfProductModel extends BackgroundNotifier {
     final stocksQty = _calculateAllStocks();
     final nStocks = int.tryParse(notification.value) ?? 0;
     final stocksDif = nStocks - stocksQty;
-    print("check stocks less than condition $stocksQty ");
     if (stocksDif > 0) {
       result.add(NotificationContent(
         id: nmId,
-        title: "Изменено кол-во остатков на складах $nmId",
-        body: "Новое кол-во на всех складах: $stocksQty меньше, чем $nStocks",
+        // title: "Изменено кол-во остатков на складах $nmId",
+        // body: "Новое кол-во на всех складах: $stocksQty меньше, чем $nStocks",
         condition: NotificationConditionConstants.stocksLessThan,
         newValue: stocksQty.toString(),
       ));
@@ -473,8 +469,8 @@ class CardOfProductModel extends BackgroundNotifier {
     if (stocksDif < 0) {
       result.add(NotificationContent(
         id: nmId,
-        title: "Изменено кол-во остатков на складах $nmId",
-        body: "Новое кол-во на всех складах: $stocksQty больше, чем $nStocks",
+        // title: "Изменено кол-во остатков на складах $nmId",
+        // body: "Новое кол-во на всех складах: $stocksQty больше, чем $nStocks",
         condition: NotificationConditionConstants.stocksMoreThan,
         newValue: stocksQty.toString(),
       ));
@@ -490,8 +486,8 @@ class CardOfProductModel extends BackgroundNotifier {
     if (stocksDif < 0) {
       result.add(NotificationContent(
         id: nmId,
-        title: "Изменено кол-во остатков на складе $nmId",
-        body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
+        // title: "Изменено кол-во остатков на складе $nmId",
+        // body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
         condition: NotificationConditionConstants.stocksInWhLessThan,
         newValue: stocksSum.toString(),
       ));
@@ -507,8 +503,8 @@ class CardOfProductModel extends BackgroundNotifier {
     if (stocksDif < 0) {
       result.add(NotificationContent(
         id: nmId,
-        title: "Изменено кол-во остатков на складе $nmId  для размера $nSize",
-        body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
+        // title: "Изменено кол-во остатков на складе $nmId  для размера $nSize",
+        // body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
         condition: NotificationConditionConstants.sizeStocksLessThan,
         newValue: stocksSum.toString(),
       ));
@@ -525,8 +521,8 @@ class CardOfProductModel extends BackgroundNotifier {
     if (stocksDif < 0) {
       result.add(NotificationContent(
         id: nmId,
-        title: "Изменено кол-во остатков на складе $nmId  для размера $nSize",
-        body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
+        // title: "Изменено кол-во остатков на складе $nmId  для размера $nSize",
+        // body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
         condition: NotificationConditionConstants.sizeStocksInWhLessThan,
         newValue: stocksSum.toString(),
       ));

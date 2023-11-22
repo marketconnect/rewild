@@ -127,9 +127,9 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
     await _update();
   }
 
-  Future<void> setMounted(bool mounted) async {
-    if (context.mounted) await _update();
-  }
+  // Future<void> setMounted(bool mounted) async {
+  //   if (context.mounted) await _update();
+  // }
 
   List<CardOfProductModel> _productCards = [];
   void setProductCards(List<CardOfProductModel> productCards) {

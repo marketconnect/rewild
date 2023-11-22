@@ -22,6 +22,7 @@ abstract class ScreenFactory {
   Widget makeSingleGroupScreen(String name);
   Widget makeSingleCardScreen(int id);
   Widget makeSingleStatAdvertScreen(int id);
+  Widget makeBackgroundNotificationsScreen();
 }
 
 class MainNavigation implements AppNavigation {
@@ -34,15 +35,66 @@ class MainNavigation implements AppNavigation {
             screenFactory.makeSplashScreen(),
         // MainNavigationRouteNames.bottomNavigationScreen: () =>
         //     screenFactory.makeBottomNavigationScreen(num),
-        MainNavigationRouteNames.allCardsScreen: (_) =>
-            screenFactory.makeAllCardsScreen(),
-        MainNavigationRouteNames.myWebViewScreen: (_) =>
-            screenFactory.makeMyWebViewScreen(),
+        // MainNavigationRouteNames.allCardsScreen: (_) =>
+        //     screenFactory.makeAllCardsScreen(),
+        // MainNavigationRouteNames.myWebViewScreen: (_) =>
+        //     screenFactory.makeMyWebViewScreen(),
       };
 
   @override
   Route<Object> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case MainNavigationRouteNames.backgroundNotificationsScreen:
+        return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                screenFactory.makeBackgroundNotificationsScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            settings: settings);
+
+      case MainNavigationRouteNames.myWebViewScreen:
+        return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                screenFactory.makeMyWebViewScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            settings: settings);
+      case MainNavigationRouteNames.allCardsFilterScreen:
+        return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                screenFactory.makeAllCardsFilterScreen(),
+            // transitionDuration: const Duration(seconds: 2),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            settings: settings);
+      case MainNavigationRouteNames.allCardsScreen:
+        return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                screenFactory.makeAllCardsScreen(),
+            // transitionDuration: const Duration(seconds: 2),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            settings: settings);
       case MainNavigationRouteNames.singleCardScreen:
         final arguments = settings.arguments;
         final cardId = arguments is int ? arguments : 0;

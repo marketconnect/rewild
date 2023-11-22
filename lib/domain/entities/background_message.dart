@@ -5,16 +5,14 @@ class BackgroundMessage {
   final int subject;
   final int id;
   final int condition;
-  final String header;
-  final String message;
+  // final String header;
+  // final String message;
   final DateTime dateTime;
 
   BackgroundMessage({
     required this.subject,
     required this.id,
     required this.condition,
-    required this.header,
-    required this.message,
     required this.dateTime,
   });
 
@@ -25,16 +23,12 @@ class BackgroundMessage {
     int? subject,
     int? id,
     int? condition,
-    String? header,
-    String? message,
     DateTime? dateTime,
   }) {
     return BackgroundMessage(
       subject: subject ?? this.subject,
       id: id ?? this.id,
       condition: condition ?? this.condition,
-      header: header ?? this.header,
-      message: message ?? this.message,
       dateTime: dateTime ?? this.dateTime,
     );
   }
@@ -44,8 +38,6 @@ class BackgroundMessage {
       'subject': subject,
       'id': id,
       'condition': condition,
-      'header': header,
-      'message': message,
       'dateTime': dateTime.millisecondsSinceEpoch,
     };
   }
@@ -55,8 +47,6 @@ class BackgroundMessage {
       subject: map['subject'] as int,
       id: map['id'] as int,
       condition: map['condition'] as int,
-      header: map['header'] as String,
-      message: map['message'] as String,
       dateTime: DateTime.fromMillisecondsSinceEpoch(map['dateTime'] as int),
     );
   }
@@ -68,7 +58,7 @@ class BackgroundMessage {
 
   @override
   String toString() {
-    return 'BackgroundMessage(subject: $subject, id: $id, condition: $condition, header: $header, message: $message, dateTime: $dateTime)';
+    return 'BackgroundMessage(subject: $subject, id: $id, condition: $condition, dateTime: $dateTime)';
   }
 
   @override
@@ -78,8 +68,6 @@ class BackgroundMessage {
     return other.subject == subject &&
         other.id == id &&
         other.condition == condition &&
-        other.header == header &&
-        other.message == message &&
         other.dateTime == dateTime;
   }
 
@@ -88,8 +76,6 @@ class BackgroundMessage {
     return subject.hashCode ^
         id.hashCode ^
         condition.hashCode ^
-        header.hashCode ^
-        message.hashCode ^
         dateTime.hashCode;
   }
 }

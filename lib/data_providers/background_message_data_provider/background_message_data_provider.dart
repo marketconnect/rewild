@@ -29,8 +29,8 @@ class BackgroundMessageDataProvider
           await db.query('background_messages');
       final messages = List.generate(maps.length, (i) {
         return BackgroundMessage(
-          header: maps[i]['header'],
-          message: maps[i]['message'],
+          // header: maps[i]['header'],
+          // message: maps[i]['message'],
           dateTime: DateTime.fromMillisecondsSinceEpoch(maps[i]['dateTime']),
           subject: maps[i]['subject'],
           id: maps[i]['id'],
@@ -48,10 +48,10 @@ class BackgroundMessageDataProvider
     try {
       final db = await SqfliteService().database;
       final id = await db.rawInsert(
-        'INSERT INTO background_messages (header, message, dateTime, subject, id, condition) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO background_messages (dateTime, subject, id, condition) VALUES (?, ?, ?, ?)',
         [
-          message.header,
-          message.message,
+          // message.header,
+          // message.message,
           message.dateTime.millisecondsSinceEpoch,
           message.subject,
           message.id,

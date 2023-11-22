@@ -25,15 +25,48 @@ class App extends StatefulWidget {
 }
 
 // This widget is the root of the application.
-class _AppState extends State<App> {
+class _AppState extends State<App> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
   @override
   Future<void> dispose() async {
     // close every streamControllers
-
     for (final element in widget.streamControllers) {
       await element.close();
     }
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // if (mountedCallback == null) {
+    //   return;
+    // }
+    switch (state) {
+      case AppLifecycleState.resumed:
+        debugPrint("app in resumed");
+        // mountedCallback!(true);
+        break;
+      case AppLifecycleState.inactive:
+        debugPrint("app in inactive");
+        // mountedCallback!(false);
+        break;
+      case AppLifecycleState.paused:
+        debugPrint("app in paused");
+        // mountedCallback!(false);
+        break;
+      case AppLifecycleState.detached:
+        debugPrint("app in detached");
+        // mountedCallback!(false);
+        break;
+      default:
+        break;
+    }
   }
 
   @override
