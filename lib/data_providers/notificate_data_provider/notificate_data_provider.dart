@@ -12,13 +12,14 @@ class NotificationDataProvider
     try {
       final db = await SqfliteService().database;
       final _ = await db.rawInsert(
-          "INSERT INTO notifications (parentId, condition, value, sizeId, wh) VALUES (?, ?, ?, ?, ?)",
+          "INSERT INTO notifications (parentId, condition, value, sizeId, wh, reusable) VALUES (?, ?, ?, ?, ?, ?)",
           [
             notificate.parentId,
             notificate.condition,
             notificate.value,
             notificate.sizeId,
-            notificate.wh
+            notificate.wh,
+            notificate.reusable
           ]);
       return Resource.empty();
     } catch (e) {
@@ -66,6 +67,28 @@ class NotificationDataProvider
           await db.rawDelete("DELETE FROM notifications WHERE parentId = ?", [
         parentId,
       ]);
+      return Resource.empty();
+    } catch (e) {
+      return Resource.error(e.toString());
+    }
+  }
+
+  @override
+  Future<Resource<void>> delete(NotificationModel notificate,
+      [bool? reusableAlso]) async {
+    try {
+      final db = await SqfliteService().database;
+      if (reusableAlso == true) {
+        final _ = await db.rawDelete(
+            "DELETE FROM notifications WHERE parentId = ? AND condition = ?",
+            [notificate.parentId, notificate.condition]);
+        return Resource.empty();
+      } else {
+        final _ = await db.rawDelete(
+            "DELETE FROM notifications WHERE parentId = ? AND condition = ? AND reusable != 1",
+            [notificate.parentId, notificate.condition]);
+      }
+
       return Resource.empty();
     } catch (e) {
       return Resource.error(e.toString());

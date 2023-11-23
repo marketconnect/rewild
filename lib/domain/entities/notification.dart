@@ -7,10 +7,12 @@ class NotificationModel {
   String value;
   int? sizeId;
   int? wh;
+  bool reusable;
   NotificationModel({
     required this.parentId,
     required this.condition,
     required this.value,
+    this.reusable = false,
     this.sizeId,
     this.wh,
   });

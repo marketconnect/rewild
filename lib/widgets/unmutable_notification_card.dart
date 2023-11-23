@@ -7,18 +7,18 @@ class UnmutableNotificationCard extends StatelessWidget {
     required this.text,
     this.currentValue,
     this.suffix,
-    required this.isActive,
+    required this.saveState,
     required this.dropNotification,
     required this.addNotification,
   });
 
   final int condition;
-  final bool isActive;
+  final int saveState;
   final String? currentValue;
   final String? suffix;
   final String text;
   final Function(int condition) dropNotification;
-  final Function(int condition, int? value) addNotification;
+  final Function(int condition, int? value, [bool? reusable]) addNotification;
 
   @override
   Widget build(BuildContext context) {
@@ -47,20 +47,26 @@ class UnmutableNotificationCard extends StatelessWidget {
             width: screenWidth * 0.15,
             child: IconButton(
               onPressed: () {
-                if (isActive) {
+                if (saveState == 0) {
+                  currentValue == null
+                      ? addNotification(condition, null)
+                      : addNotification(condition, int.tryParse(currentValue!));
+                  return;
+                } else if (saveState == 1) {
+                  currentValue == null
+                      ? addNotification(condition, null, true)
+                      : addNotification(
+                          condition, int.tryParse(currentValue!), true);
+                } else if (saveState == 2) {
                   dropNotification(condition);
                   return;
                 }
-
-                currentValue == null
-                    ? addNotification(condition, null)
-                    : addNotification(condition, int.tryParse(currentValue!));
               },
               icon: Icon(
                 Icons.notifications,
-                color: isActive
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surfaceVariant,
+                color: saveState == 0
+                    ? Theme.of(context).colorScheme.surfaceVariant
+                    : Theme.of(context).colorScheme.primary,
                 size: screenWidth * 0.07,
               ),
             ),

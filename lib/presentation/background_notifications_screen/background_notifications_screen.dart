@@ -59,41 +59,70 @@ class BackgroundNotificationsScreen extends StatelessWidget {
                   arguments: messages[index].id),
               child: Container(
                 width: model.screenWidth * 0.9,
-                height: model.screenHeight * 0.1,
+                height: model.screenHeight * 0.12,
                 decoration: BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                  border: Border(
+                      bottom: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant
+                              .withOpacity(0.1),
+                          width: 1)),
                 ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           messages[index].header,
-                          style: const TextStyle(
-                            fontSize: 18,
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.04,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1f1f1f),
+                            color: Theme.of(context).colorScheme.onBackground,
                           ),
                         ),
-                        Text(
-                          messages[index].dateTime,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1f1f1f),
-                          ),
-                        ),
+                        Row(
+                          children: [
+                            Text(
+                              messages[index].dateTime,
+                              style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.04,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant
+                                    .withOpacity(0.5),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.01,
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant
+                                  .withOpacity(0.5),
+                              size: MediaQuery.of(context).size.width * 0.04,
+                            ),
+                          ],
+                        )
                       ],
                     ),
                     Row(
                       children: [
                         Text(
                           messages[index].description,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1f1f1f),
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.04,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant
+                                .withOpacity(0.8),
                           ),
                         ),
                       ],

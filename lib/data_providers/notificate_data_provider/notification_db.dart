@@ -6,6 +6,7 @@ class NotificationDb extends NotificationModel {
       {required super.parentId,
       required super.condition,
       required super.value,
+      super.reusable,
       super.sizeId,
       super.wh});
 
@@ -18,6 +19,7 @@ class NotificationDb extends NotificationModel {
             value TEXT,
             sizeId INTEGER,
             wh INTEGER,
+            reusable INTEGER,
             UNIQUE(parentId, condition) ON CONFLICT REPLACE
           );    
           ''');

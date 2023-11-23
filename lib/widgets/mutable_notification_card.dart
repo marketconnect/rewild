@@ -8,18 +8,18 @@ class MutableNotificationCard extends StatefulWidget {
     required this.text,
     this.currentValue,
     this.suffix,
-    required this.isActive,
+    required this.saveState,
     required this.dropNotification,
     required this.addNotification,
   });
 
   final int condition;
-  final bool isActive;
+  final int saveState;
   final int? currentValue;
   final String? suffix;
   final String text;
   final Function(int condition) dropNotification;
-  final Function(int condition, int? value) addNotification;
+  final Function(int condition, int? value, [bool? reusable]) addNotification;
 
   @override
   State<MutableNotificationCard> createState() =>
@@ -61,14 +61,26 @@ class _MutableNotificationCardState extends State<MutableNotificationCard> {
           SizedBox(
             width: screenWidth * 0.15,
             child: IconButton(
-              onPressed: () => widget.isActive
-                  ? widget.dropNotification(widget.condition)
-                  : widget.addNotification(widget.condition, value),
+              onPressed: () {
+                if (widget.saveState == 0) {
+                  widget.currentValue == null
+                      ? widget.addNotification(widget.condition, null)
+                      : widget.addNotification(widget.condition, value);
+                  return;
+                } else if (widget.saveState == 1) {
+                  widget.currentValue == null
+                      ? widget.addNotification(widget.condition, null, true)
+                      : widget.addNotification(widget.condition, value, true);
+                } else if (widget.saveState == 2) {
+                  widget.dropNotification(widget.condition);
+                  return;
+                }
+              },
               icon: Icon(
                 Icons.notifications,
-                color: widget.isActive
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surfaceVariant,
+                color: widget.saveState == 0
+                    ? Theme.of(context).colorScheme.surfaceVariant
+                    : Theme.of(context).colorScheme.primary,
                 size: screenWidth * 0.07,
               ),
             ),

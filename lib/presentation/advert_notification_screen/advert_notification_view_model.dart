@@ -65,15 +65,21 @@ class AdvertNotificationViewModel extends ResourceChangeNotifier {
   List<NotificationModel> get notifications => _notifications;
 
   Future<void> save() async {
-    print("ADD FOR PARENT ${state.nmId} $_notifications");
     await notificationService.addForParent(_notifications, state.nmId);
     if (context.mounted) Navigator.of(context).pop();
   }
 
-  bool isInNotifications(int condition) {
-    return _notifications
-        .where((element) => element.condition == condition)
-        .isNotEmpty;
+  int isInNotifications(int condition) {
+    final notification =
+        _notifications.where((element) => element.condition == condition);
+
+    if (notification.isEmpty) {
+      return 0;
+    } else if (notification.first.reusable) {
+      return 2;
+    } else {
+      return 1;
+    }
   }
 
   void dropNotification(int condition) {
@@ -81,20 +87,15 @@ class AdvertNotificationViewModel extends ResourceChangeNotifier {
     notifyListeners();
   }
 
-  void addNotification(int condition, [int? value, int? wh]) {
-    if (wh != null) {
-      _notifications.removeWhere(
-          (element) => element.condition == condition && element.wh == wh);
-    } else {
-      print("object $_notifications");
-      _notifications.removeWhere((element) => element.condition == condition);
-    }
+  void addNotification(int condition, int? value, [bool? reusable]) {
+    _notifications.removeWhere((element) => element.condition == condition);
 
     switch (condition) {
       case NotificationConditionConstants.budgetLessThan:
         _notifications.add(NotificationModel(
             condition: NotificationConditionConstants.budgetLessThan,
             value: state.budget.toString(),
+            reusable: reusable ?? false,
             parentId: state.nmId));
 
         break;

@@ -55,7 +55,7 @@ class AdvertNotificationSettingsScreen extends StatelessWidget {
             currentValue: state.budget,
             text: 'Бюджет  менее',
             suffix: 'шт.',
-            isActive: isActive(NotificationConditionConstants.budgetLessThan),
+            saveState: isActive(NotificationConditionConstants.budgetLessThan),
             addNotification: add,
             dropNotification: drop,
           ),
