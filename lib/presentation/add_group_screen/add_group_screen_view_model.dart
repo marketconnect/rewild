@@ -59,8 +59,7 @@ class AddGroupScreenViewModel extends ResourceChangeNotifier {
     groups.add(newGroup);
     _selectedGroupsNames.add(newGroupName);
     // await groupsProvider.addGroup(newGroup);
-    FocusScope.of(context).requestFocus(FocusNode());
-    Navigator.of(context).pop();
+
     notify();
   }
 

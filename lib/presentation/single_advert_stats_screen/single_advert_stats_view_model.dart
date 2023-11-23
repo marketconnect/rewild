@@ -502,6 +502,15 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   //   setPursued(ok);
   // }
 
+  Future<void> changeCpm(String value) async {
+    final cpm = int.tryParse(value) ?? 0;
+    print("cpm = $cpm");
+    if (cpm != _cpm) {
+      await _changeCpm(cpm);
+      print("changed");
+    }
+  }
+
   Future<void> _changeCpm(int cpm) async {
     if (_cpm == null) {
       return;

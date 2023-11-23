@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/presentation/background_notifications_screen/background_notifications_view_model.dart';
+import 'package:rewild/widgets/empty_widget.dart';
 
 class MessageCard {
   final String header;
@@ -53,88 +54,99 @@ class BackgroundNotificationsScreen extends StatelessWidget {
       body: Container(
         width: model.screenWidth * 0.9,
         margin: EdgeInsets.only(left: model.screenWidth * 0.05),
-        child: ListView.builder(
-          itemCount: messages.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () => pressed(messages[index].routeName,
-                  messages[index].id, messages[index].condition),
-              child: Container(
-                width: model.screenWidth * 0.9,
-                height: model.screenHeight * 0.12,
-                decoration: BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant
-                              .withOpacity(0.1),
-                          width: 1)),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          messages[index].header,
-                          style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.04,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onBackground,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              messages[index].dateTime,
-                              style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.04,
-                                fontWeight: FontWeight.w500,
+        child: messages.isEmpty
+            ? const EmptyWidget(
+                text: 'Нет уведомлений',
+              )
+            : ListView.builder(
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () => pressed(messages[index].routeName,
+                        messages[index].id, messages[index].condition),
+                    child: Container(
+                      width: model.screenWidth * 0.9,
+                      height: model.screenHeight * 0.12,
+                      decoration: BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(
                                 color: Theme.of(context)
                                     .colorScheme
                                     .onSurfaceVariant
-                                    .withOpacity(0.5),
+                                    .withOpacity(0.1),
+                                width: 1)),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                messages[index].header,
+                                style: TextStyle(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.04,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground,
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.01,
-                            ),
-                            Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant
-                                  .withOpacity(0.5),
-                              size: MediaQuery.of(context).size.width * 0.04,
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          messages[index].description,
-                          style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.04,
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant
-                                .withOpacity(0.8),
+                              Row(
+                                children: [
+                                  Text(
+                                    messages[index].dateTime,
+                                    style: TextStyle(
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.04,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant
+                                          .withOpacity(0.5),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.01,
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant
+                                        .withOpacity(0.5),
+                                    size: MediaQuery.of(context).size.width *
+                                        0.04,
+                                  ),
+                                ],
+                              )
+                            ],
                           ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+                          Row(
+                            children: [
+                              Text(
+                                messages[index].description,
+                                style: TextStyle(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.04,
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant
+                                      .withOpacity(0.8),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
     );
   }

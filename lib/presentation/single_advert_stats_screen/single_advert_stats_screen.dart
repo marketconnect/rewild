@@ -3,10 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/widgets/chart.dart';
+import 'package:rewild/widgets/my_dialog_widget.dart';
 
-class SingleAdvertStatsScreen extends StatelessWidget {
+class SingleAdvertStatsScreen extends StatefulWidget {
   const SingleAdvertStatsScreen({super.key});
 
+  @override
+  State<SingleAdvertStatsScreen> createState() =>
+      _SingleAdvertStatsScreenState();
+}
+
+class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<SingleAdvertStatsViewModel>();
@@ -14,8 +21,7 @@ class SingleAdvertStatsScreen extends StatelessWidget {
     final cpm = model.cpm;
     final title = model.title;
     final openNotificationSettings = model.notificationsScreen;
-    // final modalBottomState = model.modalBottomState;
-    // final save = model.save;
+    final changeCpm = model.changeCpm;
     final start = model.start;
     final decoration = BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.surfaceVariant),
@@ -66,39 +72,55 @@ class SingleAdvertStatsScreen extends StatelessWidget {
                             color: Theme.of(context).colorScheme.outline),
                       ),
                     )
-                  : Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: model.screenWidth * 0.06,
-                            height: model.screenWidth * 0.06,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              borderRadius:
-                                  BorderRadius.circular(model.screenWidth),
-                            ),
-                            child: Text(
-                              "CPM",
-                              style: TextStyle(
-                                fontSize: model.screenWidth * 0.015,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.background,
+                  : GestureDetector(
+                      onTap: () => showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return MyDialog(
+                            header: "Ставка (СРМ, ₽)",
+                            hint: '$cpm₽',
+                            addGroup: changeCpm,
+                            btnText: "Обновить",
+                            description: "Введите новое значение ставки",
+                            keyboardType: TextInputType.number,
+                          );
+                        },
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: model.screenWidth * 0.06,
+                              height: model.screenWidth * 0.06,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius:
+                                    BorderRadius.circular(model.screenWidth),
+                              ),
+                              child: Text(
+                                "CPM",
+                                style: TextStyle(
+                                  fontSize: model.screenWidth * 0.015,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      Theme.of(context).colorScheme.background,
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            width: model.screenWidth * 0.01,
-                          ),
-                          Text(
-                            '$cpm₽',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
+                            SizedBox(
+                              width: model.screenWidth * 0.01,
                             ),
-                          ),
-                        ],
+                            Text(
+                              '$cpm₽',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     )
             ],
@@ -117,20 +139,6 @@ class SingleAdvertStatsScreen extends StatelessWidget {
           ))),
     );
   }
-
-  // Future<dynamic> _showModalBottomSheet(
-  //     BuildContext context,
-  //     ModalBottomWidgetState modalBottomState,
-  //     Function(ModalBottomWidgetState) save) {
-  //   return showModalBottomSheet(
-  //       backgroundColor: Theme.of(context).colorScheme.background,
-  //       context: context,
-  //       isScrollControlled: true,
-  //       builder: (context) => ModalBottomWidget(
-  //             state: modalBottomState,
-  //             saveCallback: save,
-  //           ));
-  // }
 }
 
 class _UpperContainer extends StatelessWidget {

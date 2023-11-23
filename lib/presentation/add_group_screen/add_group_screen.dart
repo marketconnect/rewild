@@ -3,6 +3,7 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/widgets/empty_widget.dart';
+import 'package:rewild/widgets/my_dialog_widget.dart';
 
 class AddGroupScreen extends StatefulWidget {
   const AddGroupScreen({super.key});
@@ -59,75 +60,13 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
           onPressed: () => showDialog(
             context: context,
             builder: (BuildContext context) {
-              String newGroupName = "";
-              return AlertDialog(
-                insetPadding: const EdgeInsets.all(10),
-                backgroundColor: Colors.white,
-                surfaceTintColor: Colors.white,
-                buttonPadding: EdgeInsets.zero,
-                title: const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Название группы",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    ],
-                  ),
-                ),
-                content: TextField(
-                  onChanged: (value) {
-                    newGroupName = value;
-                  },
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 15),
-                        decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceVariant,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            )),
-                        child: Text(
-                          'Отмена',
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant),
-                        )),
-                  ),
-                  TextButton(
-                    onPressed: () => addGroup(newGroupName),
-                    child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 15),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.onBackground,
-                            )),
-                        child: Text(
-                          'Добавить',
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant),
-                        )),
-                  ),
-                ],
+              return MyDialog(
+                header: "Название группы",
+                hint: "Введите название",
+                addGroup: addGroup,
+                btnText: "Добавить",
+                description: "Будет отображаться для объединенных карточек",
+                keyboardType: TextInputType.name,
               );
             },
           ),
