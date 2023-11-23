@@ -12,7 +12,7 @@ import 'package:rewild/data_providers/background_message_data_provider/backgroun
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
-import 'package:rewild/data_providers/notificate_data_provider/notificate_data_provider.dart';
+import 'package:rewild/data_providers/notificate_data_provider/notification_data_provider.dart';
 
 import 'package:rewild/data_providers/secure_storage_data_provider.dart';
 import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.dart';

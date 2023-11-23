@@ -8,12 +8,14 @@ class MessageCard {
   final String dateTime;
   final int id;
   final String routeName;
+  final int condition;
 
   MessageCard(
       {required this.header,
       required this.id,
       required this.routeName,
       required this.description,
+      required this.condition,
       required this.dateTime});
 }
 
@@ -24,6 +26,7 @@ class BackgroundNotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<BackgroundNotificationsViewModel>();
     final messages = model.messages;
+    final pressed = model.pressed;
     // messages.sort((a, b) => a.dateTime.compareTo(b.dateTime));
     return Scaffold(
       appBar: AppBar(
@@ -54,9 +57,8 @@ class BackgroundNotificationsScreen extends StatelessWidget {
           itemCount: messages.length,
           itemBuilder: (context, index) {
             return GestureDetector(
-              onTap: () => Navigator.pushNamed(
-                  context, messages[index].routeName,
-                  arguments: messages[index].id),
+              onTap: () => pressed(messages[index].routeName,
+                  messages[index].id, messages[index].condition),
               child: Container(
                 width: model.screenWidth * 0.9,
                 height: model.screenHeight * 0.12,

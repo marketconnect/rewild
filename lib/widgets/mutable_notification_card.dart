@@ -19,7 +19,7 @@ class MutableNotificationCard extends StatefulWidget {
   final String? suffix;
   final String text;
   final Function(int condition) dropNotification;
-  final Function(int condition, int? value, [bool? reusable]) addNotification;
+  final Function(int condition, int? value) addNotification;
 
   @override
   State<MutableNotificationCard> createState() =>
@@ -69,8 +69,8 @@ class _MutableNotificationCardState extends State<MutableNotificationCard> {
                   return;
                 } else if (widget.saveState == 1) {
                   widget.currentValue == null
-                      ? widget.addNotification(widget.condition, null, true)
-                      : widget.addNotification(widget.condition, value, true);
+                      ? widget.addNotification(widget.condition, null)
+                      : widget.addNotification(widget.condition, value);
                 } else if (widget.saveState == 2) {
                   widget.dropNotification(widget.condition);
                   return;

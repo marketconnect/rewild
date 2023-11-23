@@ -21,7 +21,7 @@ import 'package:rewild/data_providers/filter_data_provider/filter_data_provider.
 import 'package:rewild/data_providers/group_data_provider/group_data_provider.dart';
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
-import 'package:rewild/data_providers/notificate_data_provider/notificate_data_provider.dart';
+import 'package:rewild/data_providers/notificate_data_provider/notification_data_provider.dart';
 import 'package:rewild/data_providers/orders_history_data_provider/orders_history_data_provider.dart';
 
 import 'package:rewild/data_providers/secure_storage_data_provider.dart';
@@ -41,7 +41,7 @@ import 'package:rewild/domain/services/commission_service.dart';
 import 'package:rewild/domain/services/group_service.dart';
 import 'package:rewild/domain/services/init_stock_service.dart';
 import 'package:rewild/domain/services/internet_connection_checke.dart';
-import 'package:rewild/domain/services/notificate_service.dart';
+import 'package:rewild/domain/services/notification_service.dart';
 
 import 'package:rewild/domain/services/orders_history_service.dart';
 
@@ -313,7 +313,7 @@ class _DIContainer {
         apiKeyExistsStreamController: apiKeyExistsStreamController,
       );
 
-  // advert
+  // Advert
   AdvertService _makeAdvertService() => AdvertService(
       advertApiClient: _makeAdvertApiClient(),
       // pursuitsDataProvider: _makePursuedDataProvider(),
@@ -326,12 +326,12 @@ class _DIContainer {
       apiKeysDataProvider: _makeSecureDataProvider(),
       autoStatDataProvider: _makeAutoStatDataProvider());
 
-  // notification
+  // Notification
   NotificationService _makeNotificationService() => NotificationService(
         notificationDataProvider: _makeNotificationDataProvider(),
       );
 
-  // background message
+  // Background message
   BackgroundMessageService _makeBackgroundMessageService() =>
       BackgroundMessageService(
           backgroundMessageDataProvider: _makeBackgroundMessageDataProvider());
@@ -481,6 +481,7 @@ class _DIContainer {
           BuildContext context) =>
       BackgroundNotificationsViewModel(
           context: context,
+          notificationService: _makeNotificationService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
           backgroundNotificationsBackgroundMessageService:
               _makeBackgroundMessageService());

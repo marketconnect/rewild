@@ -115,7 +115,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
     notifyListeners();
   }
 
-  void addNotification(int condition, int? value, [bool? reusable]) {
+  void addNotification(int condition, int? value) {
     // if (wh != null) {
     //   _notifications.removeWhere(
     //       (element) => element.condition == condition && element.wh == wh);
@@ -128,7 +128,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
         _notifications.add(NotificationModel(
             condition: NotificationConditionConstants.nameChanged,
             value: state.name,
-            reusable: reusable ?? false,
+            reusable: true,
             parentId: state.nmId));
 
         break;
@@ -136,7 +136,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
         _notifications.add(NotificationModel(
             condition: NotificationConditionConstants.picsChanged,
             value: state.pics.toString(),
-            reusable: reusable ?? false,
+            reusable: true,
             parentId: state.nmId));
 
         break;
@@ -144,7 +144,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
         _notifications.add(NotificationModel(
             condition: NotificationConditionConstants.priceChanged,
             value: state.price.toString(),
-            reusable: reusable ?? false,
+            reusable: true,
             parentId: state.nmId));
 
         break;
@@ -152,7 +152,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
         _notifications.add(NotificationModel(
             condition: NotificationConditionConstants.promoChanged,
             value: state.promo,
-            reusable: reusable ?? false,
+            reusable: true,
             parentId: state.nmId));
 
         break;
@@ -160,7 +160,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
         _notifications.add(NotificationModel(
             condition: NotificationConditionConstants.reviewRatingChanged,
             value: state.reviewRating.toString(),
-            reusable: reusable ?? false,
+            reusable: true,
             parentId: state.nmId));
 
         break;
@@ -170,7 +170,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
             .toString();
         _notifications.add(NotificationModel(
             condition: NotificationConditionConstants.stocksLessThan,
-            reusable: reusable ?? false,
+            reusable: true,
             value: v,
             parentId: state.nmId));
 

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
@@ -8,14 +9,21 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 
 abstract class BackgroundNotificationsBackgroundMessageService {
   Future<Resource<List<BackgroundMessage>>> getAll();
+  Future<Resource<bool>> delete(BackgroundMessage message);
+}
+
+abstract class BackgroundNotificationsNotificationService {
+  Future<Resource<bool>> delete(int id, int condition);
 }
 
 class BackgroundNotificationsViewModel extends ResourceChangeNotifier {
   final BackgroundNotificationsBackgroundMessageService
       backgroundNotificationsBackgroundMessageService;
+  final BackgroundNotificationsNotificationService notificationService;
 
   BackgroundNotificationsViewModel(
       {required this.backgroundNotificationsBackgroundMessageService,
+      required this.notificationService,
       required super.context,
       required super.internetConnectionChecker}) {
     _asyncInit();
@@ -91,9 +99,23 @@ class BackgroundNotificationsViewModel extends ResourceChangeNotifier {
           id: id,
           routeName: routeName,
           description: description,
+          condition: condition,
           dateTime: formatDateTime(backgroundMessage.dateTime)));
     }
 
     notify();
+  }
+
+  Future<void> pressed(String routeName, int id, int condition) async {
+    final resource =
+        await fetch(() => notificationService.delete(id, condition));
+
+    if (resource == null) {
+      return;
+    }
+
+    if (context.mounted) {
+      Navigator.pushNamed(context, routeName, arguments: id);
+    }
   }
 }
