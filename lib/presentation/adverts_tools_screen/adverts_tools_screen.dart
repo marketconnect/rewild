@@ -12,7 +12,7 @@ class AdvertsToolsScreen extends StatelessWidget {
     final model = context.watch<AdvertsToolsViewModel>();
     final autoAdverts = model.adverts;
     return Scaffold(
-      appBar: AppBar(title: const Text('Adverts Tools')),
+      appBar: AppBar(title: const Text('Настройки')),
       body: ListView.builder(
           scrollDirection: Axis.vertical,
           shrinkWrap: true,

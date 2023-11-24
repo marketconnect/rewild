@@ -17,11 +17,9 @@ class AdvertNotificationSettingsScreen extends StatelessWidget {
     final add = model.addNotification;
     final drop = model.dropNotification;
     final isActive = model.isInNotifications;
-    // final notificatedBudget = model.notificatedBudget;
-    // print('notificatedBudget: $notificatedBudget');
     final notificationsBudget =
         model.notifications[NotificationConditionConstants.budgetLessThan];
-    print("loading ${model.loading} notifications: ${model.notifications}");
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -43,7 +41,7 @@ class AdvertNotificationSettingsScreen extends StatelessWidget {
         width: model.screenWidth,
         child: FloatingActionButton(
           onPressed: () async {
-            print("SAVE ${model.notifications}");
+            // print("SAVE ${model.notifications}");.
             await save();
           },
           backgroundColor: Theme.of(context).colorScheme.primary,

@@ -79,8 +79,8 @@ import 'package:rewild/presentation/card_notification_screen/card_notification_s
 import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_screen.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
-import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_screen.dart';
-import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
+import 'package:rewild/presentation/main_navigation_screen/main_navigation_screen.dart';
+import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_group_screen.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 import 'package:rewild/presentation/my_web_view/my_web_view.dart';
@@ -402,9 +402,9 @@ class _DIContainer {
           internetConnectionChecker: _makeInternetConnectionChecker(),
           groupsProvider: _makeAllGroupsService());
 
-  BottomNavigationViewModel _makeBottomNavigationViewModel(
+  MainNavigationViewModel _makeBottomNavigationViewModel(
           BuildContext context) =>
-      BottomNavigationViewModel(
+      MainNavigationViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
           // advertsStream: activeAdvertsStream,
@@ -505,7 +505,7 @@ class ScreenFactoryDefault implements ScreenFactory {
     return ChangeNotifierProvider(
         create: (context) =>
             _diContainer._makeBottomNavigationViewModel(context),
-        child: const BottomNavigationScreen());
+        child: const MainNavigationScreen());
   }
 
   @override

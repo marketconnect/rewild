@@ -48,12 +48,10 @@ class AllAdvertsScreen extends StatelessWidget {
                         final advert = adverts[index];
                         return GestureDetector(
                           onTap: () {
-                            // if (advert.type == 8) {
                             Navigator.of(context).pushNamed(
                               MainNavigationRouteNames.singleAdvertStatsScreen,
                               arguments: advert.advertId,
                             );
-                            // }
                           },
                           child: Padding(
                               padding: const EdgeInsets.symmetric(
@@ -125,7 +123,6 @@ class _TopRow extends StatelessWidget {
     required this.image,
   });
 
-  // final List<SellerModel> sellers;
   final int advType;
   final String name;
   final String image;

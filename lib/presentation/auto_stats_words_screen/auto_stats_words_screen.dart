@@ -12,30 +12,89 @@ class AutoStatsWordsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AutoStatsWordsViewModel>();
-
     final name = model.name;
-    final stats = model.autoStatWord;
 
+    final keywords = model.keywords;
+    final excluded = model.excluded;
+    final searchInputOpen = model.searchInputOpen;
+    final searchInputToggle = model.toggleSearchInput;
+    final setSearchQuery = model.setSearchQuery;
     return SafeArea(
       child: DefaultTabController(
           length: 2,
           child: Scaffold(
             appBar: AppBar(
               title: Text(name!.capitalize()),
-              bottom: TabBar(splashFactory: NoSplash.splashFactory, tabs: [
-                SizedBox(
-                  width: model.screenWidth * 0.5,
-                  child: const Tab(
-                    child: Text('Ключевые фразы'),
-                  ),
-                ),
-                SizedBox(
-                  width: model.screenWidth * 0.5,
-                  child: const Tab(
-                    child: Text('Исключения'),
-                  ),
-                ),
-              ]),
+              actions: [
+                IconButton(
+                    onPressed: () {
+                      searchInputToggle();
+                    },
+                    icon: Icon(
+                      searchInputOpen ? Icons.close : Icons.search,
+                      color: Theme.of(context).colorScheme.primary,
+                    ))
+              ],
+              bottom: searchInputOpen
+                  ? PreferredSize(
+                      preferredSize: const Size.fromHeight(50),
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * 0.07,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color:
+                                  Theme.of(context).colorScheme.surfaceVariant,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: TextField(
+                          // keyboardType: keyboardType,
+                          autofocus: true,
+                          textAlignVertical: TextAlignVertical.center,
+
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.05,
+                              color: Theme.of(context).colorScheme.primary),
+                          decoration: InputDecoration(
+                            isCollapsed: true,
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical:
+                                    MediaQuery.of(context).size.width * 0.03,
+                                horizontal:
+                                    MediaQuery.of(context).size.width * 0.05),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  width: 3,
+                                  color: Theme.of(context).primaryColor),
+                            ),
+                          ),
+                          cursorColor: Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant
+                              .withOpacity(0.3),
+                          onChanged: (value) {
+                            setSearchQuery(value);
+                          },
+                        ),
+                      ))
+                  : TabBar(splashFactory: NoSplash.splashFactory, tabs: [
+                      SizedBox(
+                        width: model.screenWidth * 0.5,
+                        child: const Tab(
+                          child: Text('Ключевые фразы'),
+                        ),
+                      ),
+                      SizedBox(
+                        width: model.screenWidth * 0.5,
+                        child: const Tab(
+                          child: Text('Исключения'),
+                        ),
+                      ),
+                    ]),
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () async {
@@ -43,18 +102,18 @@ class AutoStatsWordsScreen extends StatelessWidget {
               },
               child: const Icon(Icons.add),
             ),
-            body: stats == null
+            body: model.loading
                 ? const Center(child: CircularProgressIndicator())
                 : TabBarView(children: [
                     _TabBody(
-                      content: stats.keywords
+                      content: keywords
                           .map((e) =>
                               _CardContent(word: e.keyword, qty: e.count))
                           .toList(),
                     ),
                     _TabBody(
                       isExcluded: true,
-                      content: stats.excluded
+                      content: excluded
                           .map((e) => _CardContent(
                                 word: e,
                               ))
@@ -102,6 +161,7 @@ class _CardsListState extends State<_CardsList> {
   List<_CardContent> _displayedContent = [];
   int _loadedItems = 0;
   final int _itemsPerLoad = 20;
+  String searchQuery = "";
 
   @override
   void initState() {
@@ -124,6 +184,16 @@ class _CardsListState extends State<_CardsList> {
   }
 
   void _loadItems([int? qty]) {
+    if (searchQuery != "") {
+      setState(() {
+        _displayedContent = widget.content
+            .where((item) =>
+                item.word.toLowerCase().contains(searchQuery.toLowerCase()))
+            .toList();
+        _loadedItems = _displayedContent.length;
+      });
+      return;
+    }
     final perLoad = qty ?? _itemsPerLoad;
     final int endIndex = _loadedItems + perLoad;
 
@@ -140,6 +210,32 @@ class _CardsListState extends State<_CardsList> {
     }
   }
 
+  // void _loadItems([int? qty]) {
+  //   final perLoad = qty ?? _itemsPerLoad;
+
+  //   // // Apply search filter
+  //   // final filteredContent = searchQuery == ""
+  //   //     ? widget.content
+  //   //     : widget.content
+  //   //         .where((item) =>
+  //   //             item.word.toLowerCase().contains(searchQuery.toLowerCase()))
+  //   //         .toList();
+
+  //   final int endIndex = _loadedItems + perLoad;
+
+  //   if (endIndex < filteredContent.length) {
+  //     setState(() {
+  //       _displayedContent = filteredContent.sublist(0, endIndex);
+  //       _loadedItems = endIndex;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       _displayedContent = filteredContent.toList();
+  //       _loadedItems = filteredContent.length;
+  //     });
+  //   }
+  // }
+
   void dropItem(String text, Function callback) {
     setState(() {
       widget.content.removeWhere((element) => element.word == text);
@@ -153,6 +249,11 @@ class _CardsListState extends State<_CardsList> {
     final model = context.watch<AutoStatsWordsViewModel>();
     final moveToExcluded = model.moveToExcluded;
     final moveToKeywords = model.moveToKeywords;
+    final newSearchQuery = model.searchQuery;
+    if (newSearchQuery != searchQuery) {
+      searchQuery = newSearchQuery;
+      _loadItems();
+    }
     return SingleChildScrollView(
       controller: _scrollController,
       child: Column(

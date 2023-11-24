@@ -39,43 +39,59 @@ class AutoStatsWordsViewModel extends ResourceChangeNotifier {
     }
 
     autoStatsWordRes.keywords.sort((a, b) => a.count.compareTo(b.count));
-    _autoStatWord = autoStatsWordRes;
+    _keywords = autoStatsWordRes.keywords;
+    _excluded = autoStatsWordRes.excluded;
     if (advertInfo == null) {
       return;
     }
     _name = advertInfo.name;
+
     notify();
   }
 
   // Name
   String? _name;
   String? get name => _name ?? '';
-  AutoStatWord? _autoStatWord;
-  AutoStatWord? get autoStatWord => _autoStatWord;
+
+  List<Keyword> _keywords = [];
+
+  List<Keyword> get keywords => _keywords;
+
+  List<String> _excluded = [];
+
+  List<String> get excluded => _excluded;
 
   void moveToExcluded(String word) {
-    if (_autoStatWord == null) {
-      return;
-    }
-    _autoStatWord!.keywords.removeWhere((element) => element.keyword == word);
-    _autoStatWord!.excluded.add(word);
+    keywords.removeWhere((element) => element.keyword == word);
+    excluded.add(word);
     notify();
   }
 
   void moveToKeywords(String word) {
-    if (_autoStatWord == null) {
-      return;
-    }
-    _autoStatWord!.excluded.removeWhere((element) => element == word);
-    _autoStatWord!.keywords.insert(0, Keyword(keyword: word, count: 1));
+    _excluded.removeWhere((element) => element == word);
+    _keywords.insert(0, Keyword(keyword: word, count: 1));
     notify();
   }
 
   Future<void> save() async {
-    if (_autoStatWord == null) {
-      return;
-    }
-    await fetch(() => autoStatsWordsAdvertService.setAutoExcluded(
-        advertId, _autoStatWord!.excluded));
+    await fetch(
+        () => autoStatsWordsAdvertService.setAutoExcluded(advertId, _excluded));
+  }
+
+  // Search functionality
+  bool _searchInputOpen = false;
+  bool get searchInputOpen => _searchInputOpen;
+  void toggleSearchInput() {
+    _searchInputOpen = !_searchInputOpen;
+    _searchQuery = "";
+    notify();
+  }
+
+  String _searchQuery = '';
+  String get searchQuery => _searchQuery;
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+
+    notify();
   }
 }

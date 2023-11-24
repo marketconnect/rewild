@@ -4,20 +4,19 @@ import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:provider/provider.dart';
 
-import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
-import 'package:rewild/presentation/bottom_navigation_screen/widgets/bottom_navigation_screen_advert_widget.dart';
-import 'package:rewild/presentation/bottom_navigation_screen/widgets/bottom_navigation_screen_cards_widget.dart';
-import 'package:rewild/presentation/bottom_navigation_screen/widgets/bottom_navigation_screen_home_widget.dart';
+import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
+import 'package:rewild/presentation/main_navigation_screen/widgets/main_navigation_screen_advert_widget.dart';
+import 'package:rewild/presentation/main_navigation_screen/widgets/main_navigation_screen_cards_widget.dart';
+import 'package:rewild/presentation/main_navigation_screen/widgets/main_navigation_screen_home_widget.dart';
 
-class BottomNavigationScreen extends StatefulWidget
-    with WidgetsBindingObserver {
-  const BottomNavigationScreen({super.key});
+class MainNavigationScreen extends StatefulWidget with WidgetsBindingObserver {
+  const MainNavigationScreen({super.key});
 
   @override
-  State<BottomNavigationScreen> createState() => _BottomNavigationScreenState();
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _widgetIndex = 0;
 
   Future<void> setIndex(int index) async {
@@ -30,7 +29,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   Widget build(BuildContext context) {
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
 
-    final model = context.watch<BottomNavigationViewModel>();
+    final model = context.watch<MainNavigationViewModel>();
 
     final adverts = model.adverts;
     final apiKeyExists = model.apiKeyExists;
@@ -41,11 +40,11 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     final paused = model.paused;
 
     List<Widget> widgets = [
-      const BottomNavigationScreenHomeWidget(),
-      BottomNavigationScreenCardsWidget(
+      const MainNavigationScreenHomeWidget(),
+      MainNavigationScreenCardsWidget(
         cardsNumber: cardsNumber,
       ),
-      BottomNavigationScreenAdvertWidget(
+      MainNavigationScreenAdvertWidget(
         adverts: adverts,
         balance: balance,
         apiKeyExists: apiKeyExists,

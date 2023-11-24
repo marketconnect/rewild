@@ -2,9 +2,8 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:rewild/widgets/bottom_navigation_screen_link_btn.dart';
 
-class BottomNavigationScreenCardsWidget extends StatelessWidget {
-  const BottomNavigationScreenCardsWidget(
-      {super.key, required this.cardsNumber});
+class MainNavigationScreenCardsWidget extends StatelessWidget {
+  const MainNavigationScreenCardsWidget({super.key, required this.cardsNumber});
 
   final int cardsNumber;
   @override

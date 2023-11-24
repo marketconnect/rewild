@@ -12,7 +12,7 @@ import 'package:rewild/presentation/adverts_tools_screen/adverts_tools_view_mode
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
 import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
-import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
+import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
 
 // API
 abstract class AdvertServiceAdvertApiClient {
@@ -41,7 +41,7 @@ class AdvertService
         SingleAdvertStatsViewModelAdvertService,
         AutoStatsWordsAdvertService,
         AdvertsToolsAdvertService,
-        BottomNavigationAdvertService {
+        MainNavigationAdvertService {
   final AdvertServiceAdvertApiClient advertApiClient;
   final AdvertServiceApiKeyDataProvider apiKeysDataProvider;
 

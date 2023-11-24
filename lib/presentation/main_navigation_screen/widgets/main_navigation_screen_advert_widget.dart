@@ -8,8 +8,8 @@ import 'package:rewild/widgets/bottom_navigation_screen_link_btn.dart';
 import 'package:rewild/widgets/empty_widget.dart';
 import 'package:rewild/widgets/progress_indicator.dart';
 
-class BottomNavigationScreenAdvertWidget extends StatelessWidget {
-  const BottomNavigationScreenAdvertWidget(
+class MainNavigationScreenAdvertWidget extends StatelessWidget {
+  const MainNavigationScreenAdvertWidget(
       {super.key,
       required this.adverts,
       required this.apiKeyExists,
@@ -108,7 +108,7 @@ class BottomNavigationScreenAdvertWidget extends StatelessWidget {
                         height: screenHeight * 0.05,
                       ),
                       const LinkBtn(
-                        text: 'Управление',
+                        text: 'Настройки',
                         color: Color(0xFF4aa6db),
                         route: MainNavigationRouteNames.manageAdvertsScreen,
                         // route: '',

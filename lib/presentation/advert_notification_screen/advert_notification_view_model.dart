@@ -71,17 +71,8 @@ class AdvertNotificationViewModel extends ResourceChangeNotifier {
 
   Map<int, NotificationModel> get notifications => _notifications;
 
-  // int? _notificatedBudget;
-  // setNotificatedBudget(int? value) {
-  //   _notificatedBudget = value;
-  //   notify();
-  // }
-
-  // int? get notificatedBudget => _notificatedBudget;
-
   Future<void> save() async {
     final toSave = _notifications.values.toList();
-    print("toSave: $toSave");
     await notificationService.addForParent(toSave, state.nmId);
     if (context.mounted) Navigator.of(context).pop();
   }

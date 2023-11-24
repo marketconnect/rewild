@@ -3,12 +3,12 @@ import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 
 // card
-abstract class BottomNavigationCardService {
+abstract class MainNavigationCardService {
   Future<Resource<int>> count();
 }
 
 // advert
-abstract class BottomNavigationAdvertService {
+abstract class MainNavigationAdvertService {
   Future<Resource<List<Advert>>> getAllAdverts();
   Future<Resource<bool>> apiKeyExists();
   Future<Resource<int>> getBudget(int advertId);
@@ -17,14 +17,14 @@ abstract class BottomNavigationAdvertService {
   Future<Resource<int>> getBallance(int advertId);
 }
 
-class BottomNavigationViewModel extends ResourceChangeNotifier {
-  final BottomNavigationCardService cardService;
-  final BottomNavigationAdvertService advertService;
+class MainNavigationViewModel extends ResourceChangeNotifier {
+  final MainNavigationCardService cardService;
+  final MainNavigationAdvertService advertService;
   final Stream<int> cardsNumberStream;
   // final Stream<List<Advert>> advertsStream;
   final Stream<bool> apiKeyExistsStream;
 
-  BottomNavigationViewModel(
+  MainNavigationViewModel(
       {required this.cardService,
       required this.advertService,
       required this.cardsNumberStream,

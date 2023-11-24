@@ -15,7 +15,7 @@ import 'package:rewild/domain/entities/warehouse.dart';
 import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 
-import 'package:rewild/presentation/bottom_navigation_screen/bottom_navigation_view_model.dart';
+import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
 
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
@@ -70,7 +70,7 @@ abstract class CardOfProductServiceCardOfProductDataProvider {
 class CardOfProductService
     implements
         SingleCardScreenCardOfProductService,
-        BottomNavigationCardService,
+        MainNavigationCardService,
         AllAdvertsScreenCardOfProductService,
         AllCardsScreenCardOfProductService,
         // AllSellersCardsOfProductService,

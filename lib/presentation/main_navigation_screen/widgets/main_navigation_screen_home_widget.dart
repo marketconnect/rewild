@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
-class BottomNavigationScreenHomeWidget extends StatefulWidget {
-  const BottomNavigationScreenHomeWidget({super.key});
+class MainNavigationScreenHomeWidget extends StatefulWidget {
+  const MainNavigationScreenHomeWidget({super.key});
 
   @override
-  State<BottomNavigationScreenHomeWidget> createState() =>
-      _BottomNavigationScreenHomeWidgetState();
+  State<MainNavigationScreenHomeWidget> createState() =>
+      _MainNavigationScreenHomeWidgetState();
 }
 
-class _BottomNavigationScreenHomeWidgetState
-    extends State<BottomNavigationScreenHomeWidget> {
+class _MainNavigationScreenHomeWidgetState
+    extends State<MainNavigationScreenHomeWidget> {
   late bool feedBackExpanded;
 
   @override
