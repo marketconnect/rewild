@@ -32,14 +32,14 @@ class _MutableNotificationCardState extends State<MutableNotificationCard> {
   @override
   void initState() {
     super.initState();
-    value = widget.currentValue ?? 0;
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
+    value = widget.currentValue ?? 0;
+    print("REBUILT ${widget.currentValue}");
     return Container(
       width: screenWidth,
       height: screenHeight * 0.11,

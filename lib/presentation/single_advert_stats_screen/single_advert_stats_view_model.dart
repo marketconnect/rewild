@@ -40,7 +40,7 @@ abstract class SingleAdvertStatsViewModelNotificationService {
   Future<Resource<void>> addNotification(NotificationModel notificate);
   // Future<Resource<void>> delete(
   //     int parentId, String property, String condition);
-  Future<Resource<List<NotificationModel>>> getAll();
+  // Future<Resource<List<NotificationModel>>> getAll();
   Future<Resource<List<NotificationModel>>> getForParent(int parentId);
 }
 
@@ -70,14 +70,14 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
       fetch(() => advertService.advertInfo(advertId)), // advertInfo
       fetch(() => advertService.getBudget(advertId)), // budget
       fetch(() => advertStatService.getAll(advertId)), // autoStatList
-      fetch(() => notificationService.getForParent(advertId)), // notification
+      // fetch(() => notificationService.getForParent(advertId)), // notification
     ]);
 
     // Advert Info
     final advertInfo = values[0] as Advert?;
     final budget = values[1] as int?;
     final autoStatList = values[2] as List<AdvertStatModel>?;
-    final notificationList = values[3] as List<NotificationModel>?;
+    // final notificationList = values[3] as List<NotificationModel>?;
     if (advertInfo == null) {
       return;
     }
@@ -155,11 +155,6 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
     }
     setBudget(budget);
 
-    // notification
-    if (notificationList == null) {
-      return;
-    }
-
     // for (final notification in notificationList) {
     //   final property = notification.property;
     //   // if (property == NotificationPropertyConstants.budget) {
@@ -229,6 +224,15 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   // FIELDS =============================================================== FIELDS
   // for change cpm
   int subjectId = 0;
+
+  int? notificatedBudget;
+
+  void setNotificatedBudget(int value) {
+    notificatedBudget = value;
+    notify();
+  }
+
+  int? get notificatedBudgetValue => notificatedBudget;
 
   // modal bottom state
   // is pursued
@@ -504,10 +508,10 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
   Future<void> changeCpm(String value) async {
     final cpm = int.tryParse(value) ?? 0;
-    print("cpm = $cpm");
+    // print("cpm = $cpm");
     if (cpm != _cpm) {
       await _changeCpm(cpm);
-      print("changed");
+      // print("changed");
     }
   }
 

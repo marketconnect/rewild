@@ -275,7 +275,7 @@ class _Feedback extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                  color: Color(0xFF2188ff),
+                  color: const Color(0xFF2188ff),
                   borderRadius: BorderRadius.circular(10)),
               child: Padding(
                 padding: const EdgeInsets.all(12.0),

@@ -53,6 +53,12 @@ class AdvertNotificationViewModel extends ResourceChangeNotifier {
     }
 
     setNotifications(savedNotifications);
+    final notBudget = savedNotifications.where((element) =>
+        element.condition == NotificationConditionConstants.budgetLessThan);
+
+    if (notBudget.isNotEmpty) {
+      setNotificatedBudget(int.tryParse(notBudget.first.value) ?? 0);
+    }
   }
 
   // Fields
@@ -63,6 +69,14 @@ class AdvertNotificationViewModel extends ResourceChangeNotifier {
   }
 
   List<NotificationModel> get notifications => _notifications;
+
+  int? _notificatedBudget;
+  setNotificatedBudget(int? value) {
+    _notificatedBudget = value;
+    notify();
+  }
+
+  int? get notificatedBudget => _notificatedBudget;
 
   Future<void> save() async {
     await notificationService.addForParent(_notifications, state.nmId);

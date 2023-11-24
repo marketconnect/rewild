@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/constants.dart';
+
 import 'package:rewild/presentation/advert_notification_screen/advert_notification_view_model.dart';
 
 import 'package:rewild/widgets/mutable_notification_card.dart';
@@ -16,8 +17,9 @@ class AdvertNotificationSettingsScreen extends StatelessWidget {
     final add = model.addNotification;
     final drop = model.dropNotification;
     final isActive = model.isInNotifications;
+    final notificatedBudget = model.notificatedBudget;
     print(
-        "notified ${isActive(NotificationConditionConstants.budgetLessThan)}");
+        "notified ${notificatedBudget} ${model.isInNotifications(NotificationConditionConstants.budgetLessThan)}");
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -52,7 +54,7 @@ class AdvertNotificationSettingsScreen extends StatelessWidget {
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           MutableNotificationCard(
             condition: NotificationConditionConstants.budgetLessThan,
-            currentValue: state.budget,
+            currentValue: notificatedBudget ?? state.budget,
             text: 'Бюджет  менее',
             suffix: 'шт.',
             saveState: isActive(NotificationConditionConstants.budgetLessThan),

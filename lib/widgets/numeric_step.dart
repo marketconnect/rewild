@@ -26,7 +26,6 @@ class _NumericStepButtonState extends State<NumericStepButton> {
   @override
   void initState() {
     super.initState();
-    counter = widget.currentValue;
   }
 
   void _increase() {
@@ -73,6 +72,8 @@ class _NumericStepButtonState extends State<NumericStepButton> {
 
   @override
   Widget build(BuildContext context) {
+    counter = widget.currentValue;
+    print("Numeric rebuilt $counter");
     final screenWidth = MediaQuery.of(context).size.width;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

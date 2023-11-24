@@ -72,17 +72,17 @@ class NotificationService
     return resource;
   }
 
-  @override
-  Future<Resource<List<NotificationModel>>> getAll() async {
-    final resource = await notificationDataProvider.getAll();
-    if (resource is Error) {
-      return Resource.error(resource.message!);
-    }
+  // @override
+  // Future<Resource<List<NotificationModel>>> getAll() async {
+  //   final resource = await notificationDataProvider.getAll();
+  //   if (resource is Error) {
+  //     return Resource.error(resource.message!);
+  //   }
 
-    if (resource is Empty) {
-      return Resource.success([]);
-    }
+  //   if (resource is Empty) {
+  //     return Resource.success([]);
+  //   }
 
-    return resource;
-  }
+  //   return resource;
+  // }
 }

@@ -14,6 +14,7 @@ class BackgroundMessageService
 
   BackgroundMessageService({required this.backgroundMessageDataProvider});
 
+  @override
   Future<Resource<bool>> delete(BackgroundMessage message) async {
     return await backgroundMessageDataProvider.delete(message);
   }
