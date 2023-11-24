@@ -80,99 +80,104 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
       return;
     }
 
-    setNotifications(savedNotifications);
+    Map<int, NotificationModel> notifications = {};
+
+    for (var element in savedNotifications) {
+      notifications[element.condition] = element;
+    }
+
+    _stocks = state.warehouses.entries
+        .fold(0, (previousValue, element) => previousValue! + element.value);
+
+    setNotifications(notifications);
   }
 
+  int? _stocks;
+
+  int get stocks => _stocks ?? 0;
+
   // Fields
-  List<NotificationModel> _notifications = [];
-  void setNotifications(List<NotificationModel> notifications) {
+  Map<int, NotificationModel> _notifications = {};
+  void setNotifications(Map<int, NotificationModel> notifications) {
     _notifications = notifications;
     notify();
   }
 
-  List<NotificationModel> get notifications => _notifications;
+  Map<int, NotificationModel> get notifications => _notifications;
 
   Future<void> save() async {
-    await notificationService.addForParent(_notifications, state.nmId);
+    final listToAdd = _notifications.values.toList();
+
+    await notificationService.addForParent(listToAdd, state.nmId);
     if (context.mounted) Navigator.of(context).pop();
   }
 
-  int isInNotifications(int condition) {
-    final notification =
-        _notifications.where((element) => element.condition == condition);
+  bool isInNotifications(int condition) {
+    final notification = _notifications[condition];
 
-    if (notification.isEmpty) {
-      return 0;
-    } else if (notification.first.reusable) {
-      return 2;
-    } else {
-      return 1;
+    if (notification == null) {
+      return false;
     }
+    return true;
   }
 
   void dropNotification(int condition) {
-    _notifications.removeWhere((element) => element.condition == condition);
+    _notifications.remove(condition);
     notifyListeners();
   }
 
   void addNotification(int condition, int? value) {
-    // if (wh != null) {
-    //   _notifications.removeWhere(
-    //       (element) => element.condition == condition && element.wh == wh);
-    // } else {
-    //   _notifications.removeWhere((element) => element.condition == condition);
-    // }
-
     switch (condition) {
       case NotificationConditionConstants.nameChanged:
-        _notifications.add(NotificationModel(
+        _notifications[condition] = NotificationModel(
             condition: NotificationConditionConstants.nameChanged,
             value: state.name,
             reusable: true,
-            parentId: state.nmId));
+            parentId: state.nmId);
 
         break;
       case NotificationConditionConstants.picsChanged:
-        _notifications.add(NotificationModel(
+        _notifications[condition] = NotificationModel(
             condition: NotificationConditionConstants.picsChanged,
             value: state.pics.toString(),
             reusable: true,
-            parentId: state.nmId));
+            parentId: state.nmId);
 
         break;
       case NotificationConditionConstants.priceChanged:
-        _notifications.add(NotificationModel(
+        _notifications[condition] = NotificationModel(
             condition: NotificationConditionConstants.priceChanged,
             value: state.price.toString(),
             reusable: true,
-            parentId: state.nmId));
+            parentId: state.nmId);
 
         break;
       case NotificationConditionConstants.promoChanged:
-        _notifications.add(NotificationModel(
+        _notifications[condition] = NotificationModel(
             condition: NotificationConditionConstants.promoChanged,
             value: state.promo,
             reusable: true,
-            parentId: state.nmId));
+            parentId: state.nmId);
 
         break;
       case NotificationConditionConstants.reviewRatingChanged:
-        _notifications.add(NotificationModel(
+        _notifications[condition] = NotificationModel(
             condition: NotificationConditionConstants.reviewRatingChanged,
             value: state.reviewRating.toString(),
             reusable: true,
-            parentId: state.nmId));
+            parentId: state.nmId);
 
         break;
       case NotificationConditionConstants.stocksLessThan:
-        final v = state.warehouses.entries
-            .fold(0, (previousValue, element) => previousValue + element.value)
-            .toString();
-        _notifications.add(NotificationModel(
+        // final v = state.warehouses.entries
+        //     .fold(0, (previousValue, element) => previousValue + element.value)
+        //     .toString();
+        print('ADDDDDDDDDDEE $value');
+        _notifications[condition] = NotificationModel(
             condition: NotificationConditionConstants.stocksLessThan,
             reusable: true,
-            value: v,
-            parentId: state.nmId));
+            value: value.toString(),
+            parentId: state.nmId);
 
         break;
 

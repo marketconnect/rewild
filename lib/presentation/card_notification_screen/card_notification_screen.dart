@@ -16,8 +16,9 @@ class CardNotificationSettingsScreen extends StatelessWidget {
     final add = model.addNotification;
     final drop = model.dropNotification;
     final isActive = model.isInNotifications;
-    int stocks = state.warehouses.entries
-        .fold(0, (previousValue, element) => previousValue + element.value);
+    final stocks = model.stocks;
+    final notifStocks =
+        model.notifications[NotificationConditionConstants.stocksLessThan];
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -54,7 +55,7 @@ class CardNotificationSettingsScreen extends StatelessWidget {
             condition: NotificationConditionConstants.nameChanged,
             currentValue: "",
             text: 'Изменение в назавании',
-            saveState: isActive(NotificationConditionConstants.nameChanged),
+            isActive: isActive(NotificationConditionConstants.nameChanged),
             addNotification: add,
             dropNotification: drop,
           ),
@@ -62,7 +63,7 @@ class CardNotificationSettingsScreen extends StatelessWidget {
             condition: NotificationConditionConstants.promoChanged,
             currentValue: "",
             text: 'Изменение акции',
-            saveState: isActive(NotificationConditionConstants.promoChanged),
+            isActive: isActive(NotificationConditionConstants.promoChanged),
             addNotification: add,
             dropNotification: drop,
           ),
@@ -71,7 +72,7 @@ class CardNotificationSettingsScreen extends StatelessWidget {
             currentValue: (state.price ~/ 100).toString(),
             suffix: '₽',
             text: 'Изменение цены',
-            saveState: isActive(NotificationConditionConstants.priceChanged),
+            isActive: isActive(NotificationConditionConstants.priceChanged),
             addNotification: add,
             dropNotification: drop,
           ),
@@ -79,7 +80,7 @@ class CardNotificationSettingsScreen extends StatelessWidget {
             condition: NotificationConditionConstants.reviewRatingChanged,
             currentValue: state.reviewRating.toString(),
             text: 'Изменение рейтинга',
-            saveState:
+            isActive:
                 isActive(NotificationConditionConstants.reviewRatingChanged),
             addNotification: add,
             dropNotification: drop,
@@ -89,19 +90,22 @@ class CardNotificationSettingsScreen extends StatelessWidget {
             currentValue: state.pics.toString(),
             suffix: 'шт.',
             text: 'Изменение картинок',
-            saveState: isActive(NotificationConditionConstants.picsChanged),
+            isActive: isActive(NotificationConditionConstants.picsChanged),
             addNotification: add,
             dropNotification: drop,
           ),
-          MutableNotificationCard(
-            condition: NotificationConditionConstants.stocksLessThan,
-            currentValue: stocks,
-            text: 'Остатки ${stocks > 50000 ? '<' : ' менее'}',
-            suffix: 'шт.',
-            saveState: isActive(NotificationConditionConstants.stocksLessThan),
-            addNotification: add,
-            dropNotification: drop,
-          ),
+          if (!model.loading)
+            MutableNotificationCard(
+              condition: NotificationConditionConstants.stocksLessThan,
+              currentValue: notifStocks == null
+                  ? stocks
+                  : int.tryParse(notifStocks.value),
+              text: 'Остатки ${stocks > 50000 ? '<' : ' менее'}',
+              suffix: 'шт.',
+              isActive: isActive(NotificationConditionConstants.stocksLessThan),
+              addNotification: add,
+              dropNotification: drop,
+            ),
         ]),
       ),
     );

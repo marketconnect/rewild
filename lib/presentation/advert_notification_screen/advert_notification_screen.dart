@@ -17,9 +17,11 @@ class AdvertNotificationSettingsScreen extends StatelessWidget {
     final add = model.addNotification;
     final drop = model.dropNotification;
     final isActive = model.isInNotifications;
-    final notificatedBudget = model.notificatedBudget;
-    print(
-        "notified ${notificatedBudget} ${model.isInNotifications(NotificationConditionConstants.budgetLessThan)}");
+    // final notificatedBudget = model.notificatedBudget;
+    // print('notificatedBudget: $notificatedBudget');
+    final notificationsBudget =
+        model.notifications[NotificationConditionConstants.budgetLessThan];
+    print("loading ${model.loading} notifications: ${model.notifications}");
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -41,6 +43,7 @@ class AdvertNotificationSettingsScreen extends StatelessWidget {
         width: model.screenWidth,
         child: FloatingActionButton(
           onPressed: () async {
+            print("SAVE ${model.notifications}");
             await save();
           },
           backgroundColor: Theme.of(context).colorScheme.primary,
@@ -52,15 +55,18 @@ class AdvertNotificationSettingsScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          MutableNotificationCard(
-            condition: NotificationConditionConstants.budgetLessThan,
-            currentValue: notificatedBudget ?? state.budget,
-            text: 'Бюджет  менее',
-            suffix: 'шт.',
-            saveState: isActive(NotificationConditionConstants.budgetLessThan),
-            addNotification: add,
-            dropNotification: drop,
-          ),
+          if (!model.loading)
+            MutableNotificationCard(
+              condition: NotificationConditionConstants.budgetLessThan,
+              currentValue: notificationsBudget == null
+                  ? state.budget
+                  : int.tryParse(notificationsBudget.value) ?? 0,
+              text: 'Бюджет  менее',
+              suffix: 'шт.',
+              isActive: isActive(NotificationConditionConstants.budgetLessThan),
+              addNotification: add,
+              dropNotification: drop,
+            ),
         ]),
       ),
     );

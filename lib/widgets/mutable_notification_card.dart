@@ -8,13 +8,13 @@ class MutableNotificationCard extends StatefulWidget {
     required this.text,
     this.currentValue,
     this.suffix,
-    required this.saveState,
+    required this.isActive,
     required this.dropNotification,
     required this.addNotification,
   });
 
   final int condition;
-  final int saveState;
+  final bool isActive;
   final int? currentValue;
   final String? suffix;
   final String text;
@@ -32,14 +32,14 @@ class _MutableNotificationCardState extends State<MutableNotificationCard> {
   @override
   void initState() {
     super.initState();
+    value = widget.currentValue ?? 0;
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    value = widget.currentValue ?? 0;
-    print("REBUILT ${widget.currentValue}");
+
     return Container(
       width: screenWidth,
       height: screenHeight * 0.11,
@@ -62,23 +62,16 @@ class _MutableNotificationCardState extends State<MutableNotificationCard> {
             width: screenWidth * 0.15,
             child: IconButton(
               onPressed: () {
-                if (widget.saveState == 0) {
-                  widget.currentValue == null
-                      ? widget.addNotification(widget.condition, null)
-                      : widget.addNotification(widget.condition, value);
-                  return;
-                } else if (widget.saveState == 1) {
-                  widget.currentValue == null
-                      ? widget.addNotification(widget.condition, null)
-                      : widget.addNotification(widget.condition, value);
-                } else if (widget.saveState == 2) {
-                  widget.dropNotification(widget.condition);
+                if (!widget.isActive) {
+                  widget.addNotification(widget.condition, value);
                   return;
                 }
+                widget.dropNotification(widget.condition);
+                return;
               },
               icon: Icon(
                 Icons.notifications,
-                color: widget.saveState == 0
+                color: !widget.isActive
                     ? Theme.of(context).colorScheme.surfaceVariant
                     : Theme.of(context).colorScheme.primary,
                 size: screenWidth * 0.07,
@@ -109,6 +102,7 @@ class _MutableNotificationCardState extends State<MutableNotificationCard> {
               NumericStepButton(
                 onChanged: (value) => setState(() {
                   this.value = value;
+                  widget.addNotification(widget.condition, value);
                 }),
                 currentValue: value!,
               )

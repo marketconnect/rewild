@@ -52,65 +52,62 @@ class AdvertNotificationViewModel extends ResourceChangeNotifier {
       return;
     }
 
-    setNotifications(savedNotifications);
-    final notBudget = savedNotifications.where((element) =>
-        element.condition == NotificationConditionConstants.budgetLessThan);
-
-    if (notBudget.isNotEmpty) {
-      setNotificatedBudget(int.tryParse(notBudget.first.value) ?? 0);
+    final notifMap = <int, NotificationModel>{};
+    for (var element in savedNotifications) {
+      notifMap[element.condition] = element;
     }
+
+    setNotifications(notifMap);
+    // final notBudget = savedNotifications.where((element) =>
+    //     element.condition == NotificationConditionConstants.budgetLessThan);
   }
 
   // Fields
-  List<NotificationModel> _notifications = [];
-  void setNotifications(List<NotificationModel> notifications) {
+  Map<int, NotificationModel> _notifications = {};
+  void setNotifications(Map<int, NotificationModel> notifications) {
     _notifications = notifications;
     notify();
   }
 
-  List<NotificationModel> get notifications => _notifications;
+  Map<int, NotificationModel> get notifications => _notifications;
 
-  int? _notificatedBudget;
-  setNotificatedBudget(int? value) {
-    _notificatedBudget = value;
-    notify();
-  }
+  // int? _notificatedBudget;
+  // setNotificatedBudget(int? value) {
+  //   _notificatedBudget = value;
+  //   notify();
+  // }
 
-  int? get notificatedBudget => _notificatedBudget;
+  // int? get notificatedBudget => _notificatedBudget;
 
   Future<void> save() async {
-    await notificationService.addForParent(_notifications, state.nmId);
+    final toSave = _notifications.values.toList();
+    print("toSave: $toSave");
+    await notificationService.addForParent(toSave, state.nmId);
     if (context.mounted) Navigator.of(context).pop();
   }
 
-  int isInNotifications(int condition) {
-    final notification =
-        _notifications.where((element) => element.condition == condition);
+  bool isInNotifications(int condition) {
+    final notification = _notifications[condition];
 
-    if (notification.isEmpty) {
-      return 0;
-    } else if (notification.first.reusable) {
-      return 2;
-    } else {
-      return 1;
+    if (notification == null) {
+      return false;
     }
+    return true;
   }
 
   void dropNotification(int condition) {
-    _notifications.removeWhere((element) => element.condition == condition);
+    _notifications.remove(condition);
     notifyListeners();
   }
 
   void addNotification(int condition, int? value, [bool? reusable]) {
-    _notifications.removeWhere((element) => element.condition == condition);
-
     switch (condition) {
       case NotificationConditionConstants.budgetLessThan:
-        _notifications.add(NotificationModel(
+        _notifications[condition] = NotificationModel(
             condition: NotificationConditionConstants.budgetLessThan,
-            value: state.budget.toString(),
+            value: value.toString(),
             reusable: reusable ?? false,
-            parentId: state.nmId));
+            parentId: state.nmId);
 
         break;
 

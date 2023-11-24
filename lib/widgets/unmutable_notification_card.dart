@@ -7,13 +7,13 @@ class UnmutableNotificationCard extends StatelessWidget {
     required this.text,
     this.currentValue,
     this.suffix,
-    required this.saveState,
+    required this.isActive,
     required this.dropNotification,
     required this.addNotification,
   });
 
   final int condition;
-  final int saveState;
+  final bool isActive;
   final String? currentValue;
   final String? suffix;
   final String text;
@@ -47,23 +47,17 @@ class UnmutableNotificationCard extends StatelessWidget {
             width: screenWidth * 0.15,
             child: IconButton(
               onPressed: () {
-                if (saveState == 0) {
+                if (!isActive) {
                   currentValue == null
                       ? addNotification(condition, null)
                       : addNotification(condition, int.tryParse(currentValue!));
-                  return;
-                } else if (saveState == 1) {
-                  currentValue == null
-                      ? addNotification(condition, null)
-                      : addNotification(condition, int.tryParse(currentValue!));
-                } else if (saveState == 2) {
-                  dropNotification(condition);
                   return;
                 }
+                dropNotification(condition);
               },
               icon: Icon(
                 Icons.notifications,
-                color: saveState == 0
+                color: !isActive
                     ? Theme.of(context).colorScheme.surfaceVariant
                     : Theme.of(context).colorScheme.primary,
                 size: screenWidth * 0.07,
