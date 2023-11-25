@@ -70,7 +70,6 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
       fetch(() => advertService.advertInfo(advertId)), // advertInfo
       fetch(() => advertService.getBudget(advertId)), // budget
       fetch(() => advertStatService.getAll(advertId)), // autoStatList
-      // fetch(() => notificationService.getForParent(advertId)), // notification
     ]);
 
     // Advert Info
@@ -155,14 +154,6 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
     }
     setBudget(budget);
 
-    // for (final notification in notificationList) {
-    //   final property = notification.property;
-    //   // if (property == NotificationPropertyConstants.budget) {
-    //   //   // _modalBottomState = _modalBottomState.copyWith(
-    //   //   //     trackMinBudget: true, minBudget: int.tryParse(notification.value));
-    //   // }
-    // }
-
     // AutoStat List ==================================
     if (autoStatList == null || autoStatList.isEmpty) {
       return;
@@ -234,25 +225,9 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
   int? get notificatedBudgetValue => notificatedBudget;
 
-  // modal bottom state
-  // is pursued
-  // ModalBottomWidgetState _modalBottomState = ModalBottomWidgetState(
-  //     isPursued: false,
-  //     isActive: false,
-  //     cpm: 0,
-  //     trackMinBudget: false,
-  //     minBudget: 0,
-  //     minCtr: 0,
-  //     trackMinCtr: false);
-
-  // ModalBottomWidgetState get modalBottomState => _modalBottomState;
-
   // is active
   bool? _isActive;
   void setActive(bool value) {
-    // _modalBottomState = _modalBottomState.copyWith(
-    //   isActive: value,
-    // );
     _isActive = value;
     notify();
   }
@@ -405,26 +380,6 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   List<AdvertStatModel> get autoStatList => _autoStatList;
 
   // PUBLIC METHODS ======================================================================== PUBLIC METHODS
-  // saves changes from modal bottom widget to local storage and Wb API
-  // updates screen
-  // Future<void> save(ModalBottomWidgetState state) async {
-  //   final isActive = state.isActive;
-  //   if (isActive != _isActive) {
-  //     await start();
-  //   }
-
-  //   final cpm = state.cpm;
-  //   if (cpm != _cpm) {
-  //     await _changeCpm(cpm);
-  //   }
-
-  //   // final minBudget = state.minBudget;
-  //   // if (minBudget != _modalBottomState.minBudget) {
-  //   //   await _changeMinBudgetNotification(minBudget);
-  //   // }
-
-  //   _asyncInit();
-  // }
 
   // Starts or stops advert
   Future<void> start() async {
@@ -460,52 +415,6 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
         arguments: state);
   }
 
-  // Future<void> _stop() async {
-  //   final adv = await fetch(() => advertService.stopAdvert(advertId));
-  //   if (adv == null || !adv) {
-  //     // could not stop
-  //     setActive(true); // still active
-  //     return;
-  //   }
-  //   // done
-  //   setActive(false); // now paused
-  //   return;
-  // }
-
-  // // Pursue callback
-  // Future<void> _changePursue() async {
-  //   if (_isPursued == null) {
-  //     return;
-  //   }
-  //   if (_isPursued!) {
-  //     await _untrack();
-  //   } else {
-  //     await _track();
-  //   }
-
-  //   final isPursued = await fetch(() => advertService.isPursued(advertId));
-  //   if (isPursued == null) {
-  //     return;
-  //   }
-  //   setPursued(isPursued);
-  // }
-
-  // Future<void> _track() async {
-  //   final ok = await fetch(() => advertService.addToTrack(advertId));
-  //   if (ok == null) {
-  //     return;
-  //   }
-  //   setPursued(ok);
-  // }
-
-  // Future<void> _untrack() async {
-  //   final ok = await fetch(() => advertService.deleteFromTrack(advertId));
-  //   if (ok == null) {
-  //     return;
-  //   }
-  //   setPursued(ok);
-  // }
-
   Future<void> changeCpm(String value) async {
     final cpm = int.tryParse(value) ?? 0;
     // print("cpm = $cpm");
@@ -522,33 +431,4 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
     await fetch(() => advertService.setCpm(
         advertId: advertId, cpm: cpm, type: 8, param: subjectId));
   }
-
-  // Future<void> _changeMinBudgetNotification(int minBdget) async {
-  //   await fetch(() => notificationService.addNotification(NotificationModel(
-  //       parentId: advertId,
-  //       property: NotificationPropertyConstants.budget,
-  //       condition: NotificationConditionConstants.lessThanCondition,
-  //       value: minBdget.toString())));
-  // }
-
-  // Future<void> _changeMinCtrNotification(int minCtr) async {
-  //   await fetch(() => notificationService.addNotification(NotificationModel(
-  //       parentId: advertId,
-  //       property: NotificationPropertyConstants.ctr,
-  //       condition: NotificationPropertyConstants.lessThanCondition,
-  //       doubleValue: minCtr.toDouble())));
-  // }
-
-  // Future<void> _saveNotification(String property, double minValue) {
-  //   final newNotification = NotificationModel(
-  //     parentId: advertId,
-  //     property: property,
-  //     minValue: minValue,
-  //   );
-  //   return fetch(() => notificationService.addNotification(newNotification));
-  // }
-
-  // Future<void> _deleteNotification(String property) {
-  //   return fetch(() => notificationService.delete(advertId, property));
-  // }
 }

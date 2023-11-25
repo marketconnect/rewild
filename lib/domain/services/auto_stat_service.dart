@@ -50,6 +50,16 @@ class AutoAdvertService
     return storedAutoStatsResource;
   }
 
+  Resource<List<AdvertStatModel>> _filter(List<AdvertStatModel> stats) {
+    final fullPeriod = stats.last.createdAt.difference(stats.last.createdAt);
+    if (fullPeriod < const Duration(hours: 8)) {
+      return Resource.success(stats);
+    } else if (fullPeriod < const Duration(days: 1)) {
+      return Resource.success(stats.sublist(0, stats.length - 2));
+    }
+    return Resource.success(stats.sublist(0, stats.length - 1));
+  }
+
   @override
   Future<Resource<AdvertStatModel>> getCurrent(int advertId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');

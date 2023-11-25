@@ -105,17 +105,13 @@ class AllCardsScreen extends StatelessWidget {
                 child: Container(
                   width: 30,
                   height: 30,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
+                  decoration: const BoxDecoration(
+                    color: Colors.transparent,
                   ),
                   child: Image.asset(
                     IconConstant.iconFilterDismiss,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                  // Icon(
-                  //   Icons.filter_alt_off_outlined,
-                  //   color: Theme.of(context).colorScheme.onTertiaryContainer,
-                  // )
                 ),
               ),
         body: DefaultTabController(
