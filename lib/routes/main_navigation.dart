@@ -1,12 +1,12 @@
-import 'package:rewild/presentation/advert_notification_screen/advert_notification_view_model.dart';
+import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/presentation/app/app.dart';
 import 'package:flutter/material.dart';
-import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
+import 'package:rewild/presentation/notification_card_screen/notification_card_view_model.dart';
 
 import 'main_navigation_route_names.dart';
 
 abstract class ScreenFactory {
-  Widget makeAdvertNotificationScreen(AdvertNotificationState state);
+  Widget makeAdvertNotificationScreen(NotificationAdvertState state);
   Widget makeAddGroupsScreen(List<int> cardsIds);
   Widget makeAllAdvertsScreen();
   Widget makeAllCardsFilterScreen();
@@ -15,7 +15,7 @@ abstract class ScreenFactory {
   Widget makeApiKeysScreen();
   Widget makeAutoStatsWordsScreen(int id);
   Widget makeBottomNavigationScreen(int num);
-  Widget makeCardNotificationsSettingsScreen(CardNotificationState state);
+  Widget makeCardNotificationsSettingsScreen(NotificationCardState state);
   Widget makeSplashScreen();
   Widget makeMyWebViewScreen();
   Widget makeAdvertsToolsScreen();
@@ -141,15 +141,15 @@ class MainNavigation implements AppNavigation {
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeSingleStatAdvertScreen(advertId),
         );
-      case MainNavigationRouteNames.manageAdvertsScreen:
+      case MainNavigationRouteNames.allAdvertsToolsScreen:
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAdvertsToolsScreen(),
         );
       case MainNavigationRouteNames.cardNotificationsSettingsScreen:
         final arguments = settings.arguments;
-        final state = arguments is CardNotificationState
+        final state = arguments is NotificationCardState
             ? arguments
-            : CardNotificationState.empty();
+            : NotificationCardState.empty();
 
         return MaterialPageRoute(
           builder: (_) =>
@@ -178,9 +178,9 @@ class MainNavigation implements AppNavigation {
 
       case MainNavigationRouteNames.advertNotificationScreen:
         final arguments = settings.arguments;
-        final state = arguments is AdvertNotificationState
+        final state = arguments is NotificationAdvertState
             ? arguments
-            : AdvertNotificationState.empty();
+            : NotificationAdvertState.empty();
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAdvertNotificationScreen(state),
         );

@@ -1,6 +1,6 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/background_message.dart';
-import 'package:rewild/presentation/background_notifications_screen/background_notifications_view_model.dart';
+import 'package:rewild/presentation/background_messages_screen/background_messages_view_model.dart';
 
 abstract class BackgroundMessageServiceBackgroundDataProvider {
   Future<Resource<bool>> delete(BackgroundMessage message);
@@ -8,7 +8,7 @@ abstract class BackgroundMessageServiceBackgroundDataProvider {
 }
 
 class BackgroundMessageService
-    implements BackgroundNotificationsBackgroundMessageService {
+    implements BackgroundMessagesBackgroundMessageService {
   final BackgroundMessageServiceBackgroundDataProvider
       backgroundMessageDataProvider;
 

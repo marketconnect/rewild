@@ -3,7 +3,7 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/widgets/empty_widget.dart';
-import 'package:rewild/widgets/my_dialog_widget.dart';
+import 'package:rewild/widgets/my_dialog_textfield_widget.dart';
 
 class AddGroupScreen extends StatefulWidget {
   const AddGroupScreen({super.key});
@@ -60,7 +60,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
           onPressed: () => showDialog(
             context: context,
             builder: (BuildContext context) {
-              return MyDialog(
+              return MyDialogTextField(
                 header: "Название группы",
                 hint: "Введите название",
                 addGroup: addGroup,

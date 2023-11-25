@@ -212,3 +212,14 @@ class AdvertTypeConstants {
   static const int auto = 8;
   static const int searchPlusCatalog = 9;
 }
+
+class AdvertTypeNameConstants {
+  static const Map<String, int> names = {
+    "Автокампания": AdvertTypeConstants.auto,
+    "Карточка": AdvertTypeConstants.inCard,
+    "Поиск": AdvertTypeConstants.inSearch,
+    "Каталог": AdvertTypeConstants.inCatalog,
+    "Поиск + каталог": AdvertTypeConstants.searchPlusCatalog,
+    "Рекомендации": AdvertTypeConstants.inRecomendation
+  };
+}

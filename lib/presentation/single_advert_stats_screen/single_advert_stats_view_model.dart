@@ -11,7 +11,7 @@ import 'package:rewild/domain/entities/advert_search_model.dart';
 import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:rewild/domain/entities/notification.dart';
-import 'package:rewild/presentation/advert_notification_screen/advert_notification_view_model.dart';
+import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 import '../../domain/entities/advert_base.dart';
@@ -450,7 +450,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   }
 
   void notificationsScreen() {
-    final state = AdvertNotificationState(
+    final state = NotificationAdvertState(
       nmId: advertId,
       budget: budget,
     );

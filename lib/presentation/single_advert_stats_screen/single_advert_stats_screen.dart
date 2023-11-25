@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/widgets/chart.dart';
-import 'package:rewild/widgets/my_dialog_widget.dart';
+import 'package:rewild/widgets/my_dialog_textfield_widget.dart';
 
 class SingleAdvertStatsScreen extends StatefulWidget {
   const SingleAdvertStatsScreen({super.key});
@@ -76,7 +76,7 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
                       onTap: () => showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return MyDialog(
+                          return MyDialogTextField(
                             header: "Ставка (СРМ, ₽)",
                             hint: '$cpm₽',
                             addGroup: changeCpm,

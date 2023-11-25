@@ -54,29 +54,29 @@ import 'package:rewild/domain/services/warehouse_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
-import 'package:rewild/presentation/advert_notification_screen/advert_notification_screen.dart';
-import 'package:rewild/presentation/advert_notification_screen/advert_notification_view_model.dart';
-import 'package:rewild/presentation/adverts_tools_screen/adverts_tools_view_model.dart';
-import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen.dart';
-import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
-import 'package:rewild/presentation/adverts_tools_screen/adverts_tools_screen.dart';
+import 'package:rewild/presentation/notification_advert_screen/notification_advert_screen.dart';
+import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
+import 'package:rewild/presentation/all_adverts_tools_screen/all_adverts_tools_view_model.dart';
+import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_screen.dart';
+import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_screen_view_model.dart';
+import 'package:rewild/presentation/all_adverts_tools_screen/all_adverts_tools_screen.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_screen.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_view_model.dart';
-import 'package:rewild/presentation/api_keys_screen/api_keys_screen.dart';
-import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
+import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_screen.dart';
+import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
-import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_screen.dart';
-import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_view_model.dart';
-import 'package:rewild/presentation/background_notifications_screen/background_notifications_screen.dart';
-import 'package:rewild/presentation/background_notifications_screen/background_notifications_view_model.dart';
+import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_screen.dart';
+import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
+import 'package:rewild/presentation/background_messages_screen/background_messages_screen.dart';
+import 'package:rewild/presentation/background_messages_screen/background_messages_view_model.dart';
 
-import 'package:rewild/presentation/card_notification_screen/card_notification_screen.dart';
-import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
+import 'package:rewild/presentation/notification_card_screen/notification_card_screen.dart';
+import 'package:rewild/presentation/notification_card_screen/notification_card_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_screen.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_screen.dart';
@@ -423,15 +423,15 @@ class _DIContainer {
         sellerService: _makeSellerService(),
       );
 
-  ApiKeysScreenViewModel _makeApiKeysScreenViewModel(BuildContext context) =>
-      ApiKeysScreenViewModel(
+  AddApiKeysScreenViewModel _makeApiKeysScreenViewModel(BuildContext context) =>
+      AddApiKeysScreenViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
           apiKeysService: _makeApiKeysService());
 
-  AllAdvertsScreenViewModel _makeAllAdvertsScreenViewModel(
+  AllAdvertsStatScreenViewModel _makeAllAdvertsScreenViewModel(
           BuildContext context) =>
-      AllAdvertsScreenViewModel(
+      AllAdvertsStatScreenViewModel(
         context: context,
         internetConnectionChecker: _makeInternetConnectionChecker(),
         cardOfProductService: _makeCardOfProductService(),
@@ -450,36 +450,36 @@ class _DIContainer {
       );
 
   CardNotificationViewModel _makeCardNotificationSettingsViewModel(
-          BuildContext context, CardNotificationState state) =>
+          BuildContext context, NotificationCardState state) =>
       CardNotificationViewModel(state,
           notificationService: _makeNotificationService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
           context: context);
 
-  AutoStatsWordsViewModel _makeAutoStatWordsViewModel(
+  SingleAutoWordsViewModel _makeAutoStatWordsViewModel(
           BuildContext context, int advertId) =>
-      AutoStatsWordsViewModel(advertId,
+      SingleAutoWordsViewModel(advertId,
           context: context,
           autoStatsWordsAdvertService: _makeAdvertService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
           autoStatsWordsAutoStatsService: _makeAutoStatService());
 
-  AdvertsToolsViewModel _makeAdvertsToolsViewModel(BuildContext context) =>
-      AdvertsToolsViewModel(
+  AllAdvertsToolsViewModel _makeAdvertsToolsViewModel(BuildContext context) =>
+      AllAdvertsToolsViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
           advertService: _makeAdvertService());
 
-  AdvertNotificationViewModel _makeAdvertNotificationViewModel(
-          BuildContext context, AdvertNotificationState state) =>
-      AdvertNotificationViewModel(state,
+  NotificationAdvertViewModel _makeAdvertNotificationViewModel(
+          BuildContext context, NotificationAdvertState state) =>
+      NotificationAdvertViewModel(state,
           context: context,
           notificationService: _makeNotificationService(),
           internetConnectionChecker: _makeInternetConnectionChecker());
 
-  BackgroundNotificationsViewModel _makeBackgroundNotificationsViewModel(
+  BackgroundMessagesViewModel _makeBackgroundNotificationsViewModel(
           BuildContext context) =>
-      BackgroundNotificationsViewModel(
+      BackgroundMessagesViewModel(
           context: context,
           notificationService: _makeNotificationService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
@@ -527,7 +527,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   Widget makeApiKeysScreen() {
     return ChangeNotifierProvider(
         create: (context) => _diContainer._makeApiKeysScreenViewModel(context),
-        child: const ApiKeysScreen());
+        child: const AddApiKeysScreen());
   }
 
   // @override
@@ -584,7 +584,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   Widget makeAllAdvertsScreen() {
     return ChangeNotifierProvider(
       create: (context) => _diContainer._makeAllAdvertsScreenViewModel(context),
-      child: const AllAdvertsScreen(),
+      child: const AllAdvertsStatScreen(),
     );
   }
 
@@ -601,7 +601,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   Widget makeAdvertsToolsScreen() {
     return ChangeNotifierProvider(
       create: (context) => _diContainer._makeAdvertsToolsViewModel(context),
-      child: const AdvertsToolsScreen(),
+      child: const AllAdvertsToolsScreen(),
     );
   }
 
@@ -610,25 +610,25 @@ class ScreenFactoryDefault implements ScreenFactory {
     return ChangeNotifierProvider(
       create: (context) =>
           _diContainer._makeAutoStatWordsViewModel(context, id),
-      child: const AutoStatsWordsScreen(),
+      child: const SingleAutoWordsScreen(),
     );
   }
 
   @override
-  Widget makeCardNotificationsSettingsScreen(CardNotificationState state) {
+  Widget makeCardNotificationsSettingsScreen(NotificationCardState state) {
     return ChangeNotifierProvider(
       create: (context) =>
           _diContainer._makeCardNotificationSettingsViewModel(context, state),
-      child: const CardNotificationSettingsScreen(),
+      child: const NotificationCardSettingsScreen(),
     );
   }
 
   @override
-  Widget makeAdvertNotificationScreen(AdvertNotificationState state) {
+  Widget makeAdvertNotificationScreen(NotificationAdvertState state) {
     return ChangeNotifierProvider(
       create: (context) =>
           _diContainer._makeAdvertNotificationViewModel(context, state),
-      child: const AdvertNotificationSettingsScreen(),
+      child: const NotificationAdvertSettingsScreen(),
     );
   }
 
@@ -637,7 +637,7 @@ class ScreenFactoryDefault implements ScreenFactory {
     return ChangeNotifierProvider(
       create: (context) =>
           _diContainer._makeBackgroundNotificationsViewModel(context),
-      child: const BackgroundNotificationsScreen(),
+      child: const BackgroundMessagesScreen(),
     );
   }
 }

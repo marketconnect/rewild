@@ -1,3 +1,4 @@
+import 'package:rewild/core/utils/icons_constant.dart';
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:flutter/material.dart';
@@ -97,15 +98,26 @@ class AllCardsScreen extends StatelessWidget {
         floatingActionButton: filterIsEmpty || selectionInProcess
             ? null
             : FloatingActionButton(
-                backgroundColor:
-                    Theme.of(context).colorScheme.tertiaryContainer,
+                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                 onPressed: () async {
                   await resetFilter();
                 },
-                child: Icon(
-                  Icons.filter_alt_off_outlined,
-                  color: Theme.of(context).colorScheme.onTertiaryContainer,
-                )),
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                  ),
+                  child: Image.asset(
+                    IconConstant.iconFilterDismiss,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  // Icon(
+                  //   Icons.filter_alt_off_outlined,
+                  //   color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  // )
+                ),
+              ),
         body: DefaultTabController(
           length: selectionInProcess ? 1 : groups.length,
           child: NestedScrollView(
@@ -167,25 +179,43 @@ class _AppBar extends StatelessWidget {
           ),
           itemBuilder: (BuildContext context) {
             return [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: MainNavigationRouteNames.myWebViewScreen,
                 child: _PopumMenuItemChild(
-                  iconData: Icons.add_circle_outline_rounded,
                   text: "Добавить",
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Image.asset(
+                      IconConstant.iconAdd,
+                    ),
+                  ),
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: MainNavigationRouteNames.allGroupsScreen,
                 child: _PopumMenuItemChild(
-                  iconData: Icons.group_outlined,
                   text: "Группы",
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Image.asset(
+                      IconConstant.iconGrouping,
+                    ),
+                  ),
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: MainNavigationRouteNames.allCardsFilterScreen,
                 child: _PopumMenuItemChild(
-                  iconData: Icons.filter_alt_outlined,
                   text: "Фильтр",
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Image.asset(
+                      IconConstant.iconFilter,
+                    ),
+                  ),
                 ),
               )
             ];
@@ -339,20 +369,24 @@ class _EmptyProductsCards extends StatelessWidget {
 
 class _PopumMenuItemChild extends StatelessWidget {
   const _PopumMenuItemChild({
-    required this.iconData,
     required this.text,
-  });
+    this.iconData,
+    this.child,
+  }) : assert(iconData != null || child != null);
 
-  final IconData iconData;
+  final IconData? iconData;
   final String text;
+  final Widget? child;
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Icon(
-          iconData,
-        ),
+        child != null
+            ? child!
+            : Icon(
+                iconData,
+              ),
         const SizedBox(
           width: 15,
         ),

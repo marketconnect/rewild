@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
-import 'package:rewild/presentation/api_keys_screen/api_keys_view_model.dart';
+import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_view_model.dart';
 
 abstract class ApiKeysServiceApiKeysDataProvider {
   Future<Resource<List<ApiKeyModel>>> getAllApiKeys(List<String> types);
@@ -10,7 +10,7 @@ abstract class ApiKeysServiceApiKeysDataProvider {
   Future<Resource<void>> deleteApiKey(String apiKeyType);
 }
 
-class ApiKeysService implements ApiKeysScreenApiKeysService {
+class ApiKeysService implements AddApiKeysScreenApiKeysService {
   final ApiKeysServiceApiKeysDataProvider apiKeysDataProvider;
   final StreamController<bool> apiKeyExistsStreamController;
   ApiKeysService(

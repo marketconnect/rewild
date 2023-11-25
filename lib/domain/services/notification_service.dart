@@ -1,8 +1,8 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/notification.dart';
-import 'package:rewild/presentation/advert_notification_screen/advert_notification_view_model.dart';
-import 'package:rewild/presentation/background_notifications_screen/background_notifications_view_model.dart';
-import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
+import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
+import 'package:rewild/presentation/background_messages_screen/background_messages_view_model.dart';
+import 'package:rewild/presentation/notification_card_screen/notification_card_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 
 abstract class NotificationServiceNotificationDataProvider {
@@ -17,9 +17,9 @@ abstract class NotificationServiceNotificationDataProvider {
 class NotificationService
     implements
         SingleAdvertStatsViewModelNotificationService,
-        AdvertNotificationNotificationService,
-        BackgroundNotificationsNotificationService,
-        CardNotificationNotificationService {
+        NotificationAdvertNotificationService,
+        BackgroundMessagesNotificationService,
+        NotificationCardNotificationService {
   final NotificationServiceNotificationDataProvider notificationDataProvider;
   NotificationService({required this.notificationDataProvider});
 

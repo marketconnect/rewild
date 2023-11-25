@@ -13,7 +13,7 @@ import 'package:rewild/domain/entities/stocks_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
 
 import 'package:rewild/domain/entities/warehouse.dart';
-import 'package:rewild/presentation/card_notification_screen/card_notification_view_model.dart';
+import 'package:rewild/presentation/notification_card_screen/notification_card_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 // card
@@ -375,7 +375,7 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
   bool get isNull => _isNull;
 
   void notificationsScreen() {
-    final state = CardNotificationState(
+    final state = NotificationCardState(
       nmId: id,
       price: _price,
       promo: _promo,

@@ -3,7 +3,7 @@ import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:rewild/domain/entities/auto_stat_word.dart';
-import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_view_model.dart';
+import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 
 // Api key
@@ -24,7 +24,7 @@ abstract class AutoStatServiceAdvertStatDataProvider {
 class AutoAdvertService
     implements
         SingleAdvertStatsViewModelAdvertStatsService,
-        AutoStatsWordsAutoStatsService {
+        SingleAutoWordsAutoStatsService {
   final AutoStatServiceAdvertStatDataProvider autoStatDataProvider;
   final AutoStatServiceAdvertApiClient advertApiClient;
   final AutoStatServiceApiKeyDataProvider apiKeysDataProvider;

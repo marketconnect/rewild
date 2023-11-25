@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
+
 import 'package:provider/provider.dart';
+import 'package:rewild/core/utils/icons_constant.dart';
 
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
 import 'package:rewild/presentation/main_navigation_screen/widgets/main_navigation_screen_advert_widget.dart';
@@ -44,6 +45,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       MainNavigationScreenCardsWidget(
         cardsNumber: cardsNumber,
       ),
+      Container(),
       MainNavigationScreenAdvertWidget(
         adverts: adverts,
         balance: balance,
@@ -61,62 +63,43 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       },
       child: SafeArea(
           child: Scaffold(
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GNav(
-            gap: 8,
-            backgroundColor: Colors.transparent,
-            color: Theme.of(context).colorScheme.onSurface,
-            activeColor: Theme.of(context).colorScheme.onSurface,
-            tabBackgroundColor: Theme.of(context).colorScheme.surface,
-            // selectedIndex: 0,
-            onTabChange: (value) async {
+        bottomNavigationBar: Container(
+          height: MediaQuery.of(context).size.height * 0.1,
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+          ),
+          child: BottomNavigationBar(
+            currentIndex: _widgetIndex,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            type: BottomNavigationBarType.fixed,
+            onTap: (value) async {
               setIndex(value);
               if (value == 2) {
                 await model.updateAdverts();
               }
             },
-            tabs: [
-              GButton(
-                icon: _widgetIndex == 0 ? Icons.home : Icons.home_outlined,
-                padding: EdgeInsets.all(model.screenWidth * 0.02),
-                text: 'Главная',
-                iconColor: Theme.of(context).colorScheme.primary,
-                iconActiveColor: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.secondary,
-                activeBorder: Border.all(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              GButton(
-                icon: _widgetIndex == 1
-                    ? Icons.local_offer
-                    : Icons.local_offer_outlined,
-                padding: EdgeInsets.all(model.screenWidth * 0.02),
-                text: 'Товары',
-                textColor: Theme.of(context).colorScheme.secondary,
-                activeBorder: Border.all(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                iconColor: Theme.of(context).colorScheme.primary,
-                iconActiveColor: Theme.of(context).colorScheme.primary,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              GButton(
-                icon: _widgetIndex == 2
-                    ? Icons.rocket_launch
-                    : Icons.rocket_launch_outlined,
-                padding: EdgeInsets.all(model.screenWidth * 0.02),
-                text: 'Реклама',
-                textColor: Theme.of(context).colorScheme.secondary,
-                activeBorder: Border.all(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                iconColor: Theme.of(context).colorScheme.primary,
-                iconActiveColor: Theme.of(context).colorScheme.primary,
-                borderRadius: BorderRadius.circular(10),
-              ),
+            selectedLabelStyle: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: MediaQuery.of(context).size.width * 0.04,
+                fontWeight: FontWeight.bold),
+            unselectedLabelStyle: TextStyle(
+                color: Theme.of(context).colorScheme.outline,
+                fontSize: MediaQuery.of(context).size.width * 0.04,
+                fontWeight: FontWeight.bold),
+            items: [
+              buildBottomNavigationBarItem(
+                  IconConstant.iconHome, 'Главная', _widgetIndex == 0),
+              buildBottomNavigationBarItem(
+                  IconConstant.iconProduct, 'Товары', _widgetIndex == 1),
+              buildBottomNavigationBarItem(
+                  IconConstant.iconTestimonial, 'Вопросы', _widgetIndex == 2),
+              buildBottomNavigationBarItem(
+                  IconConstant.iconRocket, 'Реклама', _widgetIndex == 3),
             ],
           ),
         ),
@@ -124,26 +107,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       )),
     );
   }
+
+  BottomNavigationBarItem buildBottomNavigationBarItem(
+      String imageSrc, String label, bool isActive) {
+    return BottomNavigationBarItem(
+        icon: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.07,
+          height: MediaQuery.of(context).size.width * 0.07,
+          child: Image.asset(
+            imageSrc,
+            color: isActive
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outline,
+          ),
+        ),
+        label: label);
+  }
 }
-
-// class _BottomNavigationBar extends StatelessWidget {
-//   const _BottomNavigationBar();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GNav(
-//       gap: 8,
-//       backgroundColor: Theme.of(context).colorScheme.surface,
-//       color: Theme.of(context).colorScheme.onSurface,
-//       activeColor: Theme.of(context).colorScheme.onSurface,
-//       tabBackgroundColor: Theme.of(context).colorScheme.surface,
-//       // selectedIndex: 0,
-//       onTabChange: (value) => print(value),
-//       tabs: const [
-//         GButton(icon: Icons.home_outlined, text: 'Главная'),
-//         GButton(icon: Icons.leaderboard_outlined, text: 'Карточки'),
-//         GButton(icon: Icons.rocket_launch_outlined, text: 'Реклама'),
-//       ],
-//     );
-//   }
-// }

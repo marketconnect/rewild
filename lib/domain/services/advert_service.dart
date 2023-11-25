@@ -7,10 +7,10 @@ import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
-import 'package:rewild/presentation/adverts_tools_screen/adverts_tools_view_model.dart';
+import 'package:rewild/presentation/all_adverts_tools_screen/all_adverts_tools_view_model.dart';
 
-import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
-import 'package:rewild/presentation/auto_stats_words_screen/auto_stats_words_view_model.dart';
+import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_screen_view_model.dart';
+import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
 
@@ -37,10 +37,10 @@ abstract class AdvertServiceApiKeyDataProvider {
 
 class AdvertService
     implements
-        AllAdvertsScreenAdvertService,
+        AllAdvertsStatScreenAdvertService,
         SingleAdvertStatsViewModelAdvertService,
-        AutoStatsWordsAdvertService,
-        AdvertsToolsAdvertService,
+        SingleAutoWordsAdvertService,
+        AllAdvertsToolsAdvertService,
         MainNavigationAdvertService {
   final AdvertServiceAdvertApiClient advertApiClient;
   final AdvertServiceApiKeyDataProvider apiKeysDataProvider;
@@ -244,7 +244,7 @@ class AdvertService
   }
 
   @override
-  Future<Resource<List<AdvertInfoModel>>> getByType(int type) async {
+  Future<Resource<List<AdvertInfoModel>>> getByType([int? type]) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -275,7 +275,7 @@ class AdvertService
       if (advert.status == 7 || advert.status == 8) {
         continue;
       }
-      if (advert.type != type) {
+      if (type != null && advert.type != type) {
         continue;
       }
       res.add(advert);

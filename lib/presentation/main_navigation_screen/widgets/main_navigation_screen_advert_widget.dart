@@ -110,7 +110,7 @@ class MainNavigationScreenAdvertWidget extends StatelessWidget {
                       const LinkBtn(
                         text: 'Настройки',
                         color: Color(0xFF4aa6db),
-                        route: MainNavigationRouteNames.manageAdvertsScreen,
+                        route: MainNavigationRouteNames.allAdvertsToolsScreen,
                         // route: '',
                         iconData: Icons.handyman,
                       ),

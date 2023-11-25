@@ -12,7 +12,7 @@ import 'package:rewild/domain/entities/stocks_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
 
 import 'package:rewild/domain/entities/warehouse.dart';
-import 'package:rewild/presentation/all_adverts_screen/all_adverts_screen_view_model.dart';
+import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
@@ -71,7 +71,7 @@ class CardOfProductService
     implements
         SingleCardScreenCardOfProductService,
         MainNavigationCardService,
-        AllAdvertsScreenCardOfProductService,
+        AllAdvertsStatScreenCardOfProductService,
         AllCardsScreenCardOfProductService,
         // AllSellersCardsOfProductService,
         SingleGroupScreenViewModelCardsService {
