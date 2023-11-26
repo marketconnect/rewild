@@ -75,6 +75,11 @@ abstract class UpdateServiceStockDataProvider {
       {required int nmId, required int wh, required int sizeOptionId});
 }
 
+// advert stat data provider
+abstract class UpdateServiceAdvertStatDataProvider {
+  Future<Resource<void>> deleteOldRecordsOlderThanMonth();
+}
+
 // last update day data provider
 abstract class UpdateServiceLastUpdateDayDataProvider {
   Future<Resource<void>> update();
@@ -94,12 +99,14 @@ class UpdateService
   final UpdateServiceInitStockDataProvider initialStockDataProvider;
   final UpdateServiceStockDataProvider stockDataProvider;
   final UpdateServiceLastUpdateDayDataProvider lastUpdateDayDataProvider;
+  final UpdateServiceAdvertStatDataProvider advertStatDataProvider;
   final StreamController<int> cardsNumberStreamController;
   UpdateService(
       {required this.stockDataProvider,
       required this.detailsApiClient,
       required this.cardsNumberStreamController,
       required this.initialStockDataProvider,
+      required this.advertStatDataProvider,
       required this.cardOfProductDataProvider,
       required this.initialStockApiClient,
       required this.supplyDataProvider,
@@ -289,6 +296,12 @@ class UpdateService
     // were not updated - update
     // Update initial stocks!
     if (!isUpdated) {
+      // delet old adverts statistics
+      final deleteResource =
+          await advertStatDataProvider.deleteOldRecordsOlderThanMonth();
+      if (deleteResource is Error) {
+        return Resource.error(deleteResource.message!);
+      }
       // try to fetch today`s initial stocks from server
       final todayInitialStocksFromServerResource =
           await _fetchTodayInitialStocksFromServer(

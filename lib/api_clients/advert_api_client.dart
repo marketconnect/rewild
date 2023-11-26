@@ -26,7 +26,6 @@ class AdvertApiClient
   Future<Resource<bool>> setAutoSetExcluded(
       String token, int advertId, List<String> excludedKw) async {
     try {
-      print("setAutoSetExcluded $token $advertId $excludedKw");
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'

@@ -171,10 +171,10 @@ class MainNavigation implements AppNavigation {
           builder: (_) => screenFactory.makeAutoStatsWordsScreen(advertId),
         );
 
-      case MainNavigationRouteNames.allCardsFilterScreen:
-        return MaterialPageRoute(
-          builder: (_) => screenFactory.makeAllCardsFilterScreen(),
-        );
+      // case MainNavigationRouteNames.allCardsFilterScreen:
+      //   return MaterialPageRoute(
+      //     builder: (_) => screenFactory.makeAllCardsFilterScreen(),
+      //   );
 
       case MainNavigationRouteNames.advertNotificationScreen:
         final arguments = settings.arguments;

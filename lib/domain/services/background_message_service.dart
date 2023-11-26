@@ -3,7 +3,7 @@ import 'package:rewild/domain/entities/background_message.dart';
 import 'package:rewild/presentation/background_messages_screen/background_messages_view_model.dart';
 
 abstract class BackgroundMessageServiceBackgroundDataProvider {
-  Future<Resource<bool>> delete(BackgroundMessage message);
+  Future<Resource<bool>> delete(int id, int subject, int condition);
   Future<Resource<List<BackgroundMessage>>> getAll();
 }
 
@@ -15,8 +15,8 @@ class BackgroundMessageService
   BackgroundMessageService({required this.backgroundMessageDataProvider});
 
   @override
-  Future<Resource<bool>> delete(BackgroundMessage message) async {
-    return await backgroundMessageDataProvider.delete(message);
+  Future<Resource<bool>> delete(int id, int subject, int condition) async {
+    return await backgroundMessageDataProvider.delete(id, subject, condition);
   }
 
   @override

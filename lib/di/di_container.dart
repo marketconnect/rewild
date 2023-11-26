@@ -240,6 +240,7 @@ class _DIContainer {
         detailsApiClient: _makeDetailsApiClient(),
         initialStockApiClient: _makeStocksApiClient(),
         supplyDataProvider: _makeSupplyDataProvider(),
+        advertStatDataProvider: _makeAutoStatDataProvider(),
         cardsNumberStreamController: cardsNumberStreamController,
         lastUpdateDayDataProvider: _makeLastUpdateDayDataProvider(),
         cardOfProductDataProvider: _makeCardOfProductDataProvider(),
@@ -483,8 +484,7 @@ class _DIContainer {
           context: context,
           notificationService: _makeNotificationService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
-          backgroundNotificationsBackgroundMessageService:
-              _makeBackgroundMessageService());
+          messageService: _makeBackgroundMessageService());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {

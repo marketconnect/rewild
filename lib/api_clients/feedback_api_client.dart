@@ -1,0 +1,4 @@
+class FeedbackApiClient {
+  const FeedbackApiClient();
+  
+}

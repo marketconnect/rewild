@@ -11,4 +11,5 @@ class IconConstant {
   static String iconPerformance = '$iconPath/performance.png';
   static String iconRocket = '$iconPath/rocket.png';
   static String iconTestimonial = '$iconPath/customer-service.png';
+  static String iconStart = '$iconPath/start.png';
 }

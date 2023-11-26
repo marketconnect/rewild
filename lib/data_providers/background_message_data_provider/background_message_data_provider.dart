@@ -8,14 +8,14 @@ class BackgroundMessageDataProvider
   const BackgroundMessageDataProvider();
 
   @override
-  Future<Resource<bool>> delete(BackgroundMessage message) async {
+  Future<Resource<bool>> delete(int id, int subject, int condition) async {
     try {
       final db = await SqfliteService().database;
-      final id = await db.rawDelete(
+      final deletedID = await db.rawDelete(
         'DELETE FROM background_messages WHERE id = ? AND subject = ? AND condition = ?',
-        [message.id, message.subject, message.condition],
+        [id, subject, condition],
       );
-      return Resource.success(id > 0);
+      return Resource.success(deletedID > 0);
     } catch (e) {
       return Resource.error("Ошибка удаления сообщения");
     }

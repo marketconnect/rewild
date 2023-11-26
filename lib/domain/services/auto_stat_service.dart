@@ -1,4 +1,5 @@
 // Auto stat
+import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
@@ -17,7 +18,8 @@ abstract class AutoStatServiceAdvertApiClient {
 }
 
 abstract class AutoStatServiceAdvertStatDataProvider {
-  Future<Resource<List<AdvertStatModel>>> getAll(int advertId);
+  Future<Resource<List<AdvertStatModel>>> getAll(int advertId,
+      [DateTime? from]);
   Future<Resource<void>> save(AdvertStatModel autoStat);
 }
 
@@ -36,9 +38,10 @@ class AutoAdvertService
   });
 
   @override
-  Future<Resource<List<AdvertStatModel>>> getAll(int advertId) async {
+  Future<Resource<List<AdvertStatModel>>> getTodays(int advertId) async {
     // get all stored auto stats for the auto advert
-    final storedAutoStatsResource = await autoStatDataProvider.getAll(advertId);
+    final storedAutoStatsResource =
+        await autoStatDataProvider.getAll(advertId, yesterdayEndOfTheDay());
     if (storedAutoStatsResource is Error) {
       return Resource.error(
         storedAutoStatsResource.message!,
@@ -48,16 +51,6 @@ class AutoAdvertService
       return Resource.success([]);
     }
     return storedAutoStatsResource;
-  }
-
-  Resource<List<AdvertStatModel>> _filter(List<AdvertStatModel> stats) {
-    final fullPeriod = stats.last.createdAt.difference(stats.last.createdAt);
-    if (fullPeriod < const Duration(hours: 8)) {
-      return Resource.success(stats);
-    } else if (fullPeriod < const Duration(days: 1)) {
-      return Resource.success(stats.sublist(0, stats.length - 2));
-    }
-    return Resource.success(stats.sublist(0, stats.length - 1));
   }
 
   @override

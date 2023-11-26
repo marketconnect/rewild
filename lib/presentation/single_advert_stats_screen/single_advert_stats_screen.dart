@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rewild/core/utils/icons_constant.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/widgets/chart.dart';
 import 'package:rewild/widgets/my_dialog_textfield_widget.dart';
@@ -39,12 +40,19 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
               }
             },
             backgroundColor: Theme.of(context).colorScheme.primary,
-            child: Icon(
-              isActive
-                  ? Icons.notification_add_outlined
-                  : Icons.play_arrow_outlined,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
+            child: isActive
+                ? Icon(
+                    Icons.notification_add_outlined,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  )
+                : Container(
+                    width: MediaQuery.of(context).size.width * 0.07,
+                    height: MediaQuery.of(context).size.width * 0.07,
+                    color: Colors.transparent,
+                    child: Image.asset(
+                      IconConstant.iconStart,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    )),
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           backgroundColor:

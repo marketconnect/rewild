@@ -239,6 +239,10 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
   int _pics = 0;
 
   Map<Warehouse, int> _notificationScreenWarehouses = {};
+  set notificationScreenWarehouses(Map<Warehouse, int> value) {
+    _notificationScreenWarehouses = value;
+  }
+
   // review rating
   double _reviewRating = 0;
   double get reviewRating => _reviewRating;

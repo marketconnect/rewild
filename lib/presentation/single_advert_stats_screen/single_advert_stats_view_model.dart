@@ -18,7 +18,7 @@ import '../../domain/entities/advert_base.dart';
 
 abstract class SingleAdvertStatsViewModelAdvertStatsService {
   Future<Resource<AdvertStatModel>> getCurrent(int advertId);
-  Future<Resource<List<AdvertStatModel>>> getAll(int advertId);
+  Future<Resource<List<AdvertStatModel>>> getTodays(int advertId);
 }
 
 abstract class SingleAdvertStatsViewModelAdvertService {
@@ -62,14 +62,14 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> _asyncInit() async {
-    SqfliteService.printTableContent("advert_stat");
+    // SqfliteService.printTableContent("advert_stat");
 
     SqfliteService.printTableContent("notifications");
 
     final values = await Future.wait([
       fetch(() => advertService.advertInfo(advertId)), // advertInfo
       fetch(() => advertService.getBudget(advertId)), // budget
-      fetch(() => advertStatService.getAll(advertId)), // autoStatList
+      fetch(() => advertStatService.getTodays(advertId)), // autoStatList
     ]);
 
     // Advert Info
@@ -77,6 +77,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
     final budget = values[1] as int?;
     final autoStatList = values[2] as List<AdvertStatModel>?;
     // final notificationList = values[3] as List<NotificationModel>?;
+
     if (advertInfo == null) {
       return;
     }

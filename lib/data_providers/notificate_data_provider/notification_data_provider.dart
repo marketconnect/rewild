@@ -88,7 +88,6 @@ class NotificationDataProvider
       final _ = await db.rawDelete(
           "DELETE FROM notifications WHERE parentId = ? AND condition = ? AND reusable != 1",
           [parentId, condition]);
-
       return Resource.success(true);
     } catch (e) {
       return Resource.error(e.toString());

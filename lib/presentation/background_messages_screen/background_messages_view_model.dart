@@ -9,7 +9,7 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 
 abstract class BackgroundMessagesBackgroundMessageService {
   Future<Resource<List<BackgroundMessage>>> getAll();
-  Future<Resource<bool>> delete(BackgroundMessage message);
+  Future<Resource<bool>> delete(int id, int subject, int condition);
 }
 
 abstract class BackgroundMessagesNotificationService {
@@ -17,12 +17,11 @@ abstract class BackgroundMessagesNotificationService {
 }
 
 class BackgroundMessagesViewModel extends ResourceChangeNotifier {
-  final BackgroundMessagesBackgroundMessageService
-      backgroundNotificationsBackgroundMessageService;
+  final BackgroundMessagesBackgroundMessageService messageService;
   final BackgroundMessagesNotificationService notificationService;
 
   BackgroundMessagesViewModel(
-      {required this.backgroundNotificationsBackgroundMessageService,
+      {required this.messageService,
       required this.notificationService,
       required super.context,
       required super.internetConnectionChecker}) {
@@ -30,11 +29,22 @@ class BackgroundMessagesViewModel extends ResourceChangeNotifier {
   }
 
   List<MessageCard> _messages = [];
+  set messages(List<MessageCard> value) {
+    _messages = value;
+    notifyListeners();
+  }
+
   List<MessageCard> get messages => _messages;
 
   Future<void> _asyncInit() async {
-    final backgroundMessages = await fetch(
-        () => backgroundNotificationsBackgroundMessageService.getAll());
+    await _update();
+  }
+
+  _update() async {
+    if (_messages.isNotEmpty) {
+      _messages.clear();
+    }
+    final backgroundMessages = await fetch(() => messageService.getAll());
     if (backgroundMessages == null) {
       return;
     }
@@ -98,6 +108,7 @@ class BackgroundMessagesViewModel extends ResourceChangeNotifier {
           header: title,
           id: id,
           routeName: routeName,
+          subject: backgroundMessage.subject,
           description: description,
           condition: condition,
           dateTime: formatDateTime(backgroundMessage.dateTime)));
@@ -106,7 +117,11 @@ class BackgroundMessagesViewModel extends ResourceChangeNotifier {
     notify();
   }
 
-  Future<void> pressed(String routeName, int id, int condition) async {
+  Future<void> pressed(
+      {required String routeName,
+      required int id,
+      required int subject,
+      required int condition}) async {
     final resource =
         await fetch(() => notificationService.delete(id, condition));
 
@@ -114,6 +129,12 @@ class BackgroundMessagesViewModel extends ResourceChangeNotifier {
       return;
     }
 
+    final ok = await fetch(() => messageService.delete(id, subject, condition));
+    if (ok == null) {
+      return;
+    }
+
+    await _update();
     if (context.mounted) {
       Navigator.pushNamed(context, routeName, arguments: id);
     }
