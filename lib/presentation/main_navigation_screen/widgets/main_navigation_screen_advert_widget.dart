@@ -148,24 +148,24 @@ class _AllAdvertsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Sort by budget
-    adverts.sort((a, b) {
-      final budgetA = budget[a.advertId];
-      final budgetB = budget[b.advertId];
-      final status = a.status;
-      if (status == AdvertStatusConstants.paused) {
-        return 1; // Move paused items to the end
-      }
-      if (budgetA == null && budgetB == null) {
-        return 0;
-      } else if (budgetA == null) {
-        return 1; // Move item with null budget to the end
-      } else if (budgetB == null) {
-        return -1; // Move item with null budget to the end
-      } else {
-        return budgetA.compareTo(budgetB); // Sort by budget
-      }
-    });
+    // // Sort by budget
+    // adverts.sort((a, b) {
+    //   final budgetA = budget[a.advertId];
+    //   final budgetB = budget[b.advertId];
+    //   final status = a.status;
+    //   if (status == AdvertStatusConstants.paused) {
+    //     return 1; // Move paused items to the end
+    //   }
+    //   if (budgetA == null && budgetB == null) {
+    //     return 0;
+    //   } else if (budgetA == null) {
+    //     return 1; // Move item with null budget to the end
+    //   } else if (budgetB == null) {
+    //     return -1; // Move item with null budget to the end
+    //   } else {
+    //     return budgetA.compareTo(budgetB); // Sort by budget
+    //   }
+    // });
 
     return Column(
       children: [

@@ -37,11 +37,11 @@ abstract class SingleAdvertStatsViewModelAdvertService {
 }
 
 abstract class SingleAdvertStatsViewModelNotificationService {
-  Future<Resource<void>> addNotification(NotificationModel notificate);
+  Future<Resource<void>> addNotification(ReWildNotificationModel notificate);
   // Future<Resource<void>> delete(
   //     int parentId, String property, String condition);
   // Future<Resource<List<NotificationModel>>> getAll();
-  Future<Resource<List<NotificationModel>>> getForParent(int parentId);
+  Future<Resource<List<ReWildNotificationModel>>> getForParent(int parentId);
 }
 
 class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
@@ -66,6 +66,10 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
     SqfliteService.printTableContent("notifications");
 
+    await _update();
+  }
+
+  Future<void> _update() async {
     final values = await Future.wait([
       fetch(() => advertService.advertInfo(advertId)), // advertInfo
       fetch(() => advertService.getBudget(advertId)), // budget
@@ -83,6 +87,76 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
     }
     setActive(advertInfo.status == 9);
 
+    _setTitleCpm(advertInfo);
+
+    setName(advertInfo.name);
+
+    // Budget
+    if (budget == null) {
+      return;
+    }
+    setBudget(budget);
+
+    // AutoStat List ==================================
+    if (autoStatList == null || autoStatList.isEmpty) {
+      return;
+    }
+    autoStatList.sort(
+      (a, b) => a.createdAt.compareTo(b.createdAt),
+    );
+    setAutoStatList(autoStatList);
+
+    // set views
+    final viewsDiff =
+        autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
+
+    setTotalViews(autoStatList[autoStatList.length - 1].views);
+    setViews(viewsDiff);
+
+    // set clicks
+    final clicksDiff =
+        autoStatList[autoStatList.length - 1].clicks - autoStatList[0].clicks;
+    setClicks(clicksDiff);
+    setTotalClicks(autoStatList[autoStatList.length - 1].clicks);
+    // set ctr
+    final ctr = autoStatList[autoStatList.length - 1].ctr;
+    setTotalCtr(ctr);
+
+    // set ctr last
+    final lastViewsDif =
+        autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
+    if (lastViewsDif > 0) {
+      final lastCtrDif = (autoStatList[autoStatList.length - 1].clicks -
+              autoStatList[0].clicks) *
+          100 /
+          lastViewsDif;
+      setLastCtr(lastCtrDif);
+    }
+
+    // set ctr diff
+    final ctrDiff =
+        autoStatList[autoStatList.length - 1].ctr - autoStatList[0].ctr;
+    setCtrDiff(ctrDiff);
+
+    // set cpc
+    final cpc = autoStatList[autoStatList.length - 1].cpc;
+    setCpc(cpc);
+
+    // set cpc diff
+    final cpcDiff =
+        autoStatList[autoStatList.length - 1].cpc - autoStatList[0].cpc;
+    setCpcDiff(cpcDiff);
+
+    // set spent money
+    setTotalSpentMoney(
+        '${autoStatList[autoStatList.length - 1].spend.toStringAsFixed(0)}₽');
+
+    setSpentMoney(
+        '${(autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend).toStringAsFixed(0)}₽');
+  }
+
+  // asyncInit finished ==========================================================================================
+  void _setTitleCpm(Advert advertInfo) {
     switch (advertInfo.type) {
       case AdvertTypeConstants.auto:
         setTitle("Авто");
@@ -153,72 +227,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
         _advType = AdvertTypeConstants.searchPlusCatalog;
         break;
     }
-
-    setName(advertInfo.name);
-
-    // Budget
-    if (budget == null) {
-      return;
-    }
-    setBudget(budget);
-
-    // AutoStat List ==================================
-    if (autoStatList == null || autoStatList.isEmpty) {
-      return;
-    }
-    autoStatList.sort(
-      (a, b) => a.createdAt.compareTo(b.createdAt),
-    );
-    setAutoStatList(autoStatList);
-
-    // set views
-    final viewsDiff =
-        autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
-
-    setTotalViews(autoStatList[autoStatList.length - 1].views);
-    setViews(viewsDiff);
-
-    // set clicks
-    final clicksDiff =
-        autoStatList[autoStatList.length - 1].clicks - autoStatList[0].clicks;
-    setClicks(clicksDiff);
-    setTotalClicks(autoStatList[autoStatList.length - 1].clicks);
-    // set ctr
-    final ctr = autoStatList[autoStatList.length - 1].ctr;
-    setTotalCtr(ctr);
-
-    // set ctr last
-    final lastViewsDif =
-        autoStatList[autoStatList.length - 1].views - autoStatList[0].views;
-    if (lastViewsDif > 0) {
-      final lastCtrDif = (autoStatList[autoStatList.length - 1].clicks -
-              autoStatList[0].clicks) *
-          100 /
-          lastViewsDif;
-      setLastCtr(lastCtrDif);
-    }
-
-    // set ctr diff
-    final ctrDiff =
-        autoStatList[autoStatList.length - 1].ctr - autoStatList[0].ctr;
-    setCtrDiff(ctrDiff);
-
-    // set cpc
-    final cpc = autoStatList[autoStatList.length - 1].cpc;
-    setCpc(cpc);
-
-    // set cpc diff
-    final cpcDiff =
-        autoStatList[autoStatList.length - 1].cpc - autoStatList[0].cpc;
-    setCpcDiff(cpcDiff);
-
-    // set spent money
-    setTotalSpentMoney(
-        '${autoStatList[autoStatList.length - 1].spend.toStringAsFixed(0)}₽');
-
-    setSpentMoney(
-        '${(autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend).toStringAsFixed(0)}₽');
-  } // asyncInit finished ==========================================================================================
+  }
 
   // FIELDS =============================================================== FIELDS
   // for change cpm
@@ -439,5 +448,6 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
     }
     await fetch(() => advertService.setCpm(
         advertId: advertId, cpm: cpm, type: _advType!, param: subjectId));
+    await _update();
   }
 }

@@ -6,6 +6,7 @@ import 'package:rewild/core/utils/strings.dart';
 
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 import 'package:rewild/widgets/my_dialog_save_widget.dart';
+import 'package:rewild/widgets/my_dialog_textfield_widget.dart';
 
 class SingleAutoWordsScreen extends StatelessWidget {
   const SingleAutoWordsScreen({super.key});
@@ -14,7 +15,8 @@ class SingleAutoWordsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<SingleAutoWordsViewModel>();
     final name = model.name;
-
+    final cpm = model.cpm;
+    final changeCpm = model.changeCpm;
     final keywords = model.keywords;
     final excluded = model.excluded;
     final searchInputOpen = model.searchInputOpen;
@@ -25,6 +27,26 @@ class SingleAutoWordsScreen extends StatelessWidget {
       child: DefaultTabController(
           length: 2,
           child: Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return MyDialogTextField(
+                        header: "Ставка (СРМ, ₽)",
+                        hint: '$cpm₽',
+                        addGroup: changeCpm,
+                        btnText: "Обновить",
+                        description: "Введите новое значение ставки",
+                        keyboardType: TextInputType.number,
+                      );
+                    });
+              },
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Text("$cpm₽",
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary)),
+            ),
             appBar: AppBar(
               title: Text(name!.capitalize()),
               leading: IconButton(
@@ -371,7 +393,7 @@ class _SlidableContainer extends StatelessWidget {
           if (displayedContent.qty != null)
             Expanded(
               flex: 2,
-              child: AutoSizeText('${displayedContent.qty}000'),
+              child: AutoSizeText('${displayedContent.qty}'),
             ),
           if (displayedContent.qty == null)
             Container(

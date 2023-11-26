@@ -8,7 +8,7 @@ class NotificationDataProvider
   const NotificationDataProvider();
 
   @override
-  Future<Resource<bool>> save(NotificationModel notificate) async {
+  Future<Resource<bool>> save(ReWildNotificationModel notificate) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawInsert(
@@ -28,7 +28,8 @@ class NotificationDataProvider
   }
 
   @override
-  Future<Resource<List<NotificationModel>>> getForParent(int parentId) async {
+  Future<Resource<List<ReWildNotificationModel>>> getForParent(
+      int parentId) async {
     try {
       final db = await SqfliteService().database;
       final notificates = await db.rawQuery(
@@ -38,22 +39,23 @@ class NotificationDataProvider
         return Resource.success([]);
       }
       return Resource.success(
-          notificates.map((e) => NotificationModel.fromMap(e)).toList());
+          notificates.map((e) => ReWildNotificationModel.fromMap(e)).toList());
     } catch (e) {
       return Resource.error(e.toString());
     }
   }
 
   @override
-  Future<Resource<List<NotificationModel>>> getAll() async {
+  Future<Resource<List<ReWildNotificationModel>>> getAll() async {
     try {
       final db = await SqfliteService().database;
       final notifications = await db.rawQuery('SELECT * FROM notifications');
       if (notifications.isEmpty) {
         return Resource.empty();
       }
-      return Resource.success(
-          notifications.map((e) => NotificationModel.fromMap(e)).toList());
+      return Resource.success(notifications
+          .map((e) => ReWildNotificationModel.fromMap(e))
+          .toList());
     } catch (e) {
       return Resource.error(e.toString());
     }
@@ -94,7 +96,8 @@ class NotificationDataProvider
     }
   }
 
-  static Future<Resource<List<NotificationModel>>> getAllInBackground() async {
+  static Future<Resource<List<ReWildNotificationModel>>>
+      getAllInBackground() async {
     try {
       final db = await SqfliteService().database;
       final notifications = await db.rawQuery('SELECT * FROM notifications');
@@ -102,15 +105,16 @@ class NotificationDataProvider
       if (notifications.isEmpty) {
         Resource.success([]);
       }
-      return Resource.success(
-          notifications.map((e) => NotificationModel.fromMap(e)).toList());
+      return Resource.success(notifications
+          .map((e) => ReWildNotificationModel.fromMap(e))
+          .toList());
     } catch (e) {
       return Resource.error(e.toString());
     }
   }
 
   static Future<Resource<bool>> saveInBackground(
-      NotificationModel notificate) async {
+      ReWildNotificationModel notificate) async {
     try {
       final db = await SqfliteService().database;
       final lastId = await db.rawInsert(

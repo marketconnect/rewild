@@ -14,7 +14,7 @@ abstract class ScreenFactory {
   Widget makeAllGroupsScreen();
   Widget makeApiKeysScreen();
   Widget makeAutoStatsWordsScreen(int id);
-  Widget makeBottomNavigationScreen(int num);
+  Widget makeBottomNavigationScreen();
   Widget makeCardNotificationsSettingsScreen(NotificationCardState state);
   Widget makeSplashScreen();
   Widget makeMyWebViewScreen();
@@ -117,11 +117,11 @@ class MainNavigation implements AppNavigation {
           builder: (_) => screenFactory.makeAddGroupsScreen(productsCardsIds),
         );
 
-      case MainNavigationRouteNames.bottomNavigationScreen:
-        final arguments = settings.arguments;
-        final num = arguments is int ? arguments : 0;
+      case MainNavigationRouteNames.mainNavigationScreen:
+        // final arguments = settings.arguments;
+        // final num = arguments is int ? arguments : 0;
         return MaterialPageRoute(
-          builder: (_) => screenFactory.makeBottomNavigationScreen(num),
+          builder: (_) => screenFactory.makeBottomNavigationScreen(),
         );
 
       case MainNavigationRouteNames.singleGroupScreen:

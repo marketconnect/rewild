@@ -1,5 +1,6 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/background_message.dart';
+import 'package:rewild/presentation/app/app.dart';
 import 'package:rewild/presentation/background_messages_screen/background_messages_view_model.dart';
 
 abstract class BackgroundMessageServiceBackgroundDataProvider {
@@ -8,7 +9,7 @@ abstract class BackgroundMessageServiceBackgroundDataProvider {
 }
 
 class BackgroundMessageService
-    implements BackgroundMessagesBackgroundMessageService {
+    implements BackgroundMessagesBackgroundMessageService, AppMessagesService {
   final BackgroundMessageServiceBackgroundDataProvider
       backgroundMessageDataProvider;
 
@@ -22,5 +23,17 @@ class BackgroundMessageService
   @override
   Future<Resource<List<BackgroundMessage>>> getAll() async {
     return await backgroundMessageDataProvider.getAll();
+  }
+
+  @override
+  Future<Resource<bool>> isNotEmpty() async {
+    final res = await getAll();
+
+    if (res is Success) {
+      return res.data!.isNotEmpty
+          ? Resource.success(true)
+          : Resource.success(false);
+    }
+    return Resource.success(false);
   }
 }

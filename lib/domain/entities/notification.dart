@@ -1,14 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-class NotificationModel {
+class ReWildNotificationModel {
   int parentId;
   int condition;
   String value;
   int? sizeId;
   int? wh;
   bool reusable;
-  NotificationModel({
+  ReWildNotificationModel({
     required this.parentId,
     required this.condition,
     required this.value,
@@ -29,14 +29,14 @@ class NotificationModel {
   //   return false;
   // }
 
-  NotificationModel copyWith({
+  ReWildNotificationModel copyWith({
     int? parentId,
     int? condition,
     String? value,
     int? sizeId,
     int? wh,
   }) {
-    return NotificationModel(
+    return ReWildNotificationModel(
       parentId: parentId ?? this.parentId,
       condition: condition ?? this.condition,
       value: value ?? this.value,
@@ -55,8 +55,8 @@ class NotificationModel {
     };
   }
 
-  factory NotificationModel.fromMap(Map<String, dynamic> map) {
-    return NotificationModel(
+  factory ReWildNotificationModel.fromMap(Map<String, dynamic> map) {
+    return ReWildNotificationModel(
       parentId: map['parentId'] as int,
       condition: map['condition'] as int,
       value: map['value'] as String,
@@ -67,8 +67,9 @@ class NotificationModel {
 
   String toJson() => json.encode(toMap());
 
-  factory NotificationModel.fromJson(String source) =>
-      NotificationModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ReWildNotificationModel.fromJson(String source) =>
+      ReWildNotificationModel.fromMap(
+          json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -76,7 +77,7 @@ class NotificationModel {
   }
 
   @override
-  bool operator ==(covariant NotificationModel other) {
+  bool operator ==(covariant ReWildNotificationModel other) {
     if (identical(this, other)) return true;
 
     return other.parentId == parentId &&

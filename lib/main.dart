@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rewild/di/di_container.dart';
@@ -43,6 +44,19 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
   ]);
 
+  // Notifications
+  AwesomeNotifications()
+      .initialize('resource://drawable/res_notification_app_icon', [
+    NotificationChannel(
+      channelKey: 'basic_channel',
+      channelName: 'ReWild',
+      defaultColor: const Color(0xFF9D50DD),
+      importance: NotificationImportance.High,
+      channelShowBadge: true,
+      channelDescription: 'description',
+      enableLights: true,
+    ),
+  ]);
   await Workmanager().initialize(
     callbackDispatcher,
     // isInDebugMode: true,
@@ -57,7 +71,7 @@ Future<void> main() async {
     ),
   );
 
-  BackgroundService.initial();
+  // BackgroundService.initial();
 
   DateTime now = DateTime.now();
   // to get rid of simultaneous requests at the same time

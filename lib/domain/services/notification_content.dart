@@ -1,11 +1,11 @@
-class NotificationContent {
+class ReWildNotificationContent {
   final int id;
   // final String title;
   // final String body;
   final int? condition;
   final String? newValue;
 
-  NotificationContent(
+  ReWildNotificationContent(
       {required this.id,
       // required this.title,
       // required this.body,

@@ -1,7 +1,7 @@
 import 'package:rewild/domain/entities/notification.dart';
 import 'package:sqflite/sqflite.dart';
 
-class NotificationDb extends NotificationModel {
+class NotificationDb extends ReWildNotificationModel {
   NotificationDb(
       {required super.parentId,
       required super.condition,

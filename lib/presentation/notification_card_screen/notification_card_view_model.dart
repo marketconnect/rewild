@@ -8,8 +8,8 @@ import 'package:rewild/domain/entities/warehouse.dart';
 
 abstract class NotificationCardNotificationService {
   Future<Resource<void>> addForParent(
-      List<NotificationModel> notifications, int parentId);
-  Future<Resource<List<NotificationModel>>> getForParent(int bnmId);
+      List<ReWildNotificationModel> notifications, int parentId);
+  Future<Resource<List<ReWildNotificationModel>>> getForParent(int bnmId);
 }
 
 class NotificationCardState {
@@ -80,7 +80,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
       return;
     }
 
-    Map<int, NotificationModel> notifications = {};
+    Map<int, ReWildNotificationModel> notifications = {};
 
     for (var element in savedNotifications) {
       notifications[element.condition] = element;
@@ -97,13 +97,13 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
   int get stocks => _stocks ?? 0;
 
   // Fields
-  Map<int, NotificationModel> _notifications = {};
-  void setNotifications(Map<int, NotificationModel> notifications) {
+  Map<int, ReWildNotificationModel> _notifications = {};
+  void setNotifications(Map<int, ReWildNotificationModel> notifications) {
     _notifications = notifications;
     notify();
   }
 
-  Map<int, NotificationModel> get notifications => _notifications;
+  Map<int, ReWildNotificationModel> get notifications => _notifications;
 
   Future<void> save() async {
     final listToAdd = _notifications.values.toList();
@@ -129,7 +129,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
   void addNotification(int condition, int? value) {
     switch (condition) {
       case NotificationConditionConstants.nameChanged:
-        _notifications[condition] = NotificationModel(
+        _notifications[condition] = ReWildNotificationModel(
             condition: NotificationConditionConstants.nameChanged,
             value: state.name,
             reusable: true,
@@ -137,7 +137,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
 
         break;
       case NotificationConditionConstants.picsChanged:
-        _notifications[condition] = NotificationModel(
+        _notifications[condition] = ReWildNotificationModel(
             condition: NotificationConditionConstants.picsChanged,
             value: state.pics.toString(),
             reusable: true,
@@ -145,7 +145,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
 
         break;
       case NotificationConditionConstants.priceChanged:
-        _notifications[condition] = NotificationModel(
+        _notifications[condition] = ReWildNotificationModel(
             condition: NotificationConditionConstants.priceChanged,
             value: state.price.toString(),
             reusable: true,
@@ -153,7 +153,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
 
         break;
       case NotificationConditionConstants.promoChanged:
-        _notifications[condition] = NotificationModel(
+        _notifications[condition] = ReWildNotificationModel(
             condition: NotificationConditionConstants.promoChanged,
             value: state.promo,
             reusable: true,
@@ -161,7 +161,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
 
         break;
       case NotificationConditionConstants.reviewRatingChanged:
-        _notifications[condition] = NotificationModel(
+        _notifications[condition] = ReWildNotificationModel(
             condition: NotificationConditionConstants.reviewRatingChanged,
             value: state.reviewRating.toString(),
             reusable: true,
@@ -169,7 +169,7 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
 
         break;
       case NotificationConditionConstants.stocksLessThan:
-        _notifications[condition] = NotificationModel(
+        _notifications[condition] = ReWildNotificationModel(
             condition: NotificationConditionConstants.stocksLessThan,
             reusable: true,
             value: value.toString(),

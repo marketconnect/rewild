@@ -32,9 +32,7 @@ class Chart extends StatelessWidget {
       }
       if (clicks) {
         double clicksDiff = data[i].clicks - data[i - 1].clicks;
-        // print(data[i].createdAt.millisecondsSinceEpoch.toDouble());
-        // int viewsDiff = data[i].views - data[i - 1].views;
-        // final ctr = viewsDiff == 0 ? 0 : (clicksDiff / viewsDiff) * 100;
+
         spots.add(FlSpot(data[i].createdAt.millisecondsSinceEpoch.toDouble(),
             clicksDiff.toDouble()));
         continue;
@@ -45,7 +43,7 @@ class Chart extends StatelessWidget {
     }
 
     // final times = data.map((e) => e.createdAt).toList();
-
+    final n = spots.length < 9 ? 1 : 3;
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.45,
       height: MediaQuery.of(context).size.height * 0.25,
@@ -57,14 +55,9 @@ class Chart extends StatelessWidget {
               show: true,
               bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
-                      interval: 1000 * 60 * 60,
+                      interval: n * 1000 * 60 * 60,
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        // final spotTime =
-                        //     DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                        // if (!dateInList(spotTime, times)) {
-                        //   return const SizedBox();
-                        // }
                         DateTime createdAt =
                             DateTime.fromMillisecondsSinceEpoch(value.toInt());
                         String formattedTime =

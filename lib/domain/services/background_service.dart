@@ -1,4 +1,5 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:rewild/api_clients/advert_api_client.dart';
 import 'package:rewild/api_clients/details_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
@@ -29,30 +30,7 @@ import 'package:rewild/domain/services/notification_content.dart';
 class BackgroundService {
   const BackgroundService();
 
-  static Future initial() async {
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('ic_launcher');
-
-    const DarwinInitializationSettings initializationSettingsDarwin =
-        DarwinInitializationSettings(
-            onDidReceiveLocalNotification: _onDidReceiveLocalNotification);
-
-    const LinuxInitializationSettings initializationSettingsLinux =
-        LinuxInitializationSettings(defaultActionName: 'Open notification');
-
-    const InitializationSettings initializationSettings =
-        InitializationSettings(
-            android: initializationSettingsAndroid,
-            iOS: initializationSettingsDarwin,
-            linux: initializationSettingsLinux);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse);
-  }
-
-  static final FlutterLocalNotificationsPlugin
-      _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static Future initial() async {}
 
   static DateTime? _autoLastReq;
   static DateTime? _searchLastReq;
@@ -110,7 +88,8 @@ class BackgroundService {
     ]);
 
     final tokenResource = values[0] as Resource<ApiKeyModel>;
-    final notificationResource = values[1] as Resource<List<NotificationModel>>;
+    final notificationResource =
+        values[1] as Resource<List<ReWildNotificationModel>>;
 
     // token
     if (tokenResource is Success) {
@@ -141,11 +120,11 @@ class BackgroundService {
     final notifications = notificationResource.data!;
 
     // separate cards and verts notifications
-    List<NotificationModel> cardsNotifications = notifications
+    List<ReWildNotificationModel> cardsNotifications = notifications
         .where((element) =>
             element.condition != NotificationConditionConstants.budgetLessThan)
         .toList();
-    List<NotificationModel> advertsNotifications = notifications
+    List<ReWildNotificationModel> advertsNotifications = notifications
         .where((element) =>
             element.condition == NotificationConditionConstants.budgetLessThan)
         .toList();
@@ -164,7 +143,7 @@ class BackgroundService {
     // get notification contents for cards
 
     // list to save notification contents
-    List<NotificationContent> notificationContents = [];
+    List<ReWildNotificationContent> notificationContents = [];
 
     // insert notification contents to the list
     // and update notification in local db with current value
@@ -175,7 +154,7 @@ class BackgroundService {
             .toList();
         final notContentList = card.notifications(notificationsList);
         for (final notContent in notContentList) {
-          NotificationDataProvider.saveInBackground(NotificationModel(
+          NotificationDataProvider.saveInBackground(ReWildNotificationModel(
               parentId: card.nmId,
               condition: notContent.condition!,
               value: notContent.newValue!));
@@ -213,7 +192,7 @@ class BackgroundService {
           // header: notCont.title,
           // message: notCont.body,
           id: notCont.id);
-      await NotificationDataProvider.saveInBackground(NotificationModel(
+      await NotificationDataProvider.saveInBackground(ReWildNotificationModel(
           parentId: notCont.id,
           condition: notCont.condition!,
           value: notCont.newValue!));
@@ -224,7 +203,7 @@ class BackgroundService {
     await _instantNotification("У вас есть сообщение от ReWild", '');
   }
 
-  static int _getSubject(NotificationContent notCont) {
+  static int _getSubject(ReWildNotificationContent notCont) {
     final subj =
         notCont.condition == NotificationConditionConstants.budgetLessThan
             ? BackgroundMessage.advert
@@ -232,11 +211,11 @@ class BackgroundService {
     return subj;
   }
 
-  static Future<Resource<List<NotificationContent>>> _fetchAdvertBudgets(
+  static Future<Resource<List<ReWildNotificationContent>>> _fetchAdvertBudgets(
       String token,
       List<int> advertsIds,
-      List<NotificationModel> advertsNotifications) async {
-    List<NotificationContent> notificationContents = [];
+      List<ReWildNotificationModel> advertsNotifications) async {
+    List<ReWildNotificationContent> notificationContents = [];
     for (final advertId in advertsIds) {
       // fetch budget
       final budgetResource = await budgetRequest(token, advertId);
@@ -257,14 +236,14 @@ class BackgroundService {
       if (budget < nBudg) {
         // final title = "Бюджет кампании $advertId";
         // final body = "Бюджет: $budget, был $nBudg";
-        final notContent = NotificationContent(
+        final notContent = ReWildNotificationContent(
           id: advertId,
           condition: NotificationConditionConstants.budgetLessThan,
           newValue: budget.toString(),
           // title: title,
           // body: body,
         );
-        NotificationDataProvider.saveInBackground(NotificationModel(
+        NotificationDataProvider.saveInBackground(ReWildNotificationModel(
           parentId: advertId,
           condition: NotificationConditionConstants.budgetLessThan,
           value: budget.toString(),
@@ -453,22 +432,20 @@ class BackgroundService {
     return;
   }
 
-  static void _onDidReceiveLocalNotification(
-      int id, String? title, String? body, String? payload) async {}
-  static void _onDidReceiveNotificationResponse(
-      NotificationResponse notificationResponse) async {}
+  // static void _onDidReceiveLocalNotification(
+  //     int id, String? title, String? body, String? payload) async {}
+  // static void _onDidReceiveNotificationResponse(
+  //     NotificationResponse notificationResponse) async {}
 
   static Future _instantNotification(String title, String body) async {
-    const AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails('id', 'channel',
-            channelDescription: 'description',
-            importance: Importance.max,
-            priority: Priority.high,
-            ticker: 'ticker');
-
-    const NotificationDetails notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
-    await _flutterLocalNotificationsPlugin
-        .show(0, title, body, notificationDetails, payload: 'item x');
+    AwesomeNotifications().createNotification(
+        content: NotificationContent(
+            id: 1, channelKey: 'basic_channel', title: title, body: body));
   }
+
+  //   const NotificationDetails notificationDetails =
+  //       NotificationDetails(android: androidNotificationDetails);
+  //   await _flutterLocalNotificationsPlugin
+  //       .show(0, title, body, notificationDetails, payload: 'item x');
+  // }
 }

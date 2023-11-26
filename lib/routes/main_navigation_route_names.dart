@@ -3,7 +3,7 @@ abstract class MainNavigationRouteNames {
   static const String apiKeysScreen = '/api_keys_screen';
   static const String autoStatWordsScreen = '/auto_stat_words';
   static const String splashScreen = '/splash_screen';
-  static const String bottomNavigationScreen = '/bottom_navigation_screen';
+  static const String mainNavigationScreen = '/bottom_navigation_screen';
   static const String backgroundNotificationsScreen =
       '/background_notifications_screen';
   static const String myWebViewScreen = '/my_web_view_screen';

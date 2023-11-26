@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/theme/color_schemes.g.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +12,18 @@ abstract class AppNavigation {
   Route<Object> onGenerateRoute(RouteSettings settings);
 }
 
+abstract class AppMessagesService {
+  Future<Resource<bool>> isNotEmpty();
+}
+
 class App extends StatefulWidget {
   final AppNavigation navigation;
+  final AppMessagesService appMessagesService;
   final List<StreamController> streamControllers;
   const App({
     super.key,
     required this.navigation,
+    required this.appMessagesService,
     required this.streamControllers,
   });
 
@@ -29,6 +36,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
+
     super.initState();
   }
 
@@ -43,14 +51,16 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // if (mountedCallback == null) {
-    //   return;
-    // }
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.resumed:
         debugPrint("app in resumed");
-        // mountedCallback!(true);
+        final resource = await widget.appMessagesService.isNotEmpty();
+        if (resource is Success && resource.data!) {
+          Navigator.of(context).pushNamed(
+              MainNavigationRouteNames.backgroundNotificationsScreen);
+        }
+
         break;
       case AppLifecycleState.inactive:
         debugPrint("app in inactive");

@@ -104,6 +104,7 @@ class _AppFactoryDefault implements AppFactory {
   Widget makeApp() {
     return App(
         navigation: _diContainer._makeAppNavigation(),
+        appMessagesService: _diContainer.makeBackgroundMessageService(),
         streamControllers: [
           _diContainer.apiKeyExistsStreamController,
           _diContainer.cardsNumberStreamController,
@@ -333,7 +334,7 @@ class _DIContainer {
       );
 
   // Background message
-  BackgroundMessageService _makeBackgroundMessageService() =>
+  BackgroundMessageService makeBackgroundMessageService() =>
       BackgroundMessageService(
           backgroundMessageDataProvider: _makeBackgroundMessageDataProvider());
 
@@ -461,9 +462,9 @@ class _DIContainer {
           BuildContext context, int advertId) =>
       SingleAutoWordsViewModel(advertId,
           context: context,
-          autoStatsWordsAdvertService: _makeAdvertService(),
+          advertService: _makeAdvertService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
-          autoStatsWordsAutoStatsService: _makeAutoStatService());
+          autoStatsService: _makeAutoStatService());
 
   AllAdvertsToolsViewModel _makeAdvertsToolsViewModel(BuildContext context) =>
       AllAdvertsToolsViewModel(
@@ -484,7 +485,7 @@ class _DIContainer {
           context: context,
           notificationService: _makeNotificationService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
-          messageService: _makeBackgroundMessageService());
+          messageService: makeBackgroundMessageService());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -501,7 +502,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   }
 
   @override
-  Widget makeBottomNavigationScreen(int num) {
+  Widget makeBottomNavigationScreen() {
     return ChangeNotifierProvider(
         create: (context) =>
             _diContainer._makeBottomNavigationViewModel(context),

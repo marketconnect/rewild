@@ -333,9 +333,9 @@ class CardOfProductModel extends BackgroundNotifier {
   }
 
   @override
-  List<NotificationContent> notifications(
-      List<NotificationModel> notifications) {
-    List<NotificationContent> result = [];
+  List<ReWildNotificationContent> notifications(
+      List<ReWildNotificationModel> notifications) {
+    List<ReWildNotificationContent> result = [];
     for (final notification in notifications) {
       switch (notification.condition) {
         case NotificationConditionConstants.nameChanged:
@@ -376,10 +376,10 @@ class CardOfProductModel extends BackgroundNotifier {
     return result;
   }
 
-  void _checkNameCondition(
-      NotificationModel notification, List<NotificationContent> result) {
+  void _checkNameCondition(ReWildNotificationModel notification,
+      List<ReWildNotificationContent> result) {
     if (notification.value != name) {
-      result.add(NotificationContent(
+      result.add(ReWildNotificationContent(
         id: nmId,
         // title: "Изменено наименование карточки $nmId",
         // body: "Новое наименование: $name",
@@ -389,11 +389,11 @@ class CardOfProductModel extends BackgroundNotifier {
     }
   }
 
-  void _checkPicsCondition(
-      NotificationModel notification, List<NotificationContent> result) {
+  void _checkPicsCondition(ReWildNotificationModel notification,
+      List<ReWildNotificationContent> result) {
     final nPics = int.tryParse(notification.value) ?? 0;
     if (nPics != pics) {
-      result.add(NotificationContent(
+      result.add(ReWildNotificationContent(
         id: nmId,
         // title: "Изменено кол-во картинок карточки $nmId",
         // body: "Новое кол-во картинок: $pics, было $nPics",
@@ -403,12 +403,12 @@ class CardOfProductModel extends BackgroundNotifier {
     }
   }
 
-  void _checkPriceCondition(
-      NotificationModel notification, List<NotificationContent> result) {
+  void _checkPriceCondition(ReWildNotificationModel notification,
+      List<ReWildNotificationContent> result) {
     final nPrice = int.tryParse(notification.value) ?? 0;
 
     if (nPrice != basicPriceU) {
-      result.add(NotificationContent(
+      result.add(ReWildNotificationContent(
         id: nmId,
         // title: "Изменена цена товара $nmId",
         // body: "Новая цена: $basicPriceU, было $nPrice",
@@ -418,10 +418,10 @@ class CardOfProductModel extends BackgroundNotifier {
     }
   }
 
-  void _checkPromoCondition(
-      NotificationModel notification, List<NotificationContent> result) {
+  void _checkPromoCondition(ReWildNotificationModel notification,
+      List<ReWildNotificationContent> result) {
     if (notification.value != promoTextCard) {
-      result.add(NotificationContent(
+      result.add(ReWildNotificationContent(
         id: nmId,
         // title: "Изменена акция карточки $nmId",
         // body: "Новая акция: $promoTextCard",
@@ -431,11 +431,11 @@ class CardOfProductModel extends BackgroundNotifier {
     }
   }
 
-  void _checkReviewRatingCondition(
-      NotificationModel notification, List<NotificationContent> result) {
+  void _checkReviewRatingCondition(ReWildNotificationModel notification,
+      List<ReWildNotificationContent> result) {
     final nReviewRating = double.tryParse(notification.value) ?? 0;
     if (nReviewRating != reviewRating) {
-      result.add(NotificationContent(
+      result.add(ReWildNotificationContent(
         id: nmId,
         // title: "Изменен рейтинг карточки $nmId",
         // body: "Новый рейтинг: $reviewRating, был $nReviewRating",
@@ -445,13 +445,13 @@ class CardOfProductModel extends BackgroundNotifier {
     }
   }
 
-  void _checkStocksLessThanCondition(
-      NotificationModel notification, List<NotificationContent> result) {
+  void _checkStocksLessThanCondition(ReWildNotificationModel notification,
+      List<ReWildNotificationContent> result) {
     final stocksQty = _calculateAllStocks();
     final nStocks = int.tryParse(notification.value) ?? 0;
     final stocksDif = nStocks - stocksQty;
     if (stocksDif > 0) {
-      result.add(NotificationContent(
+      result.add(ReWildNotificationContent(
         id: nmId,
         // title: "Изменено кол-во остатков на складах $nmId",
         // body: "Новое кол-во на всех складах: $stocksQty меньше, чем $nStocks",
@@ -461,13 +461,13 @@ class CardOfProductModel extends BackgroundNotifier {
     }
   }
 
-  void _checkStocksMoreThanCondition(
-      NotificationModel notification, List<NotificationContent> result) {
+  void _checkStocksMoreThanCondition(ReWildNotificationModel notification,
+      List<ReWildNotificationContent> result) {
     final stocksQty = _calculateAllStocks();
     final nStocks = int.tryParse(notification.value) ?? 0;
     final stocksDif = nStocks - stocksQty;
     if (stocksDif < 0) {
-      result.add(NotificationContent(
+      result.add(ReWildNotificationContent(
         id: nmId,
         // title: "Изменено кол-во остатков на складах $nmId",
         // body: "Новое кол-во на всех складах: $stocksQty больше, чем $nStocks",
@@ -477,14 +477,14 @@ class CardOfProductModel extends BackgroundNotifier {
     }
   }
 
-  void _checkStocksInWhLessThanCondition(
-      NotificationModel notification, List<NotificationContent> result) {
+  void _checkStocksInWhLessThanCondition(ReWildNotificationModel notification,
+      List<ReWildNotificationContent> result) {
     final wh = notification.wh ?? 0;
     final nStocks = int.tryParse(notification.value) ?? 0;
     final stocksSum = _calculateAllStocksForWh(wh);
     final stocksDif = stocksSum - nStocks;
     if (stocksDif < 0) {
-      result.add(NotificationContent(
+      result.add(ReWildNotificationContent(
         id: nmId,
         // title: "Изменено кол-во остатков на складе $nmId",
         // body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
@@ -494,14 +494,14 @@ class CardOfProductModel extends BackgroundNotifier {
     }
   }
 
-  void _checkSizeStocksLessCondition(
-      NotificationModel notification, List<NotificationContent> result) {
+  void _checkSizeStocksLessCondition(ReWildNotificationModel notification,
+      List<ReWildNotificationContent> result) {
     final nSize = notification.sizeId ?? 0;
     final nStocks = int.tryParse(notification.value) ?? 0;
     final stocksSum = _calculateAllStocks(nSize);
     final stocksDif = stocksSum - nStocks;
     if (stocksDif < 0) {
-      result.add(NotificationContent(
+      result.add(ReWildNotificationContent(
         id: nmId,
         // title: "Изменено кол-во остатков на складе $nmId  для размера $nSize",
         // body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",
@@ -512,14 +512,15 @@ class CardOfProductModel extends BackgroundNotifier {
   }
 
   void _checkSizeInWhStocksLessThanCondition(
-      NotificationModel notification, List<NotificationContent> result) {
+      ReWildNotificationModel notification,
+      List<ReWildNotificationContent> result) {
     final nSize = notification.sizeId ?? 0;
     final nStocks = int.tryParse(notification.value) ?? 0;
     final wh = notification.wh ?? 0;
     final stocksSumForWh = _calculateAllStocksForWh(wh, nSize);
     final stocksDif = stocksSumForWh - nStocks;
     if (stocksDif < 0) {
-      result.add(NotificationContent(
+      result.add(ReWildNotificationContent(
         id: nmId,
         // title: "Изменено кол-во остатков на складе $nmId  для размера $nSize",
         // body: "Новое кол-во на складе: $stocksSum меньше, чем $nStocks",

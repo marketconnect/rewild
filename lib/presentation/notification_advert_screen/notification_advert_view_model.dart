@@ -7,8 +7,8 @@ import 'package:rewild/domain/entities/notification.dart';
 
 abstract class NotificationAdvertNotificationService {
   Future<Resource<void>> addForParent(
-      List<NotificationModel> notifications, int parentId);
-  Future<Resource<List<NotificationModel>>> getForParent(int bnmId);
+      List<ReWildNotificationModel> notifications, int parentId);
+  Future<Resource<List<ReWildNotificationModel>>> getForParent(int bnmId);
 }
 
 class NotificationAdvertState {
@@ -52,7 +52,7 @@ class NotificationAdvertViewModel extends ResourceChangeNotifier {
       return;
     }
 
-    final notifMap = <int, NotificationModel>{};
+    final notifMap = <int, ReWildNotificationModel>{};
     for (var element in savedNotifications) {
       notifMap[element.condition] = element;
     }
@@ -63,13 +63,13 @@ class NotificationAdvertViewModel extends ResourceChangeNotifier {
   }
 
   // Fields
-  Map<int, NotificationModel> _notifications = {};
-  void setNotifications(Map<int, NotificationModel> notifications) {
+  Map<int, ReWildNotificationModel> _notifications = {};
+  void setNotifications(Map<int, ReWildNotificationModel> notifications) {
     _notifications = notifications;
     notify();
   }
 
-  Map<int, NotificationModel> get notifications => _notifications;
+  Map<int, ReWildNotificationModel> get notifications => _notifications;
 
   Future<void> save() async {
     final toSave = _notifications.values.toList();
@@ -94,7 +94,7 @@ class NotificationAdvertViewModel extends ResourceChangeNotifier {
   void addNotification(int condition, int? value, [bool? reusable]) {
     switch (condition) {
       case NotificationConditionConstants.budgetLessThan:
-        _notifications[condition] = NotificationModel(
+        _notifications[condition] = ReWildNotificationModel(
             condition: NotificationConditionConstants.budgetLessThan,
             value: value.toString(),
             reusable: reusable ?? false,

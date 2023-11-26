@@ -6,10 +6,10 @@ import 'package:rewild/presentation/notification_card_screen/notification_card_v
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 
 abstract class NotificationServiceNotificationDataProvider {
-  Future<Resource<List<NotificationModel>>> getAll();
-  Future<Resource<bool>> save(NotificationModel notificate);
+  Future<Resource<List<ReWildNotificationModel>>> getAll();
+  Future<Resource<bool>> save(ReWildNotificationModel notificate);
   Future<Resource<int>> deleteAll(int parentId);
-  Future<Resource<List<NotificationModel>>> getForParent(int parentId);
+  Future<Resource<List<ReWildNotificationModel>>> getForParent(int parentId);
   Future<Resource<bool>> delete(int parentId, int condition,
       [bool? reusableAlso]);
 }
@@ -34,7 +34,8 @@ class NotificationService
   }
 
   @override
-  Future<Resource<void>> addNotification(NotificationModel notificate) async {
+  Future<Resource<void>> addNotification(
+      ReWildNotificationModel notificate) async {
     final resource = await notificationDataProvider.save(notificate);
     if (resource is Error) {
       return Resource.error(resource.message!);
@@ -45,7 +46,7 @@ class NotificationService
 
   @override
   Future<Resource<void>> addForParent(
-      List<NotificationModel> notifications, int parentId) async {
+      List<ReWildNotificationModel> notifications, int parentId) async {
     final resource = await notificationDataProvider.deleteAll(parentId);
     if (resource is Error) {
       return Resource.error(resource.message!);
@@ -61,7 +62,8 @@ class NotificationService
   }
 
   @override
-  Future<Resource<List<NotificationModel>>> getForParent(int parentId) async {
+  Future<Resource<List<ReWildNotificationModel>>> getForParent(
+      int parentId) async {
     final resource = await notificationDataProvider.getForParent(parentId);
     if (resource is Error) {
       return Resource.error(resource.message!);
