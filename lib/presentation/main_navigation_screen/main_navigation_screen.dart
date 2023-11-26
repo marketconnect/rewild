@@ -79,7 +79,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             type: BottomNavigationBarType.fixed,
             onTap: (value) async {
               setIndex(value);
-              if (value == 2) {
+              if (value == 3) {
                 await model.updateAdverts();
               }
             },

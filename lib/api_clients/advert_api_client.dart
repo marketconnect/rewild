@@ -106,6 +106,12 @@ class AdvertApiClient
         'cpm': cpm,
       };
 
+      print("param $param type $type, instrument $instrument");
+      // param do not required for auto
+      if (type != 8) {
+        body['param'] = param;
+      }
+
       final jsonString = json.encode(body);
 
       final uri = Uri.https('advert-api.wb.ru', "/adv/v0/cpm");

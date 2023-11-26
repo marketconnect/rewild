@@ -86,6 +86,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
   List<Advert> _adverts = [];
   void setAdverts(List<Advert> value) {
     _adverts = value;
+    notify();
   }
 
   List<Advert> get adverts => _adverts;
@@ -118,7 +119,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
       return;
     }
     setAdverts(newAdverts);
-    notify();
+
     // final advertIds = _adverts.map((e) => e.advertId).toList();
     for (final advert in _adverts) {
       if (advert.status == 11) {

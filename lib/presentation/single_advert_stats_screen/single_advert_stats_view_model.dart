@@ -94,6 +94,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             subjectId = advertInfo.autoParams!.subject!.id!;
           }
         }
+        _advType = AdvertTypeConstants.auto;
         break;
       case AdvertTypeConstants.inSearch:
         setTitle("В поиске");
@@ -105,6 +106,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             subjectId = advertInfo.params!.first.subjectId!;
           }
         }
+        _advType = AdvertTypeConstants.inSearch;
         break;
       case AdvertTypeConstants.inCard:
         setTitle("В карточке");
@@ -113,7 +115,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             advertInfo.params!.first.price != null) {
           setCpm(advertInfo.params!.first.price!);
         }
-
+        _advType = AdvertTypeConstants.inCard;
         break;
       case AdvertTypeConstants.inCatalog:
         setTitle("В каталоге");
@@ -122,6 +124,8 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             advertInfo.params!.first.price != null) {
           setCpm(advertInfo.params!.first.price!);
         }
+        _advType = AdvertTypeConstants.inCatalog;
+        break;
 
       case AdvertTypeConstants.inRecomendation:
         setTitle("В рекомендациях");
@@ -133,6 +137,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             subjectId = advertInfo.params!.first.subjectId!;
           }
         }
+        _advType = AdvertTypeConstants.inRecomendation;
 
         break;
       case AdvertTypeConstants.searchPlusCatalog:
@@ -145,6 +150,8 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             subjectId = advertInfo.unitedParams!.first.catalogCPM!;
           }
         }
+        _advType = AdvertTypeConstants.searchPlusCatalog;
+        break;
     }
 
     setName(advertInfo.name);
@@ -216,6 +223,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   // FIELDS =============================================================== FIELDS
   // for change cpm
   int subjectId = 0;
+  int? _advType;
 
   int? notificatedBudget;
 
@@ -418,7 +426,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
   Future<void> changeCpm(String value) async {
     final cpm = int.tryParse(value) ?? 0;
-    // print("cpm = $cpm");
+
     if (cpm != _cpm) {
       await _changeCpm(cpm);
       // print("changed");
@@ -426,10 +434,10 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> _changeCpm(int cpm) async {
-    if (_cpm == null) {
+    if (_cpm == null || _advType == null) {
       return;
     }
     await fetch(() => advertService.setCpm(
-        advertId: advertId, cpm: cpm, type: 8, param: subjectId));
+        advertId: advertId, cpm: cpm, type: _advType!, param: subjectId));
   }
 }
