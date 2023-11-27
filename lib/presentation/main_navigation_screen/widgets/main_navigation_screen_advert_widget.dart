@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 import 'package:rewild/core/constants.dart';
+import 'package:rewild/core/utils/icons_constant.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/bottom_navigation_screen_link_btn.dart';
@@ -107,17 +108,25 @@ class MainNavigationScreenAdvertWidget extends StatelessWidget {
                         height: screenHeight * 0.05,
                       ),
                       const LinkBtn(
-                        text: 'Настройки',
-                        color: Color(0xFF4aa6db),
-                        route: MainNavigationRouteNames.allAdvertsToolsScreen,
-                        // route: '',
-                        iconData: Icons.handyman,
-                      ),
-                      const LinkBtn(
                         text: 'Статистика',
-                        color: Color(0xFFdfb446),
+                        color: Color(0xFF4aa6db),
                         route: MainNavigationRouteNames.allAdvertsScreen,
                         iconData: Icons.auto_graph_outlined,
+                      ),
+                      LinkBtn(
+                        text: 'Ключевые фразы',
+                        route: MainNavigationRouteNames.allAdvertsToolsScreen,
+                        color: const Color(0xFFdfb446),
+                        // route: '',
+                        // iconData: Icons.handyman,
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.05,
+                          height: MediaQuery.of(context).size.width * 0.05,
+                          child: Image.asset(
+                            IconConstant.iconKeyword,
+                            color: Theme.of(context).colorScheme.background,
+                          ),
+                        ),
                       ),
                     ],
                   ),

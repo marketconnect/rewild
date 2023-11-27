@@ -94,40 +94,50 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
                           );
                         },
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: model.screenWidth * 0.06,
-                              height: model.screenWidth * 0.06,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary,
-                                borderRadius:
-                                    BorderRadius.circular(model.screenWidth),
-                              ),
-                              child: Text(
-                                "CPM",
-                                style: TextStyle(
-                                  fontSize: model.screenWidth * 0.015,
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      Theme.of(context).colorScheme.background,
+                      child: Container(
+                        margin: EdgeInsets.only(right: 5),
+                        decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.circular(model.screenWidth),
+                            border: Border.all(
+                                color: Theme.of(context).colorScheme.outline),
+                            color: Theme.of(context).colorScheme.surface),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: model.screenWidth * 0.06,
+                                height: model.screenWidth * 0.06,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  borderRadius:
+                                      BorderRadius.circular(model.screenWidth),
+                                ),
+                                child: Text(
+                                  "CPM",
+                                  style: TextStyle(
+                                    fontSize: model.screenWidth * 0.015,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .background,
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              width: model.screenWidth * 0.01,
-                            ),
-                            Text(
-                              '$cpm₽',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
+                              SizedBox(
+                                width: model.screenWidth * 0.01,
                               ),
-                            ),
-                          ],
+                              Text(
+                                '$cpm₽',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     )

@@ -5,14 +5,16 @@ class LinkBtn extends StatelessWidget {
     super.key,
     required this.text,
     required this.route,
-    required this.iconData,
+    this.iconData,
     required this.color,
+    this.child,
   });
 
   final String text;
 
   final String route;
-  final IconData iconData;
+  final IconData? iconData;
+  final Widget? child;
   final Color color;
   @override
   Widget build(BuildContext context) {
@@ -30,11 +32,12 @@ class LinkBtn extends StatelessWidget {
                   color: color, borderRadius: BorderRadius.circular(10)),
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: Icon(
-                  iconData,
-                  color: Theme.of(context).colorScheme.background,
-                  size: screenWidth * 0.05,
-                ),
+                child: child ??
+                    Icon(
+                      iconData,
+                      color: Theme.of(context).colorScheme.background,
+                      size: screenWidth * 0.05,
+                    ),
               ),
             ),
             SizedBox(
