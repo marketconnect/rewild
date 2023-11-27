@@ -21,4 +21,28 @@ class Advert {
     required this.status,
     required this.type,
   });
+
+  Advert copyWith({
+    int? advertId,
+    String? name,
+    DateTime? endTime,
+    DateTime? createTime,
+    DateTime? changeTime,
+    DateTime? startTime,
+    int? dailyBudget,
+    int? status,
+    int? type,
+  }) {
+    return Advert(
+      advertId: advertId ?? this.advertId,
+      name: name ?? this.name,
+      endTime: endTime ?? this.endTime,
+      createTime: createTime ?? this.createTime,
+      changeTime: changeTime ?? this.changeTime,
+      startTime: startTime ?? this.startTime,
+      dailyBudget: dailyBudget ?? this.dailyBudget,
+      status: status ?? this.status,
+      type: type ?? this.type,
+    );
+  }
 }

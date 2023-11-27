@@ -29,7 +29,8 @@ import 'package:rewild/data_providers/seller_data_provider/seller_data_provider.
 import 'package:rewild/data_providers/stock_data_provider.dart/stock_data_provider.dart';
 import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.dart';
 import 'package:rewild/data_providers/warehouse_data_provider.dart';
-import 'package:rewild/domain/entities/advert_base.dart';
+
+import 'package:rewild/domain/entities/stream_advert_event.dart';
 import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/api_keys_service.dart';
@@ -108,7 +109,6 @@ class _AppFactoryDefault implements AppFactory {
         streamControllers: [
           _diContainer.apiKeyExistsStreamController,
           _diContainer.cardsNumberStreamController,
-          // _diContainer.activeAdvertsStreamController
         ]);
   }
 }
@@ -126,11 +126,13 @@ class _DIContainer {
   final cardsNumberStreamController = StreamController<int>.broadcast();
   Stream<int> get cardsNumberStream => cardsNumberStreamController.stream;
 
-  // Advert (AdvertService ---> BottomNavigationViewModel)
-  final activeAdvertsStreamController =
-      StreamController<List<Advert>>.broadcast();
-  Stream<List<Advert>> get activeAdvertsStream =>
-      activeAdvertsStreamController.stream;
+  // Advert (AdvertService ---> MainNavigationViewModel) (AdvertService ---> )
+  // Inputs:
+
+  final updatedAdvertStreamController =
+      StreamController<StreamAdvertEvent>.broadcast();
+  Stream<StreamAdvertEvent> get updatedAdvertStream =>
+      updatedAdvertStreamController.stream;
 
   // Factorys ==================================================================
   ScreenFactory _makeScreenFactory() => ScreenFactoryDefault(this);
@@ -318,8 +320,7 @@ class _DIContainer {
   // Advert
   AdvertService _makeAdvertService() => AdvertService(
       advertApiClient: _makeAdvertApiClient(),
-      // pursuitsDataProvider: _makePursuedDataProvider(),
-      // activeAdvertsStreamController: activeAdvertsStreamController,
+      updatedAdvertStreamController: updatedAdvertStreamController,
       apiKeysDataProvider: _makeSecureDataProvider());
 
   // Auto stat
@@ -409,7 +410,7 @@ class _DIContainer {
       MainNavigationViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
-          // advertsStream: activeAdvertsStream,
+          updatedAdvertStream: updatedAdvertStream,
           cardsNumberStream: cardsNumberStream,
           apiKeyExistsStream: apiKeyExistsStream,
           advertService: _makeAdvertService(),
@@ -437,6 +438,7 @@ class _DIContainer {
         context: context,
         internetConnectionChecker: _makeInternetConnectionChecker(),
         cardOfProductService: _makeCardOfProductService(),
+        updatedAdvertStream: updatedAdvertStream,
         advertService: _makeAdvertService(),
       );
 

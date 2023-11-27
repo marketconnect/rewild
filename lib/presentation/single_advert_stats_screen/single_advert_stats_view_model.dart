@@ -197,6 +197,9 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             advertInfo.params != null &&
             advertInfo.params!.first.price != null) {
           setCpm(advertInfo.params!.first.price!);
+          if (advertInfo.params!.first.menuId != null) {
+            _menuId = advertInfo.params!.first.menuId!;
+          }
         }
         _advType = AdvertTypeConstants.inCatalog;
         break;
@@ -233,6 +236,8 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   // for change cpm
   int subjectId = 0;
   int? _advType;
+  // for In Catalogue
+  int? _menuId;
 
   int? notificatedBudget;
 
@@ -446,8 +451,15 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
     if (_cpm == null || _advType == null) {
       return;
     }
-    await fetch(() => advertService.setCpm(
-        advertId: advertId, cpm: cpm, type: _advType!, param: subjectId));
+    if (_advType != null &&
+        _advType == AdvertTypeConstants.inCatalog &&
+        _menuId != null) {
+      await fetch(() => advertService.setCpm(
+          advertId: advertId, cpm: cpm, type: _advType!, param: _menuId!));
+    } else {
+      await fetch(() => advertService.setCpm(
+          advertId: advertId, cpm: cpm, type: _advType!, param: subjectId));
+    }
     await _update();
   }
 }

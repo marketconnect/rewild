@@ -27,26 +27,28 @@ class SingleAutoWordsScreen extends StatelessWidget {
       child: DefaultTabController(
           length: 2,
           child: Scaffold(
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return MyDialogTextField(
-                        header: "Ставка (СРМ, ₽)",
-                        hint: '$cpm₽',
-                        addGroup: changeCpm,
-                        btnText: "Обновить",
-                        description: "Введите новое значение ставки",
-                        keyboardType: TextInputType.number,
-                      );
-                    });
-              },
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: Text("$cpm₽",
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary)),
-            ),
+            floatingActionButton: cpm != null
+                ? FloatingActionButton(
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return MyDialogTextField(
+                              header: "Ставка (СРМ, ₽)",
+                              hint: '$cpm₽',
+                              addGroup: changeCpm,
+                              btnText: "Обновить",
+                              description: "Введите новое значение ставки",
+                              keyboardType: TextInputType.number,
+                            );
+                          });
+                    },
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: Text("$cpm₽",
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary)),
+                  )
+                : null,
             appBar: AppBar(
               title: Text(name!.capitalize()),
               leading: IconButton(

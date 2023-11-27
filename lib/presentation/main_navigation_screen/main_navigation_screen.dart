@@ -29,21 +29,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     _checkNotificationsAllowed();
     AwesomeNotifications().setListeners(
       onActionReceivedMethod: (ReceivedAction receivedAction) async {
-        print("onActionReceivedMethod: ${receivedAction.actionDate}");
-
         Navigator.of(context)
             .pushNamed(MainNavigationRouteNames.backgroundNotificationsScreen);
       },
-      onDismissActionReceivedMethod: (receivedAction) async {
-        print("onDismissActionReceivedMethod: ${receivedAction.actionDate}");
-      },
-      onNotificationCreatedMethod: (receivedNotification) async {
-        print(
-            "onNotificationCreatedMethod: ${receivedNotification.actionType}");
-      },
-      onNotificationDisplayedMethod: (receivedNotification) async {
-        print("onNotificationDisplayedMethod: ${receivedNotification.id}");
-      },
+      onDismissActionReceivedMethod: (receivedAction) async {},
+      onNotificationCreatedMethod: (receivedNotification) async {},
+      onNotificationDisplayedMethod: (receivedNotification) async {},
     );
 
     super.initState();
@@ -121,16 +112,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   @override
   Widget build(BuildContext context) {
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
-
     final model = context.watch<MainNavigationViewModel>();
-
     final adverts = model.adverts;
     final apiKeyExists = model.apiKeyExists;
     final cardsNumber = model.cardsNumber;
     final budget = model.budget;
     final callback = model.changeAdvertStatus;
     final balance = model.balance;
-    final paused = model.paused;
 
     List<Widget> widgets = [
       const MainNavigationScreenHomeWidget(),
@@ -143,7 +131,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         balance: balance,
         apiKeyExists: apiKeyExists,
         callback: callback,
-        paused: paused,
         budget: budget,
       )
     ];

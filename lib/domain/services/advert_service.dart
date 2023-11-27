@@ -7,6 +7,7 @@ import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
+import 'package:rewild/domain/entities/stream_advert_event.dart';
 import 'package:rewild/presentation/all_adverts_tools_screen/all_adverts_tools_view_model.dart';
 
 import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_screen_view_model.dart';
@@ -44,11 +45,12 @@ class AdvertService
         MainNavigationAdvertService {
   final AdvertServiceAdvertApiClient advertApiClient;
   final AdvertServiceApiKeyDataProvider apiKeysDataProvider;
+  final StreamController<StreamAdvertEvent> updatedAdvertStreamController;
 
-  AdvertService({
-    required this.advertApiClient,
-    required this.apiKeysDataProvider,
-  });
+  AdvertService(
+      {required this.advertApiClient,
+      required this.apiKeysDataProvider,
+      required this.updatedAdvertStreamController});
 
   @override
   Future<Resource<bool>> apiKeyExists() async {
@@ -72,7 +74,7 @@ class AdvertService
   DateTime? autoExcludedLastReq;
 
   @override
-  Future<Resource<int>> getBallance(int advertId) async {
+  Future<Resource<int>> getBallance() async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -240,6 +242,8 @@ class AdvertService
     if (changeCpmResource is Error) {
       return Resource.error(changeCpmResource.message!);
     }
+    updatedAdvertStreamController
+        .add(StreamAdvertEvent(advertId: advertId, cpm: cpm, status: null));
     return Resource.success(changeCpmResource.data!);
   }
 
@@ -352,8 +356,12 @@ class AdvertService
     }
     final advert = advertInfoResource.data!;
     if (advert.status == 9) {
+      updatedAdvertStreamController
+          .add(StreamAdvertEvent(advertId: advertId, cpm: null, status: 9));
       return Resource.success(true);
     }
+    updatedAdvertStreamController.add(StreamAdvertEvent(
+        advertId: advertId, cpm: null, status: advert.status));
     return Resource.success(false);
   }
 
@@ -376,8 +384,12 @@ class AdvertService
     }
     final advert = advertInfoResource.data!;
     if (advert.status != 9) {
+      updatedAdvertStreamController.add(StreamAdvertEvent(
+          advertId: advertId, cpm: null, status: advert.status));
       return Resource.success(true);
     }
+    updatedAdvertStreamController.add(StreamAdvertEvent(
+        advertId: advertId, cpm: null, status: advert.status));
     return Resource.success(false);
   }
 

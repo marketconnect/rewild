@@ -8,6 +8,7 @@ import 'package:rewild/domain/entities/advert_catalogue_model.dart';
 import 'package:rewild/domain/entities/advert_recomendation_model.dart';
 import 'package:rewild/domain/entities/advert_search_model.dart';
 import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
+import 'package:rewild/domain/entities/stream_advert_event.dart';
 
 abstract class AllAdvertsStatScreenAdvertService {
   Future<Resource<List<Advert>>> getAll();
@@ -22,10 +23,12 @@ abstract class AllAdvertsStatScreenCardOfProductService {
 class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
   final AllAdvertsStatScreenAdvertService advertService;
   final AllAdvertsStatScreenCardOfProductService cardOfProductService;
+  final Stream<StreamAdvertEvent> updatedAdvertStream;
   AllAdvertsStatScreenViewModel({
     required super.context,
     required super.internetConnectionChecker,
     required this.cardOfProductService,
+    required this.updatedAdvertStream,
     required this.advertService,
   }) {
     _asyncInit();
@@ -34,6 +37,24 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
   void _asyncInit() async {
     SqfliteService.printTableContent('background_messages');
     SqfliteService.printTableContent('notifications');
+
+    // Update status and cpm of cards
+    updatedAdvertStream.listen((event) async {
+      if (event.status != null) {
+        final oldAdverts = _adverts.where((a) => a.advertId == event.advertId);
+        if (oldAdverts.isEmpty) {
+          return;
+        }
+        final newAdvert = oldAdverts.first.copyWith(status: event.status);
+        updateAdvert(newAdvert);
+      }
+      if (event.cpm != null) {
+        updateCpm(event.advertId, event.cpm.toString());
+      }
+
+      notify();
+    });
+
     final resource = await advertService.apiKeyExists();
     if (resource is Error) {
       return;
@@ -144,6 +165,12 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
     _adverts = value;
   }
 
+  void updateAdvert(Advert advert) {
+    _adverts.removeWhere((element) => element.advertId == advert.advertId);
+    _adverts.insert(0, advert);
+    notify();
+  }
+
   List<Advert> get adverts => _adverts;
 
   // api key
@@ -176,6 +203,11 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
 
   void addCpm(int advId, String value) {
     _cpm[advId] = value;
+  }
+
+  void updateCpm(int advId, String value) {
+    _cpm[advId] = value;
+    notify();
   }
 
   String cpm(int advId) {

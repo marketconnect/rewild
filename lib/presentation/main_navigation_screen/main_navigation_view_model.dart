@@ -1,6 +1,8 @@
+import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
+import 'package:rewild/domain/entities/stream_advert_event.dart';
 
 // card
 abstract class MainNavigationCardService {
@@ -14,21 +16,21 @@ abstract class MainNavigationAdvertService {
   Future<Resource<int>> getBudget(int advertId);
   Future<Resource<bool>> stopAdvert(int advertId);
   Future<Resource<bool>> startAdvert(int advertId);
-  Future<Resource<int>> getBallance(int advertId);
+  Future<Resource<int>> getBallance();
 }
 
 class MainNavigationViewModel extends ResourceChangeNotifier {
   final MainNavigationCardService cardService;
   final MainNavigationAdvertService advertService;
   final Stream<int> cardsNumberStream;
-  // final Stream<List<Advert>> advertsStream;
+  final Stream<StreamAdvertEvent> updatedAdvertStream;
   final Stream<bool> apiKeyExistsStream;
 
   MainNavigationViewModel(
       {required this.cardService,
       required this.advertService,
       required this.cardsNumberStream,
-      // required this.advertsStream,
+      required this.updatedAdvertStream,
       required this.apiKeyExistsStream,
       required super.internetConnectionChecker,
       required super.context}) {
@@ -36,12 +38,29 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
   }
 
   void _asyncInit() async {
+    // Update in MainNavigationCardsWidget cards number
     cardsNumberStream.listen((event) {
       setCardsNumber(event);
       notify();
     });
+
+    // Update in MainNavigationAdvertViewModel EmptyWidget or not
     apiKeyExistsStream.listen((event) {
       setApiKeyExists(event);
+      notify();
+    });
+
+    // Update in MainNavigationAdvertScreen status of _AllAdvertsWidget
+    updatedAdvertStream.listen((event) async {
+      if (event.status != null) {
+        final oldAdverts = _adverts.where((a) => a.advertId == event.advertId);
+        if (oldAdverts.isEmpty) {
+          return;
+        }
+        final newAdvert = oldAdverts.first.copyWith(status: event.status);
+        updateAdvert(newAdvert);
+      }
+
       notify();
     });
 
@@ -89,6 +108,12 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     notify();
   }
 
+  void updateAdvert(Advert advert) {
+    _adverts.removeWhere((element) => element.advertId == advert.advertId);
+    _adverts.insert(0, advert);
+    notify();
+  }
+
   List<Advert> get adverts => _adverts;
 
   // budget
@@ -107,7 +132,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     if (!apiKeyExists) {
       return;
     }
-    final balance = await fetch(() => advertService.getBallance(0));
+    final balance = await fetch(() => advertService.getBallance());
     if (balance == null) {
       return;
     }
@@ -120,11 +145,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     }
     setAdverts(newAdverts);
 
-    // final advertIds = _adverts.map((e) => e.advertId).toList();
     for (final advert in _adverts) {
-      if (advert.status == 11) {
-        setPaused(advert.advertId);
-      }
       final budget =
           await fetch(() => advertService.getBudget(advert.advertId));
       if (budget != null) {
@@ -134,51 +155,21 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     }
   }
 
-  Map<int, bool> _paused = {};
-  Map<int, bool> get paused => _paused;
-  void setPausedMap(Map<int, bool> value) {
-    _paused = value;
-  }
-
-  void setPaused(int advId) {
-    _paused[advId] = true;
-    notify();
-  }
-
-  void unSetPaused(int advId) {
-    _paused[advId] = false;
-    notify();
-  }
-
   Future<void> changeAdvertStatus(int advertId) async {
-    final isPaused = paused[advertId] ?? false;
+    final isPaused =
+        adverts.firstWhere((adv) => adv.advertId == advertId).status ==
+            AdvertStatusConstants.paused;
 
     if (!isPaused) {
       // now the advert is not paused
       // stop
-      final adv = await fetch(() => advertService.stopAdvert(advertId));
-
-      if (adv == null || !adv) {
-        // could not stop
-        unSetPaused(advertId); // still active
-        return;
-      }
-      // done
-      setPaused(advertId);
+      final _ = await fetch(() => advertService.stopAdvert(advertId));
       return;
     } else {
       // now the advert is paused
       // start
-      final adv = await fetch(() => advertService.startAdvert(advertId));
+      final _ = await fetch(() => advertService.startAdvert(advertId));
 
-      if (adv == null || !adv) {
-        // could not start
-        setPaused(advertId); // still paused
-        return;
-      }
-
-      // done
-      unSetPaused(advertId); // now active
       return;
     }
   }

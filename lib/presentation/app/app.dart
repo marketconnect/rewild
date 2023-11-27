@@ -57,8 +57,10 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         debugPrint("app in resumed");
         final resource = await widget.appMessagesService.isNotEmpty();
         if (resource is Success && resource.data!) {
-          Navigator.of(context).pushNamed(
-              MainNavigationRouteNames.backgroundNotificationsScreen);
+          if (context.mounted) {
+            Navigator.of(context).pushNamed(
+                MainNavigationRouteNames.backgroundNotificationsScreen);
+          }
         }
 
         break;

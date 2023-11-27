@@ -15,12 +15,11 @@ class MainNavigationScreenAdvertWidget extends StatelessWidget {
       required this.apiKeyExists,
       required this.callback,
       required this.balance,
-      required this.paused,
       required this.budget});
 
   final Future<void> Function(int) callback;
   final int? balance;
-  final Map<int, bool> paused;
+
   final List<Advert> adverts;
   final bool apiKeyExists;
   final Map<int, int> budget;
@@ -96,7 +95,7 @@ class MainNavigationScreenAdvertWidget extends StatelessWidget {
                   _AllAdvertsWidget(
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
-                      paused: paused,
+                      // paused: paused,
                       callback: callback,
                       budget: budget,
                       adverts: adverts),
@@ -135,7 +134,7 @@ class _AllAdvertsWidget extends StatelessWidget {
     required this.screenHeight,
     required this.callback,
     required this.adverts,
-    required this.paused,
+    // required this.paused,
     required this.budget,
   });
 
@@ -143,30 +142,11 @@ class _AllAdvertsWidget extends StatelessWidget {
   final double screenHeight;
   final List<Advert> adverts;
   final Map<int, int> budget;
-  final Map<int, bool> paused;
+  // final Map<int, bool> paused;
   final Future<void> Function(int) callback;
 
   @override
   Widget build(BuildContext context) {
-    // // Sort by budget
-    // adverts.sort((a, b) {
-    //   final budgetA = budget[a.advertId];
-    //   final budgetB = budget[b.advertId];
-    //   final status = a.status;
-    //   if (status == AdvertStatusConstants.paused) {
-    //     return 1; // Move paused items to the end
-    //   }
-    //   if (budgetA == null && budgetB == null) {
-    //     return 0;
-    //   } else if (budgetA == null) {
-    //     return 1; // Move item with null budget to the end
-    //   } else if (budgetB == null) {
-    //     return -1; // Move item with null budget to the end
-    //   } else {
-    //     return budgetA.compareTo(budgetB); // Sort by budget
-    //   }
-    // });
-
     return Column(
       children: [
         Padding(
@@ -194,7 +174,7 @@ class _AllAdvertsWidget extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   final budget = this.budget[adverts[index].advertId];
-                  final isPaused = paused[adverts[index].advertId] ?? false;
+                  final isPaused = adverts[index].status == 11;
 
                   final icon =
                       isPaused ? Icons.toggle_off_outlined : Icons.toggle_on;
@@ -344,7 +324,6 @@ class _ElevatedBtnState extends State<_ElevatedBtn> {
           });
         },
         child: Container(
-          // width: MediaQuery.of(context).size.width * 0.3,
           padding: EdgeInsets.symmetric(
               vertical: widget.screenWidth * 0.02,
               horizontal: widget.screenWidth * 0.04),
@@ -366,16 +345,14 @@ class _ElevatedBtnState extends State<_ElevatedBtn> {
               isLoading
                   ? MyProgressIndicator(size: widget.screenWidth * 0.06)
                   : Icon(
-                      widget.active
-                          ? Icons.stop_outlined
-                          : Icons.play_arrow_sharp,
+                      widget.active ? Icons.pause_circle : Icons.play_circle,
                       color: Theme.of(context).colorScheme.primary,
                     ),
               SizedBox(
                 width: widget.screenWidth * 0.015,
               ),
               Text(
-                widget.active ? "Стоп" : "Старт",
+                widget.active ? "Пауза" : "Старт",
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w500),

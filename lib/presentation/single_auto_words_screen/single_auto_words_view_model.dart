@@ -87,7 +87,6 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
   // CPM
   int? _cpm;
   void setCpm(int value) {
-    print("SETCPM $value");
     _cpm = value;
     notify();
   }

@@ -96,6 +96,7 @@ class AdvertApiClient
   Future<Resource<bool>> changeCpm(String token, int advertId, int type,
       int cpm, int param, int? instrument) async {
     try {
+      print("change cpm");
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
@@ -106,16 +107,15 @@ class AdvertApiClient
         'cpm': cpm,
       };
 
-      print("param $param type $type, instrument $instrument");
       // param do not required for auto
-      if (type != 8) {
+      if (type != AdvertTypeConstants.auto) {
         body['param'] = param;
       }
 
       final jsonString = json.encode(body);
 
       final uri = Uri.https('advert-api.wb.ru', "/adv/v0/cpm");
-
+      print("uri $uri, body $jsonString");
       final response = await http.post(uri, headers: headers, body: jsonString);
       if (response.statusCode == 200) {
         return Resource.success(true);
