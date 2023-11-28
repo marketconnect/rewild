@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:rewild/core/utils/icons_constant.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/widgets/chart.dart';
-import 'package:rewild/widgets/my_dialog_textfield_widget.dart';
 
 class SingleAdvertStatsScreen extends StatefulWidget {
   const SingleAdvertStatsScreen({super.key});
@@ -22,9 +21,10 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
     final cpm = model.cpm;
     final title = model.title;
     final openNotificationSettings = model.notificationsScreen;
-    final changeCpm = model.changeCpm;
+    // final changeCpm = model.changeCpm;
     final start = model.start;
     final isTracked = model.tracked;
+    final dialogWidget = model.changeCpmDialog;
     final decoration = BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.surfaceVariant),
         borderRadius: BorderRadius.circular(15),
@@ -84,19 +84,16 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
                       ),
                     )
                   : GestureDetector(
-                      onTap: () => showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return MyDialogTextField(
-                            header: "Ставка (СРМ, ₽)",
-                            hint: '$cpm₽',
-                            addGroup: changeCpm,
-                            btnText: "Обновить",
-                            description: "Введите новое значение ставки",
-                            keyboardType: TextInputType.number,
+                      onTap: () {
+                        if (dialogWidget != null) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return dialogWidget;
+                            },
                           );
-                        },
-                      ),
+                        }
+                      },
                       child: Container(
                         margin: const EdgeInsets.only(right: 5),
                         decoration: BoxDecoration(

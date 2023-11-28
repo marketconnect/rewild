@@ -16,6 +16,7 @@ class MyDialogTextField extends StatelessWidget {
   final String hint;
   final String btnText;
   final TextInputType? keyboardType;
+
   @override
   Widget build(BuildContext context) {
     String newGroupName = "";
