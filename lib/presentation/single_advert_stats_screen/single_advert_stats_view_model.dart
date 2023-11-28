@@ -10,6 +10,7 @@ import 'package:rewild/domain/entities/advert_recomendation_model.dart';
 import 'package:rewild/domain/entities/advert_search_model.dart';
 import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
+import 'package:rewild/domain/entities/stream_notification_event.dart';
 
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
@@ -36,26 +37,24 @@ abstract class SingleAdvertStatsViewModelAdvertService {
       int? instrument});
 }
 
-// abstract class SingleAdvertStatsViewModelNotificationService {
-//   // Future<Resource<void>> addNotification(ReWildNotificationModel notificate);
-//   // Future<Resource<void>> delete(
-//   //     int parentId, String property, String condition);
-//   // Future<Resource<List<NotificationModel>>> getAll();
-//   // Future<Resource<List<ReWildNotificationModel>>> getForParent(int parentId);
-// }
+abstract class SingleAdvertStatsViewModelNotificationService {
+  Future<Resource<bool>> checkForParent(int id);
+}
 
 class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   final SingleAdvertStatsViewModelAdvertStatsService advertStatService;
   final SingleAdvertStatsViewModelAdvertService advertService;
-  // final SingleAdvertStatsViewModelNotificationService notificationService;
+  final SingleAdvertStatsViewModelNotificationService notificationService;
   final int advertId;
-
+  // Stream
+  Stream<StreamNotificationEvent> streamNotification;
   SingleAdvertStatsViewModel({
     required super.context,
     required super.internetConnectionChecker,
     required this.advertStatService,
     required this.advertService,
-    // required this.notificationService,
+    required this.streamNotification,
+    required this.notificationService,
     required this.advertId,
   }) {
     _asyncInit();
@@ -63,7 +62,16 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
   Future<void> _asyncInit() async {
     // SqfliteService.printTableContent("advert_stat");
-
+    // Stream update track
+    streamNotification.listen((event) async {
+      if (event.parentType == ParentType.card) {
+        if (event.exists) {
+          setTracked();
+        } else {
+          setUntracked();
+        }
+      }
+    });
     SqfliteService.printTableContent("notifications");
 
     await _update();
@@ -153,6 +161,13 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
     setSpentMoney(
         '${(autoStatList[autoStatList.length - 1].spend - autoStatList[0].spend).toStringAsFixed(0)}₽');
+
+    // Notification
+    final notificationsExists =
+        await fetch(() => notificationService.checkForParent(advertId));
+    if (notificationsExists != null && notificationsExists) {
+      setTracked();
+    }
   }
 
   // asyncInit finished ==========================================================================================
@@ -196,6 +211,10 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
         if (advertInfo is AdvertCatalogueModel &&
             advertInfo.params != null &&
             advertInfo.params!.first.price != null) {
+          final params = advertInfo.params!;
+          for (final param in params) {
+            print('param.nms: ${param.menuName}');
+          }
           setCpm(advertInfo.params!.first.price!);
           if (advertInfo.params!.first.menuId != null) {
             _menuId = advertInfo.params!.first.menuId!;
@@ -233,6 +252,20 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   }
 
   // FIELDS =============================================================== FIELDS
+  bool _tracked = false;
+
+  void setTracked() {
+    _tracked = true;
+    notify();
+  }
+
+  void setUntracked() {
+    _tracked = false;
+    notify();
+  }
+
+  bool get tracked => _tracked;
+
   // for change cpm
   int subjectId = 0;
   int? _advType;

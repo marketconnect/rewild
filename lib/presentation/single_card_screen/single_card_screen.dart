@@ -19,7 +19,7 @@ class SingleCardScreen extends StatelessWidget {
 
     final isNull = model.isNull;
     final openNotifications = model.notificationsScreen;
-
+    final tracked = model.tracked;
     final isLoading = model.loading;
     return SafeArea(
         child: Scaffold(
@@ -29,7 +29,9 @@ class SingleCardScreen extends StatelessWidget {
             IconButton(
                 onPressed: () => openNotifications(),
                 icon: Icon(
-                  Icons.notification_add_outlined,
+                  tracked
+                      ? Icons.notifications_active
+                      : Icons.notification_add_outlined,
                   color: Theme.of(context).colorScheme.primary,
                 ))
         ],

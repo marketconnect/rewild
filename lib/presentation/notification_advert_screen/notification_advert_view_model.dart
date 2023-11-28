@@ -7,7 +7,7 @@ import 'package:rewild/domain/entities/notification.dart';
 
 abstract class NotificationAdvertNotificationService {
   Future<Resource<void>> addForParent(
-      List<ReWildNotificationModel> notifications, int parentId);
+      List<ReWildNotificationModel> notifications, int parentId, bool wasEmpty);
   Future<Resource<List<ReWildNotificationModel>>> getForParent(int bnmId);
 }
 
@@ -51,7 +51,9 @@ class NotificationAdvertViewModel extends ResourceChangeNotifier {
     if (savedNotifications == null) {
       return;
     }
-
+    if (savedNotifications.isNotEmpty) {
+      setWasNotEmpty();
+    }
     final notifMap = <int, ReWildNotificationModel>{};
     for (var element in savedNotifications) {
       notifMap[element.condition] = element;
@@ -63,6 +65,12 @@ class NotificationAdvertViewModel extends ResourceChangeNotifier {
   }
 
   // Fields
+  // there were notifications before
+  bool _wasEmpty = true;
+  void setWasNotEmpty() {
+    _wasEmpty = false;
+  }
+
   Map<int, ReWildNotificationModel> _notifications = {};
   void setNotifications(Map<int, ReWildNotificationModel> notifications) {
     _notifications = notifications;
@@ -73,7 +81,9 @@ class NotificationAdvertViewModel extends ResourceChangeNotifier {
 
   Future<void> save() async {
     final toSave = _notifications.values.toList();
-    await notificationService.addForParent(toSave, state.nmId);
+
+    await notificationService.addForParent(toSave, state.nmId, _wasEmpty);
+
     if (context.mounted) Navigator.of(context).pop();
   }
 

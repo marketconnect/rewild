@@ -131,4 +131,19 @@ class NotificationDataProvider
       return Resource.error(e.toString());
     }
   }
+
+  @override
+  Future<Resource<bool>> checkForParent(int id) async {
+    try {
+      final db = await SqfliteService().database;
+      final notifications = await db
+          .rawQuery('SELECT * FROM notifications WHERE parentId = ?', [id]);
+      if (notifications.isEmpty) {
+        return Resource.success(false);
+      }
+      return Resource.success(true);
+    } catch (e) {
+      return Resource.error(e.toString());
+    }
+  }
 }

@@ -9,6 +9,7 @@ import 'package:rewild/domain/entities/filter_model.dart';
 
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/domain/entities/notification.dart';
+import 'package:rewild/domain/entities/stream_notification_event.dart';
 
 import 'package:rewild/domain/entities/supply_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
@@ -63,7 +64,8 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
   final AllCardsScreenFilterService filterService;
   final AllCardsScreenSupplyService supplyService;
   final AllCardsScreenNotificationsService notificationsService;
-
+  // Stream
+  Stream<StreamNotificationEvent> streamNotification;
   AllCardsScreenViewModel(
       {required super.context,
       required super.internetConnectionChecker,
@@ -73,13 +75,18 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
       required this.filterService,
       required this.supplyService,
       required this.notificationsService,
+      required this.streamNotification,
       required this.cardsOfProductsService}) {
     asyncInit();
   }
 
   Future<void> asyncInit() async {
     setLoading(true);
-
+    streamNotification.listen((event) async {
+      if (event.parentType == ParentType.card) {
+        await _update();
+      }
+    });
     _groups.insert(
         0,
         GroupModel(
@@ -274,8 +281,6 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
       return;
     }
     notify();
-
-    // if (context.mounted) notifyListeners();
   }
 
   Future<void> p() async {

@@ -24,6 +24,7 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
     final openNotificationSettings = model.notificationsScreen;
     final changeCpm = model.changeCpm;
     final start = model.start;
+    final isTracked = model.tracked;
     final decoration = BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.surfaceVariant),
         borderRadius: BorderRadius.circular(15),
@@ -42,7 +43,9 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
             backgroundColor: Theme.of(context).colorScheme.primary,
             child: isActive
                 ? Icon(
-                    Icons.notification_add_outlined,
+                    isTracked
+                        ? Icons.notifications_active_rounded
+                        : Icons.notification_add_outlined,
                     color: Theme.of(context).colorScheme.onPrimary,
                   )
                 : Container(
@@ -95,7 +98,7 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
                         },
                       ),
                       child: Container(
-                        margin: EdgeInsets.only(right: 5),
+                        margin: const EdgeInsets.only(right: 5),
                         decoration: BoxDecoration(
                             borderRadius:
                                 BorderRadius.circular(model.screenWidth),

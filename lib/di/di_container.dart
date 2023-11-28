@@ -31,6 +31,7 @@ import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.
 import 'package:rewild/data_providers/warehouse_data_provider.dart';
 
 import 'package:rewild/domain/entities/stream_advert_event.dart';
+import 'package:rewild/domain/entities/stream_notification_event.dart';
 import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/api_keys_service.dart';
@@ -132,7 +133,13 @@ class _DIContainer {
   Stream<StreamAdvertEvent> get updatedAdvertStream =>
       updatedAdvertStreamController.stream;
 
-  // Factorys ==================================================================
+  // Notification (NotificationService ---> ???)
+  final updatedNotificationStreamController =
+      StreamController<StreamNotificationEvent>.broadcast();
+  Stream<StreamNotificationEvent> get updatedNotificationStream =>
+      updatedNotificationStreamController.stream;
+
+  // Factories ==================================================================
   ScreenFactory _makeScreenFactory() => ScreenFactoryDefault(this);
   AppNavigation _makeAppNavigation() => MainNavigation(_makeScreenFactory());
 
@@ -330,6 +337,8 @@ class _DIContainer {
   // Notification
   NotificationService _makeNotificationService() => NotificationService(
         notificationDataProvider: _makeNotificationDataProvider(),
+        updatedNotificationStreamController:
+            updatedNotificationStreamController,
       );
 
   // Background message
@@ -354,6 +363,7 @@ class _DIContainer {
           groupsProvider: _makeAllGroupsService(),
           filterService: _makeAllCardsFilterService(),
           notificationsService: _makeNotificationService(),
+          streamNotification: updatedNotificationStream,
           cardsOfProductsService: _makeCardOfProductService(),
           tokenProvider: _makeAuthService());
 
@@ -374,9 +384,11 @@ class _DIContainer {
           ordersHistoryService: _makeOrdersHistoryService(),
           commissionService: _makeCommissionService(),
           sellerService: _makeSellerService(),
+          notificationService: _makeNotificationService(),
           cardOfProductService: _makeCardOfProductService(),
           initialStocksService: _makeInitialStockService(),
           supplyService: _makeSupplyService(),
+          streamNotification: updatedNotificationStream,
           warehouseService: _makeWarehouseService());
 
   AddGroupScreenViewModel _makeAddGroupScreenViewModel(
@@ -448,7 +460,8 @@ class _DIContainer {
         advertId: advertId,
         advertService: _makeAdvertService(),
         advertStatService: _makeAutoStatService(),
-        // notificationService: _makeNotificationService(),
+        notificationService: _makeNotificationService(),
+        streamNotification: updatedNotificationStream,
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
 

@@ -10,6 +10,7 @@ import 'package:rewild/domain/entities/initial_stock_model.dart';
 import 'package:rewild/domain/entities/orders_history_model.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/domain/entities/stocks_model.dart';
+import 'package:rewild/domain/entities/stream_notification_event.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
 
 import 'package:rewild/domain/entities/warehouse.dart';
@@ -60,6 +61,11 @@ abstract class SingleCardScreenSupplyService {
       required DateTime dateTo});
 }
 
+// notification
+abstract class SingleCardScreenNotificationService {
+  Future<Resource<bool>> checkForParent(int id);
+}
+
 class SingleCardScreenViewModel extends ResourceChangeNotifier {
   final SingleCardScreenCardOfProductService cardOfProductService;
   final SingleCardScreenSellerService sellerService;
@@ -69,6 +75,10 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
   final SingleCardScreenStockService stockService;
   final SingleCardScreenSupplyService supplyService;
   final SingleCardScreenOrdersHistoryService ordersHistoryService;
+  final SingleCardScreenNotificationService notificationService;
+
+  // Stream
+  Stream<StreamNotificationEvent> streamNotification;
 
   final int id;
 
@@ -77,18 +87,30 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
       required super.internetConnectionChecker,
       required this.id,
       required this.initialStocksService,
+      required this.notificationService,
       required this.stockService,
       required this.sellerService,
       required this.commissionService,
       required this.cardOfProductService,
       required this.ordersHistoryService,
       required this.supplyService,
+      required this.streamNotification,
       required this.warehouseService}) {
     asyncInit();
   }
 
   // Async init ================================================================
   Future<void> asyncInit() async {
+    // Stream update track
+    streamNotification.listen((event) async {
+      if (event.parentType == ParentType.card) {
+        if (event.exists) {
+          setTracked();
+        } else {
+          setUntracked();
+        }
+      }
+    });
     // Set Uri
     websiteUri =
         Uri.parse('https://www.wildberries.ru/catalog/$id/detail.aspx');
@@ -215,8 +237,29 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
     // is high buyout
     _isHighBuyout = ordersHistory.highBuyout;
 
+    // Notification
+    final notificationsExists =
+        await fetch(() => notificationService.checkForParent(id));
+    if (notificationsExists != null && notificationsExists) {
+      setTracked();
+    }
+
     notify();
   }
+
+  bool _tracked = false;
+
+  void setTracked() {
+    _tracked = true;
+    notify();
+  }
+
+  void setUntracked() {
+    _tracked = false;
+    notify();
+  }
+
+  bool get tracked => _tracked;
 
   final List<String> listTilesNames = [
     'Общая информация',

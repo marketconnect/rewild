@@ -83,7 +83,12 @@ class Chart extends StatelessWidget {
                   sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        return Text(value.toInt().toString());
+                        return Text(
+                          value.toInt().toString(),
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.02),
+                        );
                       }))),
           borderData: FlBorderData(
             border: const Border(

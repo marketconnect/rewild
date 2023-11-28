@@ -8,7 +8,7 @@ import 'package:rewild/domain/entities/warehouse.dart';
 
 abstract class NotificationCardNotificationService {
   Future<Resource<void>> addForParent(
-      List<ReWildNotificationModel> notifications, int parentId);
+      List<ReWildNotificationModel> notifications, int parentId, bool wasEmpty);
   Future<Resource<List<ReWildNotificationModel>>> getForParent(int bnmId);
 }
 
@@ -80,6 +80,10 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
       return;
     }
 
+    if (savedNotifications.isNotEmpty) {
+      setWasNotEmpty();
+    }
+
     Map<int, ReWildNotificationModel> notifications = {};
 
     for (var element in savedNotifications) {
@@ -90,6 +94,12 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
         .fold(0, (previousValue, element) => previousValue! + element.value);
 
     setNotifications(notifications);
+  }
+
+  // there were notifications before
+  bool _wasEmpty = true;
+  void setWasNotEmpty() {
+    _wasEmpty = false;
   }
 
   int? _stocks;
@@ -108,7 +118,8 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
   Future<void> save() async {
     final listToAdd = _notifications.values.toList();
 
-    await notificationService.addForParent(listToAdd, state.nmId);
+    await notificationService.addForParent(listToAdd, state.nmId, _wasEmpty);
+
     if (context.mounted) Navigator.of(context).pop();
   }
 
