@@ -10,7 +10,7 @@ import 'package:rewild/domain/entities/notification.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/domain/entities/size_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
-import 'package:rewild/domain/services/notification_content.dart';
+import 'package:rewild/domain/entities/notification_content.dart';
 
 class CardOfProductModel extends BackgroundNotifier {
   int nmId = 0;
@@ -225,6 +225,11 @@ class CardOfProductModel extends BackgroundNotifier {
       }
     }
     return stocksSum;
+  }
+
+  bool tracked = false;
+  void setTracked() {
+    tracked = true;
   }
 
   bool wasOrdered = false;

@@ -126,9 +126,7 @@ class _DIContainer {
   final cardsNumberStreamController = StreamController<int>.broadcast();
   Stream<int> get cardsNumberStream => cardsNumberStreamController.stream;
 
-  // Advert (AdvertService ---> MainNavigationViewModel) (AdvertService ---> )
-  // Inputs:
-
+  // Advert (AdvertService ---> MainNavigationViewModel) (AdvertService ---> AllAdvertsStatScreenViewModel)
   final updatedAdvertStreamController =
       StreamController<StreamAdvertEvent>.broadcast();
   Stream<StreamAdvertEvent> get updatedAdvertStream =>
@@ -355,6 +353,7 @@ class _DIContainer {
           supplyService: _makeSupplyService(),
           groupsProvider: _makeAllGroupsService(),
           filterService: _makeAllCardsFilterService(),
+          notificationsService: _makeNotificationService(),
           cardsOfProductsService: _makeCardOfProductService(),
           tokenProvider: _makeAuthService());
 
@@ -449,7 +448,7 @@ class _DIContainer {
         advertId: advertId,
         advertService: _makeAdvertService(),
         advertStatService: _makeAutoStatService(),
-        notificationService: _makeNotificationService(),
+        // notificationService: _makeNotificationService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
 

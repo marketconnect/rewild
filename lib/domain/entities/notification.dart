@@ -56,6 +56,7 @@ class ReWildNotificationModel {
   }
 
   factory ReWildNotificationModel.fromMap(Map<String, dynamic> map) {
+    print(map);
     return ReWildNotificationModel(
       parentId: map['parentId'] as int,
       condition: map['condition'] as int,

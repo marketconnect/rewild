@@ -8,6 +8,7 @@ import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/filter_model.dart';
 
 import 'package:rewild/domain/entities/group_model.dart';
+import 'package:rewild/domain/entities/notification.dart';
 
 import 'package:rewild/domain/entities/supply_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
@@ -51,7 +52,7 @@ abstract class AllCardsScreenUpdateService {
 
 // Notifications
 abstract class AllCardsScreenNotificationsService {
-  Future<Resource<List<int>>> getAllIds();
+  Future<Resource<List<ReWildNotificationModel>>> getAll();
 }
 
 class AllCardsScreenViewModel extends ResourceChangeNotifier {
@@ -61,6 +62,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
   final AllCardsScreenGroupsService groupsProvider;
   final AllCardsScreenFilterService filterService;
   final AllCardsScreenSupplyService supplyService;
+  final AllCardsScreenNotificationsService notificationsService;
 
   AllCardsScreenViewModel(
       {required super.context,
@@ -70,6 +72,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
       required this.groupsProvider,
       required this.filterService,
       required this.supplyService,
+      required this.notificationsService,
       required this.cardsOfProductsService}) {
     asyncInit();
   }
@@ -132,10 +135,6 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
     await _update();
   }
 
-  // Future<void> setMounted(bool mounted) async {
-  //   if (context.mounted) await _update();
-  // }
-
   List<CardOfProductModel> _productCards = [];
   void setProductCards(List<CardOfProductModel> productCards) {
     _productCards = productCards;
@@ -168,7 +167,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
     return token;
   }
 
-  Future<void> _update([bool notify = true]) async {
+  Future<void> _update([bool toNotify = true]) async {
     // filter
     _filter = await fetch(() => filterService.getCurrentFilter());
     if (_filter == null) {
@@ -199,6 +198,17 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
       _productCards.clear();
     }
 
+    // tracked ids
+    List<int> trackedIds = [];
+    final notifications = await fetch(() => notificationsService.getAll());
+    if (notifications != null) {
+      for (final n in notifications) {
+        if (n.condition != NotificationConditionConstants.budgetLessThan) {
+          trackedIds.add(n.parentId);
+        }
+      }
+    }
+
     final dateFrom = yesterdayEndOfTheDay();
     final dateTo = DateTime.now();
     // calculate stocks, initial stocks, supplies, was ordered field
@@ -207,6 +217,11 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
       final oldCard = oldCards.where((old) {
         return old.nmId == card.nmId;
       });
+
+      // tracked
+      if (trackedIds.contains(card.nmId)) {
+        card.setTracked();
+      }
 
       if (oldCard.isNotEmpty && card.ordersSum > oldCard.first.ordersSum) {
         card.setWasOrdered();
@@ -255,11 +270,12 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
       return false;
     }).toList();
 
-    if (!notify) {
+    if (!toNotify) {
       return;
     }
+    notify();
 
-    if (context.mounted) notifyListeners();
+    // if (context.mounted) notifyListeners();
   }
 
   Future<void> p() async {

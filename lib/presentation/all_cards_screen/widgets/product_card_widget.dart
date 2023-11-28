@@ -27,6 +27,7 @@ class ProductCardWidget extends StatelessWidget {
     final promoTextCard = productCard.promoTextCard;
     final supplySum = productCard.supplySum;
     final screenWidth = MediaQuery.of(context).size.width;
+    final tracked = productCard.tracked;
 
     final supplyText = productCard.supplies.isNotEmpty && supplySum > 0
         ? " (п. ~$supplySum шт.)"
@@ -51,127 +52,146 @@ class ProductCardWidget extends StatelessWidget {
         elevation: 0,
         surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
         child: ClipPath(
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: screenWidth * 0.01),
-            decoration: BoxDecoration(
-                border: Border(
-                    bottom: BorderSide(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-            ))),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: screenWidth * 0.2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child:
-                            CachedNetworkImage(imageUrl: productCard.img ?? ''),
+          child: Stack(children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: screenWidth * 0.01),
+              decoration: BoxDecoration(
+                  border: Border(
+                      bottom: BorderSide(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+              ))),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: screenWidth * 0.2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CachedNetworkImage(
+                              imageUrl: productCard.img ?? ''),
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      width: screenWidth * 0.6,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SizedBox(
-                                width: productCard.groups.isEmpty || inAnyGroup
-                                    ? screenWidth * 0.6
-                                    : screenWidth * 0.45,
-                                child: Text(productCard.name,
-                                    overflow: TextOverflow.ellipsis),
-                              ),
-                              inAnyGroup
-                                  ? Container()
-                                  : _Groups(groups: productCard.groups)
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Row(
-                            children: [
-                              Text('Остатки: $stocksSum шт.',
-                                  style: TextStyle(
-                                      color: const Color(0xFFa1a1a2),
-                                      fontSize: screenWidth * 0.035)),
-                            ],
-                          ),
-                          salesSumText == null
-                              ? Container()
-                              : Row(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(salesSumText,
+                      SizedBox(
+                        width: screenWidth * 0.6,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width:
+                                      productCard.groups.isEmpty || inAnyGroup
+                                          ? screenWidth * 0.6
+                                          : screenWidth * 0.45,
+                                  child: Text(productCard.name,
+                                      overflow: TextOverflow.ellipsis),
+                                ),
+                                inAnyGroup
+                                    ? Container()
+                                    : _Groups(groups: productCard.groups)
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Text('Остатки: $stocksSum шт.',
+                                    style: TextStyle(
+                                        color: const Color(0xFFa1a1a2),
+                                        fontSize: screenWidth * 0.035)),
+                              ],
+                            ),
+                            salesSumText == null
+                                ? Container()
+                                : Row(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(salesSumText,
+                                              style: TextStyle(
+                                                  color:
+                                                      const Color(0xFFa1a1a2),
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.035)),
+                                          if (wasSaled)
+                                            const Padding(
+                                              padding:
+                                                  EdgeInsets.only(left: 8.0),
+                                              child: Icon(
+                                                  Icons.arrow_outward_rounded,
+                                                  size: 20,
+                                                  color: Color(0xFF34d058)),
+                                            ),
+                                          Text(
+                                            supplyText,
                                             style: TextStyle(
-                                                color: const Color(0xFFa1a1a2),
-                                                fontWeight: FontWeight.w600,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .error,
                                                 fontSize: MediaQuery.of(context)
                                                         .size
                                                         .width *
-                                                    0.035)),
-                                        if (wasSaled)
-                                          const Padding(
-                                            padding: EdgeInsets.only(left: 8.0),
-                                            child: Icon(
-                                                Icons.arrow_outward_rounded,
-                                                size: 20,
-                                                color: Color(0xFF34d058)),
-                                          ),
-                                        Text(
-                                          supplyText,
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .error,
-                                              fontSize: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.035),
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                )
-                        ],
+                                                    0.035),
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  width: screenWidth * 0.15,
-                  child: Column(
-                    children: [
-                      Text('${(price / 100).floor()}₽',
-                          style: TextStyle(fontSize: screenWidth * 0.03)),
-                      if (promoTextCard != null && promoTextCard != "")
-                        Container(
-                            margin: const EdgeInsets.fromLTRB(0, 5, 5, 0),
-                            alignment: Alignment.center,
-                            width: screenWidth * 0.2,
-                            height: screenWidth * 0.05,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(2),
-                              color:
-                                  Theme.of(context).colorScheme.errorContainer,
-                            ),
-                            child: Text("Акция",
-                                style: TextStyle(
-                                    fontSize: screenWidth * 0.03,
-                                    color:
-                                        Theme.of(context).colorScheme.error))),
                     ],
                   ),
-                )
-              ],
+                  SizedBox(
+                    width: screenWidth * 0.15,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text('${(price / 100).floor()}₽',
+                            style: TextStyle(fontSize: screenWidth * 0.03)),
+                        if (promoTextCard != null && promoTextCard != "")
+                          Container(
+                              margin: const EdgeInsets.fromLTRB(0, 5, 5, 0),
+                              alignment: Alignment.center,
+                              width: screenWidth * 0.2,
+                              height: screenWidth * 0.05,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(2),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .errorContainer,
+                              ),
+                              child: Text("Акция",
+                                  style: TextStyle(
+                                      fontSize: screenWidth * 0.03,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .error))),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
+            if (tracked)
+              Positioned(
+                right: screenWidth * 0.02,
+                top: screenWidth * 0.02,
+                child: Icon(
+                  Icons.notifications_active_sharp,
+                  size: screenWidth * 0.03,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+          ]),
         ));
   }
 }

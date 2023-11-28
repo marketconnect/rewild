@@ -25,7 +25,7 @@ import 'package:rewild/domain/entities/background_message.dart';
 
 import 'package:rewild/domain/entities/initial_stock_model.dart';
 import 'package:rewild/domain/entities/notification.dart';
-import 'package:rewild/domain/services/notification_content.dart';
+import 'package:rewild/domain/entities/notification_content.dart';
 
 class BackgroundService {
   const BackgroundService();

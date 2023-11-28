@@ -10,7 +10,7 @@ import 'package:rewild/domain/entities/advert_recomendation_model.dart';
 import 'package:rewild/domain/entities/advert_search_model.dart';
 import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
-import 'package:rewild/domain/entities/notification.dart';
+
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
@@ -36,18 +36,18 @@ abstract class SingleAdvertStatsViewModelAdvertService {
       int? instrument});
 }
 
-abstract class SingleAdvertStatsViewModelNotificationService {
-  Future<Resource<void>> addNotification(ReWildNotificationModel notificate);
-  // Future<Resource<void>> delete(
-  //     int parentId, String property, String condition);
-  // Future<Resource<List<NotificationModel>>> getAll();
-  Future<Resource<List<ReWildNotificationModel>>> getForParent(int parentId);
-}
+// abstract class SingleAdvertStatsViewModelNotificationService {
+//   // Future<Resource<void>> addNotification(ReWildNotificationModel notificate);
+//   // Future<Resource<void>> delete(
+//   //     int parentId, String property, String condition);
+//   // Future<Resource<List<NotificationModel>>> getAll();
+//   // Future<Resource<List<ReWildNotificationModel>>> getForParent(int parentId);
+// }
 
 class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   final SingleAdvertStatsViewModelAdvertStatsService advertStatService;
   final SingleAdvertStatsViewModelAdvertService advertService;
-  final SingleAdvertStatsViewModelNotificationService notificationService;
+  // final SingleAdvertStatsViewModelNotificationService notificationService;
   final int advertId;
 
   SingleAdvertStatsViewModel({
@@ -55,7 +55,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
     required super.internetConnectionChecker,
     required this.advertStatService,
     required this.advertService,
-    required this.notificationService,
+    // required this.notificationService,
     required this.advertId,
   }) {
     _asyncInit();
