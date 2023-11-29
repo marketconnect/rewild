@@ -56,6 +56,7 @@ import 'package:rewild/domain/services/warehouse_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
+import 'package:rewild/presentation/first_start_splash_screen/first_start_splash_screen.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_screen.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/presentation/all_adverts_tools_screen/all_adverts_tools_view_model.dart';
@@ -513,6 +514,13 @@ class ScreenFactoryDefault implements ScreenFactory {
     return ChangeNotifierProvider(
         create: (context) => _diContainer._makeSplashScreenViewModel(context),
         child: const SplashScreen());
+  }
+
+  @override
+  Widget makeFirstTimeSplashScreen() {
+    return ChangeNotifierProvider(
+        create: (context) => _diContainer._makeSplashScreenViewModel(context),
+        child: const FirstStartSplashScreen());
   }
 
   @override

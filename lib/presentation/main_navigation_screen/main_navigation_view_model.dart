@@ -129,6 +129,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
   Map<int, int> get budget => _budget;
 
   Future<void> updateAdverts() async {
+    print("UPDATE ADVERTS");
     if (!apiKeyExists) {
       return;
     }

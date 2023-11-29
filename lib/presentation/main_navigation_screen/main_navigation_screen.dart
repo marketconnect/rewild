@@ -78,12 +78,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    // if (mountedCallback == null) {
-    //   return;
-    // }
     switch (state) {
       case AppLifecycleState.resumed:
         debugPrint("app in resumed");
+
         await _checkNotificationsAllowed();
         break;
       case AppLifecycleState.inactive:
@@ -134,11 +132,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         budget: budget,
       )
     ];
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (didPop) async {
         // Do something here
         SystemNavigator.pop();
-        return false;
       },
       child: SafeArea(
           child: Scaffold(

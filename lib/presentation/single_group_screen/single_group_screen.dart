@@ -4,13 +4,13 @@ import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
+import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/custom_image_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/widgets/empty_widget.dart';
-import 'package:share_plus/share_plus.dart';
 
 class SingleGroupScreen extends StatelessWidget {
   const SingleGroupScreen({super.key});
@@ -198,8 +198,8 @@ class _CardsList extends StatelessWidget {
                     await delete(card.nmId),
                 backgroundColor: const Color(0xFFFE4A49),
                 foregroundColor: Colors.white,
-                icon: Icons.group_remove,
-                label: 'Исключить',
+                icon: Icons.remove_circle,
+                label: 'Убрать',
               ),
             ],
           ),
@@ -211,13 +211,18 @@ class _CardsList extends StatelessWidget {
             motion: const ScrollMotion(),
             children: [
               SlidableAction(
-                onPressed: (BuildContext context) async => await Share.share(
-                  'https://www.wildberries.ru/catalog/${card.nmId}/detail.aspx',
+                onPressed: (BuildContext context) =>
+                    Navigator.of(context).pushNamed(
+                  MainNavigationRouteNames.singleCardScreen,
+                  arguments: card.nmId,
                 ),
+                // (BuildContext context) async => await Share.share(
+                //   'https://www.wildberries.ru/catalog/${card.nmId}/detail.aspx',
+                // ),
                 backgroundColor: const Color(0xFF21B7CA),
                 foregroundColor: Colors.white,
-                icon: Icons.share,
-                label: 'Поделиться',
+                icon: Icons.remove_red_eye,
+                label: 'Подробнее',
               ),
             ],
           ),

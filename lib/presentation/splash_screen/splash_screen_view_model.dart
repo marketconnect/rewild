@@ -20,7 +20,7 @@ class SplashScreenViewModel extends ResourceChangeNotifier {
   final SplashScreenViewModelAuthService authService;
 
   String? _token;
-
+  bool firstTime = true;
   SplashScreenViewModel({
     required super.context,
     required super.internetConnectionChecker,
@@ -42,8 +42,10 @@ class SplashScreenViewModel extends ResourceChangeNotifier {
     _token = token;
     await _checkAuth();
     if (context.mounted) {
-      Navigator.of(context)
-          .pushReplacementNamed(MainNavigationRouteNames.mainNavigationScreen);
+      final route = firstTime
+          ? MainNavigationRouteNames.firstStartSplashScreen
+          : MainNavigationRouteNames.mainNavigationScreen;
+      Navigator.of(context).pushReplacementNamed(route);
     }
   }
 

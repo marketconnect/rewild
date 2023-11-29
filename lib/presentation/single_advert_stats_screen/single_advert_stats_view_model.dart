@@ -182,34 +182,33 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             advertInfo.autoParams!.cpm != null) {
           setCpm(advertInfo.autoParams!.cpm!);
           if (advertInfo.autoParams!.subject != null) {
-            subjectId = advertInfo.autoParams!.subject!.id!;
+            _subjectId = advertInfo.autoParams!.subject!.id!;
           }
 
           setChangeCpmDialog(MyDialogTextField(
             header: "Ставка (СРМ, ₽)",
             hint: '$cpm₽',
-            addGroup: _changeCpm,
+            addGroup: _changeCpmInAuto,
             btnText: "Обновить",
             description: "Введите новое значение ставки",
             keyboardType: TextInputType.number,
           ));
         }
-        _advType = AdvertTypeConstants.auto;
+
         break;
       case AdvertTypeConstants.inSearch:
         setTitle("В поиске");
-        _advType = AdvertTypeConstants.inSearch;
+
         if (advertInfo is AdvertSearchModel &&
             advertInfo.params != null &&
             advertInfo.params!.first.price != null) {
           setCpm(advertInfo.params!.first.price!);
-          if (advertInfo.params!.first.subjectId != null) {
-            subjectId = advertInfo.params!.first.subjectId!;
-          }
-          setChangeCpmDialog(MyDialogTextField(
+          // if (advertInfo.params!.first.subjectId != null) {
+          //   subjectId = advertInfo.params!.first.subjectId!;
+          // }
+          setChangeCpmDialog(MyDialogTextFieldRadio(
             header: "Ставка (СРМ, ₽)",
-            hint: '$cpm₽',
-            addGroup: _changeCpm,
+            addGroup: _changeCpmInSearchOrRecomendations,
             btnText: "Обновить",
             description: "Введите новое значение ставки",
             keyboardType: TextInputType.number,
@@ -217,13 +216,12 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
         }
         break;
       case AdvertTypeConstants.inCard:
-        _advType = AdvertTypeConstants.inCard;
         setTitle("В карточке");
         if (advertInfo is AdvertCardModel &&
             advertInfo.params != null &&
             advertInfo.params!.first.price != null &&
             advertInfo.params!.first.setId != null) {
-          _setId = advertInfo.params!.first.setId!;
+          // _setId = advertInfo.params!.first.setId!;
           setCpm(advertInfo.params!.first.price!);
 
           setChangeCpmDialog(MyDialogTextField(
@@ -263,7 +261,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             ));
           }
         }
-        _advType = AdvertTypeConstants.inCatalog;
+
         break;
 
       case AdvertTypeConstants.inRecomendation:
@@ -271,12 +269,14 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
         if (advertInfo is AdvertRecomendaionModel &&
             advertInfo.params != null &&
             advertInfo.params!.first.price != null) {
+          for (var param in advertInfo.params!) {
+            print("${param.subjectName} ${param.price} ${param.subjectId}");
+          }
           setCpm(advertInfo.params!.first.price!);
           if (advertInfo.params!.first.subjectId != null) {
             subjectId = advertInfo.params!.first.subjectId!;
           }
         }
-        _advType = AdvertTypeConstants.inRecomendation;
 
         break;
       case AdvertTypeConstants.searchPlusCatalog:
@@ -289,12 +289,13 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             subjectId = advertInfo.unitedParams!.first.catalogCPM!;
           }
         }
-        _advType = AdvertTypeConstants.searchPlusCatalog;
+
         break;
     }
   }
 
-  Future<void> _changeCpm(String value) async {
+  // Change CPM methods
+  Future<void> _changeCpmInAuto(String value) async {
     final cpm = int.tryParse(value) ?? 0;
 
     if (cpm != _cpm) {
@@ -302,23 +303,41 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
         return;
       }
 
-      if (_advType == AdvertTypeConstants.auto) {
-        await fetch(() => advertService.setCpm(
-            advertId: advertId, cpm: cpm, type: _advType!, param: subjectId));
-      } else if (_advType == AdvertTypeConstants.inCard) {
-        await fetch(() => advertService.setCpm(
-            advertId: advertId, cpm: cpm, type: _advType!, param: _setId!));
-      }
+      await fetch(() => advertService.setCpm(
+          advertId: advertId,
+          cpm: cpm,
+          type: AdvertTypeConstants.auto,
+          param: _subjectId));
 
       await _update();
     }
   }
 
-  Future<void> _changeCpmInCatalog(String value, int menuId) async {
-    print("$value $menuId");
+  Future<void> _changeCpm(String value, int menuId) async {
     final cpm = int.tryParse(value) ?? 0;
-    await fetch(() => advertService.setCpm(
-        advertId: advertId, cpm: cpm, type: _advType!, param: menuId));
+    if (cpm != _cpm) {
+      if (_cpm == null || _advType == null) {
+        return;
+      }
+      await fetch(() => advertService.setCpm(
+          advertId: advertId, cpm: cpm, type: _advType!, param: menuId));
+    }
+    await _update();
+  }
+
+  Future<void> _changeCpmInSearchPlusCatalog(
+      {required String value, required int subjectId}) async {
+    final cpm = int.tryParse(value) ?? 0;
+    if (cpm != _cpm) {
+      if (_cpm == null || _advType == null) {
+        return;
+      }
+      await fetch(() => advertService.setCpm(
+          advertId: AdvertTypeConstants.searchPlusCatalog,
+          cpm: cpm,
+          type: _advType!,
+          param: subjectId));
+    }
     await _update();
   }
 
@@ -344,12 +363,11 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
   bool get tracked => _tracked;
 
-  // for change cpm
-  int subjectId = 0;
+  // for change cpm in Auto
+  int _subjectId = 0;
   int? _advType;
   // for In Catalogue
-  int? _setId;
-  Map<String, int>? _menuIds;
+  // int? _setId;
 
   int? notificatedBudget;
 

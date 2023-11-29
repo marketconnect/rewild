@@ -31,7 +31,6 @@ dependencies:
   flutter_statusbarcolor_ns: ^0.5.0
   flutter_slidable: ^3.0.0
   sqflite: ^2.3.0
-  share_plus: ^7.2.1
   flutter_spinkit: ^5.2.0
   google_fonts: ^6.1.0
   fl_chart: ^0.64.0
@@ -39,7 +38,7 @@ dependencies:
   workmanager: ^0.5.2
   awesome_notifications_core: ^0.8.0 # <~ always ensure to use the latest version
   awesome_notifications: any # <~ this version is managed by awesome_notifications_core package
-
+  animated_text_kit: ^4.2.2
 
 dev_dependencies:
   flutter_test:

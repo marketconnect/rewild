@@ -15,52 +15,12 @@ import 'package:rewild/widgets/progress_indicator.dart';
 class AllCardsScreen extends StatelessWidget {
   const AllCardsScreen({super.key});
 
-  // void Function(bool)? mountedCallback;
-  // @override
-  // void initState() {
-  //   WidgetsBinding.instance.addObserver(this);
-  //   super.initState();
-  // }
-
-  // @override
-  // void dispose() {
-  //   // WidgetsBinding.instance.removeObserver(this);
-  //   super.dispose();
-  // }
-
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   // if (mountedCallback == null) {
-  //   //   return;
-  //   // }
-  //   switch (state) {
-  //     case AppLifecycleState.resumed:
-  //       debugPrint("app in resumed");
-  //       // mountedCallback!(true);
-  //       break;
-  //     case AppLifecycleState.inactive:
-  //       debugPrint("app in inactive");
-  //       // mountedCallback!(false);
-  //       break;
-  //     case AppLifecycleState.paused:
-  //       debugPrint("app in paused");
-  //       // mountedCallback!(false);
-  //       break;
-  //     case AppLifecycleState.detached:
-  //       debugPrint("app in detached");
-  //       // mountedCallback!(false);
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AllCardsScreenViewModel>();
     final resetFilter = model.resetFilter;
     final filterIsEmpty = model.filterIsEmpty;
-    // mountedCallback = model.setMounted;
+
     List<CardOfProductModel> productCards = model.productCards;
     final selectedGroup = model.selectedGroup;
     int selectedGroupIndex = 0;
@@ -419,19 +379,6 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
     final len = model.selectedLength;
     final selectionInProcess = model.selectionInProcess;
     List<GroupModel> groups = model.groups;
-
-    // final groups = initGroups.where((group) {
-    //   if (group.name == "Все") {
-    //     return true;
-    //   }
-    //   for (int id in group.cardsNmIds) {
-    //     if (widget.cardsNmIds.contains(id)) {
-
-    //       return true;
-    //     }
-    //   }
-    //   return false;
-    // }).toList();
 
     final isLoading = model.loading;
     final selectGroup = model.selectGroup;

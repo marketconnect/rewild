@@ -23,6 +23,7 @@ abstract class ScreenFactory {
   Widget makeSingleCardScreen(int id);
   Widget makeSingleStatAdvertScreen(int id);
   Widget makeBackgroundNotificationsScreen();
+  Widget makeFirstTimeSplashScreen();
 }
 
 class MainNavigation implements AppNavigation {
@@ -33,6 +34,8 @@ class MainNavigation implements AppNavigation {
   Map<String, Widget Function(BuildContext)> get routes => {
         MainNavigationRouteNames.splashScreen: (_) =>
             screenFactory.makeSplashScreen(),
+        MainNavigationRouteNames.firstStartSplashScreen: (_) =>
+            screenFactory.makeFirstTimeSplashScreen(),
         // MainNavigationRouteNames.bottomNavigationScreen: () =>
         //     screenFactory.makeBottomNavigationScreen(num),
         // MainNavigationRouteNames.allCardsScreen: (_) =>

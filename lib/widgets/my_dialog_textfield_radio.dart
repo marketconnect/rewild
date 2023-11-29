@@ -11,7 +11,8 @@ class MyDialogTextFieldRadio extends StatefulWidget {
       required this.radioOptions,
       required this.textInputOptions});
 
-  final void Function(String value, int option) addGroup;
+  final Future<void> Function({required String value, required int option})
+      addGroup;
   final String header;
   final String description;
   // final String hint;
@@ -171,7 +172,7 @@ class _MyDialogTextFieldRadioState extends State<MyDialogTextFieldRadio> {
               ),
               GestureDetector(
                 onTap: () {
-                  widget.addGroup(newGroupName, selectedOption);
+                  widget.addGroup(value: newGroupName, option: selectedOption);
                   FocusScope.of(context).requestFocus(FocusNode());
                   Navigator.of(context).pop();
                 },
