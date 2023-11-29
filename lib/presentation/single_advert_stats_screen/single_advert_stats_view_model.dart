@@ -174,6 +174,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
   // asyncInit finished ==========================================================================================
   void _setTitleCpm(Advert advertInfo) {
+    _advType = advertInfo.type;
     switch (advertInfo.type) {
       case AdvertTypeConstants.auto:
         setTitle("Авто");
