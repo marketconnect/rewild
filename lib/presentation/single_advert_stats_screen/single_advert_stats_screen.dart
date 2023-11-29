@@ -21,7 +21,7 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
     final cpm = model.cpm;
     final title = model.title;
     final openNotificationSettings = model.notificationsScreen;
-    // final changeCpm = model.changeCpm;
+
     final start = model.start;
     final isTracked = model.tracked;
     final dialogWidget = model.changeCpmDialog;
@@ -96,12 +96,15 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
                       },
                       child: Container(
                         margin: const EdgeInsets.only(right: 5),
-                        decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.circular(model.screenWidth),
-                            border: Border.all(
-                                color: Theme.of(context).colorScheme.outline),
-                            color: Theme.of(context).colorScheme.surface),
+                        decoration: dialogWidget == null
+                            ? null
+                            : BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.circular(model.screenWidth),
+                                border: Border.all(
+                                    color:
+                                        Theme.of(context).colorScheme.outline),
+                                color: Theme.of(context).colorScheme.surface),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(

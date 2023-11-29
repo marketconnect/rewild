@@ -20,10 +20,11 @@ class _FirstStartSplashScreenState extends State<FirstStartSplashScreen> {
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          backgroundColor:
-              Theme.of(context).colorScheme.primary, // Status bar color
+          backgroundColor: Theme.of(context)
+              .colorScheme
+              .primaryContainer, // Status bar color
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         body: Stack(children: [
           Column(children: [
             SizedBox(
@@ -42,7 +43,7 @@ class _FirstStartSplashScreenState extends State<FirstStartSplashScreen> {
               child: DefaultTextStyle(
                 style: TextStyle(
                   fontSize: MediaQuery.of(context).size.width * 0.05,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                   fontFamily: 'popin',
                 ),
                 child: AnimatedTextKit(
@@ -80,7 +81,7 @@ class _FirstStartSplashScreenState extends State<FirstStartSplashScreen> {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
-                      color: Theme.of(context).colorScheme.primaryContainer),
+                      color: Theme.of(context).colorScheme.primary),
                   margin: EdgeInsets.only(
                     top: screenSize.height * 0.1,
                   ),
@@ -88,8 +89,7 @@ class _FirstStartSplashScreenState extends State<FirstStartSplashScreen> {
                     "Продолжить".toUpperCase(),
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color:
-                            Theme.of(context).colorScheme.onPrimaryContainer),
+                        color: Theme.of(context).colorScheme.onPrimary),
                   ),
                 ),
               ),

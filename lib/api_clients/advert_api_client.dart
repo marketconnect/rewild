@@ -96,6 +96,8 @@ class AdvertApiClient
   Future<Resource<bool>> changeCpm(String token, int advertId, int type,
       int cpm, int param, int? instrument) async {
     try {
+      print(
+          'token: $token, advertId: $advertId, type: $type, cpm: $cpm, param: $param, instrument: $instrument');
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'

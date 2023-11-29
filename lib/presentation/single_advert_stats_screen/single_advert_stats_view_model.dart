@@ -15,7 +15,6 @@ import 'package:rewild/domain/entities/stream_notification_event.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/my_dialog_textfield_radio.dart';
-import 'package:rewild/widgets/my_dialog_textfield_widget.dart';
 
 import '../../domain/entities/advert_base.dart';
 
@@ -175,6 +174,8 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   // asyncInit finished ==========================================================================================
   void _setTitleCpm(Advert advertInfo) {
     _advType = advertInfo.type;
+    Map<int, String> textInputOptions = {};
+    Map<int, String> radioOptions = {};
     switch (advertInfo.type) {
       case AdvertTypeConstants.auto:
         setTitle("Авто");
@@ -182,167 +183,141 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             advertInfo.autoParams != null &&
             advertInfo.autoParams!.cpm != null) {
           setCpm(advertInfo.autoParams!.cpm!);
+          final cpm = advertInfo.autoParams!.cpm;
+          if (advertInfo.autoParams!.subject != null) {
+            final subjectId = advertInfo.autoParams!.subject!.id!;
+            final subjectName = advertInfo.autoParams!.subject!.name!;
+            textInputOptions[subjectId] = "$cpm₽";
+            radioOptions[subjectId] = subjectName;
+          }
+        }
+        break;
+      case AdvertTypeConstants.inSearch:
+        setTitle("В поиске");
 
-          print(
-              'Cpm: ${advertInfo.autoParams!.active} ${advertInfo.autoParams!.nms} ${advertInfo.autoParams!.sets}');
-          // if (advertInfo.autoParams!.subject != null && advertInfo.autoParams!.subject != null) {
-          //   _subjectId = advertInfo.autoParams!.subject!.id!;
-          // }
+        if (advertInfo is AdvertSearchModel &&
+            advertInfo.params != null &&
+            advertInfo.params!.first.price != null) {
+          setCpm(advertInfo.params!.first.price!);
+          if (advertInfo.params != null) {
+            final params = advertInfo.params;
+            for (final param in params!) {
+              if (param.subjectId != null) {
+                final subjectId = param.subjectId!;
+                final subjectName = param.subjectName ?? "";
+                final cpm = param.price;
+                textInputOptions[subjectId] = "$cpm₽";
+                radioOptions[subjectId] = subjectName;
+              }
+            }
+          }
+        }
+        break;
+      case AdvertTypeConstants.inCard:
+        setTitle("В карточке");
+        if (advertInfo is AdvertCardModel &&
+            advertInfo.params != null &&
+            advertInfo.params!.first.price != null &&
+            advertInfo.params!.first.setId != null) {
+          setCpm(advertInfo.params!.first.price!);
+          final params = advertInfo.params;
+          for (final param in params!) {
+            if (param.setId != null) {
+              final setId = param.setId!;
+              final setName = param.setName ?? "";
+              final cpm = param.price;
+              textInputOptions[setId] = "$cpm₽";
+              radioOptions[setId] = setName;
+            }
+          }
+        }
+        break;
+      case AdvertTypeConstants.inCatalog:
+        setTitle("В каталоге");
+        if (advertInfo is AdvertCatalogueModel &&
+            advertInfo.params != null &&
+            advertInfo.params!.first.price != null) {
+          for (var param in advertInfo.params!) {
+            radioOptions[param.menuId!] = param.menuName!;
+            textInputOptions[param.menuId!] = '${param.price!}₽';
+          }
 
-          // setChangeCpmDialog(MyDialogTextFieldRadio(
-          //   header: "Ставка (СРМ, ₽)",
-          //   textInputOptions: textInputOptions!,
-          //   radioOptions: ,
-          //   addGroup: _changeCpmInAuto,
-          //   btnText: "Обновить",
-          //   description: "Введите новое значение ставки",
-          //   keyboardType: TextInputType.number,
-          // ));
+          setCpm(advertInfo.params!.first.price!);
+          if (advertInfo.params!.first.menuId != null) {
+            setChangeCpmDialog(MyDialogTextFieldRadio(
+              header: "Ставка (СРМ, ₽)",
+              addGroup: _changeCpm,
+              radioOptions: radioOptions,
+              textInputOptions: textInputOptions,
+              btnText: "Обновить",
+              description: "Введите новое значение ставки",
+              keyboardType: TextInputType.number,
+            ));
+          }
         }
 
         break;
-      // case AdvertTypeConstants.inSearch:
-      //   setTitle("В поиске");
 
-      //   if (advertInfo is AdvertSearchModel &&
-      //       advertInfo.params != null &&
-      //       advertInfo.params!.first.price != null) {
-      //     setCpm(advertInfo.params!.first.price!);
-      //     // if (advertInfo.params!.first.subjectId != null) {
-      //     //   subjectId = advertInfo.params!.first.subjectId!;
-      //     // }
-      //     setChangeCpmDialog(MyDialogTextFieldRadio(
-      //       header: "Ставка (СРМ, ₽)",
-      //       addGroup: _changeCpmInSearchOrRecomendations,
-      //       btnText: "Обновить",
-      //       description: "Введите новое значение ставки",
-      //       keyboardType: TextInputType.number,
-      //     ));
-      //   }
-      //   break;
-      // case AdvertTypeConstants.inCard:
-      //   setTitle("В карточке");
-      //   if (advertInfo is AdvertCardModel &&
-      //       advertInfo.params != null &&
-      //       advertInfo.params!.first.price != null &&
-      //       advertInfo.params!.first.setId != null) {
-      //     // _setId = advertInfo.params!.first.setId!;
-      //     setCpm(advertInfo.params!.first.price!);
+      case AdvertTypeConstants.inRecomendation:
+        setTitle("В рекомендациях");
+        if (advertInfo is AdvertRecomendaionModel &&
+            advertInfo.params != null &&
+            advertInfo.params!.first.price != null) {
+          for (var param in advertInfo.params!) {
+            radioOptions[param.subjectId!] = param.subjectName!;
+            textInputOptions[param.subjectId!] = '${param.price!}₽';
+          }
+          setCpm(advertInfo.params!.first.price!);
+        }
 
-      //     setChangeCpmDialog(MyDialogTextField(
-      //       header: "Ставка (СРМ, ₽)",
-      //       hint: '$cpm₽',
-      //       addGroup: _changeCpm,
-      //       btnText: "Обновить",
-      //       description: "Введите новое значение ставки",
-      //       keyboardType: TextInputType.number,
-      //     ));
-      //   }
-      //   break;
-      // case AdvertTypeConstants.inCatalog:
-      //   setTitle("В каталоге");
-      //   if (advertInfo is AdvertCatalogueModel &&
-      //       advertInfo.params != null &&
-      //       advertInfo.params!.first.price != null) {
-      //     Map<int, String> options = {};
-      //     Map<int, String> prices = {};
-      //     for (var param in advertInfo.params!) {
-      //       options[param.menuId!] = param.menuName!;
-      //       prices[param.menuId!] = '${param.price!}₽';
-      //     }
+        break;
+      case AdvertTypeConstants.searchPlusCatalog:
+        setTitle("В поиске и каталоге");
+        if (advertInfo is AdvertSearchPlusCatalogueModel &&
+            advertInfo.unitedParams != null &&
+            advertInfo.unitedParams!.first.catalogCPM != null) {
+          setCpm(advertInfo.unitedParams!.first.catalogCPM!);
+          // if (advertInfo.unitedParams!.first.catalogCPM != null) {
+          //   subjectId = advertInfo.unitedParams!.first.catalogCPM!;
+          // }
+          // if (advertInfo.unitedParams != null) {
+          //   final params = advertInfo.unitedParams;
+          //   for (final param in params!) {
+          //     if (param.subjectId != null) {
+          //       final subjectId = param.subjectId!;
+          //       final subjectName = param.subjectName ?? "";
+          //       final cpm = param.catalogCPM;
+          //       textInputOptions[subjectId] = "$cpm₽";
+          //       radioOptions[subjectId] = subjectName;
+          //     }
+          //   }
+          // }
+        }
 
-      //     setCpm(advertInfo.params!.first.price!);
-      //     if (advertInfo.params!.first.menuId != null) {
-      //       // _menuId = advertInfo.params!.first.menuId!;
-      //       setChangeCpmDialog(MyDialogTextFieldRadio(
-      //         header: "Ставка (СРМ, ₽)",
-      //         // hint: '$cpm₽',
-      //         addGroup: _changeCpmInCatalog,
-      //         radioOptions: options,
-      //         textInputOptions: prices,
-      //         btnText: "Обновить",
-      //         description: "Введите новое значение ставки",
-      //         keyboardType: TextInputType.number,
-      //       ));
-      //     }
-      //   }
-
-      //   break;
-
-      // case AdvertTypeConstants.inRecomendation:
-      //   setTitle("В рекомендациях");
-      //   if (advertInfo is AdvertRecomendaionModel &&
-      //       advertInfo.params != null &&
-      //       advertInfo.params!.first.price != null) {
-      //     for (var param in advertInfo.params!) {
-      //       print("${param.subjectName} ${param.price} ${param.subjectId}");
-      //     }
-      //     setCpm(advertInfo.params!.first.price!);
-      //     if (advertInfo.params!.first.subjectId != null) {
-      //       subjectId = advertInfo.params!.first.subjectId!;
-      //     }
-      //   }
-
-      //   break;
-      // case AdvertTypeConstants.searchPlusCatalog:
-      //   setTitle("В поиске и каталоге");
-      //   if (advertInfo is AdvertSearchPlusCatalogueModel &&
-      //       advertInfo.unitedParams != null &&
-      //       advertInfo.unitedParams!.first.catalogCPM != null) {
-      //     setCpm(advertInfo.unitedParams!.first.catalogCPM!);
-      //     if (advertInfo.unitedParams!.first.catalogCPM != null) {
-      //       subjectId = advertInfo.unitedParams!.first.catalogCPM!;
-      //     }
-      //   }
-
-      //   break;
+        break;
+    }
+    if (textInputOptions.keys.isNotEmpty) {
+      setChangeCpmDialog(MyDialogTextFieldRadio(
+        header: "Ставка (СРМ, ₽)",
+        textInputOptions: textInputOptions,
+        radioOptions: radioOptions,
+        addGroup: _changeCpm,
+        btnText: "Обновить",
+        description: "Введите новое значение ставки",
+        keyboardType: TextInputType.number,
+      ));
     }
   }
 
-  // // Change CPM methods
-  // Future<void> _changeCpmInAuto(String value) async {
-  //   final cpm = int.tryParse(value) ?? 0;
-
-  //   if (cpm != _cpm) {
-  //     if (_cpm == null || _advType == null) {
-  //       return;
-  //     }
-
-  //     await fetch(() => advertService.setCpm(
-  //         advertId: advertId,
-  //         cpm: cpm,
-  //         type: AdvertTypeConstants.auto,
-  //         param: _subjectId));
-
-  //     await _update();
-  //   }
-  // }
-
-  // Future<void> _changeCpm(String value, int menuId) async {
-  //   final cpm = int.tryParse(value) ?? 0;
-  //   if (cpm != _cpm) {
-  //     if (_cpm == null || _advType == null) {
-  //       return;
-  //     }
-  //     await fetch(() => advertService.setCpm(
-  //         advertId: advertId, cpm: cpm, type: _advType!, param: menuId));
-  //   }
-  //   await _update();
-  // }
-
-  Future<void> _changeCpmInSearchPlusCatalog(
-      {required String value, required int option}) async {
+  Future<void> _changeCpm({required String value, required int option}) async {
     final cpm = int.tryParse(value) ?? 0;
-    if (cpm != _cpm) {
-      if (_cpm == null || _advType == null || textInputOptions == null) {
-        return;
-      }
-      await fetch(() => advertService.setCpm(
-          advertId: AdvertTypeConstants.searchPlusCatalog,
-          cpm: cpm,
-          type: _advType!,
-          param: option));
+
+    if (_cpm == null || _advType == null) {
+      return;
     }
+    await fetch(() => advertService.setCpm(
+        advertId: advertId, cpm: cpm, type: _advType!, param: option));
+
     await _update();
   }
 
@@ -369,7 +344,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   bool get tracked => _tracked;
 
   // for change cpm in
-  Map<int, String>? textInputOptions;
+  // Map<int, String>? textInputOptions;
   int? _advType;
   // for In Catalogue
   // int? _setId;

@@ -151,6 +151,7 @@ class _MyDialogTextFieldRadioState extends State<MyDialogTextFieldRadio> {
                 ),
               ),
               // Radio buttons for selecting options
+
               Column(
                 children: widget.radioOptions.entries.map((entry) {
                   return ListTile(
@@ -167,6 +168,7 @@ class _MyDialogTextFieldRadioState extends State<MyDialogTextFieldRadio> {
                   );
                 }).toList(),
               ),
+
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.05,
               ),
