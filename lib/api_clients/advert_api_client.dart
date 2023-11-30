@@ -21,6 +21,130 @@ class AdvertApiClient
     implements AdvertServiceAdvertApiClient, AutoStatServiceAdvertApiClient {
   const AdvertApiClient();
 
+  @override
+  Future<Resource<List<String>>> setSearchExcludedKeywords(
+      String token, int campaignId, List<String> excludedKeywords) async {
+    try {
+      final headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+      };
+
+      final params = {'id': campaignId.toString()};
+      final body = {'excluded': excludedKeywords};
+
+      final jsonString = json.encode(body);
+
+      final uri =
+          Uri.https('advert-api.wb.ru', '/adv/v1/search/set-excluded', params);
+      final response = await http.post(uri, headers: headers, body: jsonString);
+
+      if (response.statusCode == 200) {
+        final List<String> responseList =
+            List<String>.from(json.decode(response.body));
+        return Resource.success(responseList);
+      } else {
+        // Handle other status codes if needed
+        return Resource.error("Failed to set excluded keywords");
+      }
+    } catch (e) {
+      return Resource.error("Unknown error");
+    }
+  }
+
+  @override
+  Future<Resource<List<String>>> setSearchPhraseKeywords(
+      String token, int campaignId, List<String> phraseKeywords) async {
+    try {
+      final headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+      };
+
+      final params = {'id': campaignId.toString()};
+      final body = {'phrase': phraseKeywords};
+
+      final jsonString = json.encode(body);
+
+      final uri =
+          Uri.https('advert-api.wb.ru', '/adv/v1/search/set-phrase', params);
+      final response = await http.post(uri, headers: headers, body: jsonString);
+
+      if (response.statusCode == 200) {
+        final List<String> responseList =
+            List<String>.from(json.decode(response.body));
+        return Resource.success(responseList);
+      } else {
+        // Handle other status codes if needed
+        return Resource.error("Failed to set phrase keywords");
+      }
+    } catch (e) {
+      return Resource.error("Unknown error");
+    }
+  }
+
+  @override
+  Future<Resource<List<String>>> setSearchStrongKeywords(
+      String token, int campaignId, List<String> strongKeywords) async {
+    try {
+      final headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+      };
+
+      final params = {'id': campaignId.toString()};
+      final body = {'strong': strongKeywords};
+
+      final jsonString = json.encode(body);
+
+      final uri =
+          Uri.https('advert-api.wb.ru', '/adv/v1/search/set-strong', params);
+      final response = await http.post(uri, headers: headers, body: jsonString);
+
+      if (response.statusCode == 200) {
+        final List<String> responseList =
+            List<String>.from(json.decode(response.body));
+        return Resource.success(responseList);
+      } else {
+        // Handle other status codes if needed
+        return Resource.error("Failed to set strong keywords");
+      }
+    } catch (e) {
+      return Resource.error("Unknown error");
+    }
+  }
+
+  @override
+  Future<Resource<List<String>>> setSearchPlusKeywords(
+      String token, int campaignId, List<String> plusKeywords) async {
+    try {
+      final headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+      };
+
+      final params = {'id': campaignId.toString()};
+      final body = {'pluse': plusKeywords};
+
+      final jsonString = json.encode(body);
+
+      final uri =
+          Uri.https('advert-api.wb.ru', '/adv/v1/search/set-plus', params);
+      final response = await http.post(uri, headers: headers, body: jsonString);
+
+      if (response.statusCode == 200) {
+        final List<String> responseList =
+            List<String>.from(json.decode(response.body));
+        return Resource.success(responseList);
+      } else {
+        // Handle other status codes if needed
+        return Resource.error("Failed to set plus keywords");
+      }
+    } catch (e) {
+      return Resource.error("Unknown error");
+    }
+  }
+
   // max 10 requests per minute
   @override
   Future<Resource<bool>> setAutoSetExcluded(
