@@ -20,6 +20,7 @@ import 'package:rewild/data_providers/filter_data_provider/filter_data_provider.
 
 import 'package:rewild/data_providers/group_data_provider/group_data_provider.dart';
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
+import 'package:rewild/data_providers/keyword_data_provider/keyword_data_provider.dart';
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
 import 'package:rewild/data_providers/notificate_data_provider/notification_data_provider.dart';
 import 'package:rewild/data_providers/orders_history_data_provider/orders_history_data_provider.dart';
@@ -233,6 +234,9 @@ class _DIContainer {
   NotificationDataProvider _makeNotificationDataProvider() =>
       const NotificationDataProvider();
 
+  // keywords
+  KeywordDataProvider _makeKeywordsDataProvider() =>
+      const KeywordDataProvider();
   // Services ==================================================================
 
   // check internet connection
@@ -351,6 +355,7 @@ class _DIContainer {
   // Keyword
   KeywordsService _makeKeywordsService() => KeywordsService(
       advertApiClient: _makeAdvertApiClient(),
+      keywordsDataProvider: _makeKeywordsDataProvider(),
       apiKeysDataProvider: _makeSecureDataProvider());
 
   // View models ===============================================================

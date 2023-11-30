@@ -12,7 +12,6 @@ import 'package:rewild/domain/entities/advert_search_model.dart';
 import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:rewild/domain/entities/stream_notification_event.dart';
-
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/my_dialog_textfield_radio.dart';

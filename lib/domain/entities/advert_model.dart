@@ -24,7 +24,6 @@ class AdvertInfoModel {
   });
 
   factory AdvertInfoModel.fromJson(Map<String, dynamic> json) {
-    print(json);
     return AdvertInfoModel(
       campaignId: json['advertId'],
       type: json['type'],

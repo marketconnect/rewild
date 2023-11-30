@@ -4,13 +4,14 @@ class Keyword {
   int count;
 
   int diff = 0;
-  void setDiff(int newValue) {
-    diff = newValue - count;
+  void setDiff(int oldValue) {
+    diff = count - oldValue;
   }
 
-  bool isNew = true;
+  bool _isNew = true;
+  bool get isNew => _isNew;
   void setNotNew() {
-    isNew = false;
+    _isNew = false;
   }
 
   Keyword({

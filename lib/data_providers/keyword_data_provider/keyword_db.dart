@@ -1,12 +1,11 @@
-import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/keyword.dart';
 import 'package:sqflite/sqflite.dart';
 
 class KeywordDb extends Keyword {
-  @override
-  final int campaignId;
   KeywordDb(
-      {required super.keyword, required super.count, required this.campaignId});
+      {required super.keyword,
+      required super.count,
+      required super.campaignId});
 
   static Future<void> createTable(Database db) async {
     await db.execute(

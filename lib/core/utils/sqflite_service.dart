@@ -5,6 +5,7 @@ import 'package:rewild/data_providers/background_message_data_provider/backgroun
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_db.dart';
 import 'package:rewild/data_providers/filter_data_provider/filter_db.dart';
+import 'package:rewild/data_providers/keyword_data_provider/keyword_db.dart';
 import 'package:rewild/data_providers/notificate_data_provider/notification_db.dart';
 
 import 'package:sqflite/sqflite.dart';
@@ -60,6 +61,7 @@ class SqfliteService {
     await AdvertStatDb.createTable(db);
     await NotificationDb.createTable(db);
     await BackgroundMessageDb.createTable(db);
+    await KeywordDb.createTable(db);
   }
 
   static Future<void> printTableContent(String tableName) async {

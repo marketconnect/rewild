@@ -186,13 +186,14 @@ class _AppBar extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(left: 10.0),
               height: 60.0,
-              child: const Text('Карточки',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1f1f1f),
-                  ),
-                  textScaleFactor: 1),
+              child: const Text(
+                'Карточки',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1f1f1f),
+                ),
+              ),
             ),
           ],
         ),
