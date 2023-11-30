@@ -206,25 +206,6 @@ class _BottomRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    // Color textColor = Theme.of(context).colorScheme.error;
-    // Color budgetColor = ; // budget == 0
-    // final intCpm = int.tryParse(cpm.split("+")[0]);
-    // if (budget != null && intCpm != null) {
-    //   final miles = budget! / intCpm;
-    //   if (miles >= 1) {
-    //     budgetColor = const Color(0xFF5d865d);
-    //   } else if (miles > 0) {
-    //     budgetColor = Theme.of(context).colorScheme.tertiary;
-    //   }
-    // }
-
-    // if (status == 4) {
-    //   textColor = Theme.of(context).colorScheme.outline;
-    // } else if (status == 9) {
-    //   textColor = const Color(0xFF5d865d);
-    // } else if (status == 11) {
-    //   textColor = Theme.of(context).colorScheme.tertiary;
-    // }
 
     final cpmText = 'Цена: $cpm';
     // final

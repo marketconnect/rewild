@@ -113,18 +113,27 @@ class AdvertApiClient
         body['param'] = param;
       }
 
+      if (instrument != null) {
+        body['instrument'] = instrument;
+      }
+
       final jsonString = json.encode(body);
 
       final uri = Uri.https('advert-api.wb.ru', "/adv/v0/cpm");
       final response = await http.post(uri, headers: headers, body: jsonString);
       if (response.statusCode == 200) {
+        print("response.statusCode == 200");
+
         return Resource.success(true);
       } else if (response.statusCode == 422) {
         // Size of bid is not changed
+        print("response.statusCode == 422");
         return Resource.success(false);
       } else if (response.statusCode == 400) {
+        print("response.statusCode == 400");
         return Resource.error("Incorrect campaign identifier");
       } else if (response.statusCode == 401) {
+        print("response.statusCode == 401");
         return Resource.error("Empty authorization header");
       }
     } catch (e) {

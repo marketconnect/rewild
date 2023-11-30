@@ -15,6 +15,7 @@ import 'package:rewild/domain/entities/stream_notification_event.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/my_dialog_textfield_radio.dart';
+import 'package:rewild/widgets/my_dialog_textfield_radio_checkbox.dart';
 
 import '../../domain/entities/advert_base.dart';
 
@@ -277,6 +278,26 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             advertInfo.unitedParams != null &&
             advertInfo.unitedParams!.first.catalogCPM != null) {
           setCpm(advertInfo.unitedParams!.first.catalogCPM!);
+          final params = advertInfo.unitedParams!;
+          final Map<int, String> checkBoxOptions = {};
+          for (final param in params) {
+            checkBoxOptions[param.subject!.id!] = param.subject!.name!;
+          }
+          textInputOptions[4] = "${params.first.catalogCPM!}₽";
+          textInputOptions[6] = "${params.first.searchCPM!}₽";
+          radioOptions[4] = "Каталог";
+          radioOptions[6] = "Поиск";
+
+          setChangeCpmDialog(MyDialogTextFieldRadioCheckBox(
+            header: "Ставка (СРМ, ₽)",
+            checkBoxOptions: checkBoxOptions,
+            radioOptions: radioOptions,
+            textInputOptions: textInputOptions,
+            addGroup: _changeCpmInSearchAndCatalog,
+            btnText: "Обновить",
+            description: "Введите новое значение ставки",
+            keyboardType: TextInputType.number,
+          ));
           // if (advertInfo.unitedParams!.first.catalogCPM != null) {
           //   subjectId = advertInfo.unitedParams!.first.catalogCPM!;
           // }
@@ -296,7 +317,8 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
         break;
     }
-    if (textInputOptions.keys.isNotEmpty) {
+    if (textInputOptions.keys.isNotEmpty &&
+        _advType != AdvertTypeConstants.searchPlusCatalog) {
       setChangeCpmDialog(MyDialogTextFieldRadio(
         header: "Ставка (СРМ, ₽)",
         textInputOptions: textInputOptions,
@@ -317,6 +339,26 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
     }
     await fetch(() => advertService.setCpm(
         advertId: advertId, cpm: cpm, type: _advType!, param: option));
+
+    await _update();
+  }
+
+  Future<void> _changeCpmInSearchAndCatalog(
+      {required String value,
+      required int option,
+      required int option1}) async {
+    print(value);
+    final cpm = int.tryParse(value) ?? 0;
+    print('cpm: $cpm instrument: $option1, option: $option');
+    if (_cpm == null || _advType == null) {
+      return;
+    }
+    await fetch(() => advertService.setCpm(
+        advertId: advertId,
+        cpm: cpm,
+        type: _advType!,
+        param: option1,
+        instrument: option));
 
     await _update();
   }

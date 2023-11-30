@@ -1,3 +1,4 @@
+import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
@@ -49,12 +50,26 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
         updateAdvert(newAdvert);
       }
       if (event.cpm != null) {
+        // TODO:
+        // to update cpm of search+catalog need to update cpm of search and
+        // cpm of catalog. But with only one value from the stream it is not possible.
+        // So we need to update all
+        if (adverts.firstWhere((a) => a.advertId == event.advertId).type ==
+            AdvertTypeConstants.searchPlusCatalog) {
+          await _update();
+          return;
+        }
+
         updateCpm(event.advertId, event.cpm.toString());
       }
 
       notify();
     });
 
+    await _update();
+  }
+
+  Future _update() async {
     final resource = await advertService.apiKeyExists();
     if (resource is Error) {
       return;

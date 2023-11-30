@@ -42,10 +42,11 @@ class SplashScreenViewModel extends ResourceChangeNotifier {
     _token = token;
     await _checkAuth();
     if (context.mounted) {
-      final route = firstTime
-          ? MainNavigationRouteNames.firstStartSplashScreen
-          : MainNavigationRouteNames.mainNavigationScreen;
-      Navigator.of(context).pushReplacementNamed(route);
+      // final route = firstTime
+      // ? MainNavigationRouteNames.firstStartSplashScreen
+      // : MainNavigationRouteNames.mainNavigationScreen;
+      Navigator.of(context)
+          .pushReplacementNamed(MainNavigationRouteNames.mainNavigationScreen);
     }
   }
 
