@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/strings.dart';
-import 'package:rewild/core/utils/text_filed_validator.dart';
 
 class MyDialogTextFieldRadioCheckBox extends StatefulWidget {
   const MyDialogTextFieldRadioCheckBox(
@@ -12,12 +11,14 @@ class MyDialogTextFieldRadioCheckBox extends StatefulWidget {
       required this.btnText,
       required this.radioOptions,
       required this.textInputOptions,
-      required this.checkBoxOptions});
+      required this.checkBoxOptions,
+      required this.validator});
 
   final Future<void> Function(
       {required String value,
       required int option,
       required int option1}) addGroup;
+  final bool Function(String name, int value) validator;
   final String header;
   final String description;
   // final String hint;
@@ -230,8 +231,7 @@ class _MyDialogTextFieldRadioCheckBoxState
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    isValid = TextFieldValidator.isNumericAndGreaterThanN(
-                        newGroupName, 150);
+                    isValid = widget.validator(newGroupName, 150);
                   });
 
                   if (isValid) {

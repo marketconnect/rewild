@@ -13,9 +13,9 @@ abstract class MainNavigationCardService {
 abstract class MainNavigationAdvertService {
   Future<Resource<List<Advert>>> getAllAdverts();
   Future<Resource<bool>> apiKeyExists();
-  Future<Resource<int>> getBudget(int advertId);
-  Future<Resource<bool>> stopAdvert(int advertId);
-  Future<Resource<bool>> startAdvert(int advertId);
+  Future<Resource<int>> getBudget(int campaignId);
+  Future<Resource<bool>> stopAdvert(int campaignId);
+  Future<Resource<bool>> startAdvert(int campaignId);
   Future<Resource<int>> getBallance();
 }
 
@@ -53,7 +53,8 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     // Update in MainNavigationAdvertScreen status of _AllAdvertsWidget
     updatedAdvertStream.listen((event) async {
       if (event.status != null) {
-        final oldAdverts = _adverts.where((a) => a.advertId == event.advertId);
+        final oldAdverts =
+            _adverts.where((a) => a.campaignId == event.campaignId);
         if (oldAdverts.isEmpty) {
           return;
         }
@@ -109,7 +110,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
   }
 
   void updateAdvert(Advert advert) {
-    _adverts.removeWhere((element) => element.advertId == advert.advertId);
+    _adverts.removeWhere((element) => element.campaignId == advert.campaignId);
     _adverts.insert(0, advert);
     notify();
   }
@@ -148,28 +149,28 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
 
     for (final advert in _adverts) {
       final budget =
-          await fetch(() => advertService.getBudget(advert.advertId));
+          await fetch(() => advertService.getBudget(advert.campaignId));
       if (budget != null) {
-        addBudget(advert.advertId, budget);
+        addBudget(advert.campaignId, budget);
         notify();
       }
     }
   }
 
-  Future<void> changeAdvertStatus(int advertId) async {
+  Future<void> changeAdvertStatus(int campaignId) async {
     final isPaused =
-        adverts.firstWhere((adv) => adv.advertId == advertId).status ==
+        adverts.firstWhere((adv) => adv.campaignId == campaignId).status ==
             AdvertStatusConstants.paused;
 
     if (!isPaused) {
       // now the advert is not paused
       // stop
-      final _ = await fetch(() => advertService.stopAdvert(advertId));
+      final _ = await fetch(() => advertService.stopAdvert(campaignId));
       return;
     } else {
       // now the advert is paused
       // start
-      final _ = await fetch(() => advertService.startAdvert(advertId));
+      final _ = await fetch(() => advertService.startAdvert(campaignId));
 
       return;
     }

@@ -8,7 +8,7 @@ class AdvertStatDb extends AdvertStatModel {
       required super.ctr,
       required super.cpc,
       required super.spend,
-      required super.advertId,
+      required super.campaignId,
       required super.createdAt});
 
   static Future<void> createTable(Database db) async {
@@ -20,7 +20,7 @@ class AdvertStatDb extends AdvertStatModel {
             ctr REAL,
             cpc REAL,
             spend INTEGER,
-            advertId INTEGER,
+            campaignId INTEGER,
             createdAt TEXT
           )
           ''',

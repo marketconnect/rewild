@@ -39,7 +39,7 @@ class AllAdvertsToolsScreen extends StatelessWidget {
                             onTap: () {
                               Navigator.of(context).pushNamed(
                                   MainNavigationRouteNames.autoStatWordsScreen,
-                                  arguments: advert.advertId);
+                                  arguments: advert.campaignId);
                             },
                             child: _Card(
                               advert: advert,

@@ -216,9 +216,9 @@ class BackgroundService {
       List<int> advertsIds,
       List<ReWildNotificationModel> advertsNotifications) async {
     List<ReWildNotificationContent> notificationContents = [];
-    for (final advertId in advertsIds) {
+    for (final campaignId in advertsIds) {
       // fetch budget
-      final budgetResource = await budgetRequest(token, advertId);
+      final budgetResource = await budgetRequest(token, campaignId);
       if (budgetResource is Error) {
         return Resource.error(budgetResource.message!);
       }
@@ -227,24 +227,24 @@ class BackgroundService {
       }
       final budget = budgetResource.data!;
       final notificationsList = advertsNotifications
-          .where((element) => element.parentId == advertId)
+          .where((element) => element.parentId == campaignId)
           .toList();
       if (notificationsList.isEmpty) {
         continue;
       }
       final nBudg = int.tryParse(notificationsList.first.value) ?? 0;
       if (budget < nBudg) {
-        // final title = "Бюджет кампании $advertId";
+        // final title = "Бюджет кампании $campaignId";
         // final body = "Бюджет: $budget, был $nBudg";
         final notContent = ReWildNotificationContent(
-          id: advertId,
+          id: campaignId,
           condition: NotificationConditionConstants.budgetLessThan,
           newValue: budget.toString(),
           // title: title,
           // body: body,
         );
         NotificationDataProvider.saveInBackground(ReWildNotificationModel(
-          parentId: advertId,
+          parentId: campaignId,
           condition: NotificationConditionConstants.budgetLessThan,
           value: budget.toString(),
         ));
@@ -329,7 +329,7 @@ class BackgroundService {
     }
 
     final advertStatResource = await AdvertApiClient.getAutoStatInBackground(
-        token, advertInfo.advertId);
+        token, advertInfo.campaignId);
     _autoLastReq = DateTime.now();
     if (advertStatResource is Error) {
       return Resource.error(advertStatResource.message!);
@@ -347,7 +347,7 @@ class BackgroundService {
     }
 
     final advertStatResource = await AdvertApiClient.getFullStatInBackground(
-        token, advertInfo.advertId);
+        token, advertInfo.campaignId);
     _autoLastReq = DateTime.now();
     if (advertStatResource is Error) {
       return Resource.error(advertStatResource.message!);
@@ -364,7 +364,7 @@ class BackgroundService {
     }
 
     final advertStatResource = await AdvertApiClient.getSearchStatInBackground(
-        token, advertInfo.advertId);
+        token, advertInfo.campaignId);
     _searchLastReq = DateTime.now();
     if (advertStatResource is Error) {
       return Resource.error(advertStatResource.message!);

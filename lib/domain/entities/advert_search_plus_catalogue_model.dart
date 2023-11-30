@@ -4,7 +4,7 @@ class AdvertSearchPlusCatalogueModel extends Advert {
   List<AdvertSearchPlusCatalogueUnitedParam>? unitedParams;
 
   AdvertSearchPlusCatalogueModel({
-    required super.advertId,
+    required super.campaignId,
     required super.name,
     required super.endTime,
     required super.createTime,
@@ -29,7 +29,7 @@ class AdvertSearchPlusCatalogueModel extends Advert {
                   AdvertSearchPlusCatalogueUnitedParam.fromJson(param)))
           : null,
       dailyBudget: json['dailyBudget'],
-      advertId: json['advertId'],
+      campaignId: json['advertId'],
       status: json['status'],
       type: json['type'],
     );

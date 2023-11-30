@@ -36,13 +36,14 @@ import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/api_keys_service.dart';
 import 'package:rewild/domain/services/auth_service.dart';
-import 'package:rewild/domain/services/auto_stat_service.dart';
+import 'package:rewild/domain/services/advert_stat_service.dart';
 import 'package:rewild/domain/services/background_message_service.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/commission_service.dart';
 import 'package:rewild/domain/services/group_service.dart';
 import 'package:rewild/domain/services/init_stock_service.dart';
 import 'package:rewild/domain/services/internet_connection_checke.dart';
+import 'package:rewild/domain/services/keywords_service.dart';
 import 'package:rewild/domain/services/notification_service.dart';
 
 import 'package:rewild/domain/services/orders_history_service.dart';
@@ -330,7 +331,7 @@ class _DIContainer {
       apiKeysDataProvider: _makeSecureDataProvider());
 
   // Auto stat
-  AutoAdvertService _makeAutoStatService() => AutoAdvertService(
+  AdvertStatService _makeAutoStatService() => AdvertStatService(
       advertApiClient: _makeAdvertApiClient(),
       apiKeysDataProvider: _makeSecureDataProvider(),
       autoStatDataProvider: _makeAutoStatDataProvider());
@@ -346,6 +347,11 @@ class _DIContainer {
   BackgroundMessageService makeBackgroundMessageService() =>
       BackgroundMessageService(
           backgroundMessageDataProvider: _makeBackgroundMessageDataProvider());
+
+  // Keyword
+  KeywordsService _makeKeywordsService() => KeywordsService(
+      advertApiClient: _makeAdvertApiClient(),
+      apiKeysDataProvider: _makeSecureDataProvider());
 
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
@@ -455,10 +461,10 @@ class _DIContainer {
       );
 
   SingleAdvertStatsViewModel _makeAutoStatAdvertScreenViewModel(
-          BuildContext context, int advertId) =>
+          BuildContext context, int campaignId) =>
       SingleAdvertStatsViewModel(
         context: context,
-        advertId: advertId,
+        campaignId: campaignId,
         advertService: _makeAdvertService(),
         advertStatService: _makeAutoStatService(),
         notificationService: _makeNotificationService(),
@@ -474,12 +480,12 @@ class _DIContainer {
           context: context);
 
   SingleAutoWordsViewModel _makeAutoStatWordsViewModel(
-          BuildContext context, int advertId) =>
-      SingleAutoWordsViewModel(advertId,
+          BuildContext context, int campaignId) =>
+      SingleAutoWordsViewModel(campaignId,
           context: context,
           advertService: _makeAdvertService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
-          autoStatsService: _makeAutoStatService());
+          keywordService: _makeKeywordsService());
 
   AllAdvertsToolsViewModel _makeAdvertsToolsViewModel(BuildContext context) =>
       AllAdvertsToolsViewModel(

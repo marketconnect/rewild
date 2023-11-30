@@ -19,16 +19,16 @@ import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_
 abstract class AdvertServiceAdvertApiClient {
   Future<Resource<List<AdvertInfoModel>>> getAdverts(String token);
   Future<Resource<Advert>> getAdvertInfo(String token, int id);
-  Future<Resource<int>> getCompanyBudget(String token, int advertId);
+  Future<Resource<int>> getCompanyBudget(String token, int campaignId);
   Future<Resource<int>> balance(String token);
-  Future<Resource<AdvertStatModel>> getAutoStat(String token, int advertId);
+  Future<Resource<AdvertStatModel>> getAutoStat(String token, int campaignId);
   // Post
-  Future<Resource<bool>> pauseAdvert(String token, int advertId);
-  Future<Resource<bool>> startAdvert(String token, int advertId);
-  Future<Resource<bool>> changeCpm(String token, int advertId, int type,
+  Future<Resource<bool>> pauseAdvert(String token, int campaignId);
+  Future<Resource<bool>> startAdvert(String token, int campaignId);
+  Future<Resource<bool>> changeCpm(String token, int campaignId, int type,
       int cpm, int param, int? instrument);
   Future<Resource<bool>> setAutoSetExcluded(
-      String token, int advertId, List<String> excludedKw);
+      String token, int campaignId, List<String> excludedKw);
 }
 
 // Api key
@@ -96,7 +96,7 @@ class AdvertService
   }
 
   @override
-  Future<Resource<int>> getBudget(int advertId) async {
+  Future<Resource<int>> getBudget(int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -112,7 +112,7 @@ class AdvertService
     }
 
     final budgetResource = await advertApiClient.getCompanyBudget(
-        tokenResource.data!.token, advertId);
+        tokenResource.data!.token, campaignId);
     budgetLastReq = DateTime.now();
 
     if (budgetResource is Error) {
@@ -161,7 +161,7 @@ class AdvertService
       }
 
       final advInfoResource = await advertApiClient.getAdvertInfo(
-          tokenResource.data!.token, advert.advertId);
+          tokenResource.data!.token, advert.campaignId);
       advertLastReq = DateTime.now();
 
       if (advInfoResource is Error) {
@@ -174,7 +174,7 @@ class AdvertService
   }
 
   @override
-  Future<Resource<Advert>> advertInfo(int advertId) async {
+  Future<Resource<Advert>> advertInfo(int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -182,7 +182,7 @@ class AdvertService
 
     // request
     final advInfoResource = await advertApiClient.getAdvertInfo(
-        tokenResource.data!.token, advertId);
+        tokenResource.data!.token, campaignId);
     advertLastReq = DateTime.now();
     if (advInfoResource is Error) {
       return Resource.error(advInfoResource.message!);
@@ -193,7 +193,7 @@ class AdvertService
 
   @override
   Future<Resource<bool>> setAutoExcluded(
-      int advertId, List<String> excluded) async {
+      int campaignId, List<String> excluded) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -209,7 +209,7 @@ class AdvertService
     }
 
     final autoExcludedResource = await advertApiClient.setAutoSetExcluded(
-        tokenResource.data!.token, advertId, excluded);
+        tokenResource.data!.token, campaignId, excluded);
     autoExcludedLastReq = DateTime.now();
     if (autoExcludedResource is Error) {
       return Resource.error(autoExcludedResource.message!);
@@ -219,7 +219,7 @@ class AdvertService
 
   @override
   Future<Resource<bool>> setCpm(
-      {required int advertId,
+      {required int campaignId,
       required int type,
       required int cpm,
       required int param,
@@ -237,13 +237,13 @@ class AdvertService
       await _ready(changeCpmLastReq, APIConstants.cpmDurationBetweenReqInMs);
     }
     final changeCpmResource = await advertApiClient.changeCpm(
-        tokenResource.data!.token, advertId, type, cpm, param, instrument);
+        tokenResource.data!.token, campaignId, type, cpm, param, instrument);
     changeCpmLastReq = DateTime.now();
     if (changeCpmResource is Error) {
       return Resource.error(changeCpmResource.message!);
     }
     updatedAdvertStreamController
-        .add(StreamAdvertEvent(advertId: advertId, cpm: cpm, status: null));
+        .add(StreamAdvertEvent(campaignId: campaignId, cpm: cpm, status: null));
     return Resource.success(changeCpmResource.data!);
   }
 
@@ -324,7 +324,7 @@ class AdvertService
 
       // request
       final advInfoResource = await advertApiClient.getAdvertInfo(
-          tokenResource.data!.token, advert.advertId);
+          tokenResource.data!.token, advert.campaignId);
       advertLastReq = DateTime.now();
       if (advInfoResource is Error) {
         return Resource.error(advInfoResource.message!);
@@ -335,9 +335,9 @@ class AdvertService
   }
 
   @override
-  Future<Resource<bool>> startAdvert(int advertId) async {
+  Future<Resource<bool>> startAdvert(int campaignId) async {
     final tokenResource = await _tryChangeAdvertStatus(
-      advertId,
+      campaignId,
       pauseLastReq,
       APIConstants.startDurationBetweenReqInMs,
       advertApiClient.startAdvert,
@@ -350,25 +350,25 @@ class AdvertService
     }
     await _ready(advertLastReq, APIConstants.advertDurationBetweenReqInMs);
     final advertInfoResource =
-        await advertApiClient.getAdvertInfo(tokenResource.data!, advertId);
+        await advertApiClient.getAdvertInfo(tokenResource.data!, campaignId);
     if (advertInfoResource is Error) {
       return Resource.error(advertInfoResource.message!);
     }
     final advert = advertInfoResource.data!;
     if (advert.status == 9) {
       updatedAdvertStreamController
-          .add(StreamAdvertEvent(advertId: advertId, cpm: null, status: 9));
+          .add(StreamAdvertEvent(campaignId: campaignId, cpm: null, status: 9));
       return Resource.success(true);
     }
     updatedAdvertStreamController.add(StreamAdvertEvent(
-        advertId: advertId, cpm: null, status: advert.status));
+        campaignId: campaignId, cpm: null, status: advert.status));
     return Resource.success(false);
   }
 
   @override
-  Future<Resource<bool>> stopAdvert(int advertId) async {
+  Future<Resource<bool>> stopAdvert(int campaignId) async {
     final tokenResource = await _tryChangeAdvertStatus(
-      advertId,
+      campaignId,
       pauseLastReq,
       APIConstants.pauseDurationBetweenReqInMs,
       advertApiClient.pauseAdvert,
@@ -378,23 +378,23 @@ class AdvertService
     }
     await _ready(advertLastReq, APIConstants.advertDurationBetweenReqInMs);
     final advertInfoResource =
-        await advertApiClient.getAdvertInfo(tokenResource.data!, advertId);
+        await advertApiClient.getAdvertInfo(tokenResource.data!, campaignId);
     if (advertInfoResource is Error) {
       return Resource.error(advertInfoResource.message!);
     }
     final advert = advertInfoResource.data!;
     if (advert.status != 9) {
       updatedAdvertStreamController.add(StreamAdvertEvent(
-          advertId: advertId, cpm: null, status: advert.status));
+          campaignId: campaignId, cpm: null, status: advert.status));
       return Resource.success(true);
     }
     updatedAdvertStreamController.add(StreamAdvertEvent(
-        advertId: advertId, cpm: null, status: advert.status));
+        campaignId: campaignId, cpm: null, status: advert.status));
     return Resource.success(false);
   }
 
   Future<Resource<String>> _tryChangeAdvertStatus(
-      int advertId,
+      int campaignId,
       DateTime? lastReqTime,
       Duration duration,
       Future<Resource<bool>> Function(String, int) func) async {
@@ -414,7 +414,7 @@ class AdvertService
       if (lastReqTime != null) {
         await _ready(lastReqTime, duration);
       }
-      final resource = await func(tokenResource.data!.token, advertId);
+      final resource = await func(tokenResource.data!.token, campaignId);
       lastReqTime = DateTime.now();
       if (resource is Error) {
         return Resource.error(resource.message!);

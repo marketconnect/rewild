@@ -7,15 +7,15 @@ import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/auto_stat_word.dart';
 import 'package:rewild/domain/entities/keyword.dart';
 
-abstract class SingleAutoWordsAutoStatsService {
-  Future<Resource<AutoStatWord>> getAutoStatWords(int advertId);
+abstract class SingleAutoWordsKeywordService {
+  Future<Resource<AutoStatWord>> getAutoStatWords(int campaignId);
 }
 
 abstract class SingleAutoWordsAdvertService {
-  Future<Resource<Advert>> advertInfo(int advertId);
-  Future<Resource<bool>> setAutoExcluded(int advertId, List<String> excluded);
+  Future<Resource<Advert>> advertInfo(int campaignId);
+  Future<Resource<bool>> setAutoExcluded(int campaignId, List<String> excluded);
   Future<Resource<bool>> setCpm(
-      {required int advertId,
+      {required int campaignId,
       required int type,
       required int cpm,
       required int param,
@@ -23,14 +23,14 @@ abstract class SingleAutoWordsAdvertService {
 }
 
 class SingleAutoWordsViewModel extends ResourceChangeNotifier {
-  final SingleAutoWordsAutoStatsService autoStatsService;
+  final SingleAutoWordsKeywordService keywordService;
   final SingleAutoWordsAdvertService advertService;
-  final int advertId;
-  SingleAutoWordsViewModel(this.advertId,
+  final int campaignId;
+  SingleAutoWordsViewModel(this.campaignId,
       {required super.context,
       required super.internetConnectionChecker,
       required this.advertService,
-      required this.autoStatsService}) {
+      required this.keywordService}) {
     _asyncInit();
   }
 
@@ -40,8 +40,8 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
 
   Future<void> _update() async {
     final values = await Future.wait([
-      fetch(() => autoStatsService.getAutoStatWords(advertId)),
-      fetch(() => advertService.advertInfo(advertId)),
+      fetch(() => keywordService.getAutoStatWords(campaignId)),
+      fetch(() => advertService.advertInfo(campaignId)),
     ]);
 
     // Advert Info
@@ -138,7 +138,7 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> save() async {
-    await fetch(() => advertService.setAutoExcluded(advertId, _excluded));
+    await fetch(() => advertService.setAutoExcluded(campaignId, _excluded));
   }
 
   // Search functionality
@@ -172,7 +172,7 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
       return;
     }
     await fetch(() => advertService.setCpm(
-        advertId: advertId, cpm: cpm, type: _advType!, param: subjectId));
+        campaignId: campaignId, cpm: cpm, type: _advType!, param: subjectId));
     await _update();
   }
 }

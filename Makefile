@@ -17,7 +17,6 @@ migrate_up:
 migrate_down:
 	migrate -path ./schema -database 'postgres://postgres:postgres@localhost:5432/mc_db?sslmode=disable' down
 
-
 build:
 	rm mc
 	GOOS=linux GOARCH=amd64 go build -o mc app/cmd/main.go

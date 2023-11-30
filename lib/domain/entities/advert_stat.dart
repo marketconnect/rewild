@@ -2,7 +2,7 @@
 import 'dart:convert';
 
 class AdvertStatModel {
-  int advertId;
+  int campaignId;
   int views;
   double clicks;
   double ctr;
@@ -16,7 +16,7 @@ class AdvertStatModel {
     required this.ctr,
     required this.cpc,
     required this.spend,
-    required this.advertId,
+    required this.campaignId,
     required this.createdAt,
   });
 
@@ -26,7 +26,7 @@ class AdvertStatModel {
     double? ctr,
     double? cpc,
     int? spend,
-    int? advertId,
+    int? campaignId,
   }) {
     return AdvertStatModel(
       views: views ?? this.views,
@@ -34,7 +34,7 @@ class AdvertStatModel {
       ctr: ctr ?? this.ctr,
       cpc: cpc ?? this.cpc,
       spend: spend ?? this.spend,
-      advertId: advertId ?? this.advertId,
+      campaignId: campaignId ?? this.campaignId,
       createdAt: createdAt,
     );
   }
@@ -46,12 +46,12 @@ class AdvertStatModel {
       'ctr': ctr,
       'cpc': cpc,
       'spend': spend,
-      'advertId': advertId,
+      'campaignId': campaignId,
       'createdAt': createdAt.toIso8601String(),
     };
   }
 
-  factory AdvertStatModel.fromMap(Map<String, dynamic> map, int advertId) {
+  factory AdvertStatModel.fromMap(Map<String, dynamic> map, int campaignId) {
     final clicks = map['clicks'] is double
         ? map['clicks']
         : (map['clicks'] as int).toDouble();
@@ -80,15 +80,16 @@ class AdvertStatModel {
       ctr: ctr,
       cpc: cpc,
       spend: spend,
-      advertId: advertId,
+      campaignId: campaignId,
       createdAt: createdAt,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory AdvertStatModel.fromJson(Map<String, dynamic> source, int advertId) =>
-      AdvertStatModel.fromMap(source, advertId);
+  factory AdvertStatModel.fromJson(
+          Map<String, dynamic> source, int campaignId) =>
+      AdvertStatModel.fromMap(source, campaignId);
 
   @override
   String toString() {

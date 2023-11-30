@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rewild/core/utils/text_filed_validator.dart';
 
 class MyDialogTextFieldRadio extends StatefulWidget {
   const MyDialogTextFieldRadio(
@@ -10,10 +9,12 @@ class MyDialogTextFieldRadio extends StatefulWidget {
       this.keyboardType,
       required this.btnText,
       required this.radioOptions,
-      required this.textInputOptions});
+      required this.textInputOptions,
+      required this.validator});
 
   final Future<void> Function({required String value, required int option})
       addGroup;
+  final bool Function(String name, int value) validator;
   final String header;
   final String description;
   // final String hint;
@@ -185,8 +186,7 @@ class _MyDialogTextFieldRadioState extends State<MyDialogTextFieldRadio> {
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    isValid = TextFieldValidator.isNumericAndGreaterThanN(
-                        newGroupName, 150);
+                    isValid = widget.validator(newGroupName, 150);
                   });
 
                   if (isValid) {

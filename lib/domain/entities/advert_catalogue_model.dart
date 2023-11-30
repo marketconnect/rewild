@@ -5,7 +5,7 @@ class AdvertCatalogueModel extends Advert {
   List<AdvertCatalogueParam>? params;
 
   AdvertCatalogueModel({
-    required super.advertId,
+    required super.campaignId,
     required super.name,
     required super.endTime,
     required super.createTime,
@@ -29,7 +29,7 @@ class AdvertCatalogueModel extends Advert {
               .map((param) => AdvertCatalogueParam.fromJson(param)))
           : null,
       dailyBudget: json['dailyBudget'],
-      advertId: json['advertId'],
+      campaignId: json['advertId'],
       status: json['status'],
       type: json['type'],
     );

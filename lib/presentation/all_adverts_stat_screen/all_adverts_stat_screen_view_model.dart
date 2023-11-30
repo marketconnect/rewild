@@ -14,7 +14,7 @@ import 'package:rewild/domain/entities/stream_advert_event.dart';
 abstract class AllAdvertsStatScreenAdvertService {
   Future<Resource<List<Advert>>> getAll();
   Future<Resource<bool>> apiKeyExists();
-  Future<Resource<int>> getBudget(int advertId);
+  Future<Resource<int>> getBudget(int campaignId);
 }
 
 abstract class AllAdvertsStatScreenCardOfProductService {
@@ -42,7 +42,8 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
     // Update status and cpm of cards
     updatedAdvertStream.listen((event) async {
       if (event.status != null) {
-        final oldAdverts = _adverts.where((a) => a.advertId == event.advertId);
+        final oldAdverts =
+            _adverts.where((a) => a.campaignId == event.campaignId);
         if (oldAdverts.isEmpty) {
           return;
         }
@@ -54,13 +55,13 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
         // to update cpm of search+catalog need to update cpm of search and
         // cpm of catalog. But with only one value from the stream it is not possible.
         // So we need to update all
-        if (adverts.firstWhere((a) => a.advertId == event.advertId).type ==
+        if (adverts.firstWhere((a) => a.campaignId == event.campaignId).type ==
             AdvertTypeConstants.searchPlusCatalog) {
           await _update();
           return;
         }
 
-        updateCpm(event.advertId, event.cpm.toString());
+        updateCpm(event.campaignId, event.cpm.toString());
       }
 
       notify();
@@ -87,9 +88,9 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
       return;
     }
 
-    List<int> advertIds = [];
+    List<int> campaignIds = [];
     for (final advert in adverts) {
-      advertIds.add(advert.advertId);
+      campaignIds.add(advert.campaignId);
       int nmId = 0;
       String cpm = "";
       if (advert is AdvertCatalogueModel) {
@@ -158,14 +159,14 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
       if (image == null) {
         return;
       }
-      addImage(advert.advertId, image);
-      addCpm(advert.advertId, cpm);
+      addImage(advert.campaignId, image);
+      addCpm(advert.campaignId, cpm);
     }
     adverts.sort((a, b) => b.status.compareTo(a.status));
     setAdverts(adverts);
 
     notify();
-    for (final id in advertIds) {
+    for (final id in campaignIds) {
       final budget = await fetch(() => advertService.getBudget(id));
       if (budget != null) {
         addBudget(id, budget);
@@ -181,7 +182,7 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
   }
 
   void updateAdvert(Advert advert) {
-    _adverts.removeWhere((element) => element.advertId == advert.advertId);
+    _adverts.removeWhere((element) => element.campaignId == advert.campaignId);
     _adverts.insert(0, advert);
     notify();
   }

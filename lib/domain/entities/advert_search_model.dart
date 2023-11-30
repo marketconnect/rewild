@@ -6,7 +6,7 @@ class AdvertSearchModel extends Advert {
   List<AdvertSearchParam>? params;
 
   AdvertSearchModel({
-    required super.advertId,
+    required super.campaignId,
     required super.name,
     required super.endTime,
     required super.createTime,
@@ -32,7 +32,7 @@ class AdvertSearchModel extends Advert {
               json['params'].map((param) => AdvertSearchParam.fromJson(param)))
           : null,
       dailyBudget: json['dailyBudget'],
-      advertId: json['advertId'],
+      campaignId: json['advertId'],
       status: json['status'],
       type: json['type'],
     );

@@ -53,7 +53,7 @@ class AllAdvertsStatScreen extends StatelessWidget {
                           onTap: () {
                             Navigator.of(context).pushNamed(
                               MainNavigationRouteNames.singleAdvertStatsScreen,
-                              arguments: advert.advertId,
+                              arguments: advert.campaignId,
                             );
                           },
                           child: Padding(
@@ -85,7 +85,7 @@ class AllAdvertsStatScreen extends StatelessWidget {
                                               0.007,
                                         ),
                                         _TopRow(
-                                            image: image(advert.advertId),
+                                            image: image(advert.campaignId),
                                             name: advert.name,
                                             advType: advert.type),
                                         SizedBox(
@@ -103,8 +103,8 @@ class AllAdvertsStatScreen extends StatelessWidget {
                                               .withOpacity(0.1),
                                         ),
                                         _BottomRow(
-                                          budget: budget(advert.advertId),
-                                          cpm: cpm(advert.advertId),
+                                          budget: budget(advert.campaignId),
+                                          cpm: cpm(advert.campaignId),
                                           status: advert.status,
                                         )
                                       ],

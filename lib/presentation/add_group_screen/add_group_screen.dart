@@ -1,3 +1,4 @@
+import 'package:rewild/core/utils/text_filed_validator.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
                 header: "Название группы",
                 hint: "Введите название",
                 addGroup: addGroup,
+                validator: TextFieldValidator.isNotEmpty,
                 btnText: "Добавить",
                 description: "Будет отображаться для объединенных карточек",
                 keyboardType: TextInputType.name,

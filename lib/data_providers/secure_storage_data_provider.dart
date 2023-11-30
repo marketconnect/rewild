@@ -7,13 +7,15 @@ import 'package:rewild/domain/services/api_keys_service.dart';
 import 'package:rewild/domain/services/auth_service.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:rewild/domain/services/auto_stat_service.dart';
+import 'package:rewild/domain/services/advert_stat_service.dart';
+import 'package:rewild/domain/services/keywords_service.dart';
 
 class SecureStorageProvider
     implements
         AuthServiceSecureDataProvider,
+        KeywordsServiceApiKeyDataProvider,
         ApiKeysServiceApiKeysDataProvider,
-        AutoStatServiceApiKeyDataProvider,
+        AdvertStatServiceApiKeyDataProvider,
         AdvertServiceApiKeyDataProvider {
   static const _secureStorage = FlutterSecureStorage(
       aOptions: AndroidOptions(

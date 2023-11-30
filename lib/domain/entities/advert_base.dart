@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class Advert {
-  int advertId;
+  int campaignId;
   String name;
   DateTime endTime;
   DateTime createTime;
@@ -11,7 +11,7 @@ class Advert {
   int type;
 
   Advert({
-    required this.advertId,
+    required this.campaignId,
     required this.name,
     required this.endTime,
     required this.createTime,
@@ -23,7 +23,7 @@ class Advert {
   });
 
   Advert copyWith({
-    int? advertId,
+    int? campaignId,
     String? name,
     DateTime? endTime,
     DateTime? createTime,
@@ -34,7 +34,7 @@ class Advert {
     int? type,
   }) {
     return Advert(
-      advertId: advertId ?? this.advertId,
+      campaignId: campaignId ?? this.campaignId,
       name: name ?? this.name,
       endTime: endTime ?? this.endTime,
       createTime: createTime ?? this.createTime,

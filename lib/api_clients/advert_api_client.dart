@@ -15,10 +15,14 @@ import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:rewild/domain/entities/auto_stat_word.dart';
 import 'package:rewild/domain/services/advert_service.dart';
-import 'package:rewild/domain/services/auto_stat_service.dart';
+import 'package:rewild/domain/services/advert_stat_service.dart';
+import 'package:rewild/domain/services/keywords_service.dart';
 
 class AdvertApiClient
-    implements AdvertServiceAdvertApiClient, AutoStatServiceAdvertApiClient {
+    implements
+        AdvertServiceAdvertApiClient,
+        AdvertStatServiceAdvertApiClient,
+        KeywordsServiceAdvertApiClient {
   const AdvertApiClient();
 
   @override
@@ -148,14 +152,14 @@ class AdvertApiClient
   // max 10 requests per minute
   @override
   Future<Resource<bool>> setAutoSetExcluded(
-      String token, int advertId, List<String> excludedKw) async {
+      String token, int campaignId, List<String> excludedKw) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
 
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
       final body = {
         'excluded': excludedKw,
       };
@@ -184,13 +188,13 @@ class AdvertApiClient
 
   @override
   Future<Resource<AutoStatWord>> autoStatWords(
-      String token, int advertId) async {
+      String token, int campaignId) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
       final uri =
           Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat-words", params);
       final response = await http.get(uri, headers: headers);
@@ -217,17 +221,17 @@ class AdvertApiClient
 
   // max 300 requests per minute
   @override
-  Future<Resource<bool>> changeCpm(String token, int advertId, int type,
+  Future<Resource<bool>> changeCpm(String token, int campaignId, int type,
       int cpm, int param, int? instrument) async {
     try {
       print(
-          'token: $token, advertId: $advertId, type: $type, cpm: $cpm, param: $param, instrument: $instrument');
+          'token: $token, campaignId: $campaignId, type: $type, cpm: $cpm, param: $param, instrument: $instrument');
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
       final body = {
-        'advertId': advertId,
+        'campaignId': campaignId,
         'type': type,
         'cpm': cpm,
       };
@@ -268,13 +272,13 @@ class AdvertApiClient
 
   // max 300 requests per minute
   @override
-  Future<Resource<bool>> pauseAdvert(String token, int advertId) async {
+  Future<Resource<bool>> pauseAdvert(String token, int campaignId) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
 
       final uri = Uri.https('advert-api.wb.ru', "/adv/v0/pause", params);
       final response = await http.get(uri, headers: headers);
@@ -302,13 +306,13 @@ class AdvertApiClient
 
   // max 300 requests per minute
   @override
-  Future<Resource<bool>> startAdvert(String token, int advertId) async {
+  Future<Resource<bool>> startAdvert(String token, int campaignId) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
 
       final uri = Uri.https('advert-api.wb.ru', "/adv/v0/start", params);
       final response = await http.get(uri, headers: headers);
@@ -335,13 +339,13 @@ class AdvertApiClient
   }
 
   @override
-  Future<Resource<int>> getCompanyBudget(String token, int advertId) async {
+  Future<Resource<int>> getCompanyBudget(String token, int campaignId) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
 
       final uri = Uri.https('advert-api.wb.ru', "/adv/v1/budget", params);
       final response = await http.get(uri, headers: headers);
@@ -358,7 +362,7 @@ class AdvertApiClient
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
-          "Ответ API WB: кампания $advertId не принадлежит продавцу",
+          "Ответ API WB: кампания $campaignId не принадлежит продавцу",
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
@@ -453,19 +457,19 @@ class AdvertApiClient
   }
 
   Future<Resource<AdvertStatModel>> getSearchStat(
-      String token, int advertId) async {
+      String token, int campaignId) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
       final uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
         final total = stats['stat'][0];
-        return Resource.success(AdvertStatModel.fromJson(total, advertId));
+        return Resource.success(AdvertStatModel.fromJson(total, campaignId));
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
@@ -491,18 +495,18 @@ class AdvertApiClient
 
   @override
   Future<Resource<AdvertStatModel>> getAutoStat(
-      String token, int advertId) async {
+      String token, int campaignId) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
       final uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
-        return Resource.success(AdvertStatModel.fromJson(stats, advertId));
+        return Resource.success(AdvertStatModel.fromJson(stats, campaignId));
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
@@ -596,20 +600,20 @@ class AdvertApiClient
 
   // STATIC METHODS ====================================================================== STATIC METHODS
   static Future<Resource<AdvertStatModel>> getFullStatInBackground(
-      String token, int advertId) async {
+      String token, int campaignId) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
 
       final uri = Uri.https('advert-api.wb.ru', "/adv/v1/fullstat", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
         // final total = stats['stat'][0];
-        return Resource.success(AdvertStatModel.fromJson(stats, advertId));
+        return Resource.success(AdvertStatModel.fromJson(stats, campaignId));
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
@@ -634,19 +638,19 @@ class AdvertApiClient
   }
 
   static Future<Resource<AdvertStatModel>> getSearchStatInBackground(
-      String token, int advertId) async {
+      String token, int campaignId) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
       final uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
         final total = stats['stat'][0];
-        return Resource.success(AdvertStatModel.fromJson(total, advertId));
+        return Resource.success(AdvertStatModel.fromJson(total, campaignId));
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
@@ -718,18 +722,18 @@ class AdvertApiClient
   }
 
   static Future<Resource<AdvertStatModel>> getAutoStatInBackground(
-      String token, int advertId) async {
+      String token, int campaignId) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
       final uri = Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
-        return Resource.success(AdvertStatModel.fromJson(stats, advertId));
+        return Resource.success(AdvertStatModel.fromJson(stats, campaignId));
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
@@ -754,13 +758,13 @@ class AdvertApiClient
   }
 
   static Future<Resource<int>> getCompanyBudgetInBackground(
-      String token, int advertId) async {
+      String token, int campaignId) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final params = {'id': advertId.toString()};
+      final params = {'id': campaignId.toString()};
 
       final uri = Uri.https('advert-api.wb.ru', "/adv/v1/budget", params);
       final response = await http.get(uri, headers: headers);
@@ -777,7 +781,7 @@ class AdvertApiClient
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
-          "Ответ API WB: кампания $advertId не принадлежит продавцу",
+          "Ответ API WB: кампания $campaignId не принадлежит продавцу",
         );
       } else if (response.statusCode == 401) {
         return Resource.error(

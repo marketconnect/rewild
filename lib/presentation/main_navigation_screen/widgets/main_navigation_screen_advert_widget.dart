@@ -182,7 +182,7 @@ class _AllAdvertsWidget extends StatelessWidget {
                 itemCount: adverts.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
-                  final budget = this.budget[adverts[index].advertId];
+                  final budget = this.budget[adverts[index].campaignId];
                   final isPaused = adverts[index].status == 11;
 
                   final icon =
@@ -272,7 +272,7 @@ class _AllAdvertsWidget extends StatelessWidget {
                               screenWidth: screenWidth,
                               callback: callback,
                               active: !isPaused,
-                              advertId: adverts[index].advertId,
+                              campaignId: adverts[index].campaignId,
                             )
                           ],
                         ),
@@ -296,7 +296,7 @@ class _AllAdvertsWidget extends StatelessWidget {
 
 class _ElevatedBtn extends StatefulWidget {
   const _ElevatedBtn({
-    required this.advertId,
+    required this.campaignId,
     required this.screenWidth,
     required this.callback,
     required this.active,
@@ -306,7 +306,7 @@ class _ElevatedBtn extends StatefulWidget {
   final Future<void> Function(int) callback;
   final bool active;
 
-  final int advertId;
+  final int campaignId;
 
   @override
   State<_ElevatedBtn> createState() => _ElevatedBtnState();
@@ -326,7 +326,7 @@ class _ElevatedBtnState extends State<_ElevatedBtn> {
             isLoading = true;
           });
 
-          await widget.callback(widget.advertId);
+          await widget.callback(widget.campaignId);
 
           setState(() {
             isLoading = false;

@@ -140,9 +140,9 @@ class MainNavigation implements AppNavigation {
         );
       case MainNavigationRouteNames.singleAdvertStatsScreen:
         final arguments = settings.arguments;
-        final advertId = arguments is int ? arguments : 0;
+        final campaignId = arguments is int ? arguments : 0;
         return MaterialPageRoute(
-          builder: (_) => screenFactory.makeSingleStatAdvertScreen(advertId),
+          builder: (_) => screenFactory.makeSingleStatAdvertScreen(campaignId),
         );
       case MainNavigationRouteNames.allAdvertsToolsScreen:
         return MaterialPageRoute(
@@ -169,9 +169,9 @@ class MainNavigation implements AppNavigation {
         );
       case MainNavigationRouteNames.autoStatWordsScreen:
         final arguments = settings.arguments;
-        final advertId = arguments is int ? arguments : 0;
+        final campaignId = arguments is int ? arguments : 0;
         return MaterialPageRoute(
-          builder: (_) => screenFactory.makeAutoStatsWordsScreen(advertId),
+          builder: (_) => screenFactory.makeAutoStatsWordsScreen(campaignId),
         );
 
       // case MainNavigationRouteNames.allCardsFilterScreen:

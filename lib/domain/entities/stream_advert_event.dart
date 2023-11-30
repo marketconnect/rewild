@@ -1,8 +1,8 @@
 class StreamAdvertEvent {
-  final int advertId;
+  final int campaignId;
   int? cpm;
   int? status;
 
   StreamAdvertEvent(
-      {required this.advertId, required this.cpm, required this.status});
+      {required this.campaignId, required this.cpm, required this.status});
 }

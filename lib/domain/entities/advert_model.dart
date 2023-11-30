@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class AdvertInfoModel {
-  int advertId;
+  int campaignId;
   int type;
   int status;
   int dailyBudget;
@@ -12,7 +12,7 @@ class AdvertInfoModel {
   DateTime endTime;
 
   AdvertInfoModel({
-    required this.advertId,
+    required this.campaignId,
     required this.type,
     required this.status,
     required this.dailyBudget,
@@ -24,8 +24,9 @@ class AdvertInfoModel {
   });
 
   factory AdvertInfoModel.fromJson(Map<String, dynamic> json) {
+    print(json);
     return AdvertInfoModel(
-      advertId: json['advertId'],
+      campaignId: json['advertId'],
       type: json['type'],
       name: json['name'],
       status: json['status'],
@@ -38,7 +39,7 @@ class AdvertInfoModel {
   }
 
   AdvertInfoModel copyWith({
-    int? advertId,
+    int? campaignId,
     int? type,
     int? status,
     int? dailyBudget,
@@ -49,7 +50,7 @@ class AdvertInfoModel {
     DateTime? endTime,
   }) {
     return AdvertInfoModel(
-      advertId: advertId ?? this.advertId,
+      campaignId: campaignId ?? this.campaignId,
       type: type ?? this.type,
       status: status ?? this.status,
       dailyBudget: dailyBudget ?? this.dailyBudget,
@@ -63,7 +64,7 @@ class AdvertInfoModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'advertId': advertId,
+      'campaignId': campaignId,
       'type': type,
       'status': status,
       'dailyBudget': dailyBudget,
@@ -77,7 +78,7 @@ class AdvertInfoModel {
 
   factory AdvertInfoModel.fromMap(Map<String, dynamic> map) {
     return AdvertInfoModel(
-      advertId: map['advertId'] as int,
+      campaignId: map['campaignId'] as int,
       type: map['type'] as int,
       status: map['status'] as int,
       dailyBudget: map['dailyBudget'] as int,
@@ -93,14 +94,14 @@ class AdvertInfoModel {
 
   @override
   String toString() {
-    return 'AdvertModel(advertId: $advertId, type: $type, status: $status, dailyBudget: $dailyBudget, createTime: $createTime, changeTime: $changeTime, name: $name, startTime: $startTime, endTime: $endTime)';
+    return 'AdvertModel(campaignId: $campaignId, type: $type, status: $status, dailyBudget: $dailyBudget, createTime: $createTime, changeTime: $changeTime, name: $name, startTime: $startTime, endTime: $endTime)';
   }
 
   @override
   bool operator ==(covariant AdvertInfoModel other) {
     if (identical(this, other)) return true;
 
-    return other.advertId == advertId &&
+    return other.campaignId == campaignId &&
         other.type == type &&
         other.status == status &&
         other.dailyBudget == dailyBudget &&
@@ -113,7 +114,7 @@ class AdvertInfoModel {
 
   @override
   int get hashCode {
-    return advertId.hashCode ^
+    return campaignId.hashCode ^
         type.hashCode ^
         status.hashCode ^
         dailyBudget.hashCode ^

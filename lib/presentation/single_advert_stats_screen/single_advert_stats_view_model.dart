@@ -3,6 +3,7 @@ import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
+import 'package:rewild/core/utils/text_filed_validator.dart';
 import 'package:rewild/domain/entities/advert_auto_model.dart';
 import 'package:rewild/domain/entities/advert_card_model.dart';
 import 'package:rewild/domain/entities/advert_catalogue_model.dart';
@@ -20,19 +21,19 @@ import 'package:rewild/widgets/my_dialog_textfield_radio_checkbox.dart';
 import '../../domain/entities/advert_base.dart';
 
 abstract class SingleAdvertStatsViewModelAdvertStatsService {
-  Future<Resource<AdvertStatModel>> getCurrent(int advertId);
-  Future<Resource<List<AdvertStatModel>>> getTodays(int advertId);
+  Future<Resource<AdvertStatModel>> getCurrent(int campaignId);
+  Future<Resource<List<AdvertStatModel>>> getTodays(int campaignId);
 }
 
 abstract class SingleAdvertStatsViewModelAdvertService {
-  Future<Resource<int>> getBudget(int advertId);
+  Future<Resource<int>> getBudget(int campaignId);
 
-  Future<Resource<Advert>> advertInfo(int advertId);
-  Future<Resource<bool>> stopAdvert(int advertId);
-  Future<Resource<bool>> startAdvert(int advertId);
+  Future<Resource<Advert>> advertInfo(int campaignId);
+  Future<Resource<bool>> stopAdvert(int campaignId);
+  Future<Resource<bool>> startAdvert(int campaignId);
 
   Future<Resource<bool>> setCpm(
-      {required int advertId,
+      {required int campaignId,
       required int type,
       required int cpm,
       required int param,
@@ -47,7 +48,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   final SingleAdvertStatsViewModelAdvertStatsService advertStatService;
   final SingleAdvertStatsViewModelAdvertService advertService;
   final SingleAdvertStatsViewModelNotificationService notificationService;
-  final int advertId;
+  final int campaignId;
   // Stream
   Stream<StreamNotificationEvent> streamNotification;
   SingleAdvertStatsViewModel({
@@ -57,7 +58,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
     required this.advertService,
     required this.streamNotification,
     required this.notificationService,
-    required this.advertId,
+    required this.campaignId,
   }) {
     _asyncInit();
   }
@@ -81,9 +82,9 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
   Future<void> _update() async {
     final values = await Future.wait([
-      fetch(() => advertService.advertInfo(advertId)), // advertInfo
-      fetch(() => advertService.getBudget(advertId)), // budget
-      fetch(() => advertStatService.getTodays(advertId)), // autoStatList
+      fetch(() => advertService.advertInfo(campaignId)), // advertInfo
+      fetch(() => advertService.getBudget(campaignId)), // budget
+      fetch(() => advertStatService.getTodays(campaignId)), // autoStatList
     ]);
 
     // Advert Info
@@ -166,7 +167,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
     // Notification
     final notificationsExists =
-        await fetch(() => notificationService.checkForParent(advertId));
+        await fetch(() => notificationService.checkForParent(campaignId));
     if (notificationsExists != null && notificationsExists) {
       setTracked();
     }
@@ -250,6 +251,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
               addGroup: _changeCpm,
               radioOptions: radioOptions,
               textInputOptions: textInputOptions,
+              validator: TextFieldValidator.isNumericAndGreaterThanN,
               btnText: "Обновить",
               description: "Введите новое значение ставки",
               keyboardType: TextInputType.number,
@@ -294,6 +296,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
             radioOptions: radioOptions,
             textInputOptions: textInputOptions,
             addGroup: _changeCpmInSearchAndCatalog,
+            validator: TextFieldValidator.isNumericAndGreaterThanN,
             btnText: "Обновить",
             description: "Введите новое значение ставки",
             keyboardType: TextInputType.number,
@@ -324,6 +327,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
         textInputOptions: textInputOptions,
         radioOptions: radioOptions,
         addGroup: _changeCpm,
+        validator: TextFieldValidator.isNumericAndGreaterThanN,
         btnText: "Обновить",
         description: "Введите новое значение ставки",
         keyboardType: TextInputType.number,
@@ -338,7 +342,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
       return;
     }
     await fetch(() => advertService.setCpm(
-        advertId: advertId, cpm: cpm, type: _advType!, param: option));
+        campaignId: campaignId, cpm: cpm, type: _advType!, param: option));
 
     await _update();
   }
@@ -354,7 +358,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
       return;
     }
     await fetch(() => advertService.setCpm(
-        advertId: advertId,
+        campaignId: campaignId,
         cpm: cpm,
         type: _advType!,
         param: option1,
@@ -577,7 +581,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
   // PRIVATE METHODS ======================================================================== PRIVATE METHODS
   Future<void> _start() async {
-    final adv = await fetch(() => advertService.startAdvert(advertId));
+    final adv = await fetch(() => advertService.startAdvert(campaignId));
     if (adv == null || !adv) {
       // could not start
       setActive(false); // still paused
@@ -590,7 +594,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
   void notificationsScreen() {
     final state = NotificationAdvertState(
-      nmId: advertId,
+      nmId: campaignId,
       budget: budget,
     );
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/text_filed_validator.dart';
 
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 import 'package:rewild/widgets/my_dialog_save_widget.dart';
@@ -37,6 +38,8 @@ class SingleAutoWordsScreen extends StatelessWidget {
                               header: "Ставка (СРМ, ₽)",
                               hint: '$cpm₽',
                               addGroup: changeCpm,
+                              validator:
+                                  TextFieldValidator.isNumericAndGreaterThanN,
                               btnText: "Обновить",
                               description: "Введите новое значение ставки",
                               keyboardType: TextInputType.number,

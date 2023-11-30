@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rewild/core/utils/text_filed_validator.dart';
 
 class MyDialogTextField extends StatefulWidget {
   const MyDialogTextField(
@@ -9,9 +8,11 @@ class MyDialogTextField extends StatefulWidget {
       required this.description,
       this.keyboardType,
       required this.hint,
-      required this.btnText});
+      required this.btnText,
+      required this.validator});
 
   final void Function(String value) addGroup;
+  final bool Function(String name, int value) validator;
   final String header;
   final String description;
   final String hint;
@@ -140,8 +141,7 @@ class _MyDialogTextFieldState extends State<MyDialogTextField> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  isValid = TextFieldValidator.isNumericAndGreaterThanN(
-                      newGroupName, 150);
+                  isValid = widget.validator(newGroupName, 150);
                 });
 
                 if (isValid) {
