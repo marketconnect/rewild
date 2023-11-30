@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rewild/core/utils/text_filed_validator.dart';
 
 class MyDialogTextFieldRadio extends StatefulWidget {
   const MyDialogTextFieldRadio(
@@ -28,6 +29,7 @@ class MyDialogTextFieldRadio extends StatefulWidget {
 class _MyDialogTextFieldRadioState extends State<MyDialogTextFieldRadio> {
   String newGroupName = "";
   late int selectedOption;
+  bool isValid = true;
 
   @override
   void initState() {
@@ -130,13 +132,21 @@ class _MyDialogTextFieldRadioState extends State<MyDialogTextFieldRadio> {
                     contentPadding: EdgeInsets.symmetric(
                         vertical: MediaQuery.of(context).size.width * 0.02,
                         horizontal: MediaQuery.of(context).size.width * 0.05),
-                    enabledBorder: const OutlineInputBorder(
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: BorderSide(color: Colors.grey, width: 0.0),
+                      borderSide: BorderSide(
+                          color: isValid
+                              ? Colors.grey
+                              : Theme.of(context).colorScheme.error,
+                          width: 0.0),
                     ),
-                    focusedBorder: const OutlineInputBorder(
+                    focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: BorderSide(color: Colors.grey, width: 0.0),
+                      borderSide: BorderSide(
+                          color: isValid
+                              ? Colors.grey
+                              : Theme.of(context).colorScheme.error,
+                          width: 0.0),
                     ),
                   ),
                   cursorColor: Theme.of(context)
@@ -174,9 +184,19 @@ class _MyDialogTextFieldRadioState extends State<MyDialogTextFieldRadio> {
               ),
               GestureDetector(
                 onTap: () {
-                  widget.addGroup(value: newGroupName, option: selectedOption);
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  Navigator.of(context).pop();
+                  setState(() {
+                    isValid = TextFieldValidator.isNumericAndGreaterThanN(
+                        newGroupName, 150);
+                  });
+
+                  if (isValid) {
+                    widget.addGroup(
+                        value: newGroupName, option: selectedOption);
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    Navigator.of(context).pop();
+                  }
+                  // FocusScope.of(context).requestFocus(FocusNode());
+                  // Navigator.of(context).pop();
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.9,

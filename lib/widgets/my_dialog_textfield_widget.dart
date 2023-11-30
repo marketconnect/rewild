@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:rewild/core/utils/text_filed_validator.dart';
 
-class MyDialogTextField extends StatelessWidget {
+class MyDialogTextField extends StatefulWidget {
   const MyDialogTextField(
       {super.key,
       required this.addGroup,
@@ -17,6 +18,12 @@ class MyDialogTextField extends StatelessWidget {
   final String btnText;
   final TextInputType? keyboardType;
 
+  @override
+  State<MyDialogTextField> createState() => _MyDialogTextFieldState();
+}
+
+class _MyDialogTextFieldState extends State<MyDialogTextField> {
+  bool isValid = true;
   @override
   Widget build(BuildContext context) {
     String newGroupName = "";
@@ -56,7 +63,7 @@ class MyDialogTextField extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                header,
+                widget.header,
                 style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width * 0.065),
               ),
@@ -71,7 +78,7 @@ class MyDialogTextField extends StatelessWidget {
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.8,
                 child: Text(
-                  description,
+                  widget.description,
                   textAlign: TextAlign.center,
                   maxLines: 5,
                   overflow: TextOverflow.clip,
@@ -98,19 +105,27 @@ class MyDialogTextField extends StatelessWidget {
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.07,
               child: TextField(
-                keyboardType: keyboardType,
+                keyboardType: widget.keyboardType,
                 decoration: InputDecoration(
-                  hintText: hint,
+                  hintText: widget.hint,
                   contentPadding: EdgeInsets.symmetric(
                       vertical: MediaQuery.of(context).size.width * 0.02,
                       horizontal: MediaQuery.of(context).size.width * 0.05),
-                  enabledBorder: const OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: Colors.grey, width: 0.0),
+                    borderSide: BorderSide(
+                        color: isValid
+                            ? Colors.grey
+                            : Theme.of(context).colorScheme.error,
+                        width: 0.0),
                   ),
-                  focusedBorder: const OutlineInputBorder(
+                  focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: Colors.grey, width: 0.0),
+                    borderSide: BorderSide(
+                        color: isValid
+                            ? Colors.grey
+                            : Theme.of(context).colorScheme.error,
+                        width: 0.0),
                   ),
                 ),
                 cursorColor: Theme.of(context)
@@ -124,9 +139,16 @@ class MyDialogTextField extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                addGroup(newGroupName);
-                FocusScope.of(context).requestFocus(FocusNode());
-                Navigator.of(context).pop();
+                setState(() {
+                  isValid = TextFieldValidator.isNumericAndGreaterThanN(
+                      newGroupName, 150);
+                });
+
+                if (isValid) {
+                  widget.addGroup(newGroupName);
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  Navigator.of(context).pop();
+                }
               },
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.9,
@@ -137,7 +159,7 @@ class MyDialogTextField extends StatelessWidget {
                     borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(5),
                         bottomRight: Radius.circular(5))),
-                child: Text(btnText,
+                child: Text(widget.btnText,
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.background,
                         fontWeight: FontWeight.bold)),

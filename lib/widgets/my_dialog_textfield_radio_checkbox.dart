@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/text_filed_validator.dart';
 
 class MyDialogTextFieldRadioCheckBox extends StatefulWidget {
   const MyDialogTextFieldRadioCheckBox(
@@ -37,6 +38,7 @@ class _MyDialogTextFieldRadioCheckBoxState
   late int selectedOption;
   late int selectedInstrument;
   bool checkBoxValue = false;
+  bool isValid = true;
   @override
   void initState() {
     super.initState();
@@ -139,13 +141,21 @@ class _MyDialogTextFieldRadioCheckBoxState
                     contentPadding: EdgeInsets.symmetric(
                         vertical: MediaQuery.of(context).size.width * 0.02,
                         horizontal: MediaQuery.of(context).size.width * 0.05),
-                    enabledBorder: const OutlineInputBorder(
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: BorderSide(color: Colors.grey, width: 0.0),
+                      borderSide: BorderSide(
+                          color: isValid
+                              ? Colors.grey
+                              : Theme.of(context).colorScheme.error,
+                          width: 0.0),
                     ),
-                    focusedBorder: const OutlineInputBorder(
+                    focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: BorderSide(color: Colors.grey, width: 0.0),
+                      borderSide: BorderSide(
+                          color: isValid
+                              ? Colors.grey
+                              : Theme.of(context).colorScheme.error,
+                          width: 0.0),
                     ),
                   ),
                   cursorColor: Theme.of(context)
@@ -219,12 +229,19 @@ class _MyDialogTextFieldRadioCheckBoxState
               ),
               GestureDetector(
                 onTap: () {
-                  widget.addGroup(
-                      value: newGroupName,
-                      option: selectedOption,
-                      option1: selectedInstrument);
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  Navigator.of(context).pop();
+                  setState(() {
+                    isValid = TextFieldValidator.isNumericAndGreaterThanN(
+                        newGroupName, 150);
+                  });
+
+                  if (isValid) {
+                    widget.addGroup(
+                        value: newGroupName,
+                        option: selectedOption,
+                        option1: selectedInstrument);
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    Navigator.of(context).pop();
+                  }
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.9,

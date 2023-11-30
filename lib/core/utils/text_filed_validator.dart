@@ -1,5 +1,5 @@
 class TextFieldValidator {
-  bool isNumericAndGreaterThanN(String text, int n) {
+  static bool isNumericAndGreaterThanN(String text, int n) {
     if (text.isEmpty) {
       return false; // Empty or null string is not numeric and not greater than 100
     }
