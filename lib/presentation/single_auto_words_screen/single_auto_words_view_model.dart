@@ -131,7 +131,8 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
 
   void moveToKeywords(String word) {
     _excluded.removeWhere((element) => element == word);
-    _keywords.insert(0, Keyword(keyword: word, count: 1));
+    _keywords.insert(
+        0, Keyword(campaignId: campaignId, keyword: word, count: 1));
     change(word);
 
     notify();

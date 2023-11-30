@@ -204,7 +204,7 @@ class AdvertApiClient
             json.decode(utf8.decode(response.bodyBytes));
         final data = jsonData['words'];
         // Use the fromMap method
-        AutoStatWord autoStatWord = AutoStatWord.fromMap(data);
+        AutoStatWord autoStatWord = AutoStatWord.fromMap(data, campaignId);
 
         return Resource.success(autoStatWord);
       }

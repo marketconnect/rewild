@@ -29,9 +29,9 @@ class AutoStatWord {
     };
   }
 
-  factory AutoStatWord.fromMap(Map<String, dynamic> map) {
+  factory AutoStatWord.fromMap(Map<String, dynamic> map, int campaignId) {
     List<Keyword> keywords = List<Keyword>.from(
-      map['keywords']?.map((x) => Keyword.fromMap(x)),
+      map['keywords']?.map((x) => Keyword.fromMap(x, campaignId)),
     );
 
     List<String> excluded =
@@ -45,8 +45,9 @@ class AutoStatWord {
 
   String toJson() => json.encode(toMap());
 
-  factory AutoStatWord.fromJson(String source) =>
-      AutoStatWord.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory AutoStatWord.fromJson(String source, int campaignId) =>
+      AutoStatWord.fromMap(
+          json.decode(source) as Map<String, dynamic>, campaignId);
 
   @override
   String toString() => 'AutoStatWord(keywords: $keywords, excluded: $excluded)';
