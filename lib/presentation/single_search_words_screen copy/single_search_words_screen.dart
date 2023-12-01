@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/utils/strings.dart';
-import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
+import 'package:rewild/domain/entities/search_campaign_stat.dart';
+import 'package:rewild/presentation/single_search_words_screen%20copy/single_search_words_view_model.dart';
 import 'package:rewild/widgets/keyword_slidable_container.dart';
 import 'package:rewild/widgets/keyword_tab_body.dart';
 import 'package:rewild/widgets/my_dialog_save_widget.dart';
 
-class SingleAutoWordsScreen extends StatelessWidget {
-  const SingleAutoWordsScreen({super.key});
+class SingleSearchWordsScreen extends StatelessWidget {
+  const SingleSearchWordsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<SingleAutoWordsViewModel>();
+    final model = context.watch<SingleSearchWordsViewModel>();
     final name = model.name;
     final keywords = model.keywords;
+    final stat = model.stat;
     final excluded = model.excluded;
+    // final phrase = model.phrase;
+    // final pluse = model.pluse;
+    // final strong = model.strong;
     final searchInputOpen = model.searchInputOpen;
     final searchInputToggle = model.toggleSearchInput;
     final setSearchQuery = model.setSearchQuery;
@@ -137,13 +142,20 @@ class SingleAutoWordsScreen extends StatelessWidget {
                       moveToExcluded: moveToExcluded,
                       moveToKeywords: moveToKeywords,
                       searchQuery: newSearchQuery,
-                      content: keywords
-                          .map((e) => CardContent(
-                              word: e.keyword,
-                              qty: e.count,
-                              dif: e.diff,
-                              isNew: e.isNew))
-                          .toList(),
+                      content: keywords.map((e) {
+                        Stat? s;
+                        final ss = stat
+                            .where((element) => element.keyword == e.keyword);
+                        if (ss.length > 0) {
+                          s = ss.first;
+                        }
+                        return CardContent(
+                            word: e.keyword,
+                            qty: e.count,
+                            dif: e.diff,
+                            stat: s,
+                            isNew: e.isNew);
+                      }).toList(),
                     ),
                     TabBody(
                       moveToExcluded: moveToExcluded,

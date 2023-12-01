@@ -187,40 +187,6 @@ class AdvertApiClient
     return Resource.error("Unknown error");
   }
 
-  @override
-  Future<Resource<AutoCampaignStatWord>> autoStatWords(
-      String token, int campaignId) async {
-    try {
-      final headers = {
-        'Authorization': token,
-        'Content-Type': 'application/json'
-      };
-      final params = {'id': campaignId.toString()};
-      final uri =
-          Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat-words", params);
-      final response = await http.get(uri, headers: headers);
-      if (response.statusCode == 200) {
-        // Parse the JSON string into a Map
-        Map<String, dynamic> jsonData =
-            json.decode(utf8.decode(response.bodyBytes));
-        final data = jsonData['words'];
-        // Use the fromMap method
-        AutoCampaignStatWord autoStatWord =
-            AutoCampaignStatWord.fromMap(data, campaignId);
-
-        return Resource.success(autoStatWord);
-      }
-      if (response.statusCode == 400) {
-        return Resource.error("Incorrect campaign identifier");
-      } else if (response.statusCode == 401) {
-        return Resource.error("Empty authorization header");
-      }
-    } catch (e) {
-      return Resource.error("Unknown error $e");
-    }
-    return Resource.error("Unknown error");
-  }
-
   // max 300 requests per minute
   @override
   Future<Resource<bool>> changeCpm(String token, int campaignId, int type,
@@ -452,6 +418,40 @@ class AdvertApiClient
   }
 
   @override
+  Future<Resource<AutoCampaignStatWord>> autoStatWords(
+      String token, int campaignId) async {
+    try {
+      final headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      final params = {'id': campaignId.toString()};
+      final uri =
+          Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat-words", params);
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        // Parse the JSON string into a Map
+        Map<String, dynamic> jsonData =
+            json.decode(utf8.decode(response.bodyBytes));
+        final data = jsonData['words'];
+        // Use the fromMap method
+        AutoCampaignStatWord autoStatWord =
+            AutoCampaignStatWord.fromMap(data, campaignId);
+
+        return Resource.success(autoStatWord);
+      }
+      if (response.statusCode == 400) {
+        return Resource.error("Incorrect campaign identifier");
+      } else if (response.statusCode == 401) {
+        return Resource.error("Empty authorization header");
+      }
+    } catch (e) {
+      return Resource.error("Unknown error $e");
+    }
+    return Resource.error("Unknown error");
+  }
+
+  @override
   Future<Resource<SearchCampaignStat>> getSearchStat(
       String token, int campaignId) async {
     try {
@@ -463,9 +463,11 @@ class AdvertApiClient
       final uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
-        final stat = json.decode(utf8.decode(response.bodyBytes));
+        Map<String, dynamic> jsonData =
+            json.decode(utf8.decode(response.bodyBytes));
 
-        return Resource.success(SearchCampaignStat.fromJson(stat, campaignId));
+        return Resource.success(
+            SearchCampaignStat.fromJson(jsonData, campaignId));
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",

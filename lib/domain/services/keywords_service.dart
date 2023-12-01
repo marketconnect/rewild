@@ -1,3 +1,4 @@
+import 'package:rewild/core/utils/api_duration_constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 
 import 'package:rewild/domain/entities/api_key_model.dart';
@@ -5,6 +6,7 @@ import 'package:rewild/domain/entities/auto_campaign_stat.dart';
 import 'package:rewild/domain/entities/keyword.dart';
 import 'package:rewild/domain/entities/search_campaign_stat.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
+import 'package:rewild/presentation/single_search_words_screen%20copy/single_search_words_view_model.dart';
 
 // Api key
 abstract class KeywordsServiceApiKeyDataProvider {
@@ -17,6 +19,8 @@ abstract class KeywordsServiceAdvertApiClient {
       String token, int campaignId);
   Future<Resource<SearchCampaignStat>> getSearchStat(
       String token, int campaignId);
+  Future<Resource<bool>> setAutoSetExcluded(
+      String token, int campaignId, List<String> excludedKw);
 }
 
 // data provider
@@ -25,15 +29,45 @@ abstract class KeywordsServiceKeywordsDataProvider {
   Future<Resource<bool>> save(Keyword keyword);
 }
 
-class KeywordsService implements SingleAutoWordsKeywordService {
+class KeywordsService
+    implements SingleAutoWordsKeywordService, SingleSearchWordsKeywordService {
   final KeywordsServiceApiKeyDataProvider apiKeysDataProvider;
   final KeywordsServiceAdvertApiClient advertApiClient;
   final KeywordsServiceKeywordsDataProvider keywordsDataProvider;
-  const KeywordsService({
+  KeywordsService({
     required this.apiKeysDataProvider,
     required this.advertApiClient,
     required this.keywordsDataProvider,
   });
+
+  DateTime? autoExcludedLastReq;
+
+  @override
+  Future<Resource<bool>> setAutoExcluded(
+      int campaignId, List<String> excluded) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+
+    // request to API
+    if (autoExcludedLastReq != null) {
+      await ApiDurationConstants.ready(autoExcludedLastReq,
+          ApiDurationConstants.autoSetExcludedDurationBetweenReqInMs);
+    }
+
+    final autoExcludedResource = await advertApiClient.setAutoSetExcluded(
+        tokenResource.data!.token, campaignId, excluded);
+    autoExcludedLastReq = DateTime.now();
+    if (autoExcludedResource is Error) {
+      return Resource.error(autoExcludedResource.message!);
+    }
+    return Resource.success(autoExcludedResource.data!);
+  }
+
   @override
   Future<Resource<AutoCampaignStatWord>> getAutoStatWords(
       int campaignId) async {

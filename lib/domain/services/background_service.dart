@@ -1,9 +1,9 @@
-// import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:rewild/api_clients/advert_api_client.dart';
 import 'package:rewild/api_clients/details_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/core/constants.dart';
+import 'package:rewild/core/utils/api_duration_constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/lists.dart';
 import 'package:rewild/core/utils/resource.dart';
@@ -262,7 +262,8 @@ class BackgroundService {
     List<AdvertStatModel> fetchedAdverts = [];
     // getr all adverts
     if (_advertsLastReq != null) {
-      await _ready(_advertsLastReq, APIConstants.budgetDurationBetweenReqInMs);
+      await ApiDurationConstants.ready(
+          _advertsLastReq, ApiDurationConstants.budgetDurationBetweenReqInMs);
     }
 
     final advertResource = await AdvertApiClient.getAdvertsInBackground(token);
@@ -324,8 +325,8 @@ class BackgroundService {
   static Future<Resource<AdvertStatModel>> _fetchAutoAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
     if (_autoLastReq != null) {
-      await _ready(
-          _autoLastReq, APIConstants.autoStatNumsDurationBetweenReqInMs);
+      await ApiDurationConstants.ready(_autoLastReq,
+          ApiDurationConstants.autoStatNumsDurationBetweenReqInMs);
     }
 
     final advertStatResource = await AdvertApiClient.getAutoStatInBackground(
@@ -342,8 +343,8 @@ class BackgroundService {
   static Future<Resource<AdvertStatModel>> _fetchFullAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
     if (_autoLastReq != null) {
-      await _ready(
-          _autoLastReq, APIConstants.fullStatNumsDurationBetweenReqInMs);
+      await ApiDurationConstants.ready(_autoLastReq,
+          ApiDurationConstants.fullStatNumsDurationBetweenReqInMs);
     }
 
     final advertStatResource = await AdvertApiClient.getFullStatInBackground(
@@ -360,7 +361,8 @@ class BackgroundService {
   static Future<Resource<AdvertStatModel>> _fetchSearchAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
     if (_searchLastReq != null) {
-      await _ready(_searchLastReq, APIConstants.wordsDurationBetweenReqInMs);
+      await ApiDurationConstants.ready(
+          _searchLastReq, ApiDurationConstants.wordsDurationBetweenReqInMs);
     }
 
     final advertStatResource = await AdvertApiClient.getSearchStatInBackground(
@@ -376,7 +378,8 @@ class BackgroundService {
 
   static Future<Resource<int>> budgetRequest(String token, int id) async {
     if (_budgetLastReq != null) {
-      await _ready(_budgetLastReq, APIConstants.budgetDurationBetweenReqInMs);
+      await ApiDurationConstants.ready(
+          _budgetLastReq, ApiDurationConstants.budgetDurationBetweenReqInMs);
     }
 
     final budgetResource =
@@ -420,16 +423,6 @@ class BackgroundService {
     }
     await LastUpdateDayDataProvider.updateInBackground();
     return Resource.success(initialStocksFromServer);
-  }
-
-  static Future<void> _ready(DateTime? lastReq, Duration duration) async {
-    if (lastReq == null) {
-      return;
-    }
-    while (DateTime.now().difference(lastReq) < duration) {
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-    return;
   }
 
   // static void _onDidReceiveLocalNotification(

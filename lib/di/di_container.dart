@@ -92,6 +92,8 @@ import 'package:rewild/presentation/my_web_view/my_web_view.dart';
 import 'package:rewild/presentation/my_web_view/my_web_view_screen_view_model.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
+import 'package:rewild/presentation/single_search_words_screen%20copy/single_search_words_screen.dart';
+import 'package:rewild/presentation/single_search_words_screen%20copy/single_search_words_view_model.dart';
 
 import 'package:rewild/presentation/splash_screen/splash_screen.dart';
 import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart';
@@ -492,6 +494,14 @@ class _DIContainer {
           internetConnectionChecker: _makeInternetConnectionChecker(),
           keywordService: _makeKeywordsService());
 
+  SingleSearchWordsViewModel _makeSearchStatWordsViewModel(
+          BuildContext context, int campaignId) =>
+      SingleSearchWordsViewModel(campaignId,
+          context: context,
+          advertService: _makeAdvertService(),
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          keywordService: _makeKeywordsService());
+
   AllAdvertsToolsViewModel _makeAdvertsToolsViewModel(BuildContext context) =>
       AllAdvertsToolsViewModel(
           context: context,
@@ -563,14 +573,6 @@ class ScreenFactoryDefault implements ScreenFactory {
         create: (context) => _diContainer._makeApiKeysScreenViewModel(context),
         child: const AddApiKeysScreen());
   }
-
-  // @override
-  // Widget makeSingleSellerScreen(int supplierID) {
-  //   return ChangeNotifierProvider(
-  //       create: (context) =>
-  //           _diContainer._makeSingleSellerScreenViewModel(context, supplierID),
-  //       child: const SingleSellerScreen());
-  // }
 
   @override
   Widget makeMyWebViewScreen() {
@@ -645,6 +647,15 @@ class ScreenFactoryDefault implements ScreenFactory {
       create: (context) =>
           _diContainer._makeAutoStatWordsViewModel(context, id),
       child: const SingleAutoWordsScreen(),
+    );
+  }
+
+  @override
+  Widget makeSearchStatsWordsScreen(int id) {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeSearchStatWordsViewModel(context, id),
+      child: const SingleSearchWordsScreen(),
     );
   }
 

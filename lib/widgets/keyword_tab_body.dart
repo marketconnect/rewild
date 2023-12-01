@@ -49,7 +49,7 @@ class _CardsListState extends State<_CardsList> {
   final ScrollController _scrollController = ScrollController();
   List<CardContent> _displayedContent = [];
   int _loadedItems = 0;
-  final int _itemsPerLoad = 20;
+  final int _itemsPerLoad = 50;
   String searchQuery = "";
 
   @override

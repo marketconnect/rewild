@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:rewild/domain/entities/keyword.dart';
 
 class SearchCampaignStat {
@@ -55,8 +54,10 @@ class Words {
       excluded: List<String>.from(json['excluded']),
       pluse: List<String>.from(json['pluse']),
       keywords: List<Keyword>.from(
-        json['keywords']
-            .map((keyword) => Keyword.fromJson(keyword, campaignId)),
+        json['keywords'].map(
+          (keyword) =>
+              Keyword.fromMap(keyword as Map<String, dynamic>, campaignId),
+        ),
       ),
       fixed: json['fixed'],
     );
@@ -114,19 +115,19 @@ class Stat {
 
   factory Stat.fromJson(Map<String, dynamic> json) {
     return Stat(
-      advertId: json['advertId'],
-      keyword: json['keyword'],
-      advertName: json['advertName'],
-      campaignName: json['campaignName'],
-      begin: json['begin'],
-      end: json['end'],
-      views: json['views'],
-      clicks: json['clicks'],
-      frq: json['frq'],
-      ctr: json['ctr'],
-      cpc: json['cpc'],
-      duration: json['duration'],
-      sum: json['sum'],
+      advertId: json['advertId'] as int,
+      keyword: json['keyword'] as String,
+      advertName: json['advertName'] as String,
+      campaignName: json['campaignName'] as String,
+      begin: json['begin'] as String,
+      end: json['end'] as String,
+      views: json['views'] as int,
+      clicks: json['clicks'] as int,
+      frq: (json['frq'] as num).toDouble(),
+      ctr: (json['ctr'] as num).toDouble(),
+      cpc: (json['cpc'] as num).toDouble(),
+      duration: json['duration'] as int,
+      sum: (json['sum'] as num).toDouble(),
     );
   }
 }

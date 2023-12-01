@@ -37,9 +37,20 @@ class AllAdvertsToolsScreen extends StatelessWidget {
                         .map(
                           (advert) => GestureDetector(
                             onTap: () {
-                              Navigator.of(context).pushNamed(
-                                  MainNavigationRouteNames.autoStatWordsScreen,
-                                  arguments: advert.campaignId);
+                              if (advert.type == AdvertTypeConstants.auto) {
+                                Navigator.of(context).pushNamed(
+                                    MainNavigationRouteNames
+                                        .autoStatWordsScreen,
+                                    arguments: advert.campaignId);
+                                return;
+                              } else if (advert.type ==
+                                  AdvertTypeConstants.inSearch) {
+                                Navigator.of(context).pushNamed(
+                                    MainNavigationRouteNames
+                                        .searchStatWordsScreen,
+                                    arguments: advert.campaignId);
+                                return;
+                              }
                             },
                             child: _Card(
                               advert: advert,

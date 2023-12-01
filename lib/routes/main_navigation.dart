@@ -14,6 +14,7 @@ abstract class ScreenFactory {
   Widget makeAllGroupsScreen();
   Widget makeApiKeysScreen();
   Widget makeAutoStatsWordsScreen(int id);
+  Widget makeSearchStatsWordsScreen(int id);
   Widget makeBottomNavigationScreen();
   Widget makeCardNotificationsSettingsScreen(NotificationCardState state);
   Widget makeSplashScreen();
@@ -172,6 +173,12 @@ class MainNavigation implements AppNavigation {
         final campaignId = arguments is int ? arguments : 0;
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAutoStatsWordsScreen(campaignId),
+        );
+      case MainNavigationRouteNames.searchStatWordsScreen:
+        final arguments = settings.arguments;
+        final campaignId = arguments is int ? arguments : 0;
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeSearchStatsWordsScreen(campaignId),
         );
 
       // case MainNavigationRouteNames.allCardsFilterScreen:
