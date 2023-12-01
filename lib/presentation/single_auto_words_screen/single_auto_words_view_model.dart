@@ -1,25 +1,16 @@
-import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
-import 'package:rewild/domain/entities/advert_auto_model.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
-
-import 'package:rewild/domain/entities/auto_stat_word.dart';
+import 'package:rewild/domain/entities/auto_campaign_stat.dart';
 import 'package:rewild/domain/entities/keyword.dart';
 
 abstract class SingleAutoWordsKeywordService {
-  Future<Resource<AutoStatWord>> getAutoStatWords(int campaignId);
+  Future<Resource<AutoCampaignStatWord>> getAutoStatWords(int campaignId);
 }
 
 abstract class SingleAutoWordsAdvertService {
   Future<Resource<Advert>> advertInfo(int campaignId);
   Future<Resource<bool>> setAutoExcluded(int campaignId, List<String> excluded);
-  Future<Resource<bool>> setCpm(
-      {required int campaignId,
-      required int type,
-      required int cpm,
-      required int param,
-      int? instrument});
 }
 
 class SingleAutoWordsViewModel extends ResourceChangeNotifier {
@@ -45,7 +36,7 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
     ]);
 
     // Advert Info
-    final autoStatsWordRes = values[0] as AutoStatWord?;
+    final autoStatsWordRes = values[0] as AutoCampaignStatWord?;
     final advertInfo = values[1] as Advert?;
     if (autoStatsWordRes == null) {
       return;
@@ -58,40 +49,8 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
       return;
     }
     _name = advertInfo.name;
-    _setTitleCpm(advertInfo);
     notify();
   }
-
-  void _setTitleCpm(Advert advertInfo) {
-    switch (advertInfo.type) {
-      case AdvertTypeConstants.auto:
-        if (advertInfo is AdvertAutoModel &&
-            advertInfo.autoParams != null &&
-            advertInfo.autoParams!.cpm != null) {
-          setCpm(advertInfo.autoParams!.cpm!);
-          if (advertInfo.autoParams!.subject != null) {
-            subjectId = advertInfo.autoParams!.subject!.id!;
-          }
-        }
-        _advType = AdvertTypeConstants.auto;
-        break;
-      default:
-        break;
-    }
-  }
-
-  // for change cpm
-  int subjectId = 0;
-  int? _advType;
-
-  // CPM
-  int? _cpm;
-  void setCpm(int value) {
-    _cpm = value;
-    notify();
-  }
-
-  int? get cpm => _cpm;
 
   // Name
   String? _name;
@@ -157,23 +116,5 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
     _searchQuery = query;
 
     notify();
-  }
-
-  Future<void> changeCpm(String value) async {
-    final cpm = int.tryParse(value) ?? 0;
-
-    if (cpm != _cpm) {
-      await _changeCpm(cpm);
-      // print("changed");
-    }
-  }
-
-  Future<void> _changeCpm(int cpm) async {
-    if (_cpm == null || _advType == null) {
-      return;
-    }
-    await fetch(() => advertService.setCpm(
-        campaignId: campaignId, cpm: cpm, type: _advType!, param: subjectId));
-    await _update();
   }
 }

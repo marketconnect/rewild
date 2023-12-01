@@ -13,7 +13,8 @@ import 'package:rewild/domain/entities/advert_recomendation_model.dart';
 import 'package:rewild/domain/entities/advert_search_model.dart';
 import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
-import 'package:rewild/domain/entities/auto_stat_word.dart';
+import 'package:rewild/domain/entities/auto_campaign_stat.dart';
+import 'package:rewild/domain/entities/search_campaign_stat.dart';
 import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/advert_stat_service.dart';
 import 'package:rewild/domain/services/keywords_service.dart';
@@ -187,7 +188,7 @@ class AdvertApiClient
   }
 
   @override
-  Future<Resource<AutoStatWord>> autoStatWords(
+  Future<Resource<AutoCampaignStatWord>> autoStatWords(
       String token, int campaignId) async {
     try {
       final headers = {
@@ -204,7 +205,8 @@ class AdvertApiClient
             json.decode(utf8.decode(response.bodyBytes));
         final data = jsonData['words'];
         // Use the fromMap method
-        AutoStatWord autoStatWord = AutoStatWord.fromMap(data, campaignId);
+        AutoCampaignStatWord autoStatWord =
+            AutoCampaignStatWord.fromMap(data, campaignId);
 
         return Resource.success(autoStatWord);
       }
@@ -449,7 +451,8 @@ class AdvertApiClient
     );
   }
 
-  Future<Resource<AdvertStatModel>> getSearchStat(
+  @override
+  Future<Resource<SearchCampaignStat>> getSearchStat(
       String token, int campaignId) async {
     try {
       final headers = {
@@ -460,9 +463,9 @@ class AdvertApiClient
       final uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
       final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
-        final stats = json.decode(utf8.decode(response.bodyBytes));
-        final total = stats['stat'][0];
-        return Resource.success(AdvertStatModel.fromJson(total, campaignId));
+        final stat = json.decode(utf8.decode(response.bodyBytes));
+
+        return Resource.success(SearchCampaignStat.fromJson(stat, campaignId));
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",

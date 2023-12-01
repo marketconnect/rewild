@@ -1,7 +1,9 @@
 import 'package:rewild/core/utils/resource.dart';
+
 import 'package:rewild/domain/entities/api_key_model.dart';
-import 'package:rewild/domain/entities/auto_stat_word.dart';
+import 'package:rewild/domain/entities/auto_campaign_stat.dart';
 import 'package:rewild/domain/entities/keyword.dart';
+import 'package:rewild/domain/entities/search_campaign_stat.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 
 // Api key
@@ -11,7 +13,10 @@ abstract class KeywordsServiceApiKeyDataProvider {
 
 // api client
 abstract class KeywordsServiceAdvertApiClient {
-  Future<Resource<AutoStatWord>> autoStatWords(String token, int campaignId);
+  Future<Resource<AutoCampaignStatWord>> autoStatWords(
+      String token, int campaignId);
+  Future<Resource<SearchCampaignStat>> getSearchStat(
+      String token, int campaignId);
 }
 
 // data provider
@@ -30,7 +35,8 @@ class KeywordsService implements SingleAutoWordsKeywordService {
     required this.keywordsDataProvider,
   });
   @override
-  Future<Resource<AutoStatWord>> getAutoStatWords(int campaignId) async {
+  Future<Resource<AutoCampaignStatWord>> getAutoStatWords(
+      int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!);
@@ -107,5 +113,90 @@ class KeywordsService implements SingleAutoWordsKeywordService {
     final newAutoStat = autoStat.copyWith(keywords: newKeywords);
 
     return Resource.success(newAutoStat);
+  }
+
+  @override
+  Future<Resource<SearchCampaignStat>> getSearchCampaignStat(
+      int campaignId) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+
+    // get current auto stat from API
+    final currentSearchStatResource = await advertApiClient.getSearchStat(
+      tokenResource.data!.token,
+      campaignId,
+    );
+    if (currentSearchStatResource is Error) {
+      return Resource.error(currentSearchStatResource.message!);
+    }
+
+    // get saved auto stat from DB
+    final keywordsResource = await keywordsDataProvider.getAll(campaignId);
+    if (keywordsResource is Error) {
+      return Resource.error(keywordsResource.message!);
+    }
+
+    final searchStat = currentSearchStatResource.data!;
+
+    final currentKeywords = searchStat.words.keywords
+        .map((e) => Keyword(
+              keyword: e.keyword,
+              count: e.count,
+              campaignId: campaignId,
+            ))
+        .toList();
+
+    final savedKeywords = keywordsResource.data!
+        .map((e) => Keyword(
+              keyword: e.keyword,
+              count: e.count,
+              campaignId: campaignId,
+            ))
+        .toList();
+
+    List<Keyword> newKeywords = [];
+    for (var keyword in currentKeywords) {
+      // the keyword does not exist in DB
+      if (!savedKeywords.any((e) => e.keyword == keyword.keyword)) {
+        newKeywords.add(keyword);
+        // save in database
+        final saveResource = await keywordsDataProvider.save(keyword);
+        if (saveResource is Error) {
+          return Resource.error(saveResource.message!);
+        }
+        continue;
+      }
+
+      // keyword exists in DB
+      keyword.setNotNew();
+      final savedKeyword =
+          savedKeywords.firstWhere((e) => e.keyword == keyword.keyword);
+
+      // saved keyword count is different
+      if (savedKeyword.count != keyword.count) {
+        // set diff property
+        keyword.setDiff(savedKeyword.count);
+        // update in database
+        final saveResource = await keywordsDataProvider.save(keyword);
+        if (saveResource is Error) {
+          return Resource.error(saveResource.message!);
+        }
+      }
+
+      newKeywords.add(keyword);
+    }
+
+    final oldWords = searchStat.words;
+
+    final newWords = oldWords.copyWith(keywords: newKeywords);
+
+    final newSearchStat = searchStat.copyWith(words: newWords);
+
+    return Resource.success(newSearchStat);
   }
 }

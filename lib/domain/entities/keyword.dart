@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Keyword {
   int campaignId;
   String keyword;
@@ -21,10 +23,12 @@ class Keyword {
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': campaignId,
+    return <String, dynamic>{
+      'campaignId': campaignId,
       'keyword': keyword,
       'count': count,
+      'diff': diff,
+      '_isNew': _isNew,
     };
   }
 
@@ -35,4 +39,9 @@ class Keyword {
       count: map['count'],
     );
   }
+
+  String toJson() => json.encode(toMap());
+
+  factory Keyword.fromJson(String source, int campaignId) =>
+      Keyword.fromMap(json.decode(source) as Map<String, dynamic>, campaignId);
 }
