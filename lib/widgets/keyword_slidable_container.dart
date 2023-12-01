@@ -171,7 +171,7 @@ class _ContainerWithStat extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        Text("Потрачено: ${stat.sum}₽",
+                        Text("Потрачено: ${stat.sum.toStringAsFixed(2)}₽",
                             style: TextStyle(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.035,
