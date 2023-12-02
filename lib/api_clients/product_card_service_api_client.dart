@@ -31,6 +31,9 @@ class CardOfProductApiClient
       if (token.isEmpty) {
         return Resource.error(
           "Пользователь не авторизован",
+          source: runtimeType.toString(),
+          name: "save",
+          args: [token, productCards],
         );
       }
       final request = AddProductsCardsRequest();
@@ -48,18 +51,30 @@ class CardOfProductApiClient
         if (e.code == StatusCode.alreadyExists) {
           return Resource.error(
             "ALREADY_EXISTS",
+            source: runtimeType.toString(),
+            name: "save",
+            args: [token, productCards],
           );
         } else if (e.code == StatusCode.invalidArgument) {
           return Resource.error(
             "Некорректные данные",
+            source: runtimeType.toString(),
+            name: "save",
+            args: [token, productCards],
           );
         } else if (e.code == StatusCode.internal) {
           return Resource.error(
             "Ошибка сервера",
+            source: runtimeType.toString(),
+            name: "save",
+            args: [token, productCards],
           );
         } else if (e.code == StatusCode.unavailable) {
           return Resource.error(
             ErrorsConstants.unavailable,
+            source: runtimeType.toString(),
+            name: "save",
+            args: [token, productCards],
           );
         }
       }
@@ -68,6 +83,9 @@ class CardOfProductApiClient
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "save",
+      args: [token, productCards],
     );
   }
 
@@ -88,6 +106,9 @@ class CardOfProductApiClient
       if (token.isEmpty) {
         return Resource.error(
           "Пользователь не авторизован",
+          source: runtimeType.toString(),
+          name: "getAll",
+          args: [token],
         );
       }
       final request = GetProductsCardsRequest();
@@ -104,14 +125,23 @@ class CardOfProductApiClient
         if (e.code == StatusCode.notFound) {
           return Resource.error(
             "Пользователь не найден",
+            source: runtimeType.toString(),
+            name: "getAll",
+            args: [token],
           );
         } else if (e.code == StatusCode.internal) {
           return Resource.error(
             "Ошибка сервера",
+            source: runtimeType.toString(),
+            name: "getAll",
+            args: [token],
           );
         } else if (e.code == StatusCode.unavailable) {
           return Resource.error(
             ErrorsConstants.unavailable,
+            source: runtimeType.toString(),
+            name: "getAll",
+            args: [token],
           );
         }
       }
@@ -120,6 +150,9 @@ class CardOfProductApiClient
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "getAll",
+      args: [token],
     );
   }
 
@@ -140,6 +173,9 @@ class CardOfProductApiClient
       if (token.isEmpty) {
         return Resource.error(
           "Пользователь не авторизован",
+          source: runtimeType.toString(),
+          name: "delete",
+          args: [token, id],
         );
       }
       final request = DeleteProductCardRequest(sku: Int64(id));
@@ -153,19 +189,31 @@ class CardOfProductApiClient
         if (e.code == StatusCode.invalidArgument) {
           return Resource.error(
             "Некорректные данные",
+            source: runtimeType.toString(),
+            name: "delete",
+            args: [token, id],
           );
         } else if (e.code == StatusCode.internal) {
           return Resource.error(
             "Ошибка сервера",
+            source: runtimeType.toString(),
+            name: "delete",
+            args: [token, id],
           );
         } else if (e.code == StatusCode.unavailable) {
           return Resource.error(
             ErrorsConstants.unavailable,
+            source: runtimeType.toString(),
+            name: "delete",
+            args: [token, id],
           );
         }
       }
       return Resource.error(
         "Неизвестная ошибка в процессе удаления карточки на сервере: $e",
+        source: runtimeType.toString(),
+        name: "delete",
+        args: [token, id],
       );
     } finally {
       await channel.shutdown();

@@ -39,7 +39,10 @@ class AllCardsFilterService
     // get cards
     final getCardsResource = await cardsOfProductsDataProvider.getAll();
     if (getCardsResource is Error) {
-      return Resource.error(getCardsResource.message!);
+      return Resource.error(getCardsResource.message!,
+          source: runtimeType.toString(),
+          name: "getCompletlyFilledFilter",
+          args: []);
     }
 
     final cards = getCardsResource.data!;
@@ -87,7 +90,10 @@ class AllCardsFilterService
           final getSupplierResource =
               await sellerDataProvider.get(card.supplierId!);
           if (getSupplierResource is Error) {
-            return Resource.error(getSupplierResource.message!);
+            return Resource.error(getSupplierResource.message!,
+                source: runtimeType.toString(),
+                name: "getCompletlyFilledFilter",
+                args: []);
           }
           suppliers[card.supplierId!] = "";
         }
@@ -125,7 +131,8 @@ class AllCardsFilterService
   Future<Resource<void>> deleteFilter() async {
     final deleteFilterResource = await filterDataProvider.delete();
     if (deleteFilterResource is Error) {
-      return Resource.error(deleteFilterResource.message!);
+      return Resource.error(deleteFilterResource.message!,
+          source: runtimeType.toString(), name: "deleteFilter", args: []);
     }
 
     return Resource.empty();
@@ -142,12 +149,14 @@ class AllCardsFilterService
     // delete previous filter
     // final deleteFilterResource = await filterDataProvider.delete();
     if (deleteFilterResource is Error) {
-      return Resource.error(deleteFilterResource.message!);
+      return Resource.error(deleteFilterResource.message!,
+          source: runtimeType.toString(), name: "setFilter", args: [filter]);
     }
     // insert new
     // final insertFilterResource = await filterDataProvider.insert(filter);
     if (insertFilterResource is Error) {
-      return Resource.error(insertFilterResource.message!);
+      return Resource.error(insertFilterResource.message!,
+          source: runtimeType.toString(), name: "setFilter", args: [filter]);
     }
     return Resource.empty();
   }

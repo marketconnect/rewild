@@ -26,7 +26,6 @@ class AdvertApiClient
         KeywordsServiceAdvertApiClient {
   const AdvertApiClient();
 
-  @override
   Future<Resource<List<String>>> setSearchExcludedKeywords(
       String token, int campaignId, List<String> excludedKeywords) async {
     try {
@@ -50,14 +49,21 @@ class AdvertApiClient
         return Resource.success(responseList);
       } else {
         // Handle other status codes if needed
-        return Resource.error("Failed to set excluded keywords");
+        return Resource.error(
+            "Ошибка при установке исключений для кампании в поиске",
+            name: "setSearchExcludedKeywords",
+            source: runtimeType.toString(),
+            args: [token, campaignId, ...excludedKeywords]);
       }
     } catch (e) {
-      return Resource.error("Unknown error");
+      return Resource.error(
+          "Ошибка при установке исключений для кампании в поиске: $e",
+          source: runtimeType.toString(),
+          name: "setSearchExcludedKeywords",
+          args: [token, campaignId, ...excludedKeywords]);
     }
   }
 
-  @override
   Future<Resource<List<String>>> setSearchPhraseKeywords(
       String token, int campaignId, List<String> phraseKeywords) async {
     try {
@@ -81,14 +87,19 @@ class AdvertApiClient
         return Resource.success(responseList);
       } else {
         // Handle other status codes if needed
-        return Resource.error("Failed to set phrase keywords");
+        return Resource.error("Ошибка при установке фраз для поиска",
+            source: runtimeType.toString(),
+            name: "setSearchPhraseKeywords",
+            args: [token, campaignId, ...phraseKeywords]);
       }
     } catch (e) {
-      return Resource.error("Unknown error");
+      return Resource.error("Ошибка при установке фраз для поиска: $e",
+          source: runtimeType.toString(),
+          name: "setSearchPhraseKeywords",
+          args: [token, campaignId, ...phraseKeywords]);
     }
   }
 
-  @override
   Future<Resource<List<String>>> setSearchStrongKeywords(
       String token, int campaignId, List<String> strongKeywords) async {
     try {
@@ -112,14 +123,21 @@ class AdvertApiClient
         return Resource.success(responseList);
       } else {
         // Handle other status codes if needed
-        return Resource.error("Failed to set strong keywords");
+        return Resource.error(
+            "Ошибка при установке точных совпадений для поиска",
+            source: runtimeType.toString(),
+            name: "setSearchStrongKeywords",
+            args: [token, campaignId, ...strongKeywords]);
       }
     } catch (e) {
-      return Resource.error("Unknown error");
+      return Resource.error(
+          "Ошибка при установке точных совпадений для поиска: $e",
+          source: runtimeType.toString(),
+          name: "setSearchStrongKeywords",
+          args: [token, campaignId, ...strongKeywords]);
     }
   }
 
-  @override
   Future<Resource<List<String>>> setSearchPlusKeywords(
       String token, int campaignId, List<String> plusKeywords) async {
     try {
@@ -143,10 +161,16 @@ class AdvertApiClient
         return Resource.success(responseList);
       } else {
         // Handle other status codes if needed
-        return Resource.error("Failed to set plus keywords");
+        return Resource.error("Ошибка при установке ключей для поиска",
+            source: runtimeType.toString(),
+            name: "setSearchPlusKeywords",
+            args: [token, campaignId, ...plusKeywords]);
       }
     } catch (e) {
-      return Resource.error("Unknown error");
+      return Resource.error("Ошибка при установке ключей для поиска: $e",
+          source: runtimeType.toString(),
+          name: "setSearchPlusKeywords",
+          args: [token, campaignId, ...plusKeywords]);
     }
   }
 
@@ -176,15 +200,29 @@ class AdvertApiClient
         // Size of bid is not changed
         return Resource.success(false);
       } else if (response.statusCode == 400) {
-        return Resource.error("Incorrect campaign identifier");
+        return Resource.error("Некорректный идентификатор кампании ",
+            source: runtimeType.toString(),
+            name: "setAutoSetExcluded",
+            args: [token, campaignId, ...excludedKw]);
       } else if (response.statusCode == 401) {
-        return Resource.error("Empty authorization header");
+        return Resource.error(
+          "Некорректный токен",
+          source: runtimeType.toString(),
+          name: "setAutoSetExcluded",
+          args: [token, campaignId, ...excludedKw],
+        );
       }
     } catch (e) {
-      return Resource.error("Unknown error");
+      return Resource.error("Неизвестная ошибка: $e",
+          source: runtimeType.toString(),
+          name: "setAutoSetExcluded",
+          args: [token, campaignId.toString(), ...excludedKw]);
     }
 
-    return Resource.error("Unknown error");
+    return Resource.error("Неизвестная ошибка",
+        source: runtimeType.toString(),
+        name: "setAutoSetExcluded",
+        args: [token, campaignId.toString(), ...excludedKw]);
   }
 
   // max 300 requests per minute
@@ -192,6 +230,7 @@ class AdvertApiClient
   Future<Resource<bool>> changeCpm(String token, int campaignId, int type,
       int cpm, int param, int? instrument) async {
     try {
+      print('this.toString() ${toString()}');
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
@@ -211,6 +250,8 @@ class AdvertApiClient
         body['instrument'] = instrument;
       }
 
+      print("body: $body");
+
       final jsonString = json.encode(body);
 
       final uri = Uri.https('advert-api.wb.ru', "/adv/v0/cpm");
@@ -221,14 +262,26 @@ class AdvertApiClient
         // Size of bid is not changed
         return Resource.success(false);
       } else if (response.statusCode == 400) {
-        return Resource.error("Incorrect campaign identifier");
+        return Resource.error("Ответ API WB: Некорректный идентификатор РК",
+            source: runtimeType.toString(),
+            name: "changeCpm",
+            args: [token, campaignId, type, cpm, param, instrument]);
       } else if (response.statusCode == 401) {
-        return Resource.error("Empty authorization header");
+        return Resource.error("Ответ API WB: Пустой авторизационный заголовок",
+            source: runtimeType.toString(),
+            name: "changeCpm",
+            args: [token, campaignId, type, cpm, param, instrument]);
       }
     } catch (e) {
-      return Resource.error("Unknown error");
+      return Resource.error("Неизвестная ошибка: $e",
+          source: runtimeType.toString(),
+          name: "changeCpm",
+          args: [token, campaignId, type, cpm, param, instrument]);
     }
-    return Resource.error("Unknown error");
+    return Resource.error("Неизвестная ошибка",
+        source: runtimeType.toString(),
+        name: "changeCpm",
+        args: [token, campaignId, type, cpm, param, instrument]);
   }
 
   // max 300 requests per minute
@@ -251,17 +304,29 @@ class AdvertApiClient
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: Некорректный идентификатор РК",
+          source: runtimeType.toString(),
+          name: "pauseAdvert",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: runtimeType.toString(),
+          name: "pauseAdvert",
+          args: [token, campaignId],
         );
       }
     } catch (e) {
-      return Resource.error("Неизвестная ошибка");
+      return Resource.error("Неизвестная ошибка",
+          source: runtimeType.toString(),
+          name: "pauseAdvert",
+          args: [token, campaignId]);
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "pauseAdvert",
+      args: [token, campaignId],
     );
   }
 
@@ -285,17 +350,29 @@ class AdvertApiClient
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: Некорректный идентификатор РК",
+          source: runtimeType.toString(),
+          name: "startAdvert",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: runtimeType.toString(),
+          name: "startAdvert",
+          args: [token, campaignId],
         );
       }
     } catch (e) {
-      return Resource.error("Неизвестная ошибка");
+      return Resource.error("Неизвестная ошибка: $e",
+          source: runtimeType.toString(),
+          name: "startAdvert",
+          args: [token, campaignId]);
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "startAdvert",
+      args: [token, campaignId],
     );
   }
 
@@ -320,33 +397,123 @@ class AdvertApiClient
       } else if (response.statusCode == 429) {
         return Resource.error(
           "Ответ API WB: too many requests with this user ID",
+          source: runtimeType.toString(),
+          name: "getCompanyBudget",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания $campaignId не принадлежит продавцу",
+          source: runtimeType.toString(),
+          name: "getCompanyBudget",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: runtimeType.toString(),
+          name: "getCompanyBudget",
+          args: [token, campaignId],
         );
       }
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error("Неизвестная ошибка: $e",
+          source: runtimeType.toString(),
+          name: "getCompanyBudget",
+          args: [token, campaignId]);
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "getCompanyBudget",
+      args: [token, campaignId],
     );
   }
 
   @override
-  Future<Resource<List<AdvertInfoModel>>> getAdverts(String token) async {
+  Future<Resource<List<int>>> count(String token) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final uri = Uri.parse('https://advert-api.wb.ru/adv/v0/adverts');
+
+      // final params = {'id': id.toString()};
+
+      final uri = Uri.https('advert-api.wb.ru', "/adv/v1/promotion/count");
+
       final response = await http.get(uri, headers: headers);
+
+      if (response.statusCode == 200) {
+        final stats = json.decode(utf8.decode(response.bodyBytes));
+
+        final adverts = stats['adverts'];
+        if (adverts == null) {
+          return Resource.success([]);
+        }
+        List<int> ids = [];
+        for (final advert in adverts) {
+          final advertList = advert['advert_list'];
+          if (advertList == null) {
+            continue;
+          }
+          for (final a in advertList) {
+            final id = a['advertId'];
+            if (id == null) {
+              continue;
+            }
+            ids.add(id);
+          }
+        }
+        return Resource.success(ids);
+      } else if (response.statusCode == 401) {
+        return Resource.error(
+          "Ответ API WB: Пустой авторизационный заголовок",
+          source: runtimeType.toString(),
+          name: "count",
+          args: [
+            token,
+          ],
+        );
+      }
+    } catch (e) {
+      return Resource.error("Неизвестная ошибка: $e",
+          source: runtimeType.toString(),
+          name: "count",
+          args: [
+            token,
+          ]);
+    }
+    return Resource.error(
+      "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "count",
+      args: [
+        token,
+      ],
+    );
+  }
+
+  @override
+  Future<Resource<List<AdvertInfoModel>>> getAdverts(
+      String token, List<int> ids) async {
+    try {
+      final headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      };
+      // final uri = Uri.parse('https://advert-api.wb.ru/adv/v0/adverts');
+      final body = ids;
+
+      // param do not required for auto
+
+      final jsonString = json.encode(body);
+      final uri =
+          Uri.parse('https://advert-api.wb.ru/adv/v1/promotion/adverts');
+      final response = await http.post(uri, headers: headers, body: jsonString);
+
+      // final response = await http.get(uri, headers: headers);
+      // ;
 
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -362,26 +529,41 @@ class AdvertApiClient
             data.map((x) => AdvertInfoModel.fromJson(x)),
           ),
         );
-      } else if (response.statusCode == 429) {
+      } else if (response.statusCode == 401) {
         return Resource.error(
-          "Ответ API WB: Кампании не найдены",
+          "Ответ API WB: Пустой авторизационный заголовок",
+          source: runtimeType.toString(),
+          name: "getAdverts",
+          args: [token],
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
-          "Ответ API WB: Некорректный идентификатор РК",
+          "Ответ API WB: Некорректное значение параметра type",
+          source: runtimeType.toString(),
+          name: "getAdverts",
+          args: [token],
         );
-      } else if (response.statusCode == 401) {
-        // "Ответ API WB: Пустой авторизационный заголовок",
-
-        return Resource.empty();
+      } else if (response.statusCode == 422) {
+        return Resource.error(
+          "Ответ API WB: Ошибка обработки параметров запроса",
+          source: runtimeType.toString(),
+          name: "getAdverts",
+          args: [token],
+        );
       }
     } catch (e) {
       return Resource.error(
         "Ошибка при обращении к WB продвижение список кампаний: $e",
+        source: runtimeType.toString(),
+        name: "getAdverts",
+        args: [token],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "getAdverts",
+      args: [token],
     );
   }
 
@@ -401,19 +583,31 @@ class AdvertApiClient
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: runtimeType.toString(),
+          name: "balance",
+          args: [token],
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: Некорректный идентификатор продавца",
+          source: runtimeType.toString(),
+          name: "balance",
+          args: [token],
         );
       }
     } catch (e) {
       return Resource.error(
-        "Неизвестная ошибка",
+        "Неизвестная ошибка: $e",
+        source: runtimeType.toString(),
+        name: "balance",
+        args: [token],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "balance",
+      args: [token],
     );
   }
 
@@ -441,14 +635,27 @@ class AdvertApiClient
         return Resource.success(autoStatWord);
       }
       if (response.statusCode == 400) {
-        return Resource.error("Incorrect campaign identifier");
+        return Resource.error(
+            "Ответ API WB: некорректный идентификатор кампании",
+            source: runtimeType.toString(),
+            name: "autoStatWords",
+            args: [token, campaignId]);
       } else if (response.statusCode == 401) {
-        return Resource.error("Empty authorization header");
+        return Resource.error("Пустой авторизационный заголовок",
+            source: runtimeType.toString(),
+            name: "autoStatWords",
+            args: [token, campaignId]);
       }
     } catch (e) {
-      return Resource.error("Unknown error $e");
+      return Resource.error("Неизвестная ошибка: $e",
+          source: runtimeType.toString(),
+          name: "autoStatWords",
+          args: [token, campaignId]);
     }
-    return Resource.error("Unknown error");
+    return Resource.error("Неизвестная ошибка",
+        source: runtimeType.toString(),
+        name: "autoStatWords",
+        args: [token, campaignId]);
   }
 
   @override
@@ -471,23 +678,38 @@ class AdvertApiClient
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
+          source: runtimeType.toString(),
+          name: "getSearchStat",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: runtimeType.toString(),
+          name: "getSearchStat",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 429) {
         return Resource.error(
-          "Ответ API WB: too many requests with this user ID",
+          "Ответ API WB: слишком много запросов",
+          source: runtimeType.toString(),
+          name: "getSearchStat",
+          args: [token, campaignId],
         );
       }
     } catch (e) {
       return Resource.error(
         "Неизвестная ошибка $e",
+        source: runtimeType.toString(),
+        name: "getSearchStat",
+        args: [token, campaignId],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "getSearchStat",
+      args: [token, campaignId],
     );
   }
 
@@ -508,23 +730,38 @@ class AdvertApiClient
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
+          source: runtimeType.toString(),
+          name: "getAutoStat",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: runtimeType.toString(),
+          name: "getAutoStat",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 429) {
         return Resource.error(
           "Ответ API WB: too many requests with this user ID",
+          source: runtimeType.toString(),
+          name: "getAutoStat",
+          args: [token, campaignId],
         );
       }
     } catch (e) {
       return Resource.error(
         "Неизвестная ошибка $e",
+        source: runtimeType.toString(),
+        name: "getAutoStat",
+        args: [token, campaignId],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "getAutoStat",
+      args: [token, campaignId],
     );
   }
 
@@ -541,6 +778,7 @@ class AdvertApiClient
       final uri = Uri.https('advert-api.wb.ru', "/adv/v0/advert", params);
 
       final response = await http.get(uri, headers: headers);
+
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
 
@@ -571,28 +809,46 @@ class AdvertApiClient
           default:
             return Resource.error(
               "Неизвестный тип объявления: $advType",
+              source: runtimeType.toString(),
+              name: "getAdvertInfo",
+              args: [token, id],
             );
         }
       } else if (response.statusCode == 204) {
         return Resource.error(
           "Ответ API WB: Кампания не найдена",
+          source: runtimeType.toString(),
+          name: "getAdvertInfo",
+          args: [token, id],
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: Некорректное значение параметра param",
+          source: runtimeType.toString(),
+          name: "getAdvertInfo",
+          args: [token, id],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: runtimeType.toString(),
+          name: "getAdvertInfo",
+          args: [token, id],
         );
       }
     } catch (e) {
       return Resource.error(
         "Неизвестная ошибка: $e",
+        source: runtimeType.toString(),
+        name: "getAdvertInfo",
+        args: [token, id],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "getAdvertInfo",
+      args: [token, id],
     );
   }
 
@@ -615,23 +871,38 @@ class AdvertApiClient
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
+          source: "AdvertApiClient",
+          name: "getFullStatInBackground",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: "AdvertApiClient",
+          name: "getFullStatInBackground",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 429) {
         return Resource.error(
           "Ответ API WB: too many requests with this user ID",
+          source: "AdvertApiClient",
+          name: "getFullStatInBackground",
+          args: [token, campaignId],
         );
       }
     } catch (e) {
       return Resource.error(
         "Неизвестная ошибка $e",
+        source: "AdvertApiClient",
+        name: "getFullStatInBackground",
+        args: [token, campaignId],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: "AdvertApiClient",
+      name: "getFullStatInBackground",
+      args: [token, campaignId],
     );
   }
 
@@ -652,35 +923,60 @@ class AdvertApiClient
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
+          source: "AdvertApiClient",
+          name: "getSearchStatInBackground",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: "AdvertApiClient",
+          name: "getSearchStatInBackground",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 429) {
         return Resource.error(
           "Ответ API WB: too many requests with this user ID",
+          source: "AdvertApiClient",
+          name: "getSearchStatInBackground",
+          args: [token, campaignId],
         );
       }
     } catch (e) {
       return Resource.error(
         "Неизвестная ошибка $e",
+        source: "AdvertApiClient",
+        name: "getSearchStatInBackground",
+        args: [token, campaignId],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: "AdvertApiClient",
+      name: "getSearchStatInBackground",
+      args: [token, campaignId],
     );
   }
 
   static Future<Resource<List<AdvertInfoModel>>> getAdvertsInBackground(
-      String token) async {
+      String token, List<int> ids) async {
     try {
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json'
       };
-      final uri = Uri.parse('https://advert-api.wb.ru/adv/v0/adverts');
-      final response = await http.get(uri, headers: headers);
+      // final uri = Uri.parse('https://advert-api.wb.ru/adv/v0/adverts');
+      final body = ids;
+
+      // param do not required for auto
+
+      final jsonString = json.encode(body);
+      final uri =
+          Uri.parse('https://advert-api.wb.ru/adv/v1/promotion/adverts');
+      final response = await http.post(uri, headers: headers, body: jsonString);
+
+      // final response = await http.get(uri, headers: headers);
+      // ;
 
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -699,10 +995,16 @@ class AdvertApiClient
       } else if (response.statusCode == 429) {
         return Resource.error(
           "Ответ API WB: Кампании не найдены",
+          source: "AdvertApiClient",
+          name: "getAdvertsInBackground",
+          args: [token],
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: Некорректный идентификатор РК",
+          source: "AdvertApiClient",
+          name: "getAdvertsInBackground",
+          args: [token],
         );
       } else if (response.statusCode == 401) {
         // "Ответ API WB: Пустой авторизационный заголовок",
@@ -712,10 +1014,16 @@ class AdvertApiClient
     } catch (e) {
       return Resource.error(
         "Ошибка при обращении к WB продвижение список кампаний: $e",
+        source: "AdvertApiClient",
+        name: "getAdvertsInBackground",
+        args: [token],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: "AdvertApiClient",
+      name: "getAdvertsInBackground",
+      args: [token],
     );
   }
 
@@ -735,23 +1043,38 @@ class AdvertApiClient
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания не найдена",
+          source: "AdvertApiClient",
+          name: "getAutoStatInBackground",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: "AdvertApiClient",
+          name: "getAutoStatInBackground",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 429) {
         return Resource.error(
           "Ответ API WB: too many requests with this user ID",
+          source: "AdvertApiClient",
+          name: "getAutoStatInBackground",
+          args: [token, campaignId],
         );
       }
     } catch (e) {
       return Resource.error(
         "Неизвестная ошибка $e",
+        source: "AdvertApiClient",
+        name: "getAutoStatInBackground",
+        args: [token, campaignId],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: "AdvertApiClient",
+      name: "getAutoStatInBackground",
+      args: [token, campaignId],
     );
   }
 
@@ -776,21 +1099,38 @@ class AdvertApiClient
       } else if (response.statusCode == 429) {
         return Resource.error(
           "Ответ API WB: too many requests with this user ID",
+          source: "AdvertApiClient",
+          name: "getCompanyBudgetInBackground",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Ответ API WB: кампания $campaignId не принадлежит продавцу",
+          source: "AdvertApiClient",
+          name: "getCompanyBudgetInBackground",
+          args: [token, campaignId],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Ответ API WB: Пустой авторизационный заголовок",
+          source: "AdvertApiClient",
+          name: "getCompanyBudgetInBackground",
+          args: [token, campaignId],
         );
       }
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(
+        "Неизвестная ошибка $e",
+        source: "AdvertApiClient",
+        name: "getCompanyBudgetInBackground",
+        args: [token, campaignId],
+      );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: "AdvertApiClient",
+      name: "getCompanyBudgetInBackground",
+      args: [token, campaignId],
     );
   }
 }

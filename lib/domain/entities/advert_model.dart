@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class AdvertInfoModel {
@@ -93,7 +94,7 @@ class AdvertInfoModel {
 
   @override
   String toString() {
-    return 'AdvertModel(campaignId: $campaignId, type: $type, status: $status, dailyBudget: $dailyBudget, createTime: $createTime, changeTime: $changeTime, name: $name, startTime: $startTime, endTime: $endTime)';
+    return 'AdvertInfoModel(campaignId: $campaignId, type: $type, status: $status, dailyBudget: $dailyBudget, createTime: $createTime, changeTime: $changeTime, name: $name, startTime: $startTime, endTime: $endTime)';
   }
 
   @override

@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class InitialStockModel {
@@ -70,7 +71,7 @@ class InitialStockModel {
 
   @override
   String toString() {
-    return 'InitialStockModel(id: $id, date: $date, nmId: $nmId, wh: $wh, name: $name, qty: $qty, sizeOptionId: $sizeOptionId)';
+    return 'InitialStockModel(id: $id, date: $date, nmId: $nmId, wh: $wh, sizeOptionId: $sizeOptionId, name: $name, qty: $qty)';
   }
 
   @override

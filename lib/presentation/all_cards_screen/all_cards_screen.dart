@@ -394,6 +394,7 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
     return SliverPersistentHeader(
       delegate: MySliverPersistentHeaderDelegate(
         TabBar(
+            tabAlignment: TabAlignment.start,
             controller: _tabController,
             isScrollable: true,
             labelPadding: const EdgeInsets.symmetric(horizontal: 5),

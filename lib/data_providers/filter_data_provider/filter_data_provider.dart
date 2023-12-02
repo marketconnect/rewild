@@ -61,7 +61,8 @@ class FilterDataProvider implements AllCardsFilterFilterDataProvider {
       }
       return Resource.empty();
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "insert", args: [filter]);
     }
   }
 
@@ -74,7 +75,8 @@ class FilterDataProvider implements AllCardsFilterFilterDataProvider {
       );
       return Resource.empty();
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "delete", args: []);
     }
   }
 
@@ -128,7 +130,8 @@ class FilterDataProvider implements AllCardsFilterFilterDataProvider {
 
       return Resource.success(newFilter);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "get", args: []);
     }
   }
 }

@@ -35,7 +35,8 @@ class InitialStockDataProvider
       ]);
       return Resource.success(id);
     } catch (e) {
-      return Resource.error('Не удалось сохранить остатки на начало дня $e');
+      return Resource.error('Не удалось сохранить остатки на начало дня $e',
+          source: runtimeType.toString(), name: "insert", args: [initialStock]);
     }
   }
 
@@ -63,7 +64,10 @@ class InitialStockDataProvider
       ]);
       return Resource.success(id);
     } catch (e) {
-      return Resource.error('Не удалось сохранить остатки на начало дня $e');
+      return Resource.error('Не удалось сохранить остатки на начало дня $e',
+          source: "InitialStockDataProvider",
+          name: "insertInBackground",
+          args: [initialStock]);
     }
   }
 
@@ -74,7 +78,8 @@ class InitialStockDataProvider
       await db.rawDelete('DELETE FROM initial_stocks WHERE nmId = ?', [id]);
       return Resource.empty();
     } catch (e) {
-      return Resource.error('Не удалось удалить остатки на начало дня $e');
+      return Resource.error('Не удалось удалить остатки на начало дня $e',
+          source: runtimeType.toString(), name: "delete", args: [id]);
     }
   }
 
@@ -94,7 +99,10 @@ class InitialStockDataProvider
       }).toList();
       return Resource.success(initStocks);
     } catch (e) {
-      return Resource.error('Не удалось получить остатки на начало дня $e');
+      return Resource.error('Не удалось получить остатки на начало дня $e',
+          source: runtimeType.toString(),
+          name: "get",
+          args: [nmId, dateFrom, dateTo]);
     }
   }
 
@@ -124,7 +132,10 @@ class InitialStockDataProvider
       }
       return Resource.success(InitialStockModel.fromMap(initialStock.first));
     } catch (e) {
-      return Resource.error('Не удалось получить остатки на начало дня $e');
+      return Resource.error('Не удалось получить остатки на начало дня $e',
+          source: runtimeType.toString(),
+          name: "getOne",
+          args: [nmId, dateFrom, dateTo, wh, sizeOptionId]);
     }
   }
 
@@ -153,7 +164,8 @@ class InitialStockDataProvider
       ]);
       return Resource.success(id);
     } catch (e) {
-      return Resource.error('Не удалось обновить остатки на начало дня $e');
+      return Resource.error('Не удалось обновить остатки на начало дня $e',
+          source: runtimeType.toString(), name: "update", args: [initialStock]);
     }
   }
 
@@ -173,7 +185,10 @@ class InitialStockDataProvider
       }).toList();
       return Resource.success(initStocks);
     } catch (e) {
-      return Resource.error('Не удалось получить остатки на начало дня $e');
+      return Resource.error('Не удалось получить остатки на начало дня $e',
+          source: runtimeType.toString(),
+          name: "getAll",
+          args: [dateFrom, dateTo]);
     }
   }
 }

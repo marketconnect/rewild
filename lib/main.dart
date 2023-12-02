@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -92,6 +94,19 @@ Future<void> main() async {
     ),
   );
 
+  // to solve the cached_network_image Handshake problem
+  HttpOverrides.global = MyHttpOverrides();
+
   final app = appFactory.makeApp();
   runApp(app);
+}
+
+// to solve the cached_network_image Handshake problem
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
 }

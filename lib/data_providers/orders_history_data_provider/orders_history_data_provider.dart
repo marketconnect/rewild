@@ -24,8 +24,10 @@ class OrdersHistoryDataProvider
       }
       return Resource.empty();
     } catch (e) {
-      return Resource.error(
-          'Не удалось получить историю заказов для $nmId: $e');
+      return Resource.error('Не удалось получить историю заказов для $nmId: $e',
+          source: runtimeType.toString(),
+          name: "get",
+          args: [nmId, dateFrom, dateTo]);
     }
   }
 
@@ -41,6 +43,9 @@ class OrdersHistoryDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось удалить историю заказов для $nmId: $e',
+        source: runtimeType.toString(),
+        name: "delete",
+        args: [nmId],
       );
     }
   }
@@ -66,7 +71,10 @@ class OrdersHistoryDataProvider
       return Resource.success(id);
     } catch (e) {
       return Resource.error(
-          'Не удалось сохранить историю заказов для ${ordersHistory.nmId}: $e');
+          'Не удалось сохранить историю заказов для ${ordersHistory.nmId}: $e',
+          source: runtimeType.toString(),
+          name: "insert",
+          args: [ordersHistory]);
     }
   }
 }

@@ -36,6 +36,9 @@ class SellerDataProvider
     } catch (e) {
       return Resource.error(
         "Не удалось данные продавца $e",
+        source: runtimeType.toString(),
+        name: 'insert',
+        args: [seller],
       );
     }
   }
@@ -49,6 +52,9 @@ class SellerDataProvider
     } catch (e) {
       return Resource.error(
         "Не удалось удалить данные продавений $e",
+        source: runtimeType.toString(),
+        name: 'delete',
+        args: [id],
       );
     }
   }
@@ -64,9 +70,8 @@ class SellerDataProvider
       }
       return Resource.success(SellerModel.fromMap(seller.first));
     } catch (e) {
-      return Resource.error(
-        "Не удалось получить данные продавца $e",
-      );
+      return Resource.error("Не удалось получить данные продавца $e",
+          source: runtimeType.toString(), name: "get", args: [id]);
     }
   }
 
@@ -95,6 +100,9 @@ class SellerDataProvider
     } catch (e) {
       return Resource.error(
         "Не удалось обновить данные продавца $e",
+        source: runtimeType.toString(),
+        name: 'update',
+        args: [seller],
       );
     }
   }
@@ -108,6 +116,9 @@ class SellerDataProvider
     } catch (e) {
       return Resource.error(
         "Не удалось получить данные продавцов $e",
+        source: runtimeType.toString(),
+        name: 'getAll',
+        args: [],
       );
     }
   }

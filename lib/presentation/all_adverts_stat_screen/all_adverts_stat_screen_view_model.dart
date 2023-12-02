@@ -55,10 +55,14 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
         // to update cpm of search+catalog need to update cpm of search and
         // cpm of catalog. But with only one value from the stream it is not possible.
         // So we need to update all
-        if (adverts.firstWhere((a) => a.campaignId == event.campaignId).type ==
-            AdvertTypeConstants.searchPlusCatalog) {
-          await _update();
-          return;
+        if (adverts.isNotEmpty) {
+          if (adverts
+                  .firstWhere((a) => a.campaignId == event.campaignId)
+                  .type ==
+              AdvertTypeConstants.searchPlusCatalog) {
+            await _update();
+            return;
+          }
         }
 
         updateCpm(event.campaignId, event.cpm.toString());
@@ -91,13 +95,16 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
     List<int> campaignIds = [];
     for (final advert in adverts) {
       campaignIds.add(advert.campaignId);
-      int nmId = 0;
+      List<int> nmIds = [];
       String cpm = "";
       if (advert is AdvertCatalogueModel) {
         final params = advert.params!;
         for (final param in params) {
           if (param.nms != null) {
-            nmId = param.nms!.map((e) => e.nm).first;
+            final nms = param.nms!;
+            final n = nms.length > 3 ? 3 : nms.length;
+
+            nmIds = nms.map((e) => e.nm).toList().sublist(0, n);
           }
           if (param.price != null) {
             cpm = param.price!.toString();
@@ -108,7 +115,9 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
 
         for (final param in params) {
           if (param.nms != null) {
-            nmId = param.nms!.map((e) => e.nm).first;
+            final nms = param.nms!;
+            final n = nms.length > 3 ? 3 : nms.length;
+            nmIds = nms.map((e) => e.nm).toList().sublist(0, n);
           }
           if (param.price != null) {
             cpm = param.price!.toString();
@@ -119,7 +128,9 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
 
         for (final param in params) {
           if (param.nms != null) {
-            nmId = param.nms!.map((e) => e.nm).first;
+            final nms = param.nms!;
+            final n = nms.length > 3 ? 3 : nms.length;
+            nmIds = nms.map((e) => e.nm).toList().sublist(0, n);
           }
           if (param.price != null) {
             cpm = param.price!.toString();
@@ -128,7 +139,9 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
       } else if (advert is AdvertAutoModel) {
         final params = advert.autoParams!;
         if (params.nms != null) {
-          nmId = params.nms!.map((e) => e).first;
+          final nms = params.nms!;
+          final n = nms.length > 3 ? 3 : nms.length;
+          nmIds = nms.map((e) => e).toList().sublist(0, n);
         }
         if (params.cpm != null) {
           cpm = params.cpm!.toString();
@@ -137,7 +150,9 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
         final params = advert.params!;
         for (final param in params) {
           if (param.nms != null) {
-            nmId = param.nms!.map((e) => e.nm).first;
+            final nms = param.nms!;
+            final n = nms.length > 3 ? 3 : nms.length;
+            nmIds = nms.map((e) => e.nm).toList().sublist(0, n);
           }
         }
         cpm = params.first.price!.toString();
@@ -145,21 +160,32 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
         final params = advert.unitedParams!;
         for (final param in params) {
           if (param.nms != null) {
-            nmId = param.nms!.map((e) => e).first;
+            final nms = param.nms!;
+            final n = nms.length > 3 ? 3 : nms.length;
+            nmIds = nms.map((e) => e).toList().sublist(0, n);
           }
         }
         cpm =
             '${params.first.searchCPM!.toString()} + ${params.first.catalogCPM!.toString()}';
       }
-      // catalog
 
-      final image = await fetch(
-        () => cardOfProductService.getImageForNmId(nmId),
-      );
-      if (image == null) {
+      List<String> images = [];
+      for (final nmId in nmIds) {
+        final image = await fetch(
+          () => cardOfProductService.getImageForNmId(nmId),
+        );
+        if (image == null) {
+          continue;
+        }
+        images.add(image);
+      }
+      // final image = await fetch(
+      //   () => cardOfProductService.getImageForNmId(nmIds),
+      // );
+      if (images.isEmpty) {
         return;
       }
-      addImage(advert.campaignId, image);
+      addImage(advert.campaignId, images);
       addCpm(advert.campaignId, cpm);
     }
     adverts.sort((a, b) => b.status.compareTo(a.status));
@@ -198,17 +224,17 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
   bool get apiKeyExists => _apiKeyExists;
 
   // images
-  Map<int, String> _image = {};
-  void setImage(Map<int, String> value) {
+  Map<int, List<String>> _image = {};
+  void setImage(Map<int, List<String>> value) {
     _image = value;
   }
 
-  void addImage(int advId, String value) {
+  void addImage(int advId, List<String> value) {
     _image[advId] = value;
   }
 
-  String image(int advId) {
-    return _image[advId] ?? "";
+  List<String> images(int advId) {
+    return _image[advId] ?? [];
   }
 
   // cpm

@@ -19,7 +19,9 @@ import 'package:rewild/presentation/single_search_words_screen%20copy/single_sea
 
 // API
 abstract class AdvertServiceAdvertApiClient {
-  Future<Resource<List<AdvertInfoModel>>> getAdverts(String token);
+  Future<Resource<List<int>>> count(String token);
+  Future<Resource<List<AdvertInfoModel>>> getAdverts(
+      String token, List<int> ids);
   Future<Resource<Advert>> getAdvertInfo(String token, int id);
   Future<Resource<int>> getCompanyBudget(String token, int campaignId);
   Future<Resource<int>> balance(String token);
@@ -57,7 +59,8 @@ class AdvertService
   Future<Resource<bool>> apiKeyExists() async {
     final resource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (resource is Error) {
-      return Resource.error(resource.message!);
+      return Resource.error(resource.message!,
+          source: runtimeType.toString(), name: "apiKeyExists", args: []);
     }
     if (resource is Empty) {
       return Resource.success(false);
@@ -77,7 +80,8 @@ class AdvertService
   Future<Resource<int>> getBallance() async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(), name: "getBallance", args: []);
     }
     if (tokenResource is Empty) {
       return Resource.empty();
@@ -91,7 +95,8 @@ class AdvertService
         await advertApiClient.balance(tokenResource.data!.token);
     balanceLastReq = DateTime.now();
     if (balanceResource is Error) {
-      return Resource.error(balanceResource.message!);
+      return Resource.error(balanceResource.message!,
+          source: runtimeType.toString(), name: "getBallance", args: []);
     }
     return balanceResource;
   }
@@ -100,7 +105,10 @@ class AdvertService
   Future<Resource<int>> getBudget(int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(),
+          name: "getBudget",
+          args: [campaignId]);
     }
     if (tokenResource is Empty) {
       return Resource.empty();
@@ -118,38 +126,63 @@ class AdvertService
     budgetLastReq = DateTime.now();
 
     if (budgetResource is Error) {
-      return Resource.error(budgetResource.message!);
+      return Resource.error(budgetResource.message!,
+          source: runtimeType.toString(),
+          name: "getBudget",
+          args: [campaignId]);
     }
     return budgetResource;
   }
 
-  @override
-  Future<Resource<List<Advert>>> getAllAdverts() async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
-    if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
-    }
-    if (tokenResource is Empty) {
-      return Resource.error("Токен не сохранен");
-    }
-
+  Future<Resource<List<AdvertInfoModel>>> _getAdverts(String token) async {
     // request to API
     if (advertsLastReq != null) {
       await ApiDurationConstants.ready(
           advertsLastReq, ApiDurationConstants.advertsDurationBetweenReqInMs);
     }
 
+    final allAdvertsIdsResource = await advertApiClient.count(token);
+    if (allAdvertsIdsResource is Error) {
+      return Resource.error(allAdvertsIdsResource.message!,
+          source: runtimeType.toString(), name: "getAllAdverts", args: []);
+    }
+
     final advertsResource =
-        await advertApiClient.getAdverts(tokenResource.data!.token);
+        await advertApiClient.getAdverts(token, allAdvertsIdsResource.data!);
     advertsLastReq = DateTime.now();
 
     if (advertsResource is Error) {
-      return Resource.error(advertsResource.message!);
+      return Resource.error(advertsResource.message!,
+          source: runtimeType.toString(), name: "getAllAdverts", args: []);
+    }
+    return advertsResource;
+  }
+
+  @override
+  Future<Resource<List<Advert>>> getAllAdverts() async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(), name: "getAllAdverts", args: []);
+    }
+    if (tokenResource is Empty) {
+      return Resource.error("Токен не сохранен",
+          source: runtimeType.toString(), name: "getAllAdverts", args: []);
+    }
+
+    final advertsResource = await _getAdverts(tokenResource.data!.token);
+
+    if (advertsResource is Error) {
+      return Resource.error(advertsResource.message!,
+          source: runtimeType.toString(), name: "getAllAdverts", args: []);
     }
 
     if (advertsResource is Empty) {
       return Resource.error(
-          'Токен "Продвижение" недействителен. Пожалуйста удалите его.');
+          'Токен "Продвижение" недействителен. Пожалуйста удалите его.',
+          source: runtimeType.toString(),
+          name: "getAllAdverts",
+          args: []);
     }
     List<Advert> res = [];
 
@@ -169,7 +202,8 @@ class AdvertService
       advertLastReq = DateTime.now();
 
       if (advInfoResource is Error) {
-        return Resource.error(advInfoResource.message!);
+        return Resource.error(advInfoResource.message!,
+            source: runtimeType.toString(), name: "getAllAdverts", args: []);
       }
       res.add(advInfoResource.data!);
     }
@@ -181,7 +215,10 @@ class AdvertService
   Future<Resource<Advert>> advertInfo(int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(),
+          name: "advertInfo",
+          args: [campaignId]);
     }
 
     // request
@@ -189,7 +226,10 @@ class AdvertService
         tokenResource.data!.token, campaignId);
     advertLastReq = DateTime.now();
     if (advInfoResource is Error) {
-      return Resource.error(advInfoResource.message!);
+      return Resource.error(advInfoResource.message!,
+          source: runtimeType.toString(),
+          name: "advertInfo",
+          args: [campaignId]);
     }
 
     return Resource.success(advInfoResource.data!);
@@ -204,7 +244,10 @@ class AdvertService
       int? instrument}) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(),
+          name: "setCpm",
+          args: [campaignId, type, cpm, param, instrument]);
     }
     if (tokenResource is Empty) {
       return Resource.empty();
@@ -219,7 +262,10 @@ class AdvertService
         tokenResource.data!.token, campaignId, type, cpm, param, instrument);
     changeCpmLastReq = DateTime.now();
     if (changeCpmResource is Error) {
-      return Resource.error(changeCpmResource.message!);
+      return Resource.error(changeCpmResource.message!,
+          source: runtimeType.toString(),
+          name: "setCpm",
+          args: [campaignId, type, cpm, param, instrument]);
     }
     updatedAdvertStreamController
         .add(StreamAdvertEvent(campaignId: campaignId, cpm: cpm, status: null));
@@ -230,24 +276,25 @@ class AdvertService
   Future<Resource<List<AdvertInfoModel>>> getByType([int? type]) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(), name: "getByType", args: [type]);
     }
     if (tokenResource is Empty) {
-      return Resource.empty();
+      return Resource.error("Токен не сохранен",
+          source: runtimeType.toString(), name: "getByType", args: []);
     }
 
     // request to API
+    final advertsResource = await _getAdverts(tokenResource.data!.token);
 
-    if (advertsLastReq != null) {
-      await ApiDurationConstants.ready(
-          advertsLastReq, ApiDurationConstants.advertsDurationBetweenReqInMs);
+    if (advertsResource is Error) {
+      return Resource.error(advertsResource.message!,
+          source: runtimeType.toString(), name: "getAllAdverts", args: []);
     }
 
-    final advertsResource =
-        await advertApiClient.getAdverts(tokenResource.data!.token);
-    advertsLastReq = DateTime.now();
     if (advertsResource is Error) {
-      return Resource.error(advertsResource.message!);
+      return Resource.error(advertsResource.message!,
+          source: runtimeType.toString(), name: "getByType", args: [type]);
     }
 
     List<AdvertInfoModel> res = [];
@@ -271,7 +318,8 @@ class AdvertService
   Future<Resource<List<Advert>>> getAll() async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(), name: "getAll", args: []);
     }
     if (tokenResource is Empty) {
       return Resource.empty();
@@ -279,18 +327,12 @@ class AdvertService
 
     // request to API
 
-    if (advertsLastReq != null) {
-      await ApiDurationConstants.ready(
-          advertsLastReq, ApiDurationConstants.advertsDurationBetweenReqInMs);
-    }
+    final advertsResource = await _getAdverts(tokenResource.data!.token);
 
-    final advertsResource =
-        await advertApiClient.getAdverts(tokenResource.data!.token);
-    advertsLastReq = DateTime.now();
     if (advertsResource is Error) {
-      return Resource.error(advertsResource.message!);
+      return Resource.error(advertsResource.message!,
+          source: runtimeType.toString(), name: "getAllAdverts", args: []);
     }
-
     List<Advert> res = [];
     if (advertsResource is Empty) {
       return Resource.success(res);
@@ -309,8 +351,10 @@ class AdvertService
           tokenResource.data!.token, advert.campaignId);
       advertLastReq = DateTime.now();
       if (advInfoResource is Error) {
-        return Resource.error(advInfoResource.message!);
+        return Resource.error(advInfoResource.message!,
+            source: runtimeType.toString(), name: "getAll", args: []);
       }
+
       res.add(advInfoResource.data!);
     }
     return Resource.success(res);
@@ -325,7 +369,10 @@ class AdvertService
       advertApiClient.startAdvert,
     );
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(),
+          name: "startAdvert",
+          args: [campaignId]);
     }
     if (tokenResource is Empty) {
       return Resource.success(false);
@@ -335,7 +382,10 @@ class AdvertService
     final advertInfoResource =
         await advertApiClient.getAdvertInfo(tokenResource.data!, campaignId);
     if (advertInfoResource is Error) {
-      return Resource.error(advertInfoResource.message!);
+      return Resource.error(advertInfoResource.message!,
+          source: runtimeType.toString(),
+          name: "startAdvert",
+          args: [campaignId]);
     }
     final advert = advertInfoResource.data!;
     if (advert.status == 9) {
@@ -364,7 +414,10 @@ class AdvertService
     final advertInfoResource =
         await advertApiClient.getAdvertInfo(tokenResource.data!, campaignId);
     if (advertInfoResource is Error) {
-      return Resource.error(advertInfoResource.message!);
+      return Resource.error(advertInfoResource.message!,
+          source: runtimeType.toString(),
+          name: "stopAdvert",
+          args: [campaignId]);
     }
     final advert = advertInfoResource.data!;
     if (advert.status != 9) {
@@ -384,7 +437,10 @@ class AdvertService
       Future<Resource<bool>> Function(String, int) func) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(),
+          name: "stopAdvert",
+          args: [campaignId, lastReqTime, duration]);
     }
     if (tokenResource is Empty) {
       return Resource.empty();
@@ -401,7 +457,10 @@ class AdvertService
       final resource = await func(tokenResource.data!.token, campaignId);
       lastReqTime = DateTime.now();
       if (resource is Error) {
-        return Resource.error(resource.message!);
+        return Resource.error(resource.message!,
+            source: runtimeType.toString(),
+            name: "stopAdvert",
+            args: [campaignId, lastReqTime, duration]);
       }
       done = resource.data!;
       cont++;

@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/advert_nm.dart';
 
@@ -37,6 +38,10 @@ class AdvertSearchModel extends Advert {
       type: json['type'],
     );
   }
+
+  @override
+  String toString() =>
+      'AdvertSearchModel(campaignId: $campaignId, name: $name, endTime: $endTime, createTime: $createTime, changeTime: $changeTime, startTime: $startTime, dailyBudget: $dailyBudget, status: $status, type: $type)';
 }
 
 class AdvertSearchParam {

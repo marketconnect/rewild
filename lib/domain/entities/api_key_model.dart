@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class ApiKeyModel {
@@ -40,7 +41,8 @@ class ApiKeyModel {
       ApiKeyModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
-  String toString() => 'ApiKeyModel( token: $token, type: $type)';
+  String toString() =>
+      'ApiKeyModel(token: $token, type: $type, isSelected: $isSelected)';
 
   @override
   bool operator ==(covariant ApiKeyModel other) {

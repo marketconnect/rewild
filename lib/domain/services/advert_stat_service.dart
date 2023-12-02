@@ -41,6 +41,9 @@ class AdvertStatService
     if (storedAutoStatsResource is Error) {
       return Resource.error(
         storedAutoStatsResource.message!,
+        source: runtimeType.toString(),
+        name: "getTodays",
+        args: [campaignId],
       );
     }
     if (storedAutoStatsResource is Empty) {
@@ -53,7 +56,10 @@ class AdvertStatService
   Future<Resource<AdvertStatModel>> getCurrent(int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(),
+          name: "getCurrent",
+          args: [campaignId]);
     }
     if (tokenResource is Empty) {
       return Resource.empty();
@@ -65,7 +71,10 @@ class AdvertStatService
       campaignId,
     );
     if (currentAutoStatResource is Error) {
-      return Resource.error(currentAutoStatResource.message!);
+      return Resource.error(currentAutoStatResource.message!,
+          source: runtimeType.toString(),
+          name: "getCurrent",
+          args: [campaignId]);
     }
 
     return Resource.success(currentAutoStatResource.data!);

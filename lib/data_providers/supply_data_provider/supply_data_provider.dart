@@ -34,7 +34,8 @@ class SupplyDataProvider
 
       return Resource.success(id);
     } catch (e) {
-      return Resource.error('Не удалось сохранить поставки $e');
+      return Resource.error('Не удалось сохранить поставки $e',
+          source: runtimeType.toString(), name: "insert", args: [supply]);
     }
   }
 
@@ -59,7 +60,8 @@ class SupplyDataProvider
           ]);
       return Resource.empty();
     } catch (e) {
-      return Resource.error('Не удалось удалить поставки $e');
+      return Resource.error('Не удалось удалить поставки $e',
+          source: runtimeType.toString(), name: "delete", args: [nmId]);
     }
   }
 
@@ -83,7 +85,10 @@ class SupplyDataProvider
           ]);
       return Resource.empty();
     } catch (e) {
-      return Resource.error('Не удалось удалить поставки $e');
+      return Resource.error('Не удалось удалить поставки $e',
+          source: "SupplyDataProvider",
+          name: "deleteInBackground",
+          args: [nmId]);
     }
   }
 
@@ -108,7 +113,10 @@ class SupplyDataProvider
       return Resource.success(
           supplies.map((e) => SupplyModel.fromMap(e)).first);
     } catch (e) {
-      return Resource.error('Не удалось получить поставки: $e');
+      return Resource.error('Не удалось получить поставки: $e',
+          source: runtimeType.toString(),
+          name: "getOne",
+          args: [nmId, wh, sizeOptionId]);
     }
   }
 
@@ -130,7 +138,8 @@ class SupplyDataProvider
       return Resource.success(
           supplies.map((e) => SupplyModel.fromMap(e)).toList());
     } catch (e) {
-      return Resource.error('Не удалось получить поставки: $e');
+      return Resource.error('Не удалось получить поставки: $e',
+          source: runtimeType.toString(), name: "getForOne", args: [nmId]);
     }
   }
 
@@ -143,7 +152,8 @@ class SupplyDataProvider
       return Resource.success(
           supplies.map((e) => SupplyModel.fromMap(e)).toList());
     } catch (e) {
-      return Resource.error('Не удалось получить поставки $e');
+      return Resource.error('Не удалось получить поставки $e',
+          source: runtimeType.toString(), name: "get", args: [nmId]);
     }
   }
 

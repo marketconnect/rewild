@@ -27,7 +27,7 @@ abstract class CardOfProductServiceSellerApiClient {
 
 // Warehouse
 abstract class CardOfProductServiceWarehouseApiCient {
-  Future<Resource<List<Warehouse>>> fetchAll();
+  Future<Resource<List<Warehouse>>> getAll();
 }
 
 // Card
@@ -97,7 +97,8 @@ class CardOfProductService
   Future<Resource<int>> count() async {
     final allCardsResource = await cardOfProductDataProvider.getAll();
     if (allCardsResource is Error) {
-      return Resource.error(allCardsResource.message!);
+      return Resource.error(allCardsResource.message!,
+          source: runtimeType.toString(), name: 'count', args: []);
     }
 
     return Resource.success(allCardsResource.data!.length);
@@ -109,14 +110,16 @@ class CardOfProductService
     // Cards
     final allCardsResource = await cardOfProductDataProvider.getAll(nmIds);
     if (allCardsResource is Error) {
-      return Resource.error(allCardsResource.message!);
+      return Resource.error(allCardsResource.message!,
+          source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
     }
     List<CardOfProductModel> allCards = allCardsResource.data!;
 
     // get stocks
     final stocksResource = await stockDataprovider.getAll();
     if (stocksResource is Error) {
-      return Resource.error(stocksResource.message!);
+      return Resource.error(stocksResource.message!,
+          source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
     }
     final stocks = stocksResource.data!;
     final dateFrom = yesterdayEndOfTheDay();
@@ -128,7 +131,8 @@ class CardOfProductService
       dateTo,
     );
     if (initStocksResource is Error) {
-      return Resource.error(initStocksResource.message!);
+      return Resource.error(initStocksResource.message!,
+          source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
     }
 
     final initialStocks = initStocksResource.data!;
@@ -151,7 +155,8 @@ class CardOfProductService
       // append supplies
       final suppliesResource = await supplyDataProvider.get(newCard.nmId);
       if (suppliesResource is Error) {
-        return Resource.error(suppliesResource.message!);
+        return Resource.error(suppliesResource.message!,
+            source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
       }
 
       final supplies = suppliesResource.data!;
@@ -171,7 +176,8 @@ class CardOfProductService
   Future<Resource<String>> getImageForNmId(int id) async {
     final imgResource = await cardOfProductDataProvider.getImage(id);
     if (imgResource is Error) {
-      return Resource.error(imgResource.message!);
+      return Resource.error(imgResource.message!,
+          source: runtimeType.toString(), name: 'getImageForNmId', args: [id]);
     }
 
     return Resource.success(imgResource.data!);

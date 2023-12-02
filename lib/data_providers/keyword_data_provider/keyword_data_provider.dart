@@ -14,7 +14,8 @@ class KeywordDataProvider implements KeywordsServiceKeywordsDataProvider {
           [keyword.keyword, keyword.count, keyword.campaignId]);
       return Resource.success(id > 0);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "save", args: [keyword]);
     }
   }
 
@@ -46,7 +47,8 @@ class KeywordDataProvider implements KeywordsServiceKeywordsDataProvider {
           .toList());
       return Resource.success(result);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "getAll", args: [campaignId]);
     }
   }
 }

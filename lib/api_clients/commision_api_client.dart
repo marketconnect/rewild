@@ -25,6 +25,9 @@ class CommissionApiClient implements CommissionServiceCommissionApiClient {
       if (id == 0) {
         return Resource.error(
           "Некорректные данные",
+          source: runtimeType.toString(),
+          name: "get",
+          args: [id],
         );
       }
       final stub = CommissionServiceClient(channel);
@@ -49,15 +52,24 @@ class CommissionApiClient implements CommissionServiceCommissionApiClient {
         if (e.code == StatusCode.internal) {
           return Resource.error(
             "Ошибка сервера",
+            source: runtimeType.toString(),
+            name: "get",
+            args: [id],
           );
         } else if (e.code == StatusCode.unavailable) {
           return Resource.error(
             ErrorsConstants.unavailable,
+            source: runtimeType.toString(),
+            name: "get",
+            args: [id],
           );
         }
       }
       return Resource.error(
         "Неизвестная ошибка во время получения данных об остатках с сервера: $e",
+        source: runtimeType.toString(),
+        name: "get",
+        args: [id],
       );
     } finally {
       await channel.shutdown();

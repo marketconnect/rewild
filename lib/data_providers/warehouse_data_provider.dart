@@ -20,12 +20,16 @@ class WarehouseDataProvider
             await prefs.setString(warehouse.id.toString(), warehouse.name);
         if (!ok) {
           return Resource.error(
-              'Не удалось сохранить склад ${warehouse.id} ${warehouse.name} ');
+              'Не удалось сохранить склад ${warehouse.id} ${warehouse.name} ',
+              source: runtimeType.toString(),
+              name: "update",
+              args: [warehouse]);
         }
       }
       return Resource.success(true);
     } on Exception catch (e) {
-      return Resource.error('Не удалось сохранить склады: $e');
+      return Resource.error('Не удалось сохранить склады: $e',
+          source: runtimeType.toString(), name: "update", args: [warehouses]);
     }
   }
 
@@ -40,7 +44,8 @@ class WarehouseDataProvider
       }
       return Resource.empty();
     } on Exception catch (e) {
-      return Resource.error('Не удалось сохранить склад $id:  $e');
+      return Resource.error('Не удалось сохранить склад $id:  $e',
+          source: runtimeType.toString(), name: "get", args: [id]);
     }
   }
 }

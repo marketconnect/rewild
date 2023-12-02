@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 class Advert {
   int campaignId;
   String name;
@@ -44,5 +43,10 @@ class Advert {
       status: status ?? this.status,
       type: type ?? this.type,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Advert(campaignId: $campaignId, name: $name, endTime: $endTime, createTime: $createTime, changeTime: $changeTime, startTime: $startTime, dailyBudget: $dailyBudget, status: $status, type: $type)';
   }
 }

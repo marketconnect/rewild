@@ -40,22 +40,37 @@ class AuthApiClient implements AuthServiceAuthApiClient {
         if (e.code == StatusCode.alreadyExists) {
           return Resource.error(
             "ALREADY_EXISTS",
+            source: runtimeType.toString(),
+            name: "registerUser",
+            args: [username, password],
           );
         } else if (e.code == StatusCode.invalidArgument) {
           return Resource.error(
             "Некорректные данные",
+            source: runtimeType.toString(),
+            name: "registerUser",
+            args: [username, password],
           );
         } else if (e.code == StatusCode.internal) {
           return Resource.error(
             "Ошибка сервера",
+            source: runtimeType.toString(),
+            name: "registerUser",
+            args: [username, password],
           );
         } else if (e.code == StatusCode.unavailable) {
           return Resource.error(
             ErrorsConstants.unavailable,
+            source: runtimeType.toString(),
+            name: "registerUser",
+            args: [username, password],
           );
         } else {
           return Resource.error(
             "Неизвестная ошибка",
+            source: runtimeType.toString(),
+            name: "registerUser",
+            args: [username, password],
           );
         }
       }
@@ -65,6 +80,9 @@ class AuthApiClient implements AuthServiceAuthApiClient {
 
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "registerUser",
+      args: [username, password],
     );
   }
 
@@ -94,17 +112,29 @@ class AuthApiClient implements AuthServiceAuthApiClient {
     } catch (e) {
       if (e is GrpcError) {
         if (e.code == StatusCode.notFound) {
-          return Resource.error("Пользователь не найден");
+          return Resource.error("Пользователь не найден",
+              source: runtimeType.toString(),
+              name: "loginUser",
+              args: [username, password]);
         } else if (e.code == StatusCode.internal) {
-          return Resource.error("Ошибка сервера");
+          return Resource.error("Ошибка сервера",
+              source: runtimeType.toString(),
+              name: "loginUser",
+              args: [username, password]);
         } else if (e.code == StatusCode.unavailable) {
-          return Resource.error(ErrorsConstants.unavailable);
+          return Resource.error(ErrorsConstants.unavailable,
+              source: runtimeType.toString(),
+              name: "loginUser",
+              args: [username, password]);
         } else {}
       }
     } finally {
       await channel.shutdown();
     }
 
-    return Resource.error("Неизвестная ошибка");
+    return Resource.error("Неизвестная ошибка",
+        source: runtimeType.toString(),
+        name: "loginUser",
+        args: [username, password]);
   }
 }

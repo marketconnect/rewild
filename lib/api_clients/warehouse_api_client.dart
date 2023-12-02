@@ -12,7 +12,7 @@ class WarehouseApiClient
         WarehouseServiceWerehouseApiClient {
   const WarehouseApiClient();
   @override
-  Future<Resource<List<Warehouse>>> fetchAll() async {
+  Future<Resource<List<Warehouse>>> getAll() async {
     final params = {
       'latitude': '55.753737',
       'longitude': '37.6201',
@@ -35,13 +35,29 @@ class WarehouseApiClient
 
       return Resource.success(resultWarehousesList);
     } else if (response.statusCode == 429) {
-      return Resource.error("Слишком много запросов");
+      return Resource.error(
+        "Слишком много запросов",
+        source: runtimeType.toString(),
+        name: "getAll",
+      );
     } else if (response.statusCode == 400) {
-      return Resource.error("Некорректные данные");
+      return Resource.error(
+        "Некорректные данные",
+        source: runtimeType.toString(),
+        name: "getAll",
+      );
     } else if (response.statusCode == 401) {
-      return Resource.error("Вы не авторизованы");
+      return Resource.error(
+        "Вы не авторизованы",
+        source: runtimeType.toString(),
+        name: "getAll",
+      );
     } else {
-      return Resource.error("Неизвестная ошибка");
+      return Resource.error(
+        "Неизвестная ошибка",
+        source: runtimeType.toString(),
+        name: "getAll",
+      );
     }
   }
 }

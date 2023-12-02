@@ -22,12 +22,18 @@ class LastUpdateDayDataProvider
       final ok = await prefs.setString(updatedAtKey, formattedDate);
       if (!ok) {
         return Resource.error(
-            'Не удалось сохранить дату последнего обновления');
+          'Не удалось сохранить дату последнего обновления',
+          source: runtimeType.toString(),
+          name: "update",
+        );
       }
       return Resource.empty();
     } catch (e) {
       return Resource.error(
-          'Не удалось сохранить дату последнего обновления: $e');
+        'Не удалось сохранить дату последнего обновления: $e',
+        source: runtimeType.toString(),
+        name: "update",
+      );
     }
   }
 
@@ -43,12 +49,18 @@ class LastUpdateDayDataProvider
       final ok = await prefs.setString(updatedAtKey, formattedDate);
       if (!ok) {
         return Resource.error(
-            'Не удалось сохранить дату последнего обновления');
+          'Не удалось сохранить дату последнего обновления',
+          source: "LastUpdateDayDataProvider",
+          name: "updateInBackground",
+        );
       }
       return Resource.empty();
     } catch (e) {
       return Resource.error(
-          'Не удалось сохранить дату последнего обновления: $e');
+        'Не удалось сохранить дату последнего обновления: $e',
+        source: "LastUpdateDayDataProvider",
+        name: "updateInBackground",
+      );
     }
   }
 
@@ -66,7 +78,10 @@ class LastUpdateDayDataProvider
       return Resource.success(false);
     } on Exception catch (e) {
       return Resource.error(
-          'Не удалось получить дату последнего обновления:  $e');
+        'Не удалось получить дату последнего обновления:  $e',
+        source: runtimeType.toString(),
+        name: "todayUpdated",
+      );
     }
   }
 }

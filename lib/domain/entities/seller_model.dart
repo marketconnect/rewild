@@ -1,6 +1,8 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
 import 'package:rewild/core/color.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 
@@ -92,7 +94,7 @@ class SellerModel {
 
   @override
   String toString() {
-    return 'SellerModel(supplierId: $supplierId, name: $name, fineName: $fineName, ogrn: $ogrn, trademark: $trademark, legalAddress: $legalAddress)';
+    return 'SellerModel(supplierId: $supplierId, name: $name, fineName: $fineName, ogrn: $ogrn, trademark: $trademark, legalAddress: $legalAddress, productsCards: $productsCards)';
   }
 
   @override

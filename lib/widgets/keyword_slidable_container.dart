@@ -169,9 +169,18 @@ class _ContainerWithStat extends StatelessWidget {
                                     .withOpacity(0.9))),
                       ],
                     ),
+                    _DetailsContainer(
+                        title: "Стоимость клика:", value: "${stat.cpc}₽"),
+                    _DetailsContainer(
+                        title: "Показов:", value: "${stat.views}"),
+                    _DetailsContainer(
+                        title: "Потрачено:",
+                        value: '${stat.sum.toStringAsFixed(2)}₽'),
+                    _DetailsContainer(title: "Клики:", value: "${stat.clicks}"),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Потрачено: ${stat.sum.toStringAsFixed(2)}₽",
+                        Text("CTR:",
                             style: TextStyle(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.035,
@@ -179,47 +188,7 @@ class _ContainerWithStat extends StatelessWidget {
                                     .colorScheme
                                     .outline
                                     .withOpacity(0.9))),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text("Показов: ${stat.views}",
-                            style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.035,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .outline
-                                    .withOpacity(0.9))),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text("Клики: ${stat.clicks}",
-                            style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.035,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .outline
-                                    .withOpacity(0.9))),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text("Стоимость клика: ${stat.cpc}₽",
-                            style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.035,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .outline
-                                    .withOpacity(0.9))),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text("CTR: ${stat.ctr}",
+                        Text("${stat.ctr}",
                             style: TextStyle(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.035,
@@ -332,5 +301,41 @@ class _ContainerWithStat extends StatelessWidget {
     //     ],
     //   ),
     // );
+  }
+}
+
+class _DetailsContainer extends StatelessWidget {
+  const _DetailsContainer({
+    required this.title,
+    required this.value,
+  });
+
+  final String title;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border(
+              bottom: BorderSide(
+                  color:
+                      Theme.of(context).colorScheme.outline.withOpacity(0.2)))),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title,
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.035,
+                  color:
+                      Theme.of(context).colorScheme.outline.withOpacity(0.9))),
+          Text(value,
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.035,
+                  color:
+                      Theme.of(context).colorScheme.outline.withOpacity(0.9))),
+        ],
+      ),
+    );
   }
 }

@@ -23,7 +23,8 @@ class NotificationDataProvider
           ]);
       return Resource.success(id > 0);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "save", args: [notificate]);
     }
   }
 
@@ -41,7 +42,10 @@ class NotificationDataProvider
       return Resource.success(
           notificates.map((e) => ReWildNotificationModel.fromMap(e)).toList());
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(),
+          name: "getForParent",
+          args: [parentId]);
     }
   }
 
@@ -57,7 +61,8 @@ class NotificationDataProvider
           .map((e) => ReWildNotificationModel.fromMap(e))
           .toList());
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "getAll", args: []);
     }
   }
 
@@ -71,7 +76,8 @@ class NotificationDataProvider
       ]);
       return Resource.success(numberOfChangesMade);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "deleteAll", args: [parentId]);
     }
   }
 
@@ -92,7 +98,10 @@ class NotificationDataProvider
           [parentId, condition]);
       return Resource.success(true);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(),
+          name: "delete",
+          args: [parentId, condition]);
     }
   }
 
@@ -109,7 +118,10 @@ class NotificationDataProvider
           .map((e) => ReWildNotificationModel.fromMap(e))
           .toList());
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: "NotificationDataProvider",
+          name: "getAllInBackground",
+          args: []);
     }
   }
 
@@ -128,7 +140,10 @@ class NotificationDataProvider
           ]);
       return Resource.success(lastId > 0);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: "NotificationDataProvider",
+          name: "saveInBackground",
+          args: [notificate]);
     }
   }
 
@@ -143,7 +158,8 @@ class NotificationDataProvider
       }
       return Resource.success(true);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "checkForParent", args: [id]);
     }
   }
 }

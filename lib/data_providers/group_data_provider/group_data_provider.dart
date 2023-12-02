@@ -18,7 +18,8 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
 
       return Resource.success(group.cardsNmIds.length);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "insert", args: [group]);
     }
   }
 
@@ -33,7 +34,10 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
       );
       return Resource.empty();
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(),
+          name: "renameGroup",
+          args: [groupName, newGroupName]);
     }
   }
 
@@ -51,7 +55,8 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
       }
       return Resource.empty();
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "delete", args: [name, nmId]);
     }
   }
 
@@ -85,7 +90,8 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
           fontColor: fontColor!,
           cardsNmIds: nmIds));
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "get", args: [name]);
     }
   }
 
@@ -111,7 +117,8 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
       );
       return Resource.success(id);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "update", args: [group]);
     }
   }
 
@@ -167,7 +174,8 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
 
       return Resource.success(resultGroups);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(), name: "getAll", args: [nmIds]);
     }
   }
 }

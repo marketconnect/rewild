@@ -69,6 +69,8 @@ class SecureStorageProvider
     if (resource is Error) {
       return Resource.error(
         resource.message!,
+        source: runtimeType.toString(),
+        name: "getToken",
       );
     }
     String? token = resource.data;
@@ -101,11 +103,17 @@ class SecureStorageProvider
     if (resource is Error) {
       return Resource.error(
         resource.message!,
+        source: runtimeType.toString(),
+        name: 'tokenNotExpiredInThreeMinutes',
       );
     }
     String? expiredAt = resource.data;
     if (expiredAt == null) {
-      return Resource.error('No token expiration data');
+      return Resource.error(
+        'No token expiration data',
+        source: runtimeType.toString(),
+        name: 'tokenNotExpiredInThreeMinutes',
+      );
     }
     final now = DateTime.now().add(const Duration(minutes: 3));
     final timestamp = int.parse(expiredAt);
@@ -124,6 +132,8 @@ class SecureStorageProvider
     if (resource is Error) {
       return Resource.error(
         resource.message!,
+        source: runtimeType.toString(),
+        name: 'getUsername',
       );
     }
     String? deviceId = resource.data;
@@ -141,6 +151,9 @@ class SecureStorageProvider
       } on Exception catch (e) {
         return Resource.error(
           e.toString(),
+          source: runtimeType.toString(),
+          name: 'getUsername',
+          args: [],
         );
       }
     }
@@ -151,21 +164,8 @@ class SecureStorageProvider
   Future<Resource<ApiKeyModel>> getApiKey(String type) async {
     final resource = await _read(key: type);
     if (resource is Error) {
-      return Resource.error(resource.message!);
-    }
-
-    if (resource.data == null) {
-      return Resource.empty();
-    }
-
-    return Resource.success(ApiKeyModel(token: resource.data!, type: type));
-  }
-
-  static Future<Resource<ApiKeyModel>> getApiKeyFromBackground(
-      String type) async {
-    final resource = await _read(key: type);
-    if (resource is Error) {
-      return Resource.error(resource.message!);
+      return Resource.error(resource.message!,
+          source: runtimeType.toString(), name: 'getApiKey', args: [type]);
     }
 
     if (resource.data == null) {
@@ -181,7 +181,10 @@ class SecureStorageProvider
     for (final type in types) {
       final resource = await _read(key: type);
       if (resource is Error) {
-        return Resource.error(resource.message!);
+        return Resource.error(resource.message!,
+            source: runtimeType.toString(),
+            name: 'getAllApiKeys',
+            args: [types]);
       }
       if (resource is Success) {
         final apiKey = ApiKeyModel(token: resource.data!, type: type);
@@ -205,6 +208,35 @@ class SecureStorageProvider
     return Resource.empty();
   }
 
+  Future<Resource<void>> _write(
+      {required String key, required String? value}) async {
+    try {
+      await _secureStorage.write(
+          key: key,
+          value: value,
+          aOptions: const AndroidOptions(
+            encryptedSharedPreferences: true,
+          ));
+      return Resource.empty();
+    } catch (e) {
+      return Resource.error(
+        "could not write to secure storage: $e",
+        source: runtimeType.toString(),
+        name: '_write',
+        args: [key, value],
+      );
+    }
+  }
+
+  String getRandomString(int length) {
+    const chars =
+        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    Random rnd = Random();
+    return String.fromCharCodes(Iterable.generate(
+        length, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+  }
+
+  // STATIC METHODS ========================================================== STATIC METHODS
   static Future<Resource<String?>> _read({required String key}) async {
     try {
       final value = await _secureStorage.read(
@@ -219,41 +251,34 @@ class SecureStorageProvider
     } catch (e) {
       return Resource.error(
         "could not read from secure storage: $e",
+        source: "SecureStorageDataProvider",
+        name: '_read',
+        args: [key],
       );
     }
   }
 
-  Future<Resource<void>> _write(
-      {required String key, required String? value}) async {
-    try {
-      await _secureStorage.write(
-          key: key,
-          value: value,
-          aOptions: const AndroidOptions(
-            encryptedSharedPreferences: true,
-          ));
-      return Resource.empty();
-    } catch (e) {
-      return Resource.error(
-        "could not write to secure storage: $e",
-      );
-    }
-  }
-
-  String getRandomString(int length) {
-    const chars =
-        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-    Random rnd = Random();
-    return String.fromCharCodes(Iterable.generate(
-        length, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
-  }
-
-  // STATIC METHODS ========================================================== STATIC METHODS
   static Future<Resource<ApiKeyModel>> getApiKeyInBackground(
       String type) async {
     final resource = await _read(key: type);
     if (resource is Error) {
-      return Resource.error(resource.message!);
+      return Resource.error(resource.message!,
+          source: "SecureStorageDataProvider", name: 'getApiKey', args: [type]);
+    }
+
+    if (resource.data == null) {
+      return Resource.empty();
+    }
+
+    return Resource.success(ApiKeyModel(token: resource.data!, type: type));
+  }
+
+  static Future<Resource<ApiKeyModel>> getApiKeyFromBackground(
+      String type) async {
+    final resource = await _read(key: type);
+    if (resource is Error) {
+      return Resource.error(resource.message!,
+          source: "SecureStorageDataProvider", name: 'getApiKey', args: [type]);
     }
 
     if (resource.data == null) {

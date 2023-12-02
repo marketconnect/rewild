@@ -34,6 +34,10 @@ class AdvertSearchPlusCatalogueModel extends Advert {
       type: json['type'],
     );
   }
+
+  @override
+  String toString() =>
+      'AdvertSearchPlusCatalogueModel(    campaignId: $campaignId,     name: $name,     endTime: $endTime,     createTime: $createTime,     changeTime: $changeTime,     startTime: $startTime,     dailyBudget: $dailyBudget,     status: $status,     type: $type  )';
 }
 
 class AdvertSearchPlusCatalogueUnitedParam {

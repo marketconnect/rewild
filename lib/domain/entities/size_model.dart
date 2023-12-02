@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:rewild/domain/entities/stocks_model.dart';
 
 class SizeModel {
@@ -8,4 +9,7 @@ class SizeModel {
     this.optionId = 0,
     required this.stocks,
   });
+
+  @override
+  String toString() => 'SizeModel(optionId: $optionId, stocks: $stocks)';
 }

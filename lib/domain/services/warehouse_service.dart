@@ -8,7 +8,7 @@ abstract class WarehouseServiceWarehouseProvider {
 }
 
 abstract class WarehouseServiceWerehouseApiClient {
-  Future<Resource<List<Warehouse>>> fetchAll();
+  Future<Resource<List<Warehouse>>> getAll();
 }
 
 class WarehouseService implements SingleCardScreenWarehouseService {
@@ -21,7 +21,8 @@ class WarehouseService implements SingleCardScreenWarehouseService {
   Future<Resource<Warehouse>> getById(int id) async {
     final getResource = await warehouseProvider.get(id);
     if (getResource is Error) {
-      return Resource.error(getResource.message!);
+      return Resource.error(getResource.message!,
+          source: runtimeType.toString(), name: "getById", args: [id]);
     }
     // warehouse exists
     if (getResource is Success) {
@@ -33,18 +34,21 @@ class WarehouseService implements SingleCardScreenWarehouseService {
       return Resource.success(warehouse);
     }
     // warehouse does`t exist
-    final fetchedWarehusesResource = await warehouseApiClient.fetchAll();
+    final fetchedWarehusesResource = await warehouseApiClient.getAll();
     if (fetchedWarehusesResource is Error) {
-      return Resource.error(fetchedWarehusesResource.message!);
+      return Resource.error(fetchedWarehusesResource.message!,
+          source: runtimeType.toString(), name: "getById", args: [id]);
     }
     final fetchedWarehouses = fetchedWarehusesResource.data!;
     final okResource = await warehouseProvider.update(fetchedWarehouses);
     if (okResource is Error) {
-      return Resource.error(okResource.message!);
+      return Resource.error(okResource.message!,
+          source: runtimeType.toString(), name: "getById", args: [id]);
     }
     final againGetResource = await warehouseProvider.get(id);
     if (againGetResource is Error) {
-      return Resource.error(againGetResource.message!);
+      return Resource.error(againGetResource.message!,
+          source: runtimeType.toString(), name: "getById", args: [id]);
     }
     // warehouse exists
 

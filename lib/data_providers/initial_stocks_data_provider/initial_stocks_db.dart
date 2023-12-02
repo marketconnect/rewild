@@ -21,7 +21,7 @@ class InitialStocksDb extends InitialStockModel {
         wh INTEGER,
         name TEXT,
         qty INTEGER,
-        UNIQUE(nmId, wh, sizeOptionId, date) ON CONFLICT REPLACE
+        UNIQUE(nmId, wh, sizeOptionId) ON CONFLICT REPLACE
       );
       ''');
   }

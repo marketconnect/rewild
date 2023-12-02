@@ -33,7 +33,8 @@ class GroupService
           fontColor: group.fontColor,
           cardsNmIds: productsCardsNmIds));
       if (response is Error) {
-        return Resource.error(response.message!);
+        return Resource.error(response.message!,
+            source: runtimeType.toString(), name: 'add', args: [group]);
       }
     }
 

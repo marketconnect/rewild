@@ -20,7 +20,8 @@ class ApiKeysService implements AddApiKeysScreenApiKeysService {
   Future<Resource<List<ApiKeyModel>>> getAll(List<String> types) async {
     final apiKeysResource = await apiKeysDataProvider.getAllApiKeys(types);
     if (apiKeysResource is Error) {
-      return Resource.error(apiKeysResource.message!);
+      return Resource.error(apiKeysResource.message!,
+          source: runtimeType.toString(), name: "getAll", args: [types]);
     }
     if (apiKeysResource is Empty) {
       return Resource.success([]);
@@ -32,7 +33,10 @@ class ApiKeysService implements AddApiKeysScreenApiKeysService {
   Future<Resource<void>> deleteApiKey(String apiKeyType) async {
     final ok = await apiKeysDataProvider.deleteApiKey(apiKeyType);
     if (ok is Error) {
-      return Resource.error(ok.message!);
+      return Resource.error(ok.message!,
+          source: runtimeType.toString(),
+          name: "deleteApiKey",
+          args: [apiKeyType]);
     }
     if (apiKeyType == 'Продвижение') {
       apiKeyExistsStreamController.add(false);
@@ -48,7 +52,8 @@ class ApiKeysService implements AddApiKeysScreenApiKeysService {
     );
     final ok = await apiKeysDataProvider.addApiKey(apiKey);
     if (ok is Error) {
-      return Resource.error(ok.message!);
+      return Resource.error(ok.message!,
+          source: runtimeType.toString(), name: "addApiKey", args: [key, type]);
     }
     if (type == 'Продвижение') {
       apiKeyExistsStreamController.add(true);

@@ -11,7 +11,7 @@ abstract class SellerServiceSellerDataProvider {
 }
 
 abstract class SellerServiceSelerApiClient {
-  Future<Resource<SellerModel>> fetchSeller(int supplierId);
+  Future<Resource<SellerModel>> get(int supplierId);
 }
 
 class SellerService
@@ -40,7 +40,8 @@ class SellerService
       final localStoredSellerResource =
           await sellerDataProvider.get(supplierId);
       if (localStoredSellerResource is Error) {
-        return Resource.error(localStoredSellerResource.message!);
+        return Resource.error(localStoredSellerResource.message!,
+            source: runtimeType.toString(), name: 'get', args: [supplierId]);
       }
 
       // the seller is in db
@@ -51,10 +52,11 @@ class SellerService
       } else {
         // the seller is not in db and is not in cache
         // try to fetch the seller from WB
-        final sellerResource = await sellerApiClient.fetchSeller(supplierId);
+        final sellerResource = await sellerApiClient.get(supplierId);
         // print("local`s seller: ${localStoredSellerResource.data!.name}");
         if (sellerResource is Error) {
-          return Resource.error(sellerResource.message!);
+          return Resource.error(sellerResource.message!,
+              source: runtimeType.toString(), name: 'get', args: [supplierId]);
         }
         final sellerFromWB = sellerResource.data!;
 
@@ -67,7 +69,8 @@ class SellerService
             trademark: sellerFromWB.trademark);
         final insertResource = await sellerDataProvider.insert(sellerModel);
         if (insertResource is Error) {
-          return Resource.error(insertResource.message!);
+          return Resource.error(insertResource.message!,
+              source: runtimeType.toString(), name: 'get', args: [supplierId]);
         }
 
         sellersCache.add(sellerModel);

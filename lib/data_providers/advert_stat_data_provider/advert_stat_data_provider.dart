@@ -28,6 +28,9 @@ class AdvertStatDataProvider
     } catch (e) {
       return Resource.error(
         "Не удалось сохранить статистику: $e",
+        source: runtimeType.toString(),
+        name: "save",
+        args: [autoStat],
       );
     }
   }
@@ -58,9 +61,10 @@ class AdvertStatDataProvider
       return Resource.success(
           maps.map((e) => AdvertStatModel.fromMap(e, campaignId)).toList());
     } catch (e) {
-      return Resource.error(
-        "Не удалось получить статистику: $e",
-      );
+      return Resource.error("Не удалось получить статистику: $e",
+          source: runtimeType.toString(),
+          name: "getAll",
+          args: [campaignId, from]);
     }
   }
 
@@ -72,9 +76,8 @@ class AdvertStatDataProvider
       );
       return Resource.empty();
     } catch (e) {
-      return Resource.error(
-        "Не удалось удалить статистику: $e",
-      );
+      return Resource.error("Не удалось удалить статистику: $e",
+          source: runtimeType.toString(), name: "deletAll", args: [campaignId]);
     }
   }
 
@@ -96,9 +99,10 @@ class AdvertStatDataProvider
       );
       return Resource.empty();
     } catch (e) {
-      return Resource.error(
-        "Не удалось удалить статистику: $e",
-      );
+      return Resource.error("Не удалось удалить статистику: $e",
+          source: runtimeType.toString(),
+          name: "deleteOldRecordsOlderThanMonth",
+          args: []);
     }
   }
 
@@ -120,9 +124,10 @@ class AdvertStatDataProvider
           ]);
       return Resource.empty();
     } catch (e) {
-      return Resource.error(
-        "Не удалось сохранить статистику: $e",
-      );
+      return Resource.error("Не удалось сохранить статистику: $e",
+          source: "AdvertStatDataProvider",
+          name: "saveInBackground",
+          args: [autoStat]);
     }
   }
 }

@@ -43,7 +43,8 @@ class BackgroundService {
     final cardsOfProductsResource =
         await CardOfProductDataProvider.getAllInBackGround();
     if (cardsOfProductsResource is Error) {
-      return Resource.error(cardsOfProductsResource.message!);
+      return Resource.error(cardsOfProductsResource.message!,
+          source: "BackgroundService", name: "updateInitialStocks", args: []);
     }
     final allSavedCardsOfProducts = cardsOfProductsResource.data!;
 
@@ -56,7 +57,8 @@ class BackgroundService {
         await _fetchTodayInitialStocksFromServer(
             allSavedCardsOfProducts.map((e) => e.nmId).toList());
     if (todayInitialStocksFromServerResource is Error) {
-      return Resource.error(todayInitialStocksFromServerResource.message!);
+      return Resource.error(todayInitialStocksFromServerResource.message!,
+          source: "BackgroundService", name: "updateInitialStocks", args: []);
     }
     final todayInitialStocksFromServer =
         todayInitialStocksFromServerResource.data!;
@@ -67,7 +69,8 @@ class BackgroundService {
       final deleteSuppliesResource =
           await SupplyDataProvider.deleteInBackground(nmId: stock.nmId);
       if (deleteSuppliesResource is Error) {
-        return Resource.error(deleteSuppliesResource.message!);
+        return Resource.error(deleteSuppliesResource.message!,
+            source: "BackgroundService", name: "updateInitialStocks", args: []);
       }
 
       // set were updated today
@@ -100,7 +103,8 @@ class BackgroundService {
     // fetch adverts from API Wb
     final advertResource = await fetchAdverts(token);
     if (advertResource is Error) {
-      return Resource.error(advertResource.message!);
+      return Resource.error(advertResource.message!,
+          source: "BackgroundService", name: "fetchAll", args: []);
     }
     // save all fetched adverts
     if (advertResource is Success) {
@@ -110,7 +114,8 @@ class BackgroundService {
     }
 
     if (notificationResource is Error) {
-      return Resource.error(notificationResource.message!);
+      return Resource.error(notificationResource.message!,
+          source: "BackgroundService", name: "fetchAll", args: []);
     }
     if (notificationResource is Empty) {
       return;
@@ -137,7 +142,8 @@ class BackgroundService {
     final cardsResource =
         await DetailsApiClient.getInBackground(cardsIds.unique() as List<int>);
     if (cardsResource is Error) {
-      return Resource.error(cardsResource.message!);
+      return Resource.error(cardsResource.message!,
+          source: "BackgroundService", name: "fetchAll", args: []);
     }
 
     // get notification contents for cards
@@ -169,7 +175,8 @@ class BackgroundService {
           token, advertsIds.unique() as List<int>, advertsNotifications);
 
       if (fetchedAdvertBudgetNotifications is Error) {
-        return Resource.error(fetchedAdvertBudgetNotifications.message!);
+        return Resource.error(fetchedAdvertBudgetNotifications.message!,
+            source: "BackgroundService", name: "fetchAll", args: []);
       }
       if (fetchedAdvertBudgetNotifications is Success) {
         notificationContents.addAll(fetchedAdvertBudgetNotifications.data!);
@@ -220,7 +227,10 @@ class BackgroundService {
       // fetch budget
       final budgetResource = await budgetRequest(token, campaignId);
       if (budgetResource is Error) {
-        return Resource.error(budgetResource.message!);
+        return Resource.error(budgetResource.message!,
+            source: "BackgroundService",
+            name: "_fetchAdvertBudgets",
+            args: [token, advertsIds, advertsNotifications]);
       }
       if (budgetResource is Empty) {
         continue;
@@ -266,11 +276,13 @@ class BackgroundService {
           _advertsLastReq, ApiDurationConstants.budgetDurationBetweenReqInMs);
     }
 
-    final advertResource = await AdvertApiClient.getAdvertsInBackground(token);
+    final advertResource =
+        await AdvertApiClient.getAdvertsInBackground(token, []);
 
     _advertsLastReq = DateTime.now();
     if (advertResource is Error) {
-      return Resource.error(advertResource.message!);
+      return Resource.error(advertResource.message!,
+          source: "BackgroundService", name: "fetchAdverts", args: [token]);
     }
     final allAdverts = advertResource.data!;
 
@@ -333,7 +345,10 @@ class BackgroundService {
         token, advertInfo.campaignId);
     _autoLastReq = DateTime.now();
     if (advertStatResource is Error) {
-      return Resource.error(advertStatResource.message!);
+      return Resource.error(advertStatResource.message!,
+          source: "BackgroundService",
+          name: "_fetchAutoAdvertStat",
+          args: [token, advertInfo]);
     }
 
     final advertStat = advertStatResource.data!;
@@ -351,7 +366,10 @@ class BackgroundService {
         token, advertInfo.campaignId);
     _autoLastReq = DateTime.now();
     if (advertStatResource is Error) {
-      return Resource.error(advertStatResource.message!);
+      return Resource.error(advertStatResource.message!,
+          source: "BackgroundService",
+          name: "_fetchFullAdvertStat",
+          args: [token, advertInfo]);
     }
 
     final advertStat = advertStatResource.data!;
@@ -369,7 +387,10 @@ class BackgroundService {
         token, advertInfo.campaignId);
     _searchLastReq = DateTime.now();
     if (advertStatResource is Error) {
-      return Resource.error(advertStatResource.message!);
+      return Resource.error(advertStatResource.message!,
+          source: "BackgroundService",
+          name: "_fetchSearchAdvertStat",
+          args: [token, advertInfo]);
     }
 
     final advertStat = advertStatResource.data!;
@@ -386,7 +407,10 @@ class BackgroundService {
         await AdvertApiClient.getCompanyBudgetInBackground(token, id);
     _budgetLastReq = DateTime.now();
     if (budgetResource is Error) {
-      return Resource.error(budgetResource.message!);
+      return Resource.error(budgetResource.message!,
+          source: "BackgroundService",
+          name: "budgetRequest",
+          args: [token, id]);
     }
 
     final budget = budgetResource.data!;
@@ -407,7 +431,10 @@ class BackgroundService {
         DateTime.now(),
       );
       if (initialStocksResource is Error) {
-        return Resource.error(initialStocksResource.message!);
+        return Resource.error(initialStocksResource.message!,
+            source: "BackgroundService",
+            name: "_fetchTodayInitialStocksFromServer",
+            args: [cardsWithoutTodayInitStocksIds]);
       }
 
       initialStocksFromServer = initialStocksResource.data!;
@@ -417,7 +444,10 @@ class BackgroundService {
         final insertStockresource =
             await InitialStockDataProvider.insertInBackground(stock);
         if (insertStockresource is Error) {
-          return Resource.error(insertStockresource.message!);
+          return Resource.error(insertStockresource.message!,
+              source: "BackgroundService",
+              name: "_fetchTodayInitialStocksFromServer",
+              args: [cardsWithoutTodayInitStocksIds]);
         }
       }
     }

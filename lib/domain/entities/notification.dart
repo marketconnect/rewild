@@ -17,18 +17,6 @@ class ReWildNotificationModel {
     this.wh,
   });
 
-  // bool isConditionMet(int condition, double value) {
-  //   if (condition == NotificationConditionConstants.lessThanCondition) {
-  //     return value < this.doubleValue;
-  //   } else if (condition ==
-  //       NotificationConditionConstants.greaterThanCondition) {
-  //     return value > this.doubleValue;
-  //   } else if (condition == NotificationConditionConstants.changedCondition) {
-  //     return this.doubleValue != value;
-  //   }
-  //   return false;
-  // }
-
   ReWildNotificationModel copyWith({
     int? parentId,
     int? condition,
@@ -73,7 +61,7 @@ class ReWildNotificationModel {
 
   @override
   String toString() {
-    return 'NotificationModel(parentId: $parentId, condition: $condition, value: $value, sizeId: $sizeId, wh: $wh)';
+    return 'ReWildNotificationModel(parentId: $parentId, condition: $condition, value: $value, sizeId: $sizeId, wh: $wh, reusable: $reusable)';
   }
 
   @override

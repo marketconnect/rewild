@@ -47,7 +47,10 @@ class KeywordsService
       int campaignId, List<String> excluded) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(),
+          name: 'setAutoExcluded',
+          args: [campaignId, excluded]);
     }
     if (tokenResource is Empty) {
       return Resource.empty();
@@ -63,7 +66,10 @@ class KeywordsService
         tokenResource.data!.token, campaignId, excluded);
     autoExcludedLastReq = DateTime.now();
     if (autoExcludedResource is Error) {
-      return Resource.error(autoExcludedResource.message!);
+      return Resource.error(autoExcludedResource.message!,
+          source: runtimeType.toString(),
+          name: 'setAutoExcluded',
+          args: [campaignId, excluded]);
     }
     return Resource.success(autoExcludedResource.data!);
   }
@@ -73,7 +79,10 @@ class KeywordsService
       int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(),
+          name: 'getAutoStatWords',
+          args: [campaignId]);
     }
     if (tokenResource is Empty) {
       return Resource.empty();
@@ -85,13 +94,19 @@ class KeywordsService
       campaignId,
     );
     if (currentAutoStatResource is Error) {
-      return Resource.error(currentAutoStatResource.message!);
+      return Resource.error(currentAutoStatResource.message!,
+          source: runtimeType.toString(),
+          name: 'getAutoStatWords',
+          args: [campaignId]);
     }
 
     // get saved auto stat from DB
     final keywordsResource = await keywordsDataProvider.getAll(campaignId);
     if (keywordsResource is Error) {
-      return Resource.error(keywordsResource.message!);
+      return Resource.error(keywordsResource.message!,
+          source: runtimeType.toString(),
+          name: 'getAutoStatWords',
+          args: [campaignId]);
     }
 
     final autoStat = currentAutoStatResource.data!;
@@ -120,7 +135,10 @@ class KeywordsService
         // save in database
         final saveResource = await keywordsDataProvider.save(keyword);
         if (saveResource is Error) {
-          return Resource.error(saveResource.message!);
+          return Resource.error(saveResource.message!,
+              source: runtimeType.toString(),
+              name: 'getAutoStatWords',
+              args: [campaignId]);
         }
         continue;
       }
@@ -137,7 +155,10 @@ class KeywordsService
         // update in database
         final saveResource = await keywordsDataProvider.save(keyword);
         if (saveResource is Error) {
-          return Resource.error(saveResource.message!);
+          return Resource.error(saveResource.message!,
+              source: runtimeType.toString(),
+              name: 'getAutoStatWords',
+              args: [campaignId]);
         }
       }
 
@@ -154,7 +175,10 @@ class KeywordsService
       int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!);
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(),
+          name: 'getSearchCampaignStat',
+          args: [campaignId]);
     }
     if (tokenResource is Empty) {
       return Resource.empty();
@@ -166,13 +190,19 @@ class KeywordsService
       campaignId,
     );
     if (currentSearchStatResource is Error) {
-      return Resource.error(currentSearchStatResource.message!);
+      return Resource.error(currentSearchStatResource.message!,
+          source: runtimeType.toString(),
+          name: 'getSearchCampaignStat',
+          args: [campaignId]);
     }
 
     // get saved auto stat from DB
     final keywordsResource = await keywordsDataProvider.getAll(campaignId);
     if (keywordsResource is Error) {
-      return Resource.error(keywordsResource.message!);
+      return Resource.error(keywordsResource.message!,
+          source: runtimeType.toString(),
+          name: 'getSearchCampaignStat',
+          args: [campaignId]);
     }
 
     final searchStat = currentSearchStatResource.data!;
@@ -201,7 +231,10 @@ class KeywordsService
         // save in database
         final saveResource = await keywordsDataProvider.save(keyword);
         if (saveResource is Error) {
-          return Resource.error(saveResource.message!);
+          return Resource.error(saveResource.message!,
+              source: runtimeType.toString(),
+              name: 'getSearchCampaignStat',
+              args: [campaignId]);
         }
         continue;
       }
@@ -218,7 +251,10 @@ class KeywordsService
         // update in database
         final saveResource = await keywordsDataProvider.save(keyword);
         if (saveResource is Error) {
-          return Resource.error(saveResource.message!);
+          return Resource.error(saveResource.message!,
+              source: runtimeType.toString(),
+              name: 'getSearchCampaignStat',
+              args: [campaignId]);
         }
       }
 

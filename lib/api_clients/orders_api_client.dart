@@ -26,6 +26,9 @@ class OrdersApiClient implements OrderServiceOrderApiClient {
       if (skus.isEmpty) {
         return Resource.error(
           "Некорректные данные",
+          source: runtimeType.toString(),
+          name: "get",
+          args: [skus, dateFrom, dateTo],
         );
       }
 
@@ -51,15 +54,24 @@ class OrdersApiClient implements OrderServiceOrderApiClient {
         if (e.code == StatusCode.internal) {
           return Resource.error(
             "Ошибка сервера",
+            source: runtimeType.toString(),
+            name: "get",
+            args: [skus, dateFrom, dateTo],
           );
         } else if (e.code == StatusCode.unavailable) {
           return Resource.error(
             ErrorsConstants.unavailable,
+            source: runtimeType.toString(),
+            name: "get",
+            args: [skus, dateFrom, dateTo],
           );
         }
       }
       return Resource.error(
         "Неизвестная ошибка во время получения данных об остатках с сервера: $e",
+        source: runtimeType.toString(),
+        name: "get",
+        args: [skus, dateFrom, dateTo],
       );
     } finally {
       await channel.shutdown();

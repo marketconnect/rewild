@@ -27,6 +27,9 @@ class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
       if (skus.isEmpty) {
         return Resource.error(
           "Некорректные данные",
+          source: runtimeType.toString(),
+          name: "get",
+          args: [skus, dateFrom, dateTo],
         );
       }
       final stub = StockServiceClient(channel);
@@ -52,33 +55,30 @@ class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
         ));
       }
 
-      // for (final id in skus) {
-      //   final index = initialStocks.indexWhere((element) => element.nmId == id);
-      //   if (index == -1) {
-      //     initialStocks.add(InitialStockModel(
-      //       nmId: id,
-      //       wh: 0,
-      //       date: dateToSave,
-      //       qty: 0,
-      //     ));
-      //   }
-      // }
-
       return Resource.success(initialStocks);
     } catch (e) {
       if (e is GrpcError) {
         if (e.code == StatusCode.internal) {
           return Resource.error(
             "Ошибка сервера",
+            source: runtimeType.toString(),
+            name: "get",
+            args: [skus, dateFrom, dateTo],
           );
         } else if (e.code == StatusCode.unavailable) {
           return Resource.error(
             ErrorsConstants.unavailable,
+            source: runtimeType.toString(),
+            name: "get",
+            args: [skus, dateFrom, dateTo],
           );
         }
       }
       return Resource.error(
         "Неизвестная ошибка во время получения данных об остатках с сервера: $e",
+        source: runtimeType.toString(),
+        name: "get",
+        args: [skus, dateFrom, dateTo],
       );
     } finally {
       await channel.shutdown();
@@ -101,6 +101,9 @@ class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
       if (skus.isEmpty) {
         return Resource.error(
           "Некорректные данные",
+          source: "InitialStocksApiClient",
+          name: "getInBackground",
+          args: [skus, dateFrom, dateTo],
         );
       }
       final stub = StockServiceClient(channel);
@@ -132,15 +135,24 @@ class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
         if (e.code == StatusCode.internal) {
           return Resource.error(
             "Ошибка сервера",
+            source: "InitialStocksApiClient",
+            name: "getInBackground",
+            args: [skus, dateFrom, dateTo],
           );
         } else if (e.code == StatusCode.unavailable) {
           return Resource.error(
             ErrorsConstants.unavailable,
+            source: "InitialStocksApiClient",
+            name: "getInBackground",
+            args: [skus, dateFrom, dateTo],
           );
         }
       }
       return Resource.error(
         "Неизвестная ошибка во время получения данных об остатках с сервера: $e",
+        source: "InitialStocksApiClient",
+        name: "getInBackground",
+        args: [skus, dateFrom, dateTo],
       );
     } finally {
       await channel.shutdown();

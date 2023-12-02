@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 class AdvertNm {
   int nm;
   bool active;
@@ -13,4 +14,7 @@ class AdvertNm {
       active: json['active'],
     );
   }
+
+  @override
+  String toString() => 'AdvertNm(nm: $nm, active: $active)';
 }

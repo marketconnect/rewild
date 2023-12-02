@@ -44,7 +44,9 @@ class AllAdvertsToolsScreen extends StatelessWidget {
                                     arguments: advert.campaignId);
                                 return;
                               } else if (advert.type ==
-                                  AdvertTypeConstants.inSearch) {
+                                      AdvertTypeConstants.inSearch ||
+                                  advert.type ==
+                                      AdvertTypeConstants.searchPlusCatalog) {
                                 Navigator.of(context).pushNamed(
                                     MainNavigationRouteNames
                                         .searchStatWordsScreen,

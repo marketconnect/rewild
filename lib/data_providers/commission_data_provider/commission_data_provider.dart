@@ -19,7 +19,11 @@ class CommissionDataProvider
       return Resource.success(CommissionModel.fromMap(commissions.first));
     } catch (e) {
       return Resource.error(
-          'Ошибка во время получения комиссии ${e.toString()}');
+        'Ошибка во время получения комиссии ${e.toString()}',
+        source: runtimeType.toString(),
+        name: "get",
+        args: [id],
+      );
     }
   }
 
@@ -48,7 +52,11 @@ class CommissionDataProvider
       return Resource.empty();
     } catch (e) {
       return Resource.error(
-          'Ошибка во время добавления комиссии ${e.toString()}');
+        'Ошибка во время добавления комиссии ${e.toString()}',
+        source: runtimeType.toString(),
+        name: "insert",
+        args: [commission],
+      );
     }
   }
 }

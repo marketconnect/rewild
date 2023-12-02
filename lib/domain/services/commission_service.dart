@@ -28,7 +28,8 @@ class CommissionService
     // get from local db
     final commissionResource = await commissionDataProvider.get(id);
     if (commissionResource is Error) {
-      return Resource.error(commissionResource.message!);
+      return Resource.error(commissionResource.message!,
+          source: runtimeType.toString(), name: 'get', args: [id]);
     }
     if (commissionResource is Success) {
       return commissionResource;
@@ -37,14 +38,16 @@ class CommissionService
     // get from server
     final commissionFromServerResource = await commissionApiClient.get(id);
     if (commissionFromServerResource is Error) {
-      return Resource.error(commissionFromServerResource.message!);
+      return Resource.error(commissionFromServerResource.message!,
+          source: runtimeType.toString(), name: 'get', args: [id]);
     }
 
     // save to local db
     final saveResource =
         await commissionDataProvider.insert(commissionFromServerResource.data!);
     if (saveResource is Error) {
-      return Resource.error(saveResource.message!);
+      return Resource.error(saveResource.message!,
+          source: runtimeType.toString(), name: 'get', args: [id]);
     }
     return Resource.success(commissionFromServerResource.data!);
   }

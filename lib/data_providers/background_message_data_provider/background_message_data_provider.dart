@@ -17,7 +17,10 @@ class BackgroundMessageDataProvider
       );
       return Resource.success(deletedID > 0);
     } catch (e) {
-      return Resource.error("Ошибка удаления сообщения");
+      return Resource.error("Ошибка удаления сообщения",
+          source: runtimeType.toString(),
+          name: "delete",
+          args: [id, subject, condition]);
     }
   }
 
@@ -40,7 +43,8 @@ class BackgroundMessageDataProvider
       });
       return Resource.success(messages);
     } catch (e) {
-      return Resource.error("Ошибка получения сообщения");
+      return Resource.error("Ошибка получения сообщения",
+          source: runtimeType.toString(), name: "getAll", args: []);
     }
   }
 
@@ -60,7 +64,10 @@ class BackgroundMessageDataProvider
       );
       return Resource.success(id > 0);
     } catch (e) {
-      return Resource.error("Ошибка сохранения сообщения");
+      return Resource.error("Ошибка сохранения сообщения",
+          source: "BackgroundMessageDataProvider",
+          name: "saveInBackground",
+          args: [message]);
     }
   }
 }

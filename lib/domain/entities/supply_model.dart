@@ -60,8 +60,9 @@ class SupplyModel {
       SupplyModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
-  String toString() =>
-      'SuppleModel(wh: $wh, nmId: $nmId, sizeOptionId: $sizeOptionId, qty: $qty, lastStocks: $lastStocks)';
+  String toString() {
+    return 'SupplyModel(wh: $wh, nmId: $nmId, sizeOptionId: $sizeOptionId, qty: $qty, lastStocks: $lastStocks)';
+  }
 
   @override
   bool operator ==(covariant SupplyModel other) {

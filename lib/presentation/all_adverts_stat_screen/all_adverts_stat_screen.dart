@@ -21,7 +21,7 @@ class AllAdvertsStatScreen extends StatelessWidget {
     final adverts = model.adverts;
     final apiKeyExists = model.apiKeyExists;
     final cpm = model.cpm;
-    final image = model.image;
+    final images = model.images;
     final budget = model.budget;
 
     return SafeArea(
@@ -85,7 +85,7 @@ class AllAdvertsStatScreen extends StatelessWidget {
                                               0.007,
                                         ),
                                         _TopRow(
-                                            image: image(advert.campaignId),
+                                            images: images(advert.campaignId),
                                             name: advert.name,
                                             advType: advert.type),
                                         SizedBox(
@@ -123,12 +123,12 @@ class _TopRow extends StatelessWidget {
   const _TopRow({
     required this.advType,
     required this.name,
-    required this.image,
+    required this.images,
   });
 
   final int advType;
   final String name;
-  final String image;
+  final List<String> images;
 
   @override
   Widget build(BuildContext context) {
@@ -182,12 +182,32 @@ class _TopRow extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(right: screenWidth * 0.005),
             child: SizedBox(
-                width: screenWidth * 0.15,
-                height: screenWidth * 0.15,
-                child: CachedNetworkImage(
-                  imageUrl: image,
-                  fit: BoxFit.contain,
-                )),
+              width: screenWidth * 0.2,
+              height: screenWidth * 0.15,
+              child: Stack(
+                children: images
+                    .map((e) => Positioned(
+                          right: images.indexOf(e) * screenWidth * 0.06,
+                          child: SizedBox(
+                              width: screenWidth * 0.15,
+                              height: screenWidth * 0.15,
+                              child: CachedNetworkImage(
+                                imageUrl: e,
+                                fit: BoxFit.contain,
+                              )),
+                        ))
+                    .toList(),
+                // [
+                // SizedBox(
+                //     width: screenWidth * 0.15,
+                //     height: screenWidth * 0.15,
+                //     child: CachedNetworkImage(
+                //       imageUrl: image,
+                //       fit: BoxFit.contain,
+                //     ))
+                // ],
+              ),
+            ),
           ),
         ],
       ),

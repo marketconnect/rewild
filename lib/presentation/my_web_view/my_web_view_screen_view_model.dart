@@ -80,7 +80,10 @@ class MyWebViewScreenViewModel extends ResourceChangeNotifier {
 
       return Resource.success(cards);
     } catch (e) {
-      return Resource.error(e.toString());
+      return Resource.error(e.toString(),
+          source: runtimeType.toString(),
+          name: "_parseCards",
+          args: [jsonString]);
     }
   }
 }

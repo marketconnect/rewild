@@ -10,7 +10,7 @@ class OrdersHistoryApiClient
   const OrdersHistoryApiClient();
 
   @override
-  Future<Resource<OrdersHistoryModel>> fetch(int nmId) async {
+  Future<Resource<OrdersHistoryModel>> get(int nmId) async {
     try {
       final uri = Uri.parse(
           'https://product-order-qnt.wildberries.ru/v2/by-nm/?nm=$nmId');
@@ -38,10 +38,16 @@ class OrdersHistoryApiClient
     } catch (e) {
       return Resource.error(
         "Ошибка при обращении к WB product-order: $e",
+        source: runtimeType.toString(),
+        name: "get",
+        args: [nmId],
       );
     }
     return Resource.error(
       "Неизвестная ошибка при обращении к WB product-order",
+      source: runtimeType.toString(),
+      name: "get",
+      args: [nmId],
     );
   }
 }

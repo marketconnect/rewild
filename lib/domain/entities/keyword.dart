@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class Keyword {
@@ -44,4 +45,9 @@ class Keyword {
 
   factory Keyword.fromJson(String source, int campaignId) =>
       Keyword.fromMap(json.decode(source) as Map<String, dynamic>, campaignId);
+
+  @override
+  String toString() {
+    return 'Keyword(campaignId: $campaignId, keyword: $keyword, count: $count, diff: $diff, _isNew: $_isNew)';
+  }
 }

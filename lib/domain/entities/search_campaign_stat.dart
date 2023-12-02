@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:rewild/domain/entities/keyword.dart';
 
 class SearchCampaignStat {
@@ -28,6 +29,10 @@ class SearchCampaignStat {
       stat: stat ?? this.stat,
     );
   }
+
+  @override
+  String toString() =>
+      'SearchCampaignStat(campaignId: $campaignId, words: ${words.toString()}, stat: $stat)';
 }
 
 class Words {

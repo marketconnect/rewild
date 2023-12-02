@@ -16,7 +16,10 @@ class CardOfProductDataProvider
     try {
       final numOfUpdatedResource = await update(card);
       if (numOfUpdatedResource is Error) {
-        return Resource.error(numOfUpdatedResource.message!);
+        return Resource.error(numOfUpdatedResource.message!,
+            source: runtimeType.toString(),
+            name: "insertOrUpdate",
+            args: [card]);
       }
       final numOfUpdated = numOfUpdatedResource.data!;
       if (numOfUpdated == 0) {
@@ -26,6 +29,9 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось обновить карточку в памяти телефона: ${e.toString()}',
+        source: runtimeType.toString(),
+        name: "insertOrUpdate",
+        args: [card],
       );
     }
   }
@@ -40,6 +46,9 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось получить картинку из памяти телефона: ${e.toString()} id:$id',
+        source: runtimeType.toString(),
+        name: "getImage",
+        args: [id],
       );
     }
   }
@@ -89,6 +98,9 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Failed to add card to phone memory: ${e.toString()}',
+        source: runtimeType.toString(),
+        name: "insert",
+        args: [card],
       );
     }
   }
@@ -104,6 +116,9 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось удалить карточку из памяти телефона: ${e.toString()}',
+        source: runtimeType.toString(),
+        name: "delete",
+        args: [id],
       );
     }
   }
@@ -118,6 +133,9 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось получить карточку из памяти телефона: ${e.toString()}',
+        source: runtimeType.toString(),
+        name: "get",
+        args: [id],
       );
     }
   }
@@ -166,6 +184,9 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось обновить карточку в памяти телефона: ${e.toString()}',
+        source: runtimeType.toString(),
+        name: "update",
+        args: [card],
       );
     }
   }
@@ -198,6 +219,9 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось получить карточки из памяти телефона: ${e.toString()}',
+        source: runtimeType.toString(),
+        name: "getAll",
+        args: [nmIds],
       );
     }
   }
@@ -230,6 +254,9 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось получить карточки из памяти телефона: ${e.toString()}',
+        source: "CardOfProductDataProvider",
+        name: "getAll",
+        args: [nmIds],
       );
     }
   }
@@ -279,6 +306,9 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось обновить карточку в памяти телефона: ${e.toString()}',
+        source: "CardOfProductDataProvider",
+        name: "update",
+        args: [card],
       );
     }
   }
@@ -302,6 +332,9 @@ class CardOfProductDataProvider
     } catch (e) {
       return Resource.error(
         'Не удалось получить карточки из памяти телефона: ${e.toString()}',
+        source: runtimeType.toString(),
+        name: "getAllBySupplierId",
+        args: [supplierId],
       );
     }
   }

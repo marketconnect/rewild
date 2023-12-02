@@ -129,7 +129,10 @@ class UpdateService
     final cardsInDBResource = await cardOfProductDataProvider.getAll();
 
     if (cardsInDBResource is Error) {
-      return Resource.error(cardsInDBResource.message!);
+      return Resource.error(cardsInDBResource.message!,
+          source: runtimeType.toString(),
+          name: 'fetchAllUserCardsFromServer',
+          args: [token]);
     }
     final cardsInDB = cardsInDBResource.data!;
 
@@ -137,7 +140,10 @@ class UpdateService
     if (cardsInDB.isEmpty) {
       final cardsFromServer = await cardOfProductApiClient.getAll(token);
       if (cardsFromServer is Error) {
-        return Resource.error(cardsFromServer.message!);
+        return Resource.error(cardsFromServer.message!,
+            source: runtimeType.toString(),
+            name: 'fetchAllUserCardsFromServer',
+            args: [token]);
       }
       if (cardsFromServer is Success) {
         final cards = cardsFromServer.data!;
@@ -145,7 +151,10 @@ class UpdateService
         if (cards.isNotEmpty) {
           final insertOrUpdateResource = await insert(token, cards);
           if (insertOrUpdateResource is Error) {
-            return Resource.error(insertOrUpdateResource.message!);
+            return Resource.error(insertOrUpdateResource.message!,
+                source: runtimeType.toString(),
+                name: 'fetchAllUserCardsFromServer',
+                args: [token]);
           }
         }
       }
@@ -161,7 +170,10 @@ class UpdateService
     final cardsInDBResource = await cardOfProductDataProvider.getAll();
 
     if (cardsInDBResource is Error) {
-      return Resource.error(cardsInDBResource.message!);
+      return Resource.error(cardsInDBResource.message!,
+          source: runtimeType.toString(),
+          name: 'insert',
+          args: [token, cardOfProductsToInsert]);
     }
     final cardsInDB = cardsInDBResource.data!;
 
@@ -184,7 +196,10 @@ class UpdateService
     final saveOnServerResource =
         await cardOfProductApiClient.save(token, newCards);
     if (saveOnServerResource is Error) {
-      return Resource.error(saveOnServerResource.message!);
+      return Resource.error(saveOnServerResource.message!,
+          source: runtimeType.toString(),
+          name: 'insert',
+          args: [token, cardOfProductsToInsert]);
     }
 
     // try to fetch today`s initial stocks from server
@@ -202,7 +217,10 @@ class UpdateService
       DateTime.now(),
     );
     if (initialStocksResource is Error) {
-      return Resource.error(initialStocksResource.message!);
+      return Resource.error(initialStocksResource.message!,
+          source: runtimeType.toString(),
+          name: 'insert',
+          args: [token, cardOfProductsToInsert]);
     }
 
     initStocksFromServer = initialStocksResource.data!;
@@ -211,7 +229,10 @@ class UpdateService
     for (final stock in initStocksFromServer) {
       final insertStockresource = await initialStockDataProvider.insert(stock);
       if (insertStockresource is Error) {
-        return Resource.error(insertStockresource.message!);
+        return Resource.error(insertStockresource.message!,
+            source: runtimeType.toString(),
+            name: 'insert',
+            args: [token, cardOfProductsToInsert]);
       }
 
       // remove nmId that initial stock exists on server and in local db
@@ -222,7 +243,10 @@ class UpdateService
     final fetchedCardsOfProductsResource =
         await detailsApiClient.get(newCards.map((e) => e.nmId).toList());
     if (fetchedCardsOfProductsResource is Error) {
-      return Resource.error(fetchedCardsOfProductsResource.message!);
+      return Resource.error(fetchedCardsOfProductsResource.message!,
+          source: runtimeType.toString(),
+          name: 'insert',
+          args: [token, cardOfProductsToInsert]);
     }
     final fetchedCardsOfProducts = fetchedCardsOfProductsResource.data!;
 
@@ -235,7 +259,10 @@ class UpdateService
       final insertResource =
           await cardOfProductDataProvider.insertOrUpdate(card);
       if (insertResource is Error) {
-        return Resource.error(insertResource.message!);
+        return Resource.error(insertResource.message!,
+            source: runtimeType.toString(),
+            name: 'insert',
+            args: [token, cardOfProductsToInsert]);
       }
 
       // add stocks
@@ -243,7 +270,10 @@ class UpdateService
         for (final stock in size.stocks) {
           final insertStockresource = await stockDataProvider.insert(stock);
           if (insertStockresource is Error) {
-            return Resource.error(insertStockresource.message!);
+            return Resource.error(insertStockresource.message!,
+                source: runtimeType.toString(),
+                name: 'insert',
+                args: [token, cardOfProductsToInsert]);
           }
           // if the miracle does not happen
           // and initial stocks do not exist on server yet
@@ -258,7 +288,10 @@ class UpdateService
               qty: stock.qty,
             ));
             if (insertStockresource is Error) {
-              return Resource.error(insertStockresource.message!);
+              return Resource.error(insertStockresource.message!,
+                  source: runtimeType.toString(),
+                  name: 'insert',
+                  args: [token, cardOfProductsToInsert]);
             }
           }
         }
@@ -277,7 +310,8 @@ class UpdateService
     // get cards from the local storage
     final cardsOfProductsResource = await cardOfProductDataProvider.getAll();
     if (cardsOfProductsResource is Error) {
-      return Resource.error(cardsOfProductsResource.message!);
+      return Resource.error(cardsOfProductsResource.message!,
+          source: runtimeType.toString(), name: 'update', args: []);
     }
     final allSavedCardsOfProducts = cardsOfProductsResource.data!;
 
@@ -289,7 +323,8 @@ class UpdateService
     // were today updated?
     final isUpdatedResource = await lastUpdateDayDataProvider.todayUpdated();
     if (isUpdatedResource is Error) {
-      return Resource.error(isUpdatedResource.message!);
+      return Resource.error(isUpdatedResource.message!,
+          source: runtimeType.toString(), name: 'update', args: []);
     }
     final isUpdated = isUpdatedResource.data!;
 
@@ -300,14 +335,16 @@ class UpdateService
       final deleteResource =
           await advertStatDataProvider.deleteOldRecordsOlderThanMonth();
       if (deleteResource is Error) {
-        return Resource.error(deleteResource.message!);
+        return Resource.error(deleteResource.message!,
+            source: runtimeType.toString(), name: 'update', args: []);
       }
       // try to fetch today`s initial stocks from server
       final todayInitialStocksFromServerResource =
           await _fetchTodayInitialStocksFromServer(
               allSavedCardsOfProducts.map((e) => e.nmId).toList());
       if (todayInitialStocksFromServerResource is Error) {
-        return Resource.error(todayInitialStocksFromServerResource.message!);
+        return Resource.error(todayInitialStocksFromServerResource.message!,
+            source: runtimeType.toString(), name: 'update', args: []);
       }
       final todayInitialStocksFromServer =
           todayInitialStocksFromServerResource.data!;
@@ -325,7 +362,8 @@ class UpdateService
         final deleteSuppliesResource =
             await supplyDataProvider.delete(nmId: stock.nmId);
         if (deleteSuppliesResource is Error) {
-          return Resource.error(deleteSuppliesResource.message!);
+          return Resource.error(deleteSuppliesResource.message!,
+              source: runtimeType.toString(), name: 'update', args: []);
         }
       }
 
@@ -337,7 +375,8 @@ class UpdateService
     final fetchedCardsOfProductsResource = await detailsApiClient
         .get(allSavedCardsOfProducts.map((e) => e.nmId).toList());
     if (fetchedCardsOfProductsResource is Error) {
-      return Resource.error(fetchedCardsOfProductsResource.message!);
+      return Resource.error(fetchedCardsOfProductsResource.message!,
+          source: runtimeType.toString(), name: 'update', args: []);
     }
     final fetchedCardsOfProducts = fetchedCardsOfProductsResource.data!;
 
@@ -348,13 +387,15 @@ class UpdateService
       final insertResource =
           await cardOfProductDataProvider.insertOrUpdate(card);
       if (insertResource is Error) {
-        return Resource.error(insertResource.message!);
+        return Resource.error(insertResource.message!,
+            source: runtimeType.toString(), name: 'update', args: []);
       }
 
       // add stocks
       final addStocksResource = await _addStocks(card.sizes);
       if (addStocksResource is Error) {
-        return Resource.error(addStocksResource.message!);
+        return Resource.error(addStocksResource.message!,
+            source: runtimeType.toString(), name: 'update', args: []);
       }
     }
     setUpdatedAt();
@@ -374,7 +415,8 @@ class UpdateService
             wh: stock.wh,
             sizeOptionId: stock.sizeOptionId);
         if (initStockResource is Error) {
-          return Resource.error(initStockResource.message!);
+          return Resource.error(initStockResource.message!,
+              source: runtimeType.toString(), name: 'update', args: []);
         }
         // if init stock does not exist
         if (initStockResource is Empty) {
@@ -387,7 +429,8 @@ class UpdateService
                   sizeOptionId: stock.sizeOptionId,
                   qty: 0));
           if (insertInitStockResource is Error) {
-            return Resource.error(insertInitStockResource.message!);
+            return Resource.error(insertInitStockResource.message!,
+                source: runtimeType.toString(), name: 'update', args: []);
           }
 
           // if init stock does not exist and stocks more than threshold insert supply
@@ -401,7 +444,8 @@ class UpdateService
                     lastStocks: 0,
                     qty: stock.qty));
             if (insertSupplyResource is Error) {
-              return Resource.error(insertSupplyResource.message!);
+              return Resource.error(insertSupplyResource.message!,
+                  source: runtimeType.toString(), name: 'update', args: []);
             }
           }
         } else {
@@ -416,7 +460,8 @@ class UpdateService
               sizeOptionId: stock.sizeOptionId,
             );
             if (supplyResource is Error) {
-              return Resource.error(supplyResource.message!);
+              return Resource.error(supplyResource.message!,
+                  source: runtimeType.toString(), name: 'update', args: []);
             }
             // init stock exists and supply does not exists
             // first time insert supply
@@ -428,7 +473,8 @@ class UpdateService
                 sizeOptionId: stock.sizeOptionId,
               );
               if (savedStock is Error) {
-                return Resource.error(savedStock.message!);
+                return Resource.error(savedStock.message!,
+                    source: runtimeType.toString(), name: 'update', args: []);
               }
               // insert supply with last saved stocks as lastStocks
               final insertSupplyResource =
@@ -440,7 +486,8 @@ class UpdateService
                 qty: stock.qty - initStock.qty,
               ));
               if (insertSupplyResource is Error) {
-                return Resource.error(insertSupplyResource.message!);
+                return Resource.error(insertSupplyResource.message!,
+                    source: runtimeType.toString(), name: 'update', args: []);
               }
             } else {
               // init stock exists and supply exists - update qty
@@ -454,7 +501,8 @@ class UpdateService
                 qty: stock.qty - initStock.qty,
               ));
               if (insertSupplyResource is Error) {
-                return Resource.error(insertSupplyResource.message!);
+                return Resource.error(insertSupplyResource.message!,
+                    source: runtimeType.toString(), name: 'update', args: []);
               }
             }
           }
@@ -463,7 +511,8 @@ class UpdateService
         // save stock to local db
         final insertStockResource = await stockDataProvider.insert(stock);
         if (insertStockResource is Error) {
-          return Resource.error(insertStockResource.message!);
+          return Resource.error(insertStockResource.message!,
+              source: runtimeType.toString(), name: 'update', args: []);
         }
       }
     }
@@ -480,7 +529,8 @@ class UpdateService
         DateTime.now(),
       );
       if (initialStocksResource is Error) {
-        return Resource.error(initialStocksResource.message!);
+        return Resource.error(initialStocksResource.message!,
+            source: runtimeType.toString(), name: 'update', args: []);
       }
 
       initialStocksFromServer = initialStocksResource.data!;
@@ -490,7 +540,8 @@ class UpdateService
         final insertStockresource =
             await initialStockDataProvider.insert(stock);
         if (insertStockresource is Error) {
-          return Resource.error(insertStockresource.message!);
+          return Resource.error(insertStockresource.message!,
+              source: runtimeType.toString(), name: 'update', args: []);
         }
       }
     }
@@ -505,20 +556,23 @@ class UpdateService
           await cardOfProductApiClient.delete(token, id);
 
       if (deleteFromServerResource is Error) {
-        return Resource.error(deleteFromServerResource.message!);
+        return Resource.error(deleteFromServerResource.message!,
+            source: runtimeType.toString(), name: 'delete', args: [token, id]);
       }
 
       // delete card from the local storage
       final deleteResource = await cardOfProductDataProvider.delete(id);
       if (deleteResource is Error) {
-        return Resource.error(deleteResource.message!);
+        return Resource.error(deleteResource.message!,
+            source: runtimeType.toString(), name: 'delete', args: [token, id]);
       }
     }
     // get all cards from local db
     final cardsInDBResource = await cardOfProductDataProvider.getAll();
 
     if (cardsInDBResource is Error) {
-      return Resource.error(cardsInDBResource.message!);
+      return Resource.error(cardsInDBResource.message!,
+          source: runtimeType.toString(), name: 'delete', args: [token, ids]);
     }
     final cardsInDB = cardsInDBResource.data!;
     cardsNumberStreamController.add(cardsInDB.length);

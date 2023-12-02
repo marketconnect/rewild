@@ -34,6 +34,10 @@ class AdvertCatalogueModel extends Advert {
       type: json['type'],
     );
   }
+
+  @override
+  String toString() =>
+      'AdvertCatalogueModel(campaignId: $campaignId, name: $name, endTime: $endTime, createTime: $createTime, changeTime: $changeTime, startTime: $startTime, dailyBudget: $dailyBudget, status: $status, type: $type)';
 }
 
 class AdvertCatalogueParam {

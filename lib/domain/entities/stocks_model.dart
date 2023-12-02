@@ -1,4 +1,6 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
 import 'package:rewild/domain/entities/size_model.dart';
 
 class StocksModel {
@@ -65,7 +67,7 @@ class StocksModel {
 
   @override
   String toString() {
-    return 'StocksModel(id: $id, wh: $wh, name: $name, qty: $qty, sizeOptionId: $sizeOptionId)';
+    return 'StocksModel(id: $id, wh: $wh, nmId: $nmId, sizeOptionId: $sizeOptionId, name: $name, qty: $qty, sizes: $sizes)';
   }
 
   @override

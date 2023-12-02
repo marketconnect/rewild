@@ -8,7 +8,7 @@ import 'package:rewild/domain/services/seller_service.dart';
 class SellerApiClient implements SellerServiceSelerApiClient {
   const SellerApiClient();
   @override
-  Future<Resource<SellerModel>> fetchSeller(int supplierId) async {
+  Future<Resource<SellerModel>> get(int supplierId) async {
     try {
       final uri = Uri.parse(
           'https://www.wildberries.ru/webapi/seller/data/short/$supplierId');
@@ -21,23 +21,38 @@ class SellerApiClient implements SellerServiceSelerApiClient {
       } else if (response.statusCode == 429) {
         return Resource.error(
           "Слишком много запросов",
+          source: runtimeType.toString(),
+          name: "get",
+          args: [supplierId],
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Некорректные данные",
+          source: runtimeType.toString(),
+          name: "get",
+          args: [supplierId],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Вы не авторизованы",
+          source: runtimeType.toString(),
+          name: "get",
+          args: [supplierId],
         );
       }
     } on Exception catch (e) {
       return Resource.error(
         "Ошибка при обращении к WB: $e",
+        source: runtimeType.toString(),
+        name: "get",
+        args: [supplierId],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "get",
+      args: [supplierId],
     );
   }
 }

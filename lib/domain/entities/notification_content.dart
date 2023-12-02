@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 class ReWildNotificationContent {
   final int id;
   // final String title;
@@ -11,4 +12,8 @@ class ReWildNotificationContent {
       // required this.body,
       this.condition,
       this.newValue});
+
+  @override
+  String toString() =>
+      'ReWildNotificationContent(id: $id, condition: $condition, newValue: $newValue)';
 }

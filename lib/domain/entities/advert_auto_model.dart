@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:rewild/domain/entities/advert_base.dart';
 
 class AdvertAutoModel extends Advert {
@@ -32,6 +33,10 @@ class AdvertAutoModel extends Advert {
       type: json['type'],
     );
   }
+
+  @override
+  String toString() =>
+      'AdvertAutoModel(autoParams: $campaignId, name: $name, endTime: $endTime, createTime: $createTime, changeTime: $changeTime, startTime: $startTime, dailyBudget: $dailyBudget, status: $status, type: $type)';
 }
 
 class AdvertAutoParams {

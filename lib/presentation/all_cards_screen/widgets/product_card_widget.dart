@@ -38,6 +38,8 @@ class ProductCardWidget extends StatelessWidget {
       salesSumText = "Заказы: $salesSum шт.";
     } else if (salesSum < 0 && salesSum > -20) {
       salesSumText = "Возврат: ${salesSum.abs()} шт.";
+    } else {
+      salesSumText = "";
     }
 
     return Card(
@@ -105,46 +107,39 @@ class ProductCardWidget extends StatelessWidget {
                                         fontSize: screenWidth * 0.035)),
                               ],
                             ),
-                            salesSumText == null
-                                ? Container()
-                                : Row(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(salesSumText,
-                                              style: TextStyle(
-                                                  color:
-                                                      const Color(0xFFa1a1a2),
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .width *
-                                                          0.035)),
-                                          if (wasSaled)
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(left: 8.0),
-                                              child: Icon(
-                                                  Icons.arrow_outward_rounded,
-                                                  size: 20,
-                                                  color: Color(0xFF34d058)),
-                                            ),
-                                          Text(
-                                            supplyText,
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .error,
-                                                fontSize: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.035),
-                                          )
-                                        ],
+                            Row(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(salesSumText,
+                                        style: TextStyle(
+                                            color: const Color(0xFFa1a1a2),
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.035)),
+                                    if (wasSaled)
+                                      const Padding(
+                                        padding: EdgeInsets.only(left: 8.0),
+                                        child: Icon(Icons.arrow_outward_rounded,
+                                            size: 20, color: Color(0xFF34d058)),
                                       ),
-                                    ],
-                                  )
+                                    Text(
+                                      supplyText,
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.035),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            )
                           ],
                         ),
                       ),

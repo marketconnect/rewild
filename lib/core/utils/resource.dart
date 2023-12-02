@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 
 sealed class Resource<T> {
   final T? data;
+  final List<dynamic>? args;
   final String? message;
-  final String? info;
+  final String? source;
   final String? error;
   final String? stackTrace;
   Resource(
       {required this.data,
       required this.message,
-      this.info,
+      this.args,
+      this.source,
       this.error,
       this.stackTrace});
 
@@ -22,12 +24,30 @@ sealed class Resource<T> {
   }
 
   factory Resource.error(String message,
-      [T? data, String? info, String? error, String? stackTrace]) {
-    debugPrint("Error from rewsource: $message");
+      {T? data,
+      List<dynamic>? args,
+      required String? name,
+      required String? source,
+      String? error,
+      String? stackTrace}) {
+    final fullName = '$source - $name';
+    final prefix = '[$fullName - ERROR]:';
+
+    final text = "$prefix${error ?? message}";
+    String argsStr = "";
+    if (args != null) {
+      for (var arg in args) {
+        argsStr = '$argsStr $arg';
+      }
+    }
+
+    debugPrint(
+        '\x1B[31m$text\x1B[0m\x1B[33m$argsStr\x1B[0m stackTrace: \x1B[31m$stackTrace\x1B[0m\x1B[33m');
+
     return Error<T>(
         message: message,
         data: data,
-        info: info,
+        args: args,
         error: error,
         stackTrace: stackTrace);
   }
@@ -38,7 +58,7 @@ class Success<T> extends Resource<T> {
       : super(
             data: data,
             message: null,
-            info: null,
+            source: null,
             error: null,
             stackTrace: null);
 }
@@ -48,7 +68,7 @@ class Empty<T> extends Resource<T> {
       : super(
             data: null,
             message: null,
-            info: null,
+            source: null,
             error: null,
             stackTrace: null);
 }
@@ -57,7 +77,7 @@ class Error<T> extends Resource<T> {
   Error(
       {required String super.message,
       super.data,
-      required super.info,
-      required super.error,
-      required super.stackTrace});
+      super.args,
+      super.error,
+      super.stackTrace});
 }

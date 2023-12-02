@@ -34,7 +34,8 @@ class StockDataProvider
       ]);
       return Resource.success(id);
     } catch (e) {
-      return Resource.error('Не удалось сохранить остатки $e');
+      return Resource.error('Не удалось сохранить остатки $e',
+          source: runtimeType.toString(), name: "insert", args: [stock]);
     }
   }
 
@@ -44,7 +45,8 @@ class StockDataProvider
       await db.rawDelete('DELETE FROM stocks WHERE nmId = ?', [nmId]);
       return Resource.empty();
     } catch (e) {
-      return Resource.error('Не удалось удалить остатки $e');
+      return Resource.error('Не удалось удалить остатки $e',
+          source: runtimeType.toString(), name: "delete", args: [nmId]);
     }
   }
 
@@ -58,7 +60,8 @@ class StockDataProvider
       return Resource.success(
           stocks.map((e) => StocksModel.fromMap(e)).toList());
     } catch (e) {
-      return Resource.error('Не удалось получить остатки $e');
+      return Resource.error('Не удалось получить остатки $e',
+          source: runtimeType.toString(), name: "get", args: [nmId]);
     }
   }
 
@@ -72,7 +75,10 @@ class StockDataProvider
           [nmId, wh, sizeOptionId]);
       return Resource.success(StocksModel.fromMap(stock.first));
     } catch (e) {
-      return Resource.error('Не удалось получить остатки $e');
+      return Resource.error('Не удалось получить остатки $e',
+          source: runtimeType.toString(),
+          name: "getOne",
+          args: [nmId, wh, sizeOptionId]);
     }
   }
 
@@ -97,7 +103,10 @@ class StockDataProvider
       ]);
       return Resource.success(id);
     } catch (e) {
-      return Resource.error('Не удалось обновить остатки $e');
+      return Resource.error('Не удалось обновить остатки $e',
+          source: runtimeType.toString(),
+          name: "update",
+          args: [initialStock, nmId]);
     }
   }
 
@@ -109,7 +118,8 @@ class StockDataProvider
       return Resource.success(
           stocks.map((e) => StocksModel.fromMap(e)).toList());
     } catch (e) {
-      return Resource.error('Не удалось получить остатки $e');
+      return Resource.error('Не удалось получить остатки $e',
+          source: runtimeType.toString(), name: "getAll", args: []);
     }
   }
 
@@ -121,7 +131,8 @@ class StockDataProvider
       return Resource.success(
           stocks.map((e) => StocksModel.fromMap(e)).toList());
     } catch (e) {
-      return Resource.error('Не удалось Получить остатки $e');
+      return Resource.error('Не удалось Получить остатки $e',
+          source: runtimeType.toString(), name: "getAllByWh", args: [wh]);
     }
   }
 }

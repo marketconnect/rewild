@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 
 class GroupModel {
@@ -68,5 +69,10 @@ class GroupModel {
         bgColor: map['bgColor'] as int,
         cardsNmIds: map['cardsNmIds'] as List<int>,
         fontColor: map['fontColor'] as int);
+  }
+
+  @override
+  String toString() {
+    return 'GroupModel(id: $id, name: $name, bgColor: $bgColor, fontColor: $fontColor, cardsNmIds: $cardsNmIds, cards: $cards, ordersSum: $ordersSum)';
   }
 }

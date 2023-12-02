@@ -41,7 +41,10 @@ class NotificationService
   Future<Resource<bool>> delete(int id, int condition, [bool? isEmpty]) async {
     final resource = await notificationDataProvider.delete(id, condition);
     if (resource is Error) {
-      return Resource.error(resource.message!);
+      return Resource.error(resource.message!,
+          source: runtimeType.toString(),
+          name: 'delete',
+          args: [id, condition, isEmpty]);
     }
     if (isEmpty != null && isEmpty) {
       updatedNotificationStreamController.add(StreamNotificationEvent(
@@ -68,12 +71,14 @@ class NotificationService
       bool wasEmpty) async {
     final resource = await notificationDataProvider.deleteAll(parentId);
     if (resource is Error) {
-      return Resource.error(resource.message!);
+      return Resource.error(resource.message!,
+          source: runtimeType.toString(), name: 'deleteAll', args: [parentId]);
     }
     for (final notification in notifications) {
       final resource = await notificationDataProvider.save(notification);
       if (resource is Error) {
-        return Resource.error(resource.message!);
+        return Resource.error(resource.message!,
+            source: runtimeType.toString(), name: 'save', args: [notification]);
       }
     }
     if ((wasEmpty && notifications.isNotEmpty) ||
@@ -92,7 +97,10 @@ class NotificationService
       int parentId) async {
     final resource = await notificationDataProvider.getForParent(parentId);
     if (resource is Error) {
-      return Resource.error(resource.message!);
+      return Resource.error(resource.message!,
+          source: runtimeType.toString(),
+          name: 'getForParent',
+          args: [parentId]);
     }
     if (resource is Empty) {
       return Resource.success([]);
@@ -104,7 +112,8 @@ class NotificationService
   Future<Resource<List<ReWildNotificationModel>>> getAll() async {
     final resource = await notificationDataProvider.getAll();
     if (resource is Error) {
-      return Resource.error(resource.message!);
+      return Resource.error(resource.message!,
+          source: runtimeType.toString(), name: 'getAll', args: []);
     }
 
     if (resource is Empty) {

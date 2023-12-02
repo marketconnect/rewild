@@ -35,9 +35,8 @@ class AuthServiceImpl
     // get token
     final getTokenResource = await secureDataProvider.getToken();
     if (getTokenResource is Error) {
-      return Resource.error(
-        getTokenResource.message!,
-      );
+      return Resource.error(getTokenResource.message!,
+          source: runtimeType.toString(), name: 'isLogined', args: []);
     }
     // If token exist (registered)
     if (getTokenResource is Success) {
@@ -46,9 +45,8 @@ class AuthServiceImpl
       final tokenNotExpiredResource =
           await secureDataProvider.tokenNotExpiredInThreeMinutes();
       if (tokenNotExpiredResource is Error) {
-        return Resource.error(
-          tokenNotExpiredResource.message!,
-        );
+        return Resource.error(tokenNotExpiredResource.message!,
+            source: runtimeType.toString(), name: 'isLogined', args: []);
       }
       return Resource.success(true);
     }
@@ -66,18 +64,16 @@ class AuthServiceImpl
     // get user name
     // final userNameResource = await secureDataProvider.getUsername();
     if (userNameResource is Error) {
-      return Resource.error(
-        userNameResource.message!,
-      );
+      return Resource.error(userNameResource.message!,
+          source: runtimeType.toString(), name: 'getToken', args: []);
     }
     final userName = userNameResource.data!;
 
     // get token from secure storage
     // final getTokenResource = await secureDataProvider.getToken();
     if (getTokenResource is Error) {
-      return Resource.error(
-        getTokenResource.message!,
-      );
+      return Resource.error(getTokenResource.message!,
+          source: runtimeType.toString(), name: 'getToken', args: []);
     }
     // If token exist (registered)
     if (getTokenResource is Success) {
@@ -86,9 +82,8 @@ class AuthServiceImpl
           await secureDataProvider.tokenNotExpiredInThreeMinutes();
 
       if (tokenNotExpiredResource is Error) {
-        return Resource.error(
-          tokenNotExpiredResource.message!,
-        );
+        return Resource.error(tokenNotExpiredResource.message!,
+            source: runtimeType.toString(), name: 'getToken', args: []);
       }
       final tokenNotExpired = tokenNotExpiredResource.data!;
       // If token not expired return token
@@ -100,9 +95,8 @@ class AuthServiceImpl
 
         final loginResource = await _login(userName);
         if (loginResource is Error) {
-          return Resource.error(
-            loginResource.message!,
-          );
+          return Resource.error(loginResource.message!,
+              source: runtimeType.toString(), name: 'getToken', args: []);
         }
 
         // save received token
@@ -112,7 +106,8 @@ class AuthServiceImpl
         final saveResource = await _saveAuthData(
             UserAuthData(token: token, expiredAt: expiredAt, freebie: freebie));
         if (saveResource is Error) {
-          return Resource.error(saveResource.message!);
+          return Resource.error(saveResource.message!,
+              source: runtimeType.toString(), name: 'getToken', args: []);
         }
 
         return Resource.success(loginResource.data!.token);
@@ -122,9 +117,8 @@ class AuthServiceImpl
       // register
       final registerResource = await _register(userName);
       if (registerResource is Error) {
-        return Resource.error(
-          registerResource.message!,
-        );
+        return Resource.error(registerResource.message!,
+            source: runtimeType.toString(), name: 'getToken', args: []);
       }
       // save received data
       final token = registerResource.data!.token;
@@ -133,7 +127,8 @@ class AuthServiceImpl
       final saveResource = await _saveAuthData(
           UserAuthData(token: token, expiredAt: expiredAt, freebie: freebie));
       if (saveResource is Error) {
-        return Resource.error(saveResource.message!);
+        return Resource.error(saveResource.message!,
+            source: runtimeType.toString(), name: 'getToken', args: []);
       }
       return Resource.success(registerResource.data!.token);
     }
@@ -149,9 +144,10 @@ class AuthServiceImpl
       freebie: freebie,
     );
     if (saveResource is Error) {
-      return Resource.error(
-        saveResource.message!,
-      );
+      return Resource.error(saveResource.message!,
+          source: runtimeType.toString(),
+          name: '_saveAuthData',
+          args: [authData]);
     }
     return Resource.empty();
   }
@@ -160,9 +156,8 @@ class AuthServiceImpl
     final authDataResource =
         await authApiClient.registerUser(username, username);
     if (authDataResource is Error) {
-      return Resource.error(
-        authDataResource.message!,
-      );
+      return Resource.error(authDataResource.message!,
+          source: runtimeType.toString(), name: '_register', args: [username]);
     }
     return Success(data: authDataResource.data!);
   }
@@ -170,9 +165,8 @@ class AuthServiceImpl
   Future<Resource<UserAuthData>> _login(String username) async {
     final authDataResource = await authApiClient.loginUser(username, username);
     if (authDataResource is Error) {
-      return Resource.error(
-        authDataResource.message!,
-      );
+      return Resource.error(authDataResource.message!,
+          source: runtimeType.toString(), name: '_login', args: [username]);
     }
 
     return Success(data: authDataResource.data!);

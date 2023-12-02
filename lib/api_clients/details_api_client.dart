@@ -120,23 +120,38 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
       } else if (response.statusCode == 429) {
         return Resource.error(
           "Слишком много запросов",
+          source: runtimeType.toString(),
+          name: "get",
+          args: [ids],
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Некорректные данные",
+          source: runtimeType.toString(),
+          name: "get",
+          args: [ids],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Вы не авторизованы",
+          source: runtimeType.toString(),
+          name: "get",
+          args: [ids],
         );
       }
     } on Exception catch (e) {
       return Resource.error(
         "Ошибка при обращении к WB: $e",
+        source: runtimeType.toString(),
+        name: "get",
+        args: [ids],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: runtimeType.toString(),
+      name: "get",
+      args: [ids],
     );
   }
 
@@ -244,23 +259,38 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
       } else if (response.statusCode == 429) {
         return Resource.error(
           "Слишком много запросов",
+          source: "DetailsApiClient",
+          name: "getInBackground",
+          args: [ids],
         );
       } else if (response.statusCode == 400) {
         return Resource.error(
           "Некорректные данные",
+          source: "DetailsApiClient",
+          name: "getInBackground",
+          args: [ids],
         );
       } else if (response.statusCode == 401) {
         return Resource.error(
           "Вы не авторизованы",
+          source: "DetailsApiClient",
+          name: "getInBackground",
+          args: [ids],
         );
       }
     } on Exception catch (e) {
       return Resource.error(
         "Ошибка при обращении к WB: $e",
+        source: "DetailsApiClient",
+        name: "getInBackground",
+        args: [ids],
       );
     }
     return Resource.error(
       "Неизвестная ошибка",
+      source: "DetailsApiClient",
+      name: "getInBackground",
+      args: [ids],
     );
   }
 }

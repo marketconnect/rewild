@@ -4,7 +4,7 @@ import 'package:rewild/domain/entities/orders_history_model.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 
 abstract class OrdersHistoryServiceOrdersHistoryApiClient {
-  Future<Resource<OrdersHistoryModel>> fetch(int nmId);
+  Future<Resource<OrdersHistoryModel>> get(int nmId);
 }
 
 abstract class OrdersHistoryServiceOrdersHistoryDataProvider {
@@ -29,7 +29,8 @@ class OrdersHistoryService implements SingleCardScreenOrdersHistoryService {
     final ordersHistoryResource =
         await ordersHistoryDataProvider.get(nmId, yesterdayEndOfTheDay(), now);
     if (ordersHistoryResource is Error) {
-      return Resource.error(ordersHistoryResource.message!);
+      return Resource.error(ordersHistoryResource.message!,
+          source: runtimeType.toString(), name: 'get', args: [nmId]);
     }
     if (ordersHistoryResource is Success) {
       return ordersHistoryResource;
@@ -37,9 +38,10 @@ class OrdersHistoryService implements SingleCardScreenOrdersHistoryService {
     // not found in local db
     // get from WB
     final ordersHistoryFromServerResource =
-        await ordersHistoryApiClient.fetch(nmId);
+        await ordersHistoryApiClient.get(nmId);
     if (ordersHistoryFromServerResource is Error) {
-      return Resource.error(ordersHistoryFromServerResource.message!);
+      return Resource.error(ordersHistoryFromServerResource.message!,
+          source: runtimeType.toString(), name: 'get', args: [nmId]);
     }
     if (ordersHistoryFromServerResource is Empty) {
       final emptyOrdersHistory = OrdersHistoryModel(
@@ -56,13 +58,15 @@ class OrdersHistoryService implements SingleCardScreenOrdersHistoryService {
     // delete
     final deleteResource = await ordersHistoryDataProvider.delete(nmId);
     if (deleteResource is Error) {
-      return Resource.error(deleteResource.message!);
+      return Resource.error(deleteResource.message!,
+          source: runtimeType.toString(), name: 'get', args: [nmId]);
     }
     // save
     final saveResource = await ordersHistoryDataProvider
         .insert(ordersHistoryFromServerResource.data!);
     if (saveResource is Error) {
-      return Resource.error(saveResource.message!);
+      return Resource.error(saveResource.message!,
+          source: runtimeType.toString(), name: 'get', args: [nmId]);
     }
 
     // return

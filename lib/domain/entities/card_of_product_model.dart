@@ -1,16 +1,15 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:rewild/core/constants.dart';
-
 import 'package:rewild/domain/entities/background_notifier.dart';
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
 import 'package:rewild/domain/entities/notification.dart';
-
+import 'package:rewild/domain/entities/notification_content.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/domain/entities/size_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
-import 'package:rewild/domain/entities/notification_content.dart';
 
 class CardOfProductModel extends BackgroundNotifier {
   int nmId = 0;

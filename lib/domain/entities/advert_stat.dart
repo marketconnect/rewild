@@ -93,7 +93,7 @@ class AdvertStatModel {
 
   @override
   String toString() {
-    return 'AutoStat(views: $views, clicks: $clicks, ctr: $ctr, cpc: $cpc, spend: $spend)';
+    return 'AdvertStatModel(campaignId: $campaignId, views: $views, clicks: $clicks, ctr: $ctr, cpc: $cpc, spend: $spend, createdAt: $createdAt)';
   }
 
   @override
