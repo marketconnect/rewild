@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/search_campaign_stat.dart';
-import 'package:rewild/presentation/single_search_words_screen%20copy/single_search_words_view_model.dart';
+import 'package:rewild/presentation/single_search_words_screen/single_search_words_view_model.dart';
 import 'package:rewild/widgets/keyword_slidable_container.dart';
 import 'package:rewild/widgets/keyword_tab_body.dart';
 import 'package:rewild/widgets/my_dialog_save_widget.dart';

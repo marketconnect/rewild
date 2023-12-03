@@ -61,10 +61,10 @@ import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model
 import 'package:rewild/presentation/first_start_splash_screen/first_start_splash_screen.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_screen.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
-import 'package:rewild/presentation/all_adverts_tools_screen/all_adverts_tools_view_model.dart';
+import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_view_model.dart';
 import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_screen.dart';
 import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_screen_view_model.dart';
-import 'package:rewild/presentation/all_adverts_tools_screen/all_adverts_tools_screen.dart';
+import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_screen.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen.dart';
@@ -92,8 +92,8 @@ import 'package:rewild/presentation/my_web_view/my_web_view.dart';
 import 'package:rewild/presentation/my_web_view/my_web_view_screen_view_model.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
-import 'package:rewild/presentation/single_search_words_screen%20copy/single_search_words_screen.dart';
-import 'package:rewild/presentation/single_search_words_screen%20copy/single_search_words_view_model.dart';
+import 'package:rewild/presentation/single_search_words_screen/single_search_words_screen.dart';
+import 'package:rewild/presentation/single_search_words_screen/single_search_words_view_model.dart';
 
 import 'package:rewild/presentation/splash_screen/splash_screen.dart';
 import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart';
@@ -502,10 +502,11 @@ class _DIContainer {
           internetConnectionChecker: _makeInternetConnectionChecker(),
           keywordService: _makeKeywordsService());
 
-  AllAdvertsToolsViewModel _makeAdvertsToolsViewModel(BuildContext context) =>
-      AllAdvertsToolsViewModel(
+  AllAdvertsWordsViewModel _makeAdvertsToolsViewModel(BuildContext context) =>
+      AllAdvertsWordsViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
+          cardOfProductService: _makeCardOfProductService(),
           advertService: _makeAdvertService());
 
   NotificationAdvertViewModel _makeAdvertNotificationViewModel(
@@ -637,7 +638,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   Widget makeAdvertsToolsScreen() {
     return ChangeNotifierProvider(
       create: (context) => _diContainer._makeAdvertsToolsViewModel(context),
-      child: const AllAdvertsToolsScreen(),
+      child: const AllAdvertsWordsScreen(),
     );
   }
 

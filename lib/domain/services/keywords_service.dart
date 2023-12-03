@@ -6,7 +6,7 @@ import 'package:rewild/domain/entities/auto_campaign_stat.dart';
 import 'package:rewild/domain/entities/keyword.dart';
 import 'package:rewild/domain/entities/search_campaign_stat.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
-import 'package:rewild/presentation/single_search_words_screen%20copy/single_search_words_view_model.dart';
+import 'package:rewild/presentation/single_search_words_screen/single_search_words_view_model.dart';
 
 // Api key
 abstract class KeywordsServiceApiKeyDataProvider {
@@ -21,6 +21,8 @@ abstract class KeywordsServiceAdvertApiClient {
       String token, int campaignId);
   Future<Resource<bool>> setAutoSetExcluded(
       String token, int campaignId, List<String> excludedKw);
+  Future<Resource<bool>> setSearchExcludedKeywords(
+      String token, int campaignId, List<String> excludedKeywords);
 }
 
 // data provider
@@ -54,11 +56,6 @@ class KeywordsService
       return Resource.empty();
     }
 
-    // request to API
-    // if (autoExcludedLastReq != null) {
-    //   await ApiDurationConstants.ready(autoExcludedLastReq,
-    //       ApiDurationConstants.autoSetExcludedDurationBetweenReqInMs);
-    // }
     final wbApi = WbApiHelper.autoSetExcludedKeywords;
     await wbApi.waitForNextRequest();
     final autoExcludedResource = await advertApiClient.setAutoSetExcluded(
@@ -167,6 +164,36 @@ class KeywordsService
     final newAutoStat = autoStat.copyWith(keywords: newKeywords);
 
     return Resource.success(newAutoStat);
+  }
+
+  // search
+  @override
+  Future<Resource<bool>> setSearchExcluded(
+      int campaignId, List<String> excluded) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(),
+          name: 'setAutoExcluded',
+          args: [campaignId, excluded]);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+
+    final wbApi = WbApiHelper.searchSetExcludedKeywords;
+    await wbApi.waitForNextRequest();
+    final searchExcludedResource =
+        await advertApiClient.setSearchExcludedKeywords(
+            tokenResource.data!.token, campaignId, excluded);
+
+    if (searchExcludedResource is Error) {
+      return Resource.error(searchExcludedResource.message!,
+          source: runtimeType.toString(),
+          name: 'setAutoExcluded',
+          args: [campaignId, excluded]);
+    }
+    return Resource.success(searchExcludedResource.data!);
   }
 
   @override

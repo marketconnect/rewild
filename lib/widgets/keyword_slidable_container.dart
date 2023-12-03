@@ -170,8 +170,7 @@ class _ContainerWithStat extends StatelessWidget {
                     ),
                     _DetailsContainer(
                         title: "Стоимость клика:", value: "${stat.cpc}₽"),
-                    _DetailsContainer(
-                        title: "Показов:", value: "${stat.views}"),
+                    _DetailsContainer(title: "Частота:", value: "${stat.frq}"),
                     _DetailsContainer(
                         title: "Потрачено:",
                         value: '${stat.sum.toStringAsFixed(2)}₽'),
@@ -216,90 +215,6 @@ class _ContainerWithStat extends StatelessWidget {
         ],
       ),
     );
-    // return Container(
-    //   height: screenHeight * 0.2,
-    //   decoration: BoxDecoration(
-    //       border: Border(
-    //           bottom: BorderSide(
-    //     color: Theme.of(context).colorScheme.surfaceVariant,
-    //   ))),
-    //   child: Column(
-    //     children: [
-    //       Row(
-    //         children: [
-    //           if (displayedContent.qty != null)
-    //             Container(
-    //               width: MediaQuery.of(context).size.width * 0.02,
-    //               color: Theme.of(context).colorScheme.secondaryContainer,
-    //             ),
-    //           SizedBox(
-    //             width: MediaQuery.of(context).size.width * 0.02,
-    //           ),
-    //           Expanded(
-    //             flex: displayedContent.qty != null ? 7 : 9,
-    //             child: AutoSizeText(
-    //               displayedContent.word,
-    //               maxLines: 4,
-    //             ),
-    //           ),
-    //           Expanded(flex: 1, child: Container()),
-    //           if (displayedContent.qty != null)
-    //             Expanded(
-    //               flex: 2,
-    //               child: AutoSizeText('${displayedContent.qty}'),
-    //             ),
-    //           if (displayedContent.qty == null)
-    //             Container(
-    //               width: MediaQuery.of(context).size.width * 0.02,
-    //               color: Theme.of(context).colorScheme.secondaryContainer,
-    //             ),
-    //         ],
-    //       ),
-    //       SizedBox(
-    //         height: screenHeight * 0.1,
-    //         // width: ,
-    //         child: Column(
-    //           children: [
-    //             Row(children: [
-    //               AutoSizeText(
-    //                 'Показы: ${stat.views}',
-    //                 style: TextStyle(
-    //                     fontSize: MediaQuery.of(context).size.width * 0.01),
-    //               ),
-    //               AutoSizeText(
-    //                 'CPC: ${stat.cpc}',
-    //                 style: TextStyle(
-    //                     fontSize: MediaQuery.of(context).size.width * 0.01),
-    //               ),
-    //               AutoSizeText(
-    //                 'Частота: ${stat.frq}',
-    //                 style: TextStyle(
-    //                     fontSize: MediaQuery.of(context).size.width * 0.01),
-    //               ),
-    //             ]),
-    //             Row(children: [
-    //               AutoSizeText(
-    //                 'Клики: ${stat.clicks}',
-    //                 style: TextStyle(
-    //                     fontSize: MediaQuery.of(context).size.width * 0.01),
-    //               ),
-    //               AutoSizeText(
-    //                 'Затраты: ${stat.sum}',
-    //                 style: TextStyle(
-    //                     fontSize: MediaQuery.of(context).size.width * 0.01),
-    //               ),
-    //               AutoSizeText(
-    //                 'CTR: ${stat.ctr}',
-    //                 style: TextStyle(
-    //                     fontSize: MediaQuery.of(context).size.width * 0.01),
-    //               ),
-    //             ]),
-    //           ],
-    //         ),
-    //       )
-    //     ],
-    //   ),
-    // );
   }
 }
 

@@ -13,6 +13,7 @@ import 'package:rewild/domain/entities/supply_model.dart';
 
 import 'package:rewild/domain/entities/warehouse.dart';
 import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_screen_view_model.dart';
+import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
@@ -73,7 +74,7 @@ class CardOfProductService
         MainNavigationCardService,
         AllAdvertsStatScreenCardOfProductService,
         AllCardsScreenCardOfProductService,
-        // AllSellersCardsOfProductService,
+        AllAdvertsWordsScreenCardOfProductService,
         SingleGroupScreenViewModelCardsService {
   final CardOfProductServiceWarehouseDataProvider warehouseDataprovider;
   final CardOfProductServiceStockDataProvider stockDataprovider;

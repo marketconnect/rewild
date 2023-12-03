@@ -27,7 +27,8 @@ class AdvertApiClient
         KeywordsServiceAdvertApiClient {
   const AdvertApiClient();
 
-  Future<Resource<List<String>>> setSearchExcludedKeywords(
+  @override
+  Future<Resource<bool>> setSearchExcludedKeywords(
       String token, int campaignId, List<String> excludedKeywords) async {
     try {
       final params = {'id': campaignId.toString()};
@@ -41,9 +42,7 @@ class AdvertApiClient
           headers: wbApi.headers(token), body: jsonString);
 
       if (response.statusCode == 200) {
-        final List<String> responseList =
-            List<String>.from(json.decode(response.body));
-        return Resource.success(responseList);
+        return Resource.success(true);
       } else {
         final errString = wbApi.errResponse(
           statusCode: response.statusCode,
@@ -162,7 +161,6 @@ class AdvertApiClient
     }
   }
 
-  // max 10 requests per minute
   @override
   Future<Resource<bool>> setAutoSetExcluded(
       String token, int campaignId, List<String> excludedKw) async {
@@ -173,9 +171,6 @@ class AdvertApiClient
       };
 
       final jsonString = json.encode(body);
-
-      // final uri =
-      //     Uri.https('advert-api.wb.ru', "/adv/v1/auto/set-excluded", params);
 
       final wbApi = WbApiHelper.autoSetExcludedKeywords;
 
@@ -354,7 +349,7 @@ class AdvertApiClient
   }
 
   @override
-  Future<Resource<List<int>>> count(String token) async {
+  Future<Resource<Map<int, List<int>>>> count(String token) async {
     try {
       final wbApi = WbApiHelper.getCampaigns;
 
@@ -368,11 +363,13 @@ class AdvertApiClient
 
         final adverts = stats['adverts'];
         if (adverts == null) {
-          return Resource.success([]);
+          return Resource.success({});
         }
-        List<int> ids = [];
+        Map<int, List<int>> typeIds = {};
         for (final advert in adverts) {
+          List<int> ids = [];
           final advertList = advert['advert_list'];
+          final type = advert['type'];
           if (advertList == null) {
             continue;
           }
@@ -383,8 +380,14 @@ class AdvertApiClient
             }
             ids.add(id);
           }
+          if (typeIds.containsKey(type)) {
+            typeIds[type]!.addAll(ids);
+          } else {
+            typeIds[type] = ids;
+          }
         }
-        return Resource.success(ids);
+
+        return Resource.success(typeIds);
       } else {
         final errString = wbApi.errResponse(
           statusCode: response.statusCode,

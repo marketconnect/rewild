@@ -33,6 +33,8 @@ class App extends StatefulWidget {
 
 // This widget is the root of the application.
 class _AppState extends State<App> with WidgetsBindingObserver {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -57,24 +59,25 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         debugPrint("app in resumed");
         final resource = await widget.appMessagesService.isNotEmpty();
         if (resource is Success && resource.data!) {
-          if (context.mounted) {
-            Navigator.of(context).pushNamed(
+          if (navigatorKey.currentContext != null &&
+              navigatorKey.currentContext!.mounted) {
+            Navigator.of(navigatorKey.currentContext!).pushNamed(
                 MainNavigationRouteNames.backgroundNotificationsScreen);
           }
         }
-
         break;
+
       case AppLifecycleState.inactive:
         debugPrint("app in inactive");
-        // mountedCallback!(false);
+
         break;
       case AppLifecycleState.paused:
         debugPrint("app in paused");
-        // mountedCallback!(false);
+
         break;
       case AppLifecycleState.detached:
         debugPrint("app in detached");
-        // mountedCallback!(false);
+
         break;
       default:
         break;
@@ -88,6 +91,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: lightColorScheme,

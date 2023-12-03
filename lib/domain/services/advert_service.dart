@@ -8,18 +8,18 @@ import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:rewild/domain/entities/stream_advert_event.dart';
-import 'package:rewild/presentation/all_adverts_tools_screen/all_adverts_tools_view_model.dart';
+import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_view_model.dart';
 
 import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_screen_view_model.dart';
 
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
-import 'package:rewild/presentation/single_search_words_screen%20copy/single_search_words_view_model.dart';
+import 'package:rewild/presentation/single_search_words_screen/single_search_words_view_model.dart';
 
 // API
 abstract class AdvertServiceAdvertApiClient {
-  Future<Resource<List<int>>> count(String token);
+  Future<Resource<Map<int, List<int>>>> count(String token);
   Future<Resource<List<AdvertInfoModel>>> getAdverts(
       String token, List<int> ids);
   Future<Resource<Advert>> getCampaignInfo(String token, int id);
@@ -42,7 +42,7 @@ class AdvertService
     implements
         AllAdvertsStatScreenAdvertService,
         SingleAdvertStatsViewModelAdvertService,
-        AllAdvertsToolsAdvertService,
+        AllAdvertsWordsAdvertService,
         SingleAutoWordsAdvertService,
         SingleSearchWordsAdvertService,
         MainNavigationAdvertService {
@@ -124,22 +124,30 @@ class AdvertService
     return budgetResource;
   }
 
-  Future<Resource<List<AdvertInfoModel>>> _getAdverts(String token) async {
-    // request to API
-    // if (getCampaignsLastReq != null) {
-    //   const wbApi = WbApiHelper.getCampaigns;
-    //   await wbApi.ready(getCampaignInfoLastReq);
-    // }
-
+  Future<Resource<List<AdvertInfoModel>>> _getAdverts(String token,
+      [List<int>? types]) async {
+    // get all adverts Ids
     final allAdvertsIdsResource = await advertApiClient.count(token);
     if (allAdvertsIdsResource is Error) {
       return Resource.error(allAdvertsIdsResource.message!,
           source: runtimeType.toString(), name: "getAllAdverts", args: []);
     }
+
+    List<int> ids = [];
+    final allAdvertsIdsMap = allAdvertsIdsResource.data!;
+    if (types != null) {
+      for (var type in allAdvertsIdsMap.keys) {
+        if (types.contains(type)) {
+          ids.addAll(allAdvertsIdsMap[type]!);
+        }
+      }
+    } else {
+      ids = allAdvertsIdsMap.values.expand((element) => element).toList();
+    }
+
     final wbApi = WbApiHelper.getCampaigns;
     await wbApi.waitForNextRequest();
-    final advertsResource =
-        await advertApiClient.getAdverts(token, allAdvertsIdsResource.data!);
+    final advertsResource = await advertApiClient.getAdverts(token, ids);
 
     if (advertsResource is Error) {
       return Resource.error(advertsResource.message!,
@@ -269,50 +277,48 @@ class AdvertService
     return Resource.success(changeCpmResource.data!);
   }
 
-  @override
-  Future<Resource<List<AdvertInfoModel>>> getByType([int? type]) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
-    if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!,
-          source: runtimeType.toString(), name: "getByType", args: [type]);
-    }
-    if (tokenResource is Empty) {
-      return Resource.error("Токен не сохранен",
-          source: runtimeType.toString(), name: "getByType", args: []);
-    }
+  // @override
+  // Future<Resource<List<AdvertInfoModel>>> getByTypes(List<int> types) async {
+  //   final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+  //   if (tokenResource is Error) {
+  //     return Resource.error(tokenResource.message!,
+  //         source: runtimeType.toString(), name: "getByType", args: [types]);
+  //   }
+  //   if (tokenResource is Empty) {
+  //     return Resource.error("Токен не сохранен",
+  //         source: runtimeType.toString(), name: "getByType", args: []);
+  //   }
 
-    // request to API
-    final advertsResource = await _getAdverts(tokenResource.data!.token);
+  //   // request to API
+  //   final advertsResource = await _getAdverts(tokenResource.data!.token, types);
 
-    if (advertsResource is Error) {
-      return Resource.error(advertsResource.message!,
-          source: runtimeType.toString(), name: "getAllAdverts", args: []);
-    }
+  //   if (advertsResource is Error) {
+  //     return Resource.error(advertsResource.message!,
+  //         source: runtimeType.toString(), name: "getAllAdverts", args: []);
+  //   }
 
-    if (advertsResource is Error) {
-      return Resource.error(advertsResource.message!,
-          source: runtimeType.toString(), name: "getByType", args: [type]);
-    }
+  //   if (advertsResource is Error) {
+  //     return Resource.error(advertsResource.message!,
+  //         source: runtimeType.toString(), name: "getByType", args: [types]);
+  //   }
 
-    List<AdvertInfoModel> res = [];
-    if (advertsResource is Empty) {
-      return Resource.success(res);
-    }
+  //   List<AdvertInfoModel> res = [];
+  //   if (advertsResource is Empty) {
+  //     return Resource.success(res);
+  //   }
 
-    for (final advert in advertsResource.data!) {
-      if (advert.status == 7 || advert.status == 8) {
-        continue;
-      }
-      if (type != null && advert.type != type) {
-        continue;
-      }
-      res.add(advert);
-    }
-    return Resource.success(res);
-  }
+  //   for (final advert in advertsResource.data!) {
+  //     if (advert.status == 7 || advert.status == 8) {
+  //       continue;
+  //     }
+
+  //     res.add(advert);
+  //   }
+  //   return Resource.success(res);
+  // }
 
   @override
-  Future<Resource<List<Advert>>> getAll() async {
+  Future<Resource<List<Advert>>> getAll([List<int>? types]) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
@@ -323,7 +329,7 @@ class AdvertService
     }
 
     // request to API
-    final advertsResource = await _getAdverts(tokenResource.data!.token);
+    final advertsResource = await _getAdverts(tokenResource.data!.token, types);
 
     if (advertsResource is Error) {
       return Resource.error(advertsResource.message!,

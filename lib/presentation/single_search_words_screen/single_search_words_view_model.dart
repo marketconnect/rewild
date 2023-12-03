@@ -6,6 +6,8 @@ import 'package:rewild/domain/entities/search_campaign_stat.dart';
 
 abstract class SingleSearchWordsKeywordService {
   Future<Resource<SearchCampaignStat>> getSearchCampaignStat(int campaignId);
+  Future<Resource<bool>> setSearchExcluded(
+      int campaignId, List<String> excluded);
 }
 
 abstract class SingleSearchWordsAdvertService {
@@ -120,7 +122,7 @@ class SingleSearchWordsViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> save() async {
-    // await fetch(() => advertService.setAutoExcluded(campaignId, _excluded));
+    await fetch(() => keywordService.setSearchExcluded(campaignId, _excluded));
   }
 
   // Search functionality
