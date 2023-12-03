@@ -136,6 +136,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       canPop: true,
       onPopInvoked: (didPop) async {
         // Do something here
+        print("mainNavigation onPopInvoked didPop: $didPop");
+
         SystemNavigator.pop();
       },
       child: SafeArea(

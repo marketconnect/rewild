@@ -81,6 +81,7 @@ class BackgroundService {
 
   // update all every n minutes
   static fetchAll() async {
+    print("fetchAll");
     // since the token does not uses for card of products details request
     // make it nullable
     String? token;
@@ -110,6 +111,7 @@ class BackgroundService {
     // save all fetched adverts
     if (advertResource is Success) {
       for (final advert in advertResource.data!) {
+        print('save ${advert.campaignId} --- ${advert.spend}');
         await AdvertStatDataProvider.saveInBackground(advert);
       }
     }
@@ -267,6 +269,7 @@ class BackgroundService {
 
   static Future<Resource<List<AdvertStatModel>>> fetchAdverts(
       String? token) async {
+    print("fetchAdverts");
     if (token == null) {
       return Resource.empty();
     }
