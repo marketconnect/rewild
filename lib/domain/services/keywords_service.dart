@@ -1,5 +1,5 @@
-import 'package:rewild/core/utils/api_duration_constants.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/wb_api_helper.dart';
 
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/auto_campaign_stat.dart';
@@ -40,8 +40,6 @@ class KeywordsService
     required this.keywordsDataProvider,
   });
 
-  DateTime? autoExcludedLastReq;
-
   @override
   Future<Resource<bool>> setAutoExcluded(
       int campaignId, List<String> excluded) async {
@@ -57,14 +55,15 @@ class KeywordsService
     }
 
     // request to API
-    if (autoExcludedLastReq != null) {
-      await ApiDurationConstants.ready(autoExcludedLastReq,
-          ApiDurationConstants.autoSetExcludedDurationBetweenReqInMs);
-    }
-
+    // if (autoExcludedLastReq != null) {
+    //   await ApiDurationConstants.ready(autoExcludedLastReq,
+    //       ApiDurationConstants.autoSetExcludedDurationBetweenReqInMs);
+    // }
+    final wbApi = WbApiHelper.autoSetExcludedKeywords;
+    await wbApi.waitForNextRequest();
     final autoExcludedResource = await advertApiClient.setAutoSetExcluded(
         tokenResource.data!.token, campaignId, excluded);
-    autoExcludedLastReq = DateTime.now();
+
     if (autoExcludedResource is Error) {
       return Resource.error(autoExcludedResource.message!,
           source: runtimeType.toString(),

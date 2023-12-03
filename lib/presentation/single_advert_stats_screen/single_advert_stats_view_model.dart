@@ -350,9 +350,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
       {required String value,
       required int option,
       required int option1}) async {
-    print(value);
     final cpm = int.tryParse(value) ?? 0;
-    print('cpm: $cpm instrument: $option1, option: $option');
     if (_cpm == null || _advType == null) {
       return;
     }

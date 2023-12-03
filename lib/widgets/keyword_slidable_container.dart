@@ -60,7 +60,6 @@ class SlidableContainer extends StatelessWidget {
 
 class _Container extends StatelessWidget {
   const _Container({
-    super.key,
     required this.screenHeight,
     required this.displayedContent,
   });

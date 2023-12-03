@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:rewild/core/utils/api_duration_constants.dart';
 import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/wb_api_helper.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 
 import 'package:rewild/domain/entities/advert_model.dart';
@@ -22,7 +22,7 @@ abstract class AdvertServiceAdvertApiClient {
   Future<Resource<List<int>>> count(String token);
   Future<Resource<List<AdvertInfoModel>>> getAdverts(
       String token, List<int> ids);
-  Future<Resource<Advert>> getAdvertInfo(String token, int id);
+  Future<Resource<Advert>> getCampaignInfo(String token, int id);
   Future<Resource<int>> getCompanyBudget(String token, int campaignId);
   Future<Resource<int>> balance(String token);
   Future<Resource<AdvertStatModel>> getAutoStat(String token, int campaignId);
@@ -68,14 +68,6 @@ class AdvertService
     return Resource.success(true);
   }
 
-  DateTime? advertsLastReq;
-  DateTime? changeCpmLastReq;
-  DateTime? advertLastReq;
-  DateTime? budgetLastReq;
-  DateTime? pauseLastReq;
-  DateTime? startLastReq;
-  DateTime? balanceLastReq;
-
   @override
   Future<Resource<int>> getBallance() async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
@@ -87,13 +79,13 @@ class AdvertService
       return Resource.empty();
     }
 
-    if (balanceLastReq != null) {
-      await ApiDurationConstants.ready(
-          balanceLastReq, ApiDurationConstants.balanceDurationBetweenReqInMs);
-    }
+    // wait
+    final wbApi = WbApiHelper.getBalance;
+    await wbApi.waitForNextRequest();
+
     final balanceResource =
         await advertApiClient.balance(tokenResource.data!.token);
-    balanceLastReq = DateTime.now();
+
     if (balanceResource is Error) {
       return Resource.error(balanceResource.message!,
           source: runtimeType.toString(), name: "getBallance", args: []);
@@ -116,14 +108,12 @@ class AdvertService
 
     // request to API
 
-    if (budgetLastReq != null) {
-      await ApiDurationConstants.ready(
-          budgetLastReq, ApiDurationConstants.budgetDurationBetweenReqInMs);
-    }
+    final wbApi = WbApiHelper.getCompanyBudget;
+
+    await wbApi.waitForNextRequest();
 
     final budgetResource = await advertApiClient.getCompanyBudget(
         tokenResource.data!.token, campaignId);
-    budgetLastReq = DateTime.now();
 
     if (budgetResource is Error) {
       return Resource.error(budgetResource.message!,
@@ -136,20 +126,20 @@ class AdvertService
 
   Future<Resource<List<AdvertInfoModel>>> _getAdverts(String token) async {
     // request to API
-    if (advertsLastReq != null) {
-      await ApiDurationConstants.ready(
-          advertsLastReq, ApiDurationConstants.advertsDurationBetweenReqInMs);
-    }
+    // if (getCampaignsLastReq != null) {
+    //   const wbApi = WbApiHelper.getCampaigns;
+    //   await wbApi.ready(getCampaignInfoLastReq);
+    // }
 
     final allAdvertsIdsResource = await advertApiClient.count(token);
     if (allAdvertsIdsResource is Error) {
       return Resource.error(allAdvertsIdsResource.message!,
           source: runtimeType.toString(), name: "getAllAdverts", args: []);
     }
-
+    final wbApi = WbApiHelper.getCampaigns;
+    await wbApi.waitForNextRequest();
     final advertsResource =
         await advertApiClient.getAdverts(token, allAdvertsIdsResource.data!);
-    advertsLastReq = DateTime.now();
 
     if (advertsResource is Error) {
       return Resource.error(advertsResource.message!,
@@ -192,20 +182,22 @@ class AdvertService
       }
 
       // requst to API
-      if (advertLastReq != null) {
-        await ApiDurationConstants.ready(
-            advertLastReq, ApiDurationConstants.advertDurationBetweenReqInMs);
-      }
-
-      final advInfoResource = await advertApiClient.getAdvertInfo(
+      // if (getCampaignInfoLastReq != null) {
+      //   const wbApi = WbApiHelper.getCampaignInfo;
+      //   await wbApi.ready(
+      //     getCampaignInfoLastReq,
+      //   );
+      // }
+      final wbApi = WbApiHelper.getCampaignInfo;
+      await wbApi.waitForNextRequest();
+      final campaignInfoResource = await advertApiClient.getCampaignInfo(
           tokenResource.data!.token, advert.campaignId);
-      advertLastReq = DateTime.now();
 
-      if (advInfoResource is Error) {
-        return Resource.error(advInfoResource.message!,
+      if (campaignInfoResource is Error) {
+        return Resource.error(campaignInfoResource.message!,
             source: runtimeType.toString(), name: "getAllAdverts", args: []);
       }
-      res.add(advInfoResource.data!);
+      res.add(campaignInfoResource.data!);
     }
 
     return Resource.success(res);
@@ -222,9 +214,12 @@ class AdvertService
     }
 
     // request
-    final advInfoResource = await advertApiClient.getAdvertInfo(
+    final wbApi = WbApiHelper.getCampaignInfo;
+
+    await wbApi.waitForNextRequest();
+    final advInfoResource = await advertApiClient.getCampaignInfo(
         tokenResource.data!.token, campaignId);
-    advertLastReq = DateTime.now();
+
     if (advInfoResource is Error) {
       return Resource.error(advInfoResource.message!,
           source: runtimeType.toString(),
@@ -254,13 +249,15 @@ class AdvertService
     }
 
     // request to API
-    if (changeCpmLastReq != null) {
-      await ApiDurationConstants.ready(
-          changeCpmLastReq, ApiDurationConstants.cpmDurationBetweenReqInMs);
-    }
+    // if (setCpmLastReq != null) {
+    //   const wbApi = WbApiHelper.setCpm;
+    //   await wbApi.ready(setCpmLastReq);
+    // }
+    final wbApi = WbApiHelper.setCpm;
+    await wbApi.waitForNextRequest();
     final changeCpmResource = await advertApiClient.changeCpm(
         tokenResource.data!.token, campaignId, type, cpm, param, instrument);
-    changeCpmLastReq = DateTime.now();
+    // setCpmLastReq = DateTime.now();
     if (changeCpmResource is Error) {
       return Resource.error(changeCpmResource.message!,
           source: runtimeType.toString(),
@@ -326,7 +323,6 @@ class AdvertService
     }
 
     // request to API
-
     final advertsResource = await _getAdverts(tokenResource.data!.token);
 
     if (advertsResource is Error) {
@@ -342,14 +338,17 @@ class AdvertService
       if (advert.status == 7 || advert.status == 8) {
         continue;
       }
-
-      await ApiDurationConstants.ready(
-          advertLastReq, ApiDurationConstants.advertDurationBetweenReqInMs);
+      // const wbApi = WbApiHelper.getCampaignInfo;
+      // await wbApi.ready(
+      //   getCampaignInfoLastReq,
+      // );
 
       // request
-      final advInfoResource = await advertApiClient.getAdvertInfo(
+      final wbApi = WbApiHelper.getCampaignInfo;
+      await wbApi.waitForNextRequest();
+      final advInfoResource = await advertApiClient.getCampaignInfo(
           tokenResource.data!.token, advert.campaignId);
-      advertLastReq = DateTime.now();
+
       if (advInfoResource is Error) {
         return Resource.error(advInfoResource.message!,
             source: runtimeType.toString(), name: "getAll", args: []);
@@ -362,10 +361,11 @@ class AdvertService
 
   @override
   Future<Resource<bool>> startAdvert(int campaignId) async {
+    final wbApiStart = WbApiHelper.startCampaign;
+
     final tokenResource = await _tryChangeAdvertStatus(
       campaignId,
-      pauseLastReq,
-      ApiDurationConstants.startDurationBetweenReqInMs,
+      wbApiStart,
       advertApiClient.startAdvert,
     );
     if (tokenResource is Error) {
@@ -377,10 +377,12 @@ class AdvertService
     if (tokenResource is Empty) {
       return Resource.success(false);
     }
-    await ApiDurationConstants.ready(
-        advertLastReq, ApiDurationConstants.advertDurationBetweenReqInMs);
+
+    final wbApiInfo = WbApiHelper.getCampaignInfo;
+
+    await wbApiInfo.waitForNextRequest();
     final advertInfoResource =
-        await advertApiClient.getAdvertInfo(tokenResource.data!, campaignId);
+        await advertApiClient.getCampaignInfo(tokenResource.data!, campaignId);
     if (advertInfoResource is Error) {
       return Resource.error(advertInfoResource.message!,
           source: runtimeType.toString(),
@@ -400,19 +402,23 @@ class AdvertService
 
   @override
   Future<Resource<bool>> stopAdvert(int campaignId) async {
+    final wbApiPause = WbApiHelper.pauseCampaign;
     final tokenResource = await _tryChangeAdvertStatus(
       campaignId,
-      pauseLastReq,
-      ApiDurationConstants.pauseDurationBetweenReqInMs,
+      wbApiPause,
       advertApiClient.pauseAdvert,
     );
     if (tokenResource is Empty) {
       return Resource.success(false);
     }
-    await ApiDurationConstants.ready(
-        advertLastReq, ApiDurationConstants.advertDurationBetweenReqInMs);
+    // const wbApiInfo = WbApiHelper.getCampaignInfo;
+    // await wbApiInfo.ready(
+    //   getCampaignInfoLastReq,
+    // );
+    final wbApi = WbApiHelper.getCampaignInfo;
+    await wbApi.waitForNextRequest();
     final advertInfoResource =
-        await advertApiClient.getAdvertInfo(tokenResource.data!, campaignId);
+        await advertApiClient.getCampaignInfo(tokenResource.data!, campaignId);
     if (advertInfoResource is Error) {
       return Resource.error(advertInfoResource.message!,
           source: runtimeType.toString(),
@@ -432,15 +438,16 @@ class AdvertService
 
   Future<Resource<String>> _tryChangeAdvertStatus(
       int campaignId,
-      DateTime? lastReqTime,
-      Duration duration,
+      ApiConstants wbApi,
       Future<Resource<bool>> Function(String, int) func) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
           source: runtimeType.toString(),
           name: "stopAdvert",
-          args: [campaignId, lastReqTime, duration]);
+          args: [
+            campaignId,
+          ]);
     }
     if (tokenResource is Empty) {
       return Resource.empty();
@@ -451,16 +458,22 @@ class AdvertService
       if (cont >= 20) {
         break;
       }
-      if (lastReqTime != null) {
-        await ApiDurationConstants.ready(lastReqTime, duration);
-      }
+      // if (lastReqTime != null) {
+      //   // TODO pause and start can have different durations
+      //   const wbApi = WbApiHelper.startCampaign;
+      //   await wbApi.ready(lastReqTime);
+      // }
+
+      await wbApi.waitForNextRequest();
       final resource = await func(tokenResource.data!.token, campaignId);
-      lastReqTime = DateTime.now();
+
       if (resource is Error) {
         return Resource.error(resource.message!,
             source: runtimeType.toString(),
             name: "stopAdvert",
-            args: [campaignId, lastReqTime, duration]);
+            args: [
+              campaignId,
+            ]);
       }
       done = resource.data!;
       cont++;

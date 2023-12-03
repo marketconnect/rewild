@@ -4,7 +4,8 @@ import 'package:rewild/widgets/keyword_slidable_container.dart';
 
 class TabBody extends StatelessWidget {
   const TabBody(
-      {required this.content,
+      {super.key,
+      required this.content,
       this.isExcluded = false,
       required this.moveToExcluded,
       required this.moveToKeywords,

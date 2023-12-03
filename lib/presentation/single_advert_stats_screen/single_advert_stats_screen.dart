@@ -62,13 +62,15 @@ class _SingleAdvertStatsScreenState extends State<SingleAdvertStatsScreen> {
               Theme.of(context).colorScheme.surface.withOpacity(0.97),
           appBar: AppBar(
             centerTitle: true,
-            title: Text(title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1f1f1f),
-                ),
-                textScaleFactor: 1),
+            title: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1f1f1f),
+              ),
+              // textScaleFactor: 1
+            ),
             scrolledUnderElevation: 2,
             shadowColor: Colors.black,
             surfaceTintColor: Colors.transparent,

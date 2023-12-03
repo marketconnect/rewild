@@ -21,13 +21,15 @@ class AllGroupsScreen extends StatelessWidget {
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(
-                title: const Text('Группы',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1f1f1f),
-                    ),
-                    textScaleFactor: 1),
+                title: const Text(
+                  'Группы',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1f1f1f),
+                  ),
+                  // textScaler: TextScaler()
+                ),
                 scrolledUnderElevation: 2,
                 shadowColor: Colors.black,
                 surfaceTintColor: Colors.transparent),

@@ -146,7 +146,7 @@ class SingleSearchWordsScreen extends StatelessWidget {
                         Stat? s;
                         final ss = stat
                             .where((element) => element.keyword == e.keyword);
-                        if (ss.length > 0) {
+                        if (ss.isNotEmpty) {
                           s = ss.first;
                         }
                         return CardContent(

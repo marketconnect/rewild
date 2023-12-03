@@ -34,13 +34,15 @@ class BackgroundMessagesScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: const Text('Уведомления',
-              style: TextStyle(
-                fontSize: 23,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1f1f1f),
-              ),
-              textScaleFactor: 1),
+          title: const Text(
+            'Уведомления',
+            style: TextStyle(
+              fontSize: 23,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1f1f1f),
+            ),
+            // textScaleFactor: 1
+          ),
           actions: [
             IconButton(
               onPressed: () => Navigator.of(context).pop(),
