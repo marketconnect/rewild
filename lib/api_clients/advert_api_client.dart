@@ -651,7 +651,6 @@ class AdvertApiClient
     try {
       final params = {'id': campaignId.toString()};
 
-      // final uri = Uri.https('advert-api.wb.ru', "/adv/v1/fullstat", params);
       final wbApi = WbAdvertApiHelper.getFullStat;
 
       final response = await wbApi.get(
@@ -660,7 +659,7 @@ class AdvertApiClient
       );
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
-
+        // print(' params: $params response.body: ${response.body}');
         return Resource.success(AdvertStatModel.fromJson(stats, campaignId));
       } else {
         final errString = wbApi.errResponse(

@@ -43,6 +43,7 @@ class ApiConstants {
           (60 * 1000 / requestLimitPerMinute).round() - elapsedMilliseconds;
 
       if (timeToWait > 0) {
+        print("waiting $timeToWait");
         await Future.delayed(Duration(milliseconds: timeToWait));
       }
     }
@@ -54,6 +55,7 @@ class ApiConstants {
     await _waitForNextRequest();
     final uri = _buildUri(params);
     final resp = await http.get(uri, headers: headers(token));
+    // print('get ${_buildUri(params)} headers: ${headers(token)}');
 
     lastReq = DateTime.now();
 
@@ -70,6 +72,22 @@ class ApiConstants {
 
     final resp =
         await http.post(uri, headers: headers(token), body: jsonString);
+
+    lastReq = DateTime.now();
+
+    return resp;
+  }
+
+  Future<http.Response> patch(String token, dynamic body,
+      [Map<String, String>? params]) async {
+    params ??= {};
+    await _waitForNextRequest();
+    final uri = _buildUri(params);
+
+    final jsonString = json.encode(body);
+
+    final resp =
+        await http.patch(uri, headers: headers(token), body: jsonString);
 
     lastReq = DateTime.now();
 

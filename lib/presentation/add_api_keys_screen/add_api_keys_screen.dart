@@ -22,12 +22,16 @@ class _AddApiKeysScreenState extends State<AddApiKeysScreen> {
     final apiKeys = model.apiKeys;
     final add = model.add;
     final types = model.types;
+    final addedTypes = model.addedTypes;
     final typesNum = types.length;
     final loading = model.loading;
     final select = model.select;
     final delete = model.delete;
     final selectionInProgress =
         apiKeys.where((apiKey) => apiKey.isSelected).isNotEmpty;
+
+    final emptyTypes =
+        types.where((type) => !addedTypes.contains(type)).toList();
 
     return SafeArea(
         child: Scaffold(
@@ -64,7 +68,7 @@ class _AddApiKeysScreenState extends State<AddApiKeysScreen> {
               await delete();
               return;
             }
-            _showModalBottomSheet(context, types, add)
+            _showModalBottomSheet(context, emptyTypes, add)
                 .whenComplete(() => _textEditingController.clear());
           },
           backgroundColor: Theme.of(context).colorScheme.primary,

@@ -30,6 +30,14 @@ class AddApiKeysScreenViewModel extends ResourceChangeNotifier {
 
   final List<String> _types = StringConstants.apiKeyTypes;
   List<String> get types => _types;
+
+  List<String> _addedTypes = [];
+  void setAddedTypes(List<String> addedTypes) {
+    _addedTypes = addedTypes;
+  }
+
+  List<String> get addedTypes => _addedTypes;
+
   void _asyncInit() async {
     final fetchedApiKeys = await fetch(() => apiKeysService.getAll(_types));
     if (fetchedApiKeys == null) {
@@ -37,6 +45,10 @@ class AddApiKeysScreenViewModel extends ResourceChangeNotifier {
     }
 
     setApiKeys(fetchedApiKeys);
+    _addedTypes.clear();
+    for (final apiKey in fetchedApiKeys) {
+      _addedTypes.add(apiKey.type);
+    }
   }
 
   Future<void> add(String key, String type) async {

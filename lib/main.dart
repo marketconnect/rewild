@@ -110,7 +110,3 @@ class MyHttpOverrides extends HttpOverrides {
           (X509Certificate cert, String host, int port) => true;
   }
 }
-
-
- // calculate stocks
-  //  

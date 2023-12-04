@@ -41,7 +41,8 @@ class WbAdvertApiHelper {
   static ApiConstants getCompanyBudget = ApiConstants(
     host: host,
     url: '/adv/v1/budget',
-    requestLimitPerMinute: 240, // 240 per minute
+    requestLimitPerMinute:
+        200, // 240 per minute, but it's not enough in practice
     statusCodeDescriptions: {
       400: 'кампания не принадлежит продавцу',
       401: 'Пустой авторизационный заголовок',

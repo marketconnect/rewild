@@ -282,11 +282,14 @@ class BackgroundService {
     }
     final allAdverts = advertResource.data!;
     // TODO
+    print("allAdverts.length = ${allAdverts.length}");
     for (final advertInfo in allAdverts) {
+      print('try = ${advertInfo.campaignId}');
       if (advertInfo.status != AdvertStatusConstants.active &&
           advertInfo.status != AdvertStatusConstants.paused) {
         continue;
       }
+      print('good = ${advertInfo.campaignId}');
       switch (advertInfo.type) {
         case AdvertTypeConstants.auto:
           final advertStat = await _fetchAutoAdvertStat(token, advertInfo);
@@ -312,12 +315,12 @@ class BackgroundService {
             fetchedAdverts.add(advertStat.data!);
           }
           break;
-        case AdvertTypeConstants.inRecomendation:
-          final advertStat = await _fetchFullAdvertStat(token, advertInfo);
-          if (advertStat is Success) {
-            fetchedAdverts.add(advertStat.data!);
-          }
-          break;
+        // case AdvertTypeConstants.inRecomendation:
+        //   final advertStat = await _fetchFullAdvertStat(token, advertInfo);
+        //   if (advertStat is Success) {
+        //     fetchedAdverts.add(advertStat.data!);
+        //   }
+        //   break;
         case AdvertTypeConstants.searchPlusCatalog:
           final advertStat = await _fetchFullAdvertStat(token, advertInfo);
           if (advertStat is Success) {
