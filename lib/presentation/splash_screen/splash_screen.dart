@@ -25,9 +25,6 @@ class SplashScreen extends StatelessWidget {
     return PopScope(
       canPop: true,
       onPopInvoked: (didPop) async {
-        // Do something here
-        print("mainNavigation onPopInvoked didPop: $didPop");
-
         SystemNavigator.pop();
       },
       child: SafeArea(

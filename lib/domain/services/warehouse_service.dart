@@ -1,6 +1,7 @@
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/warehouse.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
+import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 
 abstract class WarehouseServiceWarehouseProvider {
   Future<Resource<bool>> update(List<Warehouse> warehouses);
@@ -11,7 +12,10 @@ abstract class WarehouseServiceWerehouseApiClient {
   Future<Resource<List<Warehouse>>> getAll();
 }
 
-class WarehouseService implements SingleCardScreenWarehouseService {
+class WarehouseService
+    implements
+        SingleCardScreenWarehouseService,
+        SingleGroupScreenWarehouseService {
   final WarehouseServiceWarehouseProvider warehouseProvider;
   final WarehouseServiceWerehouseApiClient warehouseApiClient;
   const WarehouseService(

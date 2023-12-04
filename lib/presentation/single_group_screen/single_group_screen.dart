@@ -140,10 +140,11 @@ class _CardsList extends StatelessWidget {
     final ordersTotal = model.ordersTotal;
     final stocksTotal = model.stocksTotal;
     final delete = model.deleteCardFromGroup;
+    // final cardStock = model.cardStocks;
     if (cards != null && isOrder) {
       cards = cards.where((card) => card.ordersSum > 0).toList();
     } else if (cards != null && !isOrder) {
-      cards = cards.where((card) => card.stocksSum > 0).toList();
+      cards = cards.where((card) => card.stocksFbw > 0).toList();
     }
     if (cards == null) {
       return Center(
@@ -165,7 +166,7 @@ class _CardsList extends StatelessWidget {
     if (isOrder) {
       cards.sort((a, b) => b.ordersSum.compareTo(a.ordersSum));
     } else {
-      cards.sort((a, b) => b.stocksSum.compareTo(a.stocksSum));
+      cards.sort((a, b) => b.stocksFbw.compareTo(a.stocksFbw));
     }
     return SingleChildScrollView(
       child: Column(
@@ -178,7 +179,7 @@ class _CardsList extends StatelessWidget {
             part = (card.ordersSum / ordersTotal) * 100;
           }
         } else {
-          part = (card.stocksSum / stocksTotal) * 100;
+          part = (card.stocksFbw / stocksTotal) * 100;
         }
 
         return Slidable(
@@ -266,7 +267,7 @@ class _CardsList extends StatelessWidget {
                     style: TextStyle(color: card.seller!.fontColor),
                   ),
                 ),
-                Text('${isOrder ? card.ordersSum : card.stocksSum} ')
+                Text('${isOrder ? card.ordersSum : card.stocksFbw}'),
               ],
             ),
           ),

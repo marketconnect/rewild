@@ -138,6 +138,12 @@ class CardOfProductModel extends BackgroundNotifier {
     supplies = s;
   }
 
+  int _stocksFbw = 0;
+  int get stocksFbw => _stocksFbw;
+  void setStocksFbw(int s) {
+    _stocksFbw = s;
+  }
+
   // int _initialStocksSum = 0;
   int _stocksSum = 0;
   int get stocksSum => _stocksSum;

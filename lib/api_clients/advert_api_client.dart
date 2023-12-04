@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
-import 'package:http/http.dart' as http;
-import 'package:rewild/core/utils/wb_api_helper.dart';
+
+import 'package:rewild/core/utils/api/wb_advert_api_helper.dart';
 import 'package:rewild/domain/entities/advert_auto_model.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/advert_card_model.dart';
@@ -34,12 +34,8 @@ class AdvertApiClient
       final params = {'id': campaignId.toString()};
       final body = {'excluded': excludedKeywords};
 
-      final jsonString = json.encode(body);
-
-      final wbApi = WbApiHelper.searchSetExcludedKeywords;
-
-      final response = await http.post(wbApi.buildUri(params),
-          headers: wbApi.headers(token), body: jsonString);
+      final wbApi = WbAdvertApiHelper.searchSetExcludedKeywords;
+      final response = await wbApi.post(token, body, params);
 
       if (response.statusCode == 200) {
         return Resource.success(true);
@@ -67,12 +63,9 @@ class AdvertApiClient
       final params = {'id': campaignId.toString()};
       final body = {'phrase': phraseKeywords};
 
-      final jsonString = json.encode(body);
+      final wbApi = WbAdvertApiHelper.searchSetPhraseKeywords;
 
-      final wbApi = WbApiHelper.searchSetPhraseKeywords;
-
-      final response = await http.post(wbApi.buildUri(params),
-          headers: wbApi.headers(token), body: jsonString);
+      final response = await wbApi.post(token, body, params);
 
       if (response.statusCode == 200) {
         final List<String> responseList =
@@ -100,11 +93,9 @@ class AdvertApiClient
     try {
       final params = {'id': campaignId.toString()};
       final body = {'strong': strongKeywords};
-      final jsonString = json.encode(body);
 
-      final wbApi = WbApiHelper.searchSetPhraseKeywords;
-      final response = await http.post(wbApi.buildUri(params),
-          headers: wbApi.headers(token), body: jsonString);
+      final wbApi = WbAdvertApiHelper.searchSetPhraseKeywords;
+      final response = await wbApi.post(token, body, params);
 
       if (response.statusCode == 200) {
         final List<String> responseList =
@@ -134,11 +125,8 @@ class AdvertApiClient
       final params = {'id': campaignId.toString()};
       final body = {'pluse': plusKeywords};
 
-      final jsonString = json.encode(body);
-
-      final wbApi = WbApiHelper.searchSetPlusKeywords;
-      final response = await http.post(wbApi.buildUri(params),
-          headers: wbApi.headers(token), body: jsonString);
+      final wbApi = WbAdvertApiHelper.searchSetPlusKeywords;
+      final response = await wbApi.post(token, body, params);
 
       if (response.statusCode == 200) {
         final List<String> responseList =
@@ -170,12 +158,9 @@ class AdvertApiClient
         'excluded': excludedKw,
       };
 
-      final jsonString = json.encode(body);
+      final wbApi = WbAdvertApiHelper.autoSetExcludedKeywords;
 
-      final wbApi = WbApiHelper.autoSetExcludedKeywords;
-
-      final response = await http.post(wbApi.buildUri(params),
-          headers: wbApi.headers(token), body: jsonString);
+      final response = await wbApi.post(token, body, params);
       if (response.statusCode == 200) {
         return Resource.success(true);
       } else {
@@ -216,12 +201,8 @@ class AdvertApiClient
         body['instrument'] = instrument;
       }
 
-      final jsonString = json.encode(body);
-
-      // final uri = Uri.https('advert-api.wb.ru', "/adv/v0/cpm");
-      final wbApi = WbApiHelper.setCpm;
-      final response = await http.post(wbApi.buildUri({}),
-          headers: wbApi.headers(token), body: jsonString);
+      final wbApi = WbAdvertApiHelper.setCpm;
+      final response = await wbApi.post(token, body);
       if (response.statusCode == 200) {
         return Resource.success(true);
       } else {
@@ -248,9 +229,8 @@ class AdvertApiClient
 
       // final uri = Uri.https('advert-api.wb.ru', "/adv/v0/pause", params);
 
-      final wbApi = WbApiHelper.pauseCampaign;
-      final response =
-          await http.get(wbApi.buildUri(params), headers: wbApi.headers(token));
+      final wbApi = WbAdvertApiHelper.pauseCampaign;
+      final response = await wbApi.get(token, params);
       if (response.statusCode == 200) {
         return Resource.success(true);
       } else if (response.statusCode == 422) {
@@ -283,9 +263,8 @@ class AdvertApiClient
 
       // final uri = Uri.https('advert-api.wb.ru', "/adv/v0/start", params);
 
-      final wbApi = WbApiHelper.startCampaign;
-      final response =
-          await http.get(wbApi.buildUri(params), headers: wbApi.headers(token));
+      final wbApi = WbAdvertApiHelper.startCampaign;
+      final response = await wbApi.get(token, params);
       if (response.statusCode == 200) {
         return Resource.success(true);
       } else if (response.statusCode == 422) {
@@ -316,11 +295,11 @@ class AdvertApiClient
     try {
       final params = {'id': campaignId.toString()};
 
-      final wbApi = WbApiHelper.getCompanyBudget;
+      final wbApi = WbAdvertApiHelper.getCompanyBudget;
 
-      final response = await http.get(
-        wbApi.buildUri(params),
-        headers: wbApi.headers(token),
+      final response = await wbApi.get(
+        token,
+        params,
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -351,11 +330,10 @@ class AdvertApiClient
   @override
   Future<Resource<Map<int, List<int>>>> count(String token) async {
     try {
-      final wbApi = WbApiHelper.getCampaigns;
+      final wbApi = WbAdvertApiHelper.getCampaigns;
 
-      final response = await http.get(
-        wbApi.buildUri({}),
-        headers: wbApi.headers(token),
+      final response = await wbApi.get(
+        token,
       );
 
       if (response.statusCode == 200) {
@@ -416,12 +394,8 @@ class AdvertApiClient
       String token, List<int> ids) async {
     try {
       final body = ids;
-
-      final jsonString = json.encode(body);
-
-      final wbApi = WbApiHelper.getCampaignsInfo;
-      final response = await http.post(wbApi.buildUri({}),
-          headers: wbApi.headers(token), body: jsonString);
+      final wbApi = WbAdvertApiHelper.getCampaignsInfo;
+      final response = await wbApi.post(token, body);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -464,10 +438,9 @@ class AdvertApiClient
   Future<Resource<int>> balance(String token) async {
     try {
       // final uri = Uri.https("advert-api.wb.ru", "/adv/v1/balance");
-      final wbApi = WbApiHelper.getBalance;
-      final response = await http.get(
-        wbApi.buildUri({}),
-        headers: wbApi.headers(token),
+      final wbApi = WbAdvertApiHelper.getBalance;
+      final response = await wbApi.get(
+        token,
       );
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
@@ -501,10 +474,9 @@ class AdvertApiClient
       final params = {'id': campaignId.toString()};
       // final uri =
       //     Uri.https('advert-api.wb.ru', "/adv/v1/auto/stat-words", params);
-      final wbApi = WbApiHelper.autoGetStatsWords;
+      final wbApi = WbAdvertApiHelper.autoGetStatsWords;
 
-      final response =
-          await http.get(wbApi.buildUri(params), headers: wbApi.headers(token));
+      final response = await wbApi.get(token, params);
       if (response.statusCode == 200) {
         // Parse the JSON string into a Map
         Map<String, dynamic> jsonData =
@@ -538,10 +510,10 @@ class AdvertApiClient
     try {
       final params = {'id': campaignId.toString()};
       // final uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
-      final wbApi = WbApiHelper.searchGetStatsWords;
-      final response = await http.get(
-        wbApi.buildUri(params),
-        headers: wbApi.headers(token),
+      final wbApi = WbAdvertApiHelper.searchGetStatsWords;
+      final response = await wbApi.get(
+        token,
+        params,
       );
       if (response.statusCode == 200) {
         Map<String, dynamic> jsonData =
@@ -576,10 +548,10 @@ class AdvertApiClient
     try {
       final params = {'id': campaignId.toString()};
 
-      final wbApi = WbApiHelper.autoGetStat;
-      final response = await http.get(
-        wbApi.buildUri(params),
-        headers: wbApi.headers(token),
+      final wbApi = WbAdvertApiHelper.autoGetStat;
+      final response = await wbApi.get(
+        token,
+        params,
       );
 
       if (response.statusCode == 200) {
@@ -610,11 +582,11 @@ class AdvertApiClient
   Future<Resource<Advert>> getCampaignInfo(String token, int id) async {
     try {
       final params = {'id': id.toString()};
-      final wbApi = WbApiHelper.getCampaignInfo;
+      final wbApi = WbAdvertApiHelper.getCampaignInfo;
 
-      final response = await http.get(
-        wbApi.buildUri(params),
-        headers: wbApi.headers(token),
+      final response = await wbApi.get(
+        token,
+        params,
       );
 
       if (response.statusCode == 200) {
@@ -680,11 +652,11 @@ class AdvertApiClient
       final params = {'id': campaignId.toString()};
 
       // final uri = Uri.https('advert-api.wb.ru', "/adv/v1/fullstat", params);
-      final wbApi = WbApiHelper.getFullStat;
+      final wbApi = WbAdvertApiHelper.getFullStat;
 
-      final response = await http.get(
-        wbApi.buildUri(params),
-        headers: wbApi.headers(token),
+      final response = await wbApi.get(
+        token,
+        params,
       );
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
@@ -718,10 +690,10 @@ class AdvertApiClient
       final params = {'id': campaignId.toString()};
       // final uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
 
-      final wbApi = WbApiHelper.searchGetStatsWords;
-      final response = await http.get(
-        wbApi.buildUri(params),
-        headers: wbApi.headers(token),
+      final wbApi = WbAdvertApiHelper.searchGetStatsWords;
+      final response = await wbApi.get(
+        token,
+        params,
       );
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
@@ -748,15 +720,75 @@ class AdvertApiClient
     }
   }
 
+  static Future<Resource<Map<int, List<int>>>> countInBackground(
+      String token) async {
+    try {
+      final wbApi = WbAdvertApiHelper.getCampaigns;
+
+      final response = await wbApi.get(
+        token,
+      );
+
+      if (response.statusCode == 200) {
+        final stats = json.decode(utf8.decode(response.bodyBytes));
+
+        final adverts = stats['adverts'];
+        if (adverts == null) {
+          return Resource.success({});
+        }
+        Map<int, List<int>> typeIds = {};
+        for (final advert in adverts) {
+          List<int> ids = [];
+          final advertList = advert['advert_list'];
+          final type = advert['type'];
+          if (advertList == null) {
+            continue;
+          }
+          for (final a in advertList) {
+            final id = a['advertId'];
+            if (id == null) {
+              continue;
+            }
+            ids.add(id);
+          }
+          if (typeIds.containsKey(type)) {
+            typeIds[type]!.addAll(ids);
+          } else {
+            typeIds[type] = ids;
+          }
+        }
+
+        return Resource.success(typeIds);
+      } else {
+        final errString = wbApi.errResponse(
+          statusCode: response.statusCode,
+        );
+        return Resource.error(
+          errString,
+          source: 'countInBackground',
+          name: "count",
+          args: [
+            token,
+          ],
+        );
+      }
+    } catch (e) {
+      return Resource.error("Неизвестная ошибка: $e",
+          source: 'countInBackground',
+          name: "count",
+          args: [
+            token,
+          ]);
+    }
+  }
+
   static Future<Resource<List<AdvertInfoModel>>> getAdvertsInBackground(
       String token, List<int> ids) async {
     try {
       final body = ids;
-      final jsonString = json.encode(body);
 
-      final wbApi = WbApiHelper.getCampaignsInfo;
-      final response = await http.post(wbApi.buildUri({}),
-          headers: wbApi.headers(token), body: jsonString);
+      final wbApi = WbAdvertApiHelper.getCampaignsInfo;
+      final response = await wbApi.post(token, body);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -801,10 +833,10 @@ class AdvertApiClient
     try {
       final params = {'id': campaignId.toString()};
 
-      final wbApi = WbApiHelper.autoGetStat;
-      final response = await http.get(
-        wbApi.buildUri(params),
-        headers: wbApi.headers(token),
+      final wbApi = WbAdvertApiHelper.autoGetStat;
+      final response = await wbApi.get(
+        token,
+        params,
       );
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
@@ -834,10 +866,10 @@ class AdvertApiClient
       String token, int campaignId) async {
     try {
       final params = {'id': campaignId.toString()};
-      final wbApi = WbApiHelper.getCompanyBudget;
-      final response = await http.get(
-        wbApi.buildUri(params),
-        headers: wbApi.headers(token),
+      final wbApi = WbAdvertApiHelper.getCompanyBudget;
+      final response = await wbApi.get(
+        token,
+        params,
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));

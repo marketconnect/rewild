@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:rewild/core/utils/resource.dart';
-import 'package:rewild/core/utils/wb_api_helper.dart';
+
 import 'package:rewild/domain/entities/advert_base.dart';
 
 import 'package:rewild/domain/entities/advert_model.dart';
@@ -80,8 +80,8 @@ class AdvertService
     }
 
     // wait
-    final wbApi = WbApiHelper.getBalance;
-    await wbApi.waitForNextRequest();
+    // final wbApi = WbAdvertApiHelper.getBalance;
+    // await wbApi.waitForNextRequest();
 
     final balanceResource =
         await advertApiClient.balance(tokenResource.data!.token);
@@ -108,9 +108,9 @@ class AdvertService
 
     // request to API
 
-    final wbApi = WbApiHelper.getCompanyBudget;
+    // final wbApi = WbAdvertApiHelper.getCompanyBudget;
 
-    await wbApi.waitForNextRequest();
+    // await wbApi.waitForNextRequest();
 
     final budgetResource = await advertApiClient.getCompanyBudget(
         tokenResource.data!.token, campaignId);
@@ -145,8 +145,8 @@ class AdvertService
       ids = allAdvertsIdsMap.values.expand((element) => element).toList();
     }
 
-    final wbApi = WbApiHelper.getCampaigns;
-    await wbApi.waitForNextRequest();
+    // final wbApi = WbAdvertApiHelper.getCampaigns;
+    // await wbApi.waitForNextRequest();
     final advertsResource = await advertApiClient.getAdverts(token, ids);
 
     if (advertsResource is Error) {
@@ -196,8 +196,8 @@ class AdvertService
       //     getCampaignInfoLastReq,
       //   );
       // }
-      final wbApi = WbApiHelper.getCampaignInfo;
-      await wbApi.waitForNextRequest();
+      // final wbApi = WbAdvertApiHelper.getCampaignInfo;
+      // await wbApi.waitForNextRequest();
       final campaignInfoResource = await advertApiClient.getCampaignInfo(
           tokenResource.data!.token, advert.campaignId);
 
@@ -221,10 +221,10 @@ class AdvertService
           args: [campaignId]);
     }
 
-    // request
-    final wbApi = WbApiHelper.getCampaignInfo;
+    // // request
+    // final wbApi = WbAdvertApiHelper.getCampaignInfo;
 
-    await wbApi.waitForNextRequest();
+    // await wbApi.waitForNextRequest();
     final advInfoResource = await advertApiClient.getCampaignInfo(
         tokenResource.data!.token, campaignId);
 
@@ -261,8 +261,8 @@ class AdvertService
     //   const wbApi = WbApiHelper.setCpm;
     //   await wbApi.ready(setCpmLastReq);
     // }
-    final wbApi = WbApiHelper.setCpm;
-    await wbApi.waitForNextRequest();
+    // final wbApi = WbAdvertApiHelper.setCpm;
+    // await wbApi.waitForNextRequest();
     final changeCpmResource = await advertApiClient.changeCpm(
         tokenResource.data!.token, campaignId, type, cpm, param, instrument);
     // setCpmLastReq = DateTime.now();
@@ -350,8 +350,8 @@ class AdvertService
       // );
 
       // request
-      final wbApi = WbApiHelper.getCampaignInfo;
-      await wbApi.waitForNextRequest();
+      // final wbApi = WbAdvertApiHelper.getCampaignInfo;
+      // await wbApi.waitForNextRequest();
       final advInfoResource = await advertApiClient.getCampaignInfo(
           tokenResource.data!.token, advert.campaignId);
 
@@ -367,11 +367,8 @@ class AdvertService
 
   @override
   Future<Resource<bool>> startAdvert(int campaignId) async {
-    final wbApiStart = WbApiHelper.startCampaign;
-
     final tokenResource = await _tryChangeAdvertStatus(
       campaignId,
-      wbApiStart,
       advertApiClient.startAdvert,
     );
     if (tokenResource is Error) {
@@ -384,9 +381,9 @@ class AdvertService
       return Resource.success(false);
     }
 
-    final wbApiInfo = WbApiHelper.getCampaignInfo;
+    // final wbApiInfo = WbAdvertApiHelper.getCampaignInfo;
 
-    await wbApiInfo.waitForNextRequest();
+    // await wbApiInfo.waitForNextRequest();
     final advertInfoResource =
         await advertApiClient.getCampaignInfo(tokenResource.data!, campaignId);
     if (advertInfoResource is Error) {
@@ -408,10 +405,8 @@ class AdvertService
 
   @override
   Future<Resource<bool>> stopAdvert(int campaignId) async {
-    final wbApiPause = WbApiHelper.pauseCampaign;
     final tokenResource = await _tryChangeAdvertStatus(
       campaignId,
-      wbApiPause,
       advertApiClient.pauseAdvert,
     );
     if (tokenResource is Empty) {
@@ -421,8 +416,8 @@ class AdvertService
     // await wbApiInfo.ready(
     //   getCampaignInfoLastReq,
     // );
-    final wbApi = WbApiHelper.getCampaignInfo;
-    await wbApi.waitForNextRequest();
+    // final wbApi = WbAdvertApiHelper.getCampaignInfo;
+    // await wbApi.waitForNextRequest();
     final advertInfoResource =
         await advertApiClient.getCampaignInfo(tokenResource.data!, campaignId);
     if (advertInfoResource is Error) {
@@ -443,9 +438,7 @@ class AdvertService
   }
 
   Future<Resource<String>> _tryChangeAdvertStatus(
-      int campaignId,
-      ApiConstants wbApi,
-      Future<Resource<bool>> Function(String, int) func) async {
+      int campaignId, Future<Resource<bool>> Function(String, int) func) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
@@ -470,7 +463,7 @@ class AdvertService
       //   await wbApi.ready(lastReqTime);
       // }
 
-      await wbApi.waitForNextRequest();
+      // await wbApi.waitForNextRequest();
       final resource = await func(tokenResource.data!.token, campaignId);
 
       if (resource is Error) {

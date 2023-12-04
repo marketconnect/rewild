@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/theme/color_schemes.g.dart';

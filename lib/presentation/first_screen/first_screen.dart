@@ -1,10 +1,11 @@
 // onPopInvoked
 import 'package:flutter/material.dart';
-import 'package:rewild/presentation/splash_screen/splash_screen.dart';
-import 'package:rewild/routes/main_navigation.dart';
+
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 class FirstScreen extends StatefulWidget {
+  const FirstScreen({super.key});
+
   @override
   _FirstScreenState createState() => _FirstScreenState();
 }

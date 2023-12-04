@@ -1,5 +1,4 @@
 import 'package:rewild/core/utils/resource.dart';
-import 'package:rewild/core/utils/wb_api_helper.dart';
 
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/auto_campaign_stat.dart';
@@ -56,8 +55,6 @@ class KeywordsService
       return Resource.empty();
     }
 
-    final wbApi = WbApiHelper.autoSetExcludedKeywords;
-    await wbApi.waitForNextRequest();
     final autoExcludedResource = await advertApiClient.setAutoSetExcluded(
         tokenResource.data!.token, campaignId, excluded);
 
@@ -181,8 +178,6 @@ class KeywordsService
       return Resource.empty();
     }
 
-    final wbApi = WbApiHelper.searchSetExcludedKeywords;
-    await wbApi.waitForNextRequest();
     final searchExcludedResource =
         await advertApiClient.setSearchExcludedKeywords(
             tokenResource.data!.token, campaignId, excluded);

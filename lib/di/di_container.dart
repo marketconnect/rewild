@@ -420,6 +420,7 @@ class _DIContainer {
           internetConnectionChecker: _makeInternetConnectionChecker(),
           name: name,
           groupService: _makeAllGroupsService(),
+          warehouseService: _makeWarehouseService(),
           sellerService: _makeSellerService(),
           cardsService: _makeCardOfProductService());
 

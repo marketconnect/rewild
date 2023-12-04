@@ -12,6 +12,7 @@ import 'package:rewild/domain/entities/notification.dart';
 import 'package:rewild/domain/entities/stream_notification_event.dart';
 
 import 'package:rewild/domain/entities/supply_model.dart';
+import 'package:rewild/domain/services/background_service.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/resource.dart';
@@ -82,6 +83,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
 
   Future<void> asyncInit() async {
     setLoading(true);
+    await BackgroundService.fetchAll();
     streamNotification.listen((event) async {
       if (event.parentType == ParentType.card) {
         await _update();

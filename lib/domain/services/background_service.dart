@@ -7,7 +7,7 @@ import 'package:rewild/core/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/lists.dart';
 import 'package:rewild/core/utils/resource.dart';
-import 'package:rewild/core/utils/wb_api_helper.dart';
+
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data_provider.dart';
 import 'package:rewild/data_providers/background_message_data_provider/background_message_data_provider.dart';
 
@@ -81,7 +81,6 @@ class BackgroundService {
 
   // update all every n minutes
   static fetchAll() async {
-    print("fetchAll");
     // since the token does not uses for card of products details request
     // make it nullable
     String? token;
@@ -95,12 +94,10 @@ class BackgroundService {
     final tokenResource = values[0] as Resource<ApiKeyModel>;
     final notificationResource =
         values[1] as Resource<List<ReWildNotificationModel>>;
-
     // token
     if (tokenResource is Success) {
       token = tokenResource.data!.token;
     }
-
     // Adverts for single advert stat screen
     // fetch adverts from API Wb
     final advertResource = await fetchAdverts(token);
@@ -111,7 +108,6 @@ class BackgroundService {
     // save all fetched adverts
     if (advertResource is Success) {
       for (final advert in advertResource.data!) {
-        print('save ${advert.campaignId} --- ${advert.spend}');
         await AdvertStatDataProvider.saveInBackground(advert);
       }
     }
@@ -123,7 +119,6 @@ class BackgroundService {
     if (notificationResource is Empty) {
       return;
     }
-
     // Notifications
     final notifications = notificationResource.data!;
 
@@ -136,7 +131,6 @@ class BackgroundService {
         .where((element) =>
             element.condition == NotificationConditionConstants.budgetLessThan)
         .toList();
-
     // ids
     List<int> cardsIds = cardsNotifications.map((e) => e.parentId).toList();
     List<int> advertsIds = advertsNotifications.map((e) => e.parentId).toList();
@@ -148,7 +142,6 @@ class BackgroundService {
       return Resource.error(cardsResource.message!,
           source: "BackgroundService", name: "fetchAll", args: []);
     }
-
     // get notification contents for cards
 
     // list to save notification contents
@@ -199,8 +192,6 @@ class BackgroundService {
           dateTime: DateTime.now(),
           condition: notCont.condition!,
           value: notCont.newValue!,
-          // header: notCont.title,
-          // message: notCont.body,
           id: notCont.id);
       await NotificationDataProvider.saveInBackground(ReWildNotificationModel(
           parentId: notCont.id,
@@ -247,14 +238,10 @@ class BackgroundService {
       }
       final nBudg = int.tryParse(notificationsList.first.value) ?? 0;
       if (budget < nBudg) {
-        // final title = "Бюджет кампании $campaignId";
-        // final body = "Бюджет: $budget, был $nBudg";
         final notContent = ReWildNotificationContent(
           id: campaignId,
           condition: NotificationConditionConstants.budgetLessThan,
           newValue: budget.toString(),
-          // title: title,
-          // body: body,
         );
         NotificationDataProvider.saveInBackground(ReWildNotificationModel(
           parentId: campaignId,
@@ -269,25 +256,32 @@ class BackgroundService {
 
   static Future<Resource<List<AdvertStatModel>>> fetchAdverts(
       String? token) async {
-    print("fetchAdverts");
     if (token == null) {
       return Resource.empty();
     }
     List<AdvertStatModel> fetchedAdverts = [];
 
+    // get all adverts Ids
+    final allAdvertsIdsResource =
+        await AdvertApiClient.countInBackground(token);
+    if (allAdvertsIdsResource is Error) {
+      return Resource.error(allAdvertsIdsResource.message!,
+          source: "BackgroundService", name: "getAllAdverts", args: []);
+    }
+
+    final allAdvertsIdsMap = allAdvertsIdsResource.data!;
+    final ids = allAdvertsIdsMap.values.expand((element) => element).toList();
+
     // wait
-    final wbApi = WbApiHelper.getCampaignsInfo;
-    await wbApi.waitForNextRequest();
 
     final advertResource =
-        await AdvertApiClient.getAdvertsInBackground(token, []);
-
+        await AdvertApiClient.getAdvertsInBackground(token, ids);
     if (advertResource is Error) {
       return Resource.error(advertResource.message!,
           source: "BackgroundService", name: "fetchAdverts", args: [token]);
     }
     final allAdverts = advertResource.data!;
-
+    // TODO
     for (final advertInfo in allAdverts) {
       if (advertInfo.status != AdvertStatusConstants.active &&
           advertInfo.status != AdvertStatusConstants.paused) {
@@ -338,9 +332,6 @@ class BackgroundService {
 
   static Future<Resource<AdvertStatModel>> _fetchAutoAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
-    final wbApi = WbApiHelper.autoGetStat;
-    await wbApi.waitForNextRequest();
-
     final advertStatResource = await AdvertApiClient.getAutoStatInBackground(
         token, advertInfo.campaignId);
 
@@ -357,14 +348,6 @@ class BackgroundService {
 
   static Future<Resource<AdvertStatModel>> _fetchFullAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
-    // if (_autoLastReq != null) {
-    //   await ApiDurationConstants.ready(_autoLastReq,
-    //       ApiDurationConstants.fullStatNumsDurationBetweenReqInMs);
-    // }
-
-    final wbApi = WbApiHelper.getFullStat;
-    await wbApi.waitForNextRequest();
-
     final advertStatResource = await AdvertApiClient.getFullStatInBackground(
         token, advertInfo.campaignId);
 
@@ -381,17 +364,8 @@ class BackgroundService {
 
   static Future<Resource<AdvertStatModel>> _fetchSearchAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
-    // if (_searchLastReq != null) {
-    //   await ApiDurationConstants.ready(
-    //       _searchLastReq, ApiDurationConstants.wordsDurationBetweenReqInMs);
-    // }
-
-    final wbApi = WbApiHelper.searchGetStatsWords;
-    await wbApi.waitForNextRequest();
-
     final advertStatResource = await AdvertApiClient.getSearchStatInBackground(
         token, advertInfo.campaignId);
-    // _searchLastReq = DateTime.now();
 
     if (advertStatResource is Error) {
       return Resource.error(advertStatResource.message!,
@@ -405,12 +379,6 @@ class BackgroundService {
   }
 
   static Future<Resource<int>> budgetRequest(String token, int id) async {
-    // if (_budgetLastReq != null) {
-    //   await ApiDurationConstants.ready(
-    //       _budgetLastReq, ApiDurationConstants.budgetDurationBetweenReqInMs);
-    // }
-    final wbApi = WbApiHelper.getCompanyBudget;
-    await wbApi.waitForNextRequest();
     final budgetResource =
         await AdvertApiClient.getCompanyBudgetInBackground(token, id);
 
@@ -463,20 +431,9 @@ class BackgroundService {
     return Resource.success(initialStocksFromServer);
   }
 
-  // static void _onDidReceiveLocalNotification(
-  //     int id, String? title, String? body, String? payload) async {}
-  // static void _onDidReceiveNotificationResponse(
-  //     NotificationResponse notificationResponse) async {}
-
   static Future _instantNotification(String title, String body) async {
     AwesomeNotifications().createNotification(
         content: NotificationContent(
             id: 1, channelKey: 'basic_channel', title: title, body: body));
   }
-
-  //   const NotificationDetails notificationDetails =
-  //       NotificationDetails(android: androidNotificationDetails);
-  //   await _flutterLocalNotificationsPlugin
-  //       .show(0, title, body, notificationDetails, payload: 'item x');
-  // }
 }

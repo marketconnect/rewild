@@ -6,6 +6,7 @@ import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:flutter/material.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
+import 'package:rewild/domain/entities/warehouse.dart';
 
 abstract class SingleGroupScreenGroupsService {
   Future<Resource<GroupModel>> loadGroup(String name);
@@ -20,10 +21,16 @@ abstract class SingleGroupScreenSellerService {
   Future<Resource<SellerModel>> get(int supplierId);
 }
 
+// warehouse
+abstract class SingleGroupScreenWarehouseService {
+  Future<Resource<Warehouse?>> getById(int id);
+}
+
 class SingleGroupScreenViewModel extends ResourceChangeNotifier {
   final SingleGroupScreenGroupsService groupService;
   final SingleGroupScreenViewModelCardsService cardsService;
   final SingleGroupScreenSellerService sellerService;
+  final SingleGroupScreenWarehouseService warehouseService;
 
   final String name;
   bool _isExpanded = false;
@@ -39,6 +46,7 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
     required super.internetConnectionChecker,
     required this.name,
     required this.groupService,
+    required this.warehouseService,
     required this.cardsService,
     required this.sellerService,
   }) {
@@ -103,6 +111,33 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
 
       supplierIds.add(seller.supplierId);
 
+      // //       for (final c in cards) {
+      int stockQty = 0;
+      for (final size in card.sizes) {
+        final stock = size.stocks;
+        for (final stock in stock) {
+          final wh = stock.wh;
+          String name = "";
+          if (whIds.containsKey(wh)) {
+            name = whIds[wh]!;
+          } else {
+            final warehouse =
+                await fetch(() => warehouseService.getById(stock.wh));
+            if (warehouse == null) {
+              continue;
+            }
+            name = warehouse.name;
+            whIds[wh] = name;
+          }
+          if (name.contains("клад продавца")) {
+            continue;
+          }
+          stockQty += stock.qty;
+        }
+      }
+      card.setStocksFbw(stockQty);
+      stocksTotal += stockQty;
+
       card.calculate(
         yesterdayEndOfTheDay(),
         DateTime.now(),
@@ -112,14 +147,11 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
     }
 
     group.calculateOrdersSum();
-    stocksSum = group.stocksSum.values
-        .toList()
-        .reduce((value, element) => value + element);
+
     ordersSum = group.ordersSum;
 
     ordersTotal = ordersSum;
 
-    stocksTotal = stocksSum;
     _cards!.sort((a, b) => b.stocksSum.compareTo(a.stocksSum));
 
     for (final selId in supplierIds) {
@@ -129,11 +161,15 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
           addOrdersToDataMap(
               card.seller!, (card.ordersSum / ordersTotal) * 100);
         }
-
-        addStocksToDataMap(card.seller!, (card.stocksSum / stocksTotal) * 100);
+        if (card.stocksFbw > 0) {
+          addStocksToDataMap(
+              card.seller!, (card.stocksFbw / stocksTotal) * 100);
+        }
       }
     }
   }
+
+  Map<int, String> whIds = {};
 
   Map<int, Color> _sellerColorMap = {};
   void setSellerColorMap(Map<int, Color> map) {
@@ -184,7 +220,7 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
 
   List<CardOfProductModel>? _cards;
   List<CardOfProductModel>? get cards => _cards;
-  int stocksSum = 0;
+  // int stocksSum = 0;
   int ordersSum = 0;
 
   Future<void> deleteCardFromGroup(int nmId) async {
