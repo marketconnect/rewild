@@ -28,8 +28,8 @@ class AddApiKeysScreenViewModel extends ResourceChangeNotifier {
 
   List<ApiKeyModel> get apiKeys => _apiKeys;
 
-  final List<String> _types = StringConstants.apiKeyTypes;
-  List<String> get types => _types;
+  final Map<ApiKeyType, String> _types = StringConstants.apiKeyTypes;
+  List<String> get types => _types.entries.map((e) => e.value).toList();
 
   List<String> _addedTypes = [];
   void setAddedTypes(List<String> addedTypes) {
@@ -39,7 +39,7 @@ class AddApiKeysScreenViewModel extends ResourceChangeNotifier {
   List<String> get addedTypes => _addedTypes;
 
   void _asyncInit() async {
-    final fetchedApiKeys = await fetch(() => apiKeysService.getAll(_types));
+    final fetchedApiKeys = await fetch(() => apiKeysService.getAll(types));
     if (fetchedApiKeys == null) {
       return;
     }

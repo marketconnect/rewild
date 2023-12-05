@@ -3,7 +3,7 @@ class Question {
   String text;
   DateTime createdDate;
   String state;
-  String answer;
+  Answer? answer;
   ProductDetails productDetails;
   bool wasViewed;
   bool isOverdue;
@@ -20,15 +20,16 @@ class Question {
   });
 
   factory Question.fromJson(Map<String, dynamic> json) {
+    print("fromJson $json");
     return Question(
-      id: json['id'],
-      text: json['text'],
-      createdDate: DateTime.parse(json['createdDate']),
-      state: json['state'],
-      answer: json['answer'],
+      id: json['id'] ?? "",
+      text: json['text'] ?? "",
+      createdDate: DateTime.tryParse(json['createdDate']) ?? DateTime.now(),
+      state: json['state'] ?? "",
+      answer: json['answer'] == null ? null : Answer.fromJson(json['answer']),
       productDetails: ProductDetails.fromJson(json['productDetails']),
-      wasViewed: json['wasViewed'],
-      isOverdue: json['isOverdue'],
+      wasViewed: json['wasViewed'] ?? false,
+      isOverdue: json['isOverdue'] ?? false,
     );
   }
 
@@ -43,6 +44,33 @@ class Question {
       'wasViewed': wasViewed,
       'isOverdue': isOverdue,
     };
+  }
+}
+
+class Answer {
+  final String text;
+
+  final bool editable;
+
+  final String createDate;
+
+  Answer(
+      {required this.text, required this.editable, required this.createDate});
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'text': text,
+      'editable': editable,
+      'createDate': createDate,
+    };
+  }
+
+  factory Answer.fromJson(Map<String, dynamic> json) {
+    return Answer(
+      text: json['text'] ?? "",
+      editable: json['editable'] ?? false,
+      createDate: json['createDate'] ?? "",
+    );
   }
 }
 

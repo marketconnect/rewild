@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/icons_constant.dart';
 
 class ReviewCard extends StatelessWidget {
-  const ReviewCard({super.key});
-
+  const ReviewCard(
+      {super.key, required this.reviewText, required this.createdAt});
+  final String reviewText;
+  final DateTime createdAt;
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     // final screenHeight = MediaQuery.of(context).size.height;
+    final dateText = DateTime.now().difference(createdAt).inDays < 1
+        ? '${createdAt.hour}:${createdAt.minute}'
+        : '${createdAt.day}.${createdAt.month}.${createdAt.year}';
     return Container(
       padding: EdgeInsets.symmetric(
           horizontal: screenWidth * 0.06, vertical: screenWidth * 0.08),
@@ -52,7 +57,7 @@ class ReviewCard extends StatelessWidget {
                       SizedBox(
                         width: screenWidth * 0.2,
                         child: Text(
-                          "05.11.2023",
+                          dateText,
                           textAlign: TextAlign.end,
                           style: TextStyle(
                             color: Theme.of(context)
@@ -86,8 +91,7 @@ class ReviewCard extends StatelessWidget {
           children: [
             SizedBox(
               width: screenWidth * 0.75,
-              child: const Text(
-                  "lorem ipsum dolor sit amet lorem ipsum dolor sit amet llorem ipsum dolor sit amet lorem ipsum dolor sit amet llorem ipsum dolor sit amet lorem ipsum dolor sit amet llorem ipsum dolor sit amet lorem ipsum dolor sit amet llorem ipsum dolor sit amet lorem ipsum dolor sit amet llorem ipsum dolor sit amet lorem ipsum dolor sit amet llorem ipsum dolor sit amet lorem ipsum dolor sit amet l"),
+              child: Text(reviewText),
             ),
           ],
         ),

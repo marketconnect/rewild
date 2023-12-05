@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 
 import 'package:rewild/domain/entities/advert_base.dart';
@@ -55,9 +56,10 @@ class AdvertService
       required this.apiKeysDataProvider,
       required this.updatedAdvertStreamController});
 
+  static final keyType = StringConstants.apiKeyTypes[ApiKeyType.promo] ?? "";
   @override
   Future<Resource<bool>> apiKeyExists() async {
-    final resource = await apiKeysDataProvider.getApiKey('Продвижение');
+    final resource = await apiKeysDataProvider.getApiKey(keyType);
     if (resource is Error) {
       return Resource.error(resource.message!,
           source: runtimeType.toString(), name: "apiKeyExists", args: []);
@@ -70,7 +72,7 @@ class AdvertService
 
   @override
   Future<Resource<int>> getBallance() async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
           source: runtimeType.toString(), name: "getBallance", args: []);
@@ -91,7 +93,7 @@ class AdvertService
 
   @override
   Future<Resource<int>> getBudget(int campaignId) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
           source: runtimeType.toString(),
@@ -146,7 +148,7 @@ class AdvertService
 
   @override
   Future<Resource<List<Advert>>> getAllAdverts() async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
           source: runtimeType.toString(), name: "getAllAdverts", args: []);
@@ -192,7 +194,7 @@ class AdvertService
 
   @override
   Future<Resource<Advert>> advertInfo(int campaignId) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
           source: runtimeType.toString(),
@@ -220,7 +222,7 @@ class AdvertService
       required int cpm,
       required int param,
       int? instrument}) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
           source: runtimeType.toString(),
@@ -247,7 +249,7 @@ class AdvertService
 
   @override
   Future<Resource<List<Advert>>> getAll([List<int>? types]) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
           source: runtimeType.toString(), name: "getAll", args: []);
@@ -352,7 +354,7 @@ class AdvertService
 
   Future<Resource<String>> _tryChangeAdvertStatus(
       int campaignId, Future<Resource<bool>> Function(String, int) func) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
+    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
           source: runtimeType.toString(),

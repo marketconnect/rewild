@@ -8,6 +8,7 @@ import 'package:rewild/api_clients/details_api_client.dart';
 import 'package:rewild/api_clients/orders_history_api_client.dart';
 
 import 'package:rewild/api_clients/product_card_service_api_client.dart';
+import 'package:rewild/api_clients/questions_api_client.dart';
 import 'package:rewild/api_clients/seller_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/api_clients/warehouse_api_client.dart';
@@ -48,6 +49,7 @@ import 'package:rewild/domain/services/keywords_service.dart';
 import 'package:rewild/domain/services/notification_service.dart';
 
 import 'package:rewild/domain/services/orders_history_service.dart';
+import 'package:rewild/domain/services/question_service.dart';
 
 import 'package:rewild/domain/services/seller_service.dart';
 import 'package:rewild/domain/services/stock_service.dart';
@@ -75,6 +77,8 @@ import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_screen.dart
 import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
+import 'package:rewild/presentation/questions_screen/question_view_model.dart';
+import 'package:rewild/presentation/questions_screen/questions_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 import 'package:rewild/presentation/background_messages_screen/background_messages_screen.dart';
@@ -179,6 +183,8 @@ class _DIContainer {
   // advert
   AdvertApiClient _makeAdvertApiClient() => const AdvertApiClient();
 
+  QuestionsApiClient _makeQuestionsApiClient() => const QuestionsApiClient();
+
   // Data providers ============================================================
 
   // secure storage
@@ -239,6 +245,7 @@ class _DIContainer {
   // keywords
   KeywordDataProvider _makeKeywordsDataProvider() =>
       const KeywordDataProvider();
+
   // Services ==================================================================
 
   // check internet connection
@@ -334,6 +341,10 @@ class _DIContainer {
   AdvertService _makeAdvertService() => AdvertService(
       advertApiClient: _makeAdvertApiClient(),
       updatedAdvertStreamController: updatedAdvertStreamController,
+      apiKeysDataProvider: _makeSecureDataProvider());
+
+  QuestionService _makeQuestionService() => QuestionService(
+      questionApiClient: _makeQuestionsApiClient(),
       apiKeysDataProvider: _makeSecureDataProvider());
 
   // Auto stat
@@ -524,6 +535,12 @@ class _DIContainer {
           notificationService: _makeNotificationService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
           messageService: makeBackgroundMessageService());
+
+  QuestionViewModel _makeQuestionsViewModel(BuildContext context) =>
+      QuestionViewModel(
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          questionService: _makeQuestionService());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -685,6 +702,14 @@ class ScreenFactoryDefault implements ScreenFactory {
       create: (context) =>
           _diContainer._makeBackgroundNotificationsViewModel(context),
       child: const BackgroundMessagesScreen(),
+    );
+  }
+
+  @override
+  Widget makeQuestionsScreen() {
+    return ChangeNotifierProvider(
+      create: (context) => _diContainer._makeQuestionsViewModel(context),
+      child: const QuestionsScreen(),
     );
   }
 }

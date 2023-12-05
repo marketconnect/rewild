@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/icons_constant.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
-import 'package:rewild/widgets/review_card.dart';
 
 class MainNavigationScreenFeedBackWidget extends StatelessWidget {
   const MainNavigationScreenFeedBackWidget({super.key});
@@ -42,7 +41,7 @@ class MainNavigationScreenFeedBackWidget extends StatelessWidget {
                 text: 'Вопросы',
                 color: const Color(0xFF8c56ce),
                 imageSrc: IconConstant.iconQuestions,
-                route: MainNavigationRouteNames.backgroundNotificationsScreen,
+                route: MainNavigationRouteNames.questionsScreen,
               ),
               _Link(
                 text: 'Отзывы',
@@ -53,20 +52,6 @@ class MainNavigationScreenFeedBackWidget extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .surfaceVariant
-                  .withOpacity(0.3)),
-          child: Column(
-            children: [
-              ReviewCard(),
-              ReviewCard(),
-              ReviewCard(),
-            ],
-          ),
-        )
       ]),
     );
   }
@@ -116,49 +101,6 @@ class _Link extends StatelessWidget {
             ),
             Text(
               text,
-              style: TextStyle(
-                  fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Feedback extends StatelessWidget {
-  const _Feedback({required this.click});
-  final Function click;
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      onTap: () => click(),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-        decoration: BoxDecoration(
-            border: Border.all(color: Colors.transparent),
-            color: Theme.of(context).colorScheme.background),
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                  color: const Color(0xFF2188ff),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Icon(
-                  Icons.feedback_outlined,
-                  color: Theme.of(context).colorScheme.background,
-                  size: screenWidth * 0.05,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: screenWidth * 0.05,
-            ),
-            Text(
-              "Обратная связь",
               style: TextStyle(
                   fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
             )

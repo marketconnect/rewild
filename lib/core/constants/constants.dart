@@ -3,6 +3,12 @@ class APIConstants {
   static const String apiHost = "89.108.70.221";
 }
 
+enum ApiKeyType {
+  stat,
+  promo,
+  question,
+}
+
 class RegionsNumsConstants {
   static const Map<String, String> regions = {
     "01": "Республика Адыгея",
@@ -109,11 +115,11 @@ class StringConstants {
     'Декабрь'
   ];
 
-  static const List<String> apiKeyTypes = [
-    "Статистика",
-    "Продвижение",
-    "Вопросы/Отз."
-  ];
+  static const Map<ApiKeyType, String> apiKeyTypes = {
+    ApiKeyType.stat: "Статистика",
+    ApiKeyType.promo: "Продвижение",
+    ApiKeyType.question: "Вопросы/Отз."
+  };
 }
 
 class ErrorsConstants {

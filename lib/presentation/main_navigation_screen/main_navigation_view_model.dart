@@ -2,6 +2,7 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
+
 import 'package:rewild/domain/entities/stream_advert_event.dart';
 
 // card
@@ -22,6 +23,7 @@ abstract class MainNavigationAdvertService {
 class MainNavigationViewModel extends ResourceChangeNotifier {
   final MainNavigationCardService cardService;
   final MainNavigationAdvertService advertService;
+
   final Stream<int> cardsNumberStream;
   final Stream<StreamAdvertEvent> updatedAdvertStream;
   final Stream<bool> apiKeyExistsStream;
@@ -45,6 +47,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     });
 
     // Update in MainNavigationAdvertViewModel EmptyWidget or not
+    // TODO - Update in FeedbackScreen
     apiKeyExistsStream.listen((event) {
       setApiKeyExists(event);
       notify();

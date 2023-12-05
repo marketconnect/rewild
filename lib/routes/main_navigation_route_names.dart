@@ -21,4 +21,5 @@ abstract class MainNavigationRouteNames {
       '/card_notifications_settings_screen';
 
   static const String firstStartSplashScreen = 'first_start_splash_screen';
+  static const String questionsScreen = 'questions_screen';
 }
