@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rewild/core/utils/image_constant.dart';
+import 'package:rewild/core/constants/image_constant.dart';
+
 import 'package:rewild/widgets/empty_widget.dart';
 
 enum ErrorType {

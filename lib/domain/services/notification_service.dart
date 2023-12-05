@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:rewild/core/constants.dart';
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/notification.dart';
 import 'package:rewild/domain/entities/stream_notification_event.dart';

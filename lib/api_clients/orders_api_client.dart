@@ -1,6 +1,6 @@
 import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
-import 'package:rewild/core/constants.dart';
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/services/orders_service.dart';
 import 'package:rewild/pb/message.pb.dart';

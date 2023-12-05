@@ -1,7 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:provider/provider.dart';
-import 'package:rewild/core/utils/image_constant.dart';
+import 'package:rewild/core/constants/image_constant.dart';
+
 import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart';
 
 import 'package:flutter/material.dart';

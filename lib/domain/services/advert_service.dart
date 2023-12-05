@@ -79,10 +79,6 @@ class AdvertService
       return Resource.empty();
     }
 
-    // wait
-    // final wbApi = WbAdvertApiHelper.getBalance;
-    // await wbApi.waitForNextRequest();
-
     final balanceResource =
         await advertApiClient.balance(tokenResource.data!.token);
 
@@ -105,12 +101,6 @@ class AdvertService
     if (tokenResource is Empty) {
       return Resource.empty();
     }
-
-    // request to API
-
-    // final wbApi = WbAdvertApiHelper.getCompanyBudget;
-
-    // await wbApi.waitForNextRequest();
 
     final budgetResource = await advertApiClient.getCompanyBudget(
         tokenResource.data!.token, campaignId);
@@ -145,8 +135,6 @@ class AdvertService
       ids = allAdvertsIdsMap.values.expand((element) => element).toList();
     }
 
-    // final wbApi = WbAdvertApiHelper.getCampaigns;
-    // await wbApi.waitForNextRequest();
     final advertsResource = await advertApiClient.getAdverts(token, ids);
 
     if (advertsResource is Error) {
@@ -189,15 +177,6 @@ class AdvertService
         continue;
       }
 
-      // requst to API
-      // if (getCampaignInfoLastReq != null) {
-      //   const wbApi = WbApiHelper.getCampaignInfo;
-      //   await wbApi.ready(
-      //     getCampaignInfoLastReq,
-      //   );
-      // }
-      // final wbApi = WbAdvertApiHelper.getCampaignInfo;
-      // await wbApi.waitForNextRequest();
       final campaignInfoResource = await advertApiClient.getCampaignInfo(
           tokenResource.data!.token, advert.campaignId);
 
@@ -221,10 +200,6 @@ class AdvertService
           args: [campaignId]);
     }
 
-    // // request
-    // final wbApi = WbAdvertApiHelper.getCampaignInfo;
-
-    // await wbApi.waitForNextRequest();
     final advInfoResource = await advertApiClient.getCampaignInfo(
         tokenResource.data!.token, campaignId);
 
@@ -256,13 +231,6 @@ class AdvertService
       return Resource.empty();
     }
 
-    // request to API
-    // if (setCpmLastReq != null) {
-    //   const wbApi = WbApiHelper.setCpm;
-    //   await wbApi.ready(setCpmLastReq);
-    // }
-    // final wbApi = WbAdvertApiHelper.setCpm;
-    // await wbApi.waitForNextRequest();
     final changeCpmResource = await advertApiClient.changeCpm(
         tokenResource.data!.token, campaignId, type, cpm, param, instrument);
     // setCpmLastReq = DateTime.now();
@@ -276,46 +244,6 @@ class AdvertService
         .add(StreamAdvertEvent(campaignId: campaignId, cpm: cpm, status: null));
     return Resource.success(changeCpmResource.data!);
   }
-
-  // @override
-  // Future<Resource<List<AdvertInfoModel>>> getByTypes(List<int> types) async {
-  //   final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
-  //   if (tokenResource is Error) {
-  //     return Resource.error(tokenResource.message!,
-  //         source: runtimeType.toString(), name: "getByType", args: [types]);
-  //   }
-  //   if (tokenResource is Empty) {
-  //     return Resource.error("Токен не сохранен",
-  //         source: runtimeType.toString(), name: "getByType", args: []);
-  //   }
-
-  //   // request to API
-  //   final advertsResource = await _getAdverts(tokenResource.data!.token, types);
-
-  //   if (advertsResource is Error) {
-  //     return Resource.error(advertsResource.message!,
-  //         source: runtimeType.toString(), name: "getAllAdverts", args: []);
-  //   }
-
-  //   if (advertsResource is Error) {
-  //     return Resource.error(advertsResource.message!,
-  //         source: runtimeType.toString(), name: "getByType", args: [types]);
-  //   }
-
-  //   List<AdvertInfoModel> res = [];
-  //   if (advertsResource is Empty) {
-  //     return Resource.success(res);
-  //   }
-
-  //   for (final advert in advertsResource.data!) {
-  //     if (advert.status == 7 || advert.status == 8) {
-  //       continue;
-  //     }
-
-  //     res.add(advert);
-  //   }
-  //   return Resource.success(res);
-  // }
 
   @override
   Future<Resource<List<Advert>>> getAll([List<int>? types]) async {
@@ -344,14 +272,7 @@ class AdvertService
       if (advert.status == 7 || advert.status == 8) {
         continue;
       }
-      // const wbApi = WbApiHelper.getCampaignInfo;
-      // await wbApi.ready(
-      //   getCampaignInfoLastReq,
-      // );
 
-      // request
-      // final wbApi = WbAdvertApiHelper.getCampaignInfo;
-      // await wbApi.waitForNextRequest();
       final advInfoResource = await advertApiClient.getCampaignInfo(
           tokenResource.data!.token, advert.campaignId);
 
@@ -381,9 +302,6 @@ class AdvertService
       return Resource.success(false);
     }
 
-    // final wbApiInfo = WbAdvertApiHelper.getCampaignInfo;
-
-    // await wbApiInfo.waitForNextRequest();
     final advertInfoResource =
         await advertApiClient.getCampaignInfo(tokenResource.data!, campaignId);
     if (advertInfoResource is Error) {
@@ -412,12 +330,7 @@ class AdvertService
     if (tokenResource is Empty) {
       return Resource.success(false);
     }
-    // const wbApiInfo = WbApiHelper.getCampaignInfo;
-    // await wbApiInfo.ready(
-    //   getCampaignInfoLastReq,
-    // );
-    // final wbApi = WbAdvertApiHelper.getCampaignInfo;
-    // await wbApi.waitForNextRequest();
+
     final advertInfoResource =
         await advertApiClient.getCampaignInfo(tokenResource.data!, campaignId);
     if (advertInfoResource is Error) {
@@ -457,13 +370,7 @@ class AdvertService
       if (cont >= 20) {
         break;
       }
-      // if (lastReqTime != null) {
-      //   // TODO pause and start can have different durations
-      //   const wbApi = WbApiHelper.startCampaign;
-      //   await wbApi.ready(lastReqTime);
-      // }
 
-      // await wbApi.waitForNextRequest();
       final resource = await func(tokenResource.data!.token, campaignId);
 
       if (resource is Error) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rewild/core/constants.dart';
+import 'package:rewild/core/constants/constants.dart';
 
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rewild/core/constants.dart';
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/presentation/notification_card_screen/notification_card_view_model.dart';
 import 'package:rewild/widgets/mutable_notification_card.dart';
 import 'package:rewild/widgets/unmutable_notification_card.dart';

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:rewild/core/constants.dart';
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 
 import 'package:rewild/core/utils/api/wb_advert_api_helper.dart';

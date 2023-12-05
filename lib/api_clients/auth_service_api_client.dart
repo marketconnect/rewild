@@ -1,4 +1,4 @@
-import 'package:rewild/core/constants.dart';
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/user_auth_data.dart';
 import 'package:rewild/domain/services/auth_service.dart';

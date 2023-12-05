@@ -1,4 +1,4 @@
-import 'package:rewild/core/utils/icons_constant.dart';
+import 'package:rewild/core/constants/icons_constant.dart';
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:flutter/material.dart';

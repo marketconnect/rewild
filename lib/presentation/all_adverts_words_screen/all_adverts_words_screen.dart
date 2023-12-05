@@ -2,7 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rewild/core/constants.dart';
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';

@@ -4,11 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 
 import 'package:provider/provider.dart';
-import 'package:rewild/core/utils/icons_constant.dart';
+import 'package:rewild/core/constants/icons_constant.dart';
 
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
 import 'package:rewild/presentation/main_navigation_screen/widgets/main_navigation_screen_advert_widget.dart';
 import 'package:rewild/presentation/main_navigation_screen/widgets/main_navigation_screen_cards_widget.dart';
+import 'package:rewild/presentation/main_navigation_screen/widgets/main_navigation_screen_feedback_widget.dart';
 import 'package:rewild/presentation/main_navigation_screen/widgets/main_navigation_screen_home_widget.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
@@ -123,7 +124,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       MainNavigationScreenCardsWidget(
         cardsNumber: cardsNumber,
       ),
-      Container(),
+      MainNavigationScreenFeedBackWidget(),
       MainNavigationScreenAdvertWidget(
         adverts: adverts,
         balance: balance,

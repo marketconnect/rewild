@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:rewild/core/utils/icons_constant.dart';
+import 'package:rewild/core/constants/icons_constant.dart';
+
 import 'package:rewild/domain/entities/search_campaign_stat.dart';
 
 class CardContent {

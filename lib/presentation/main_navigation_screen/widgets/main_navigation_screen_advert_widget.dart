@@ -1,8 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
-import 'package:rewild/core/constants.dart';
-import 'package:rewild/core/utils/icons_constant.dart';
+import 'package:rewild/core/constants/constants.dart';
+import 'package:rewild/core/constants/icons_constant.dart';
+
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/bottom_navigation_screen_link_btn.dart';

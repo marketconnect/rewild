@@ -1,6 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:rewild/core/utils/image_constant.dart';
+import 'package:rewild/core/constants/image_constant.dart';
+
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/custom_image_view.dart';
 

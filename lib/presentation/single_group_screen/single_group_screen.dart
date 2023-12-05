@@ -1,5 +1,6 @@
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:rewild/core/utils/image_constant.dart';
+import 'package:rewild/core/constants/image_constant.dart';
+
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/seller_model.dart';

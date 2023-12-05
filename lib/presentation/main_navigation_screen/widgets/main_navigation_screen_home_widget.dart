@@ -64,7 +64,7 @@ class _MainNavigationScreenHomeWidgetState
                 iconData: Icons.share_arrival_time_outlined,
               ),
               const _Link(
-                text: 'Добавить API токен',
+                text: 'API токены',
                 color: Color(0xFF41434e),
                 route: MainNavigationRouteNames.apiKeysScreen,
                 iconData: Icons.key,
