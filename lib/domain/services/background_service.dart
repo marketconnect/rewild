@@ -282,14 +282,11 @@ class BackgroundService {
     }
     final allAdverts = advertResource.data!;
     // TODO
-    print("allAdverts.length = ${allAdverts.length}");
     for (final advertInfo in allAdverts) {
-      print('try = ${advertInfo.campaignId}');
       if (advertInfo.status != AdvertStatusConstants.active &&
           advertInfo.status != AdvertStatusConstants.paused) {
         continue;
       }
-      print('good = ${advertInfo.campaignId}');
       switch (advertInfo.type) {
         case AdvertTypeConstants.auto:
           final advertStat = await _fetchAutoAdvertStat(token, advertInfo);

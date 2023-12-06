@@ -43,7 +43,6 @@ class ApiConstants {
           (60 * 1000 / requestLimitPerMinute).round() - elapsedMilliseconds;
 
       if (timeToWait > 0) {
-        print("waiting $timeToWait");
         await Future.delayed(Duration(milliseconds: timeToWait));
       }
     }

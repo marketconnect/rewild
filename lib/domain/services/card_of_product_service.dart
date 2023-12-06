@@ -17,6 +17,7 @@ import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_v
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
+import 'package:rewild/presentation/questions_screen/questions_view_model.dart';
 
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
@@ -74,6 +75,7 @@ class CardOfProductService
         MainNavigationCardService,
         AllAdvertsStatScreenCardOfProductService,
         AllCardsScreenCardOfProductService,
+        QuestionsCardOfProductService,
         AllAdvertsWordsScreenCardOfProductService,
         SingleGroupScreenViewModelCardsService {
   final CardOfProductServiceWarehouseDataProvider warehouseDataprovider;
@@ -176,11 +178,19 @@ class CardOfProductService
   @override
   Future<Resource<String>> getImageForNmId(int id) async {
     final imgResource = await cardOfProductDataProvider.getImage(id);
+
     if (imgResource is Error) {
       return Resource.error(imgResource.message!,
           source: runtimeType.toString(), name: 'getImageForNmId', args: [id]);
     }
 
-    return Resource.success(imgResource.data!);
+    final img = imgResource.data;
+    if (img == null || img.isEmpty) {
+      return Resource.success('');
+    }
+
+    print("HERE image: $img");
+
+    return Resource.success(img);
   }
 }

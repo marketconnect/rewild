@@ -40,9 +40,12 @@ class CardOfProductDataProvider
   Future<Resource<String>> getImage(int id) async {
     try {
       final db = await SqfliteService().database;
-      final image = await db.rawQuery('SELECT img FROM cards WHERE nmId = ?',
-          [id]).then((value) => value.first['img']);
-      return Resource.success(image.toString());
+      final image =
+          await db.rawQuery('SELECT img FROM cards WHERE nmId = ?', [id]);
+      if (image.isEmpty) {
+        return Resource.empty();
+      }
+      return Resource.success(image.first['img'].toString());
     } catch (e) {
       return Resource.error(
         'Не удалось получить картинку из памяти телефона: ${e.toString()} id:$id',

@@ -124,7 +124,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       MainNavigationScreenCardsWidget(
         cardsNumber: cardsNumber,
       ),
-      MainNavigationScreenFeedBackWidget(),
+      const MainNavigationScreenFeedBackWidget(),
       MainNavigationScreenAdvertWidget(
         adverts: adverts,
         balance: balance,

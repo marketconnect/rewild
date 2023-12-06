@@ -20,7 +20,6 @@ class Question {
   });
 
   factory Question.fromJson(Map<String, dynamic> json) {
-    print("fromJson $json");
     return Question(
       id: json['id'] ?? "",
       text: json['text'] ?? "",

@@ -77,7 +77,7 @@ import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_screen.dart
 import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
-import 'package:rewild/presentation/questions_screen/question_view_model.dart';
+import 'package:rewild/presentation/questions_screen/questions_view_model.dart';
 import 'package:rewild/presentation/questions_screen/questions_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
@@ -536,10 +536,11 @@ class _DIContainer {
           internetConnectionChecker: _makeInternetConnectionChecker(),
           messageService: makeBackgroundMessageService());
 
-  QuestionViewModel _makeQuestionsViewModel(BuildContext context) =>
-      QuestionViewModel(
+  QuestionsViewModel _makeQuestionsViewModel(BuildContext context) =>
+      QuestionsViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
+          cardOfProductService: _makeCardOfProductService(),
           questionService: _makeQuestionService());
 }
 

@@ -2,10 +2,11 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/question.dart';
-import 'package:rewild/presentation/questions_screen/question_view_model.dart';
+import 'package:rewild/presentation/questions_screen/questions_view_model.dart';
 
 abstract class QuestionServiceQuestionApiClient {
   Future<Resource<List<Question>>> getUnansweredQuestions(String token);
+  Future<Resource<List<Question>>> getAnsweredQuestions(String token);
 }
 
 // Api key
@@ -45,15 +46,30 @@ class QuestionService implements QuestionViewModelQuestionService {
       return Resource.empty();
     }
 
-    final resource = await questionApiClient
+    // Unanswered questions
+    final resourceUnAnswered = await questionApiClient
         .getUnansweredQuestions(tokenResource.data!.token);
-    if (resource is Error) {
-      return Resource.error(resource.message!,
+    if (resourceUnAnswered is Error) {
+      return Resource.error(resourceUnAnswered.message!,
           source: runtimeType.toString(), name: "getQuestions", args: []);
     }
-    if (resource is Empty) {
+    if (resourceUnAnswered is Empty) {
       return Resource.empty();
     }
-    return Resource.success(resource.data!);
+    final unAnsweredQuestions = resourceUnAnswered.data!;
+    // Answered questions
+    final resourceAnswered =
+        await questionApiClient.getAnsweredQuestions(tokenResource.data!.token);
+    if (resourceAnswered is Error) {
+      return Resource.error(resourceAnswered.message!,
+          source: runtimeType.toString(), name: "getQuestions", args: []);
+    }
+    if (resourceAnswered is Empty) {
+      return Resource.success(unAnsweredQuestions);
+    }
+
+    final answeredQuestions = resourceAnswered.data!;
+
+    return Resource.success([...unAnsweredQuestions, ...answeredQuestions]);
   }
 }
