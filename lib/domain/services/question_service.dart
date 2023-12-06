@@ -2,7 +2,7 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/question.dart';
-import 'package:rewild/presentation/questions_screen/questions_view_model.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
 
 abstract class QuestionServiceQuestionApiClient {
   Future<Resource<List<Question>>> getUnansweredQuestions(String token);
@@ -14,7 +14,7 @@ abstract class QuestionServiceApiKeyDataProvider {
   Future<Resource<ApiKeyModel>> getApiKey(String type);
 }
 
-class QuestionService implements QuestionViewModelQuestionService {
+class QuestionService implements AllProductsQuestionViewModelQuestionService {
   final QuestionServiceQuestionApiClient questionApiClient;
   final QuestionServiceApiKeyDataProvider apiKeysDataProvider;
   QuestionService(

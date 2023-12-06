@@ -1,5 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/constants/constants.dart';
@@ -7,6 +7,7 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_screen_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/empty_widget.dart';
+import 'package:rewild/widgets/network_image.dart';
 
 import 'package:rewild/widgets/progress_indicator.dart';
 
@@ -188,13 +189,19 @@ class _TopRow extends StatelessWidget {
                 children: images
                     .map((e) => Positioned(
                           right: images.indexOf(e) * screenWidth * 0.06,
-                          child: SizedBox(
-                              width: screenWidth * 0.15,
-                              height: screenWidth * 0.15,
-                              child: CachedNetworkImage(
-                                imageUrl: e,
-                                fit: BoxFit.contain,
-                              )),
+                          child: ReWildNetworkImage(
+                            width: screenWidth * 0.15,
+                            height: screenWidth * 0.15,
+                            fit: BoxFit.contain,
+                            image: e,
+                          ),
+                          // SizedBox(
+                          //     width: screenWidth * 0.15,
+                          //     height: screenWidth * 0.15,
+                          //     child: CachedNetworkImage(
+                          //       imageUrl: e,
+                          //       fit: BoxFit.contain,
+                          //     )),
                         ))
                     .toList(),
                 // [

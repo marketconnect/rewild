@@ -7,11 +7,12 @@ import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/custom_image_view.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/widgets/empty_widget.dart';
+import 'package:rewild/widgets/network_image.dart';
 
 class SingleGroupScreen extends StatelessWidget {
   const SingleGroupScreen({super.key});
@@ -246,10 +247,16 @@ class _CardsList extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(
+                    ReWildNetworkImage(
                         width: model.screenWidth * 0.2,
                         height: model.screenWidth * 0.2,
-                        child: CachedNetworkImage(imageUrl: card.img ?? '')),
+                        fit: BoxFit.contain,
+                        image: card.img ?? ''),
+                    // SizedBox(
+                    //     width: model.screenWidth * 0.2,
+                    //     height: model.screenWidth * 0.2,
+                    //     child:
+                    //     CachedNetworkImage(imageUrl: card.img ?? '')),
                     SizedBox(
                       width: model.screenWidth * 0.45,
                       child: Text(card.name, overflow: TextOverflow.ellipsis),

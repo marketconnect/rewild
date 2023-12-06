@@ -70,3 +70,14 @@ String formatDateTime(DateTime dateTime) {
 DateTime getMidnight(DateTime date) {
   return DateTime(date.year, date.month, date.day, 0, 1);
 }
+
+int getMonthAgoTimestamp(int dateFrom) {
+  DateTime fromDate = DateTime.fromMillisecondsSinceEpoch(dateFrom * 1000);
+  DateTime monthAgo = DateTime(fromDate.year, fromDate.month - 1, fromDate.day,
+      fromDate.hour, fromDate.minute, fromDate.second);
+  return monthAgo.millisecondsSinceEpoch ~/ 1000;
+}
+
+int getNowTimestamp() {
+  return DateTime.now().millisecondsSinceEpoch ~/ 1000;
+}

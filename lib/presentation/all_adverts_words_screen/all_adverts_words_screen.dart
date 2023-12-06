@@ -1,11 +1,12 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
+import 'package:rewild/widgets/network_image.dart';
 
 class AllAdvertsWordsScreen extends StatelessWidget {
   const AllAdvertsWordsScreen({super.key});
@@ -187,14 +188,19 @@ class _Card extends StatelessWidget {
               child: Stack(
                 children: [
                   Positioned(
-                    child: SizedBox(
+                    child: ReWildNetworkImage(
+                      image: image,
                       width: screenWidth * 0.17,
                       height: screenWidth * 0.17,
-                      child: CachedNetworkImage(
-                        imageUrl: image,
-                        fit: BoxFit.fill,
-                      ),
                     ),
+                    // SizedBox(
+                    //   width: screenWidth * 0.17,
+                    //   height: screenWidth * 0.17,
+                    //   child: CachedNetworkImage(
+                    //     imageUrl: image,
+                    //     fit: BoxFit.fill,
+                    //   ),
+                    // ),
                   )
                 ],
               ),

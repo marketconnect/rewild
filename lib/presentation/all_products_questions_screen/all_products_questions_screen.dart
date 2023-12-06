@@ -1,24 +1,25 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rewild/core/constants/image_constant.dart';
-import 'package:rewild/presentation/questions_screen/questions_view_model.dart';
-import 'package:rewild/widgets/empty_widget.dart';
-import 'package:rewild/widgets/progress_indicator.dart';
 
-class QuestionsScreen extends StatefulWidget {
-  const QuestionsScreen({super.key});
+import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
+import 'package:rewild/widgets/empty_widget.dart';
+import 'package:rewild/widgets/network_image.dart';
+
+class AllProductsQuestionsScreen extends StatefulWidget {
+  const AllProductsQuestionsScreen({super.key});
 
   @override
-  State<QuestionsScreen> createState() => _QuestionsScreenState();
+  State<AllProductsQuestionsScreen> createState() =>
+      _AllProductsQuestionsScreenState();
 }
 
-class _QuestionsScreenState extends State<QuestionsScreen> {
+class _AllProductsQuestionsScreenState
+    extends State<AllProductsQuestionsScreen> {
   bool isSwitched = false;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<QuestionsViewModel>();
+    final model = context.watch<AllProductsQuestionsViewModel>();
     final screenWidth = MediaQuery.of(context).size.width;
     final apiKeyexists = model.apiKeyExists;
     final questions = model.questions;
@@ -29,31 +30,35 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: screenWidth * 0.15,
-            ),
-            Switch(
-                value: isSwitched,
-                onChanged: (value) {
-                  setState(() {
-                    isSwitched = value;
-                  });
-                }),
-            SizedBox(
-              width: screenWidth * 0.05,
-            ),
-            isSwitched
-                ? Text('Новые',
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.05))
-                : Text('Все',
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.05)),
-          ],
-        ),
+        title: !apiKeyexists
+            ? null
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: screenWidth * 0.15,
+                  ),
+                  Switch(
+                      value: isSwitched,
+                      onChanged: (value) {
+                        setState(() {
+                          isSwitched = value;
+                        });
+                      }),
+                  SizedBox(
+                    width: screenWidth * 0.05,
+                  ),
+                  isSwitched
+                      ? Text('Новые',
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.05))
+                      : Text('Все',
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.05)),
+                ],
+              ),
       ),
       body: !apiKeyexists
           ? const EmptyWidget(
@@ -120,18 +125,8 @@ class _ProductCard extends StatelessWidget {
             children: [
               AspectRatio(
                 aspectRatio: 3 / 4,
-                child: SizedBox(
-                  height: screenWidth * 0.33,
-                  child: CachedNetworkImage(
-                    imageUrl: image,
-                    placeholder: (context, url) => const MyProgressIndicator(),
-                    errorWidget: (context, url, error) => Image.asset(
-                      ImageConstant.taken,
-                      fit: BoxFit.fill,
-                    ),
-                    fit: BoxFit.fill,
-                  ),
-                ),
+                child:
+                    ReWildNetworkImage(width: screenWidth * 0.33, image: image),
               ),
               SizedBox(
                 width: screenWidth * 0.05,
@@ -160,10 +155,13 @@ class _ProductCard extends StatelessWidget {
                         fontWeight: FontWeight.w500),
                   ),
                   Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: MediaQuery.of(context).size.width * 0.01,
-                      horizontal: MediaQuery.of(context).size.width * 0.02,
-                    ),
+                    padding: newQuetions == 0
+                        ? null
+                        : EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.width * 0.01,
+                            horizontal:
+                                MediaQuery.of(context).size.width * 0.02,
+                          ),
                     decoration: newQuetions == 0
                         ? null
                         : BoxDecoration(

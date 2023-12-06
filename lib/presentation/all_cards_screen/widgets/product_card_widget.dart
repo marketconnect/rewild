@@ -2,9 +2,9 @@ import 'package:rewild/core/utils/strings.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:rewild/domain/entities/group_model.dart';
+import 'package:rewild/widgets/network_image.dart';
 
 class ProductCardWidget extends StatelessWidget {
   const ProductCardWidget({
@@ -67,14 +67,17 @@ class ProductCardWidget extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      SizedBox(
-                        width: screenWidth * 0.2,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CachedNetworkImage(
-                              imageUrl: productCard.img ?? ''),
-                        ),
-                      ),
+                      ReWildNetworkImage(
+                          width: screenWidth * 0.2,
+                          image: productCard.img ?? ""),
+                      // SizedBox(
+                      //   width: screenWidth * 0.2,
+                      //   child: Padding(
+                      //     padding: const EdgeInsets.all(8.0),
+                      //     child: CachedNetworkImage(
+                      //         imageUrl: productCard.img ?? ''),
+                      //   ),
+                      // ),
                       SizedBox(
                         width: screenWidth * 0.6,
                         child: Column(

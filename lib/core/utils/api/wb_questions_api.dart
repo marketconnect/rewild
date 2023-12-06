@@ -61,4 +61,13 @@ class WbQuestionsApiHelper {
       404: 'Ошибка - не найдено',
     },
   );
+  // Метод позволяет получить вопрос по его Id.
+  static ApiConstants getQuestionById = ApiConstants(
+    host: host,
+    url: '/api/v1/question',
+    requestLimitPerMinute: 60, // unknown
+    statusCodeDescriptions: {
+      401: 'Не авторизован',
+    },
+  );
 }

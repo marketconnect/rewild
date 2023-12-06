@@ -2,20 +2,20 @@ import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/question.dart';
 
-abstract class QuestionsCardOfProductService {
+abstract class AllProductsQuestionsCardOfProductService {
   Future<Resource<String>> getImageForNmId(int id);
 }
 
-abstract class QuestionViewModelQuestionService {
+abstract class AllProductsQuestionViewModelQuestionService {
   Future<Resource<List<Question>>> getQuestions();
   Future<Resource<bool>> apiKeyExists();
 }
 
-class QuestionsViewModel extends ResourceChangeNotifier {
-  final QuestionViewModelQuestionService questionService;
-  final QuestionsCardOfProductService cardOfProductService;
+class AllProductsQuestionsViewModel extends ResourceChangeNotifier {
+  final AllProductsQuestionViewModelQuestionService questionService;
+  final AllProductsQuestionsCardOfProductService cardOfProductService;
 
-  QuestionsViewModel(
+  AllProductsQuestionsViewModel(
       {required super.context,
       required super.internetConnectionChecker,
       required this.cardOfProductService,

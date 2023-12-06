@@ -77,8 +77,8 @@ import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_screen.dart
 import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
-import 'package:rewild/presentation/questions_screen/questions_view_model.dart';
-import 'package:rewild/presentation/questions_screen/questions_screen.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 import 'package:rewild/presentation/background_messages_screen/background_messages_screen.dart';
@@ -536,8 +536,8 @@ class _DIContainer {
           internetConnectionChecker: _makeInternetConnectionChecker(),
           messageService: makeBackgroundMessageService());
 
-  QuestionsViewModel _makeQuestionsViewModel(BuildContext context) =>
-      QuestionsViewModel(
+  AllProductsQuestionsViewModel _makeQuestionsViewModel(BuildContext context) =>
+      AllProductsQuestionsViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
           cardOfProductService: _makeCardOfProductService(),
@@ -710,7 +710,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   Widget makeQuestionsScreen() {
     return ChangeNotifierProvider(
       create: (context) => _diContainer._makeQuestionsViewModel(context),
-      child: const QuestionsScreen(),
+      child: const AllProductsQuestionsScreen(),
     );
   }
 }

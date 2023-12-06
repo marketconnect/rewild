@@ -39,14 +39,19 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   }
 
   @override
-  Future<Resource<List<Question>>> getUnansweredQuestions(String token) async {
+  Future<Resource<List<Question>>> getUnansweredQuestions(String token,
+      [int? nmId]) async {
     try {
       final params = {
         'isAnswered': false.toString(),
-        'take': 100.toString(),
+        'take': 10000.toString(),
         'skip': 0.toString(),
         'order': 'dateAsc',
       };
+
+      if (nmId != null) {
+        params['nmId'] = nmId.toString();
+      }
 
       final wbApiHelper = WbQuestionsApiHelper.getQuestionsList;
       final response = await wbApiHelper.get(token, params);
