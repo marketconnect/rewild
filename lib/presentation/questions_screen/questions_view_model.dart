@@ -41,8 +41,18 @@ class QuestionsViewModel extends ResourceChangeNotifier {
     }
     for (final question in questions) {
       final nmId = question.productDetails.nmId;
+      // All Questions Qty
+      incrementAllQuestionsQty(nmId);
+
+      // New Questions Qty
+      if (question.state == "suppliersPortalSynch") {
+        incrementNewQuestionsQty(nmId);
+      }
+
+      // Add Questions
       addQuestion(nmId, question);
 
+      // Image
       if (!_images.containsKey(nmId)) {
         final image = await fetch(
           () => cardOfProductService.getImageForNmId(nmId),
@@ -50,10 +60,17 @@ class QuestionsViewModel extends ResourceChangeNotifier {
         if (image == null) {
           continue;
         }
-        print("image $image");
+
         addImage(nmId, image);
       }
+
+      // SupplierArticle
+      if (!_supplierArticle.containsKey(nmId)) {
+        final supplierArticle = question.productDetails.supplierArticle;
+        addSupplierArticle(nmId, supplierArticle);
+      }
     }
+
     notify();
   }
 
@@ -85,17 +102,33 @@ class QuestionsViewModel extends ResourceChangeNotifier {
 
   Map<int, List<Question>> get questions => _questions;
 
+  // supplierArticles
+  Map<int, String> _supplierArticle = {};
+  void setSupplierArticle(Map<int, String> value) {
+    _supplierArticle = value;
+  }
+
+  void addSupplierArticle(int nmId, String value) {
+    if (_supplierArticle.containsKey(nmId)) {
+      _supplierArticle[nmId] = value;
+    } else {
+      _supplierArticle[nmId] = value;
+    }
+  }
+
+  String getSupplierArticle(int nmId) => _supplierArticle[nmId] ?? '';
+
   // new questions qty
   Map<int, int> _newQuestionsQty = {};
   void setNewQuestionsQty(Map<int, int> value) {
     _newQuestionsQty = value;
   }
 
-  void addNewQuestionsQty(int nmId, int value) {
+  void incrementNewQuestionsQty(int nmId) {
     if (_newQuestionsQty.containsKey(nmId)) {
-      _newQuestionsQty[nmId] = _newQuestionsQty[nmId]! + value;
+      _newQuestionsQty[nmId] = _newQuestionsQty[nmId]! + 1;
     } else {
-      _newQuestionsQty[nmId] = value;
+      _newQuestionsQty[nmId] = 1;
     }
   }
 
@@ -107,11 +140,11 @@ class QuestionsViewModel extends ResourceChangeNotifier {
     _allQuestionsQty = value;
   }
 
-  void addAllQuestionsQty(int nmId, int value) {
+  void incrementAllQuestionsQty(int nmId) {
     if (_allQuestionsQty.containsKey(nmId)) {
-      _allQuestionsQty[nmId] = _allQuestionsQty[nmId]! + value;
+      _allQuestionsQty[nmId] = _allQuestionsQty[nmId]! + 1;
     } else {
-      _allQuestionsQty[nmId] = value;
+      _allQuestionsQty[nmId] = 1;
     }
   }
 
