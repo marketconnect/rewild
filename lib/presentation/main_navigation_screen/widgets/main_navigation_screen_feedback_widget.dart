@@ -41,7 +41,7 @@ class MainNavigationScreenFeedBackWidget extends StatelessWidget {
                 text: 'Вопросы',
                 color: const Color(0xFF8c56ce),
                 imageSrc: IconConstant.iconQuestions,
-                route: MainNavigationRouteNames.questionsScreen,
+                route: MainNavigationRouteNames.productsQuestionsScreen,
               ),
               _Link(
                 text: 'Отзывы',

@@ -71,10 +71,10 @@ DateTime getMidnight(DateTime date) {
   return DateTime(date.year, date.month, date.day, 0, 1);
 }
 
-int getMonthAgoTimestamp(int dateFrom) {
-  DateTime fromDate = DateTime.fromMillisecondsSinceEpoch(dateFrom * 1000);
-  DateTime monthAgo = DateTime(fromDate.year, fromDate.month - 1, fromDate.day,
-      fromDate.hour, fromDate.minute, fromDate.second);
+int getMonthAgoTimestamp() {
+  DateTime nowDate = DateTime.now();
+  DateTime monthAgo = DateTime(nowDate.year, nowDate.month - 1, nowDate.day,
+      nowDate.hour, nowDate.minute, nowDate.second);
   return monthAgo.millisecondsSinceEpoch ~/ 1000;
 }
 

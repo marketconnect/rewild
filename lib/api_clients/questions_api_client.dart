@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:rewild/core/utils/api/wb_questions_api.dart';
+import 'package:rewild/core/utils/api/wb_questions_api_helper.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/question.dart';
 import 'package:rewild/domain/services/question_service.dart';
@@ -62,6 +62,7 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
         final List<Question> questions = [];
         final responseQuestions = (responseData['data']['questions']);
         for (var question in responseQuestions) {
+          if (nmId != null) {}
           questions.add(Question.fromJson(question));
         }
         return Resource.success(questions);
@@ -90,14 +91,19 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   }
 
   @override
-  Future<Resource<List<Question>>> getAnsweredQuestions(String token) async {
+  Future<Resource<List<Question>>> getAnsweredQuestions(String token,
+      [int? nmId]) async {
     try {
       final params = {
         'isAnswered': true.toString(),
-        'take': 100.toString(),
+        'take': 10000.toString(),
         'skip': 0.toString(),
         'order': 'dateAsc',
       };
+
+      if (nmId != null) {
+        params['nmId'] = nmId.toString();
+      }
 
       final wbApiHelper = WbQuestionsApiHelper.getQuestionsList;
       final response = await wbApiHelper.get(token, params);
@@ -108,6 +114,7 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
         final List<Question> questions = [];
         final responseQuestions = (responseData['data']['questions']);
         for (var question in responseQuestions) {
+          if (nmId != null) {}
           questions.add(Question.fromJson(question));
         }
         return Resource.success(questions);

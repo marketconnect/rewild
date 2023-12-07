@@ -60,6 +60,8 @@ import 'package:rewild/domain/services/warehouse_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
+import 'package:rewild/presentation/all_questions_screen/all_questions_screen.dart';
+import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
 import 'package:rewild/presentation/first_start_splash_screen/first_start_splash_screen.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_screen.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
@@ -542,6 +544,13 @@ class _DIContainer {
           internetConnectionChecker: _makeInternetConnectionChecker(),
           cardOfProductService: _makeCardOfProductService(),
           questionService: _makeQuestionService());
+
+  AllQuestionsViewModel _makeAllQuestionsViewModel(
+          BuildContext context, int nmId) =>
+      AllQuestionsViewModel(nmId,
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          questionService: _makeQuestionService());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -707,10 +716,19 @@ class ScreenFactoryDefault implements ScreenFactory {
   }
 
   @override
-  Widget makeQuestionsScreen() {
+  Widget makeAllProductsQuestionsScreen() {
     return ChangeNotifierProvider(
       create: (context) => _diContainer._makeQuestionsViewModel(context),
       child: const AllProductsQuestionsScreen(),
+    );
+  }
+
+  @override
+  Widget makeAllQuestionsScreen(int nmId) {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeAllQuestionsViewModel(context, nmId),
+      child: const AllQuestionsScreen(),
     );
   }
 }

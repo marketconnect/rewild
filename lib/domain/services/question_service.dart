@@ -3,10 +3,13 @@ import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/question.dart';
 import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
+import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
 
 abstract class QuestionServiceQuestionApiClient {
-  Future<Resource<List<Question>>> getUnansweredQuestions(String token);
-  Future<Resource<List<Question>>> getAnsweredQuestions(String token);
+  Future<Resource<List<Question>>> getUnansweredQuestions(String token,
+      [int? nmId]);
+  Future<Resource<List<Question>>> getAnsweredQuestions(String token,
+      [int? nmId]);
 }
 
 // Api key
@@ -14,7 +17,10 @@ abstract class QuestionServiceApiKeyDataProvider {
   Future<Resource<ApiKeyModel>> getApiKey(String type);
 }
 
-class QuestionService implements AllProductsQuestionViewModelQuestionService {
+class QuestionService
+    implements
+        AllProductsQuestionViewModelQuestionService,
+        AllQuestionsViewModelQuestionService {
   final QuestionServiceQuestionApiClient questionApiClient;
   final QuestionServiceApiKeyDataProvider apiKeysDataProvider;
   QuestionService(
@@ -36,7 +42,7 @@ class QuestionService implements AllProductsQuestionViewModelQuestionService {
   }
 
   @override
-  Future<Resource<List<Question>>> getQuestions() async {
+  Future<Resource<List<Question>>> getQuestions([int? nmId]) async {
     final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
@@ -47,8 +53,8 @@ class QuestionService implements AllProductsQuestionViewModelQuestionService {
     }
 
     // Unanswered questions
-    final resourceUnAnswered = await questionApiClient
-        .getUnansweredQuestions(tokenResource.data!.token);
+    final resourceUnAnswered = await questionApiClient.getUnansweredQuestions(
+        tokenResource.data!.token, nmId);
     if (resourceUnAnswered is Error) {
       return Resource.error(resourceUnAnswered.message!,
           source: runtimeType.toString(), name: "getQuestions", args: []);
@@ -58,8 +64,8 @@ class QuestionService implements AllProductsQuestionViewModelQuestionService {
     }
     final unAnsweredQuestions = resourceUnAnswered.data!;
     // Answered questions
-    final resourceAnswered =
-        await questionApiClient.getAnsweredQuestions(tokenResource.data!.token);
+    final resourceAnswered = await questionApiClient.getAnsweredQuestions(
+        tokenResource.data!.token, nmId);
     if (resourceAnswered is Error) {
       return Resource.error(resourceAnswered.message!,
           source: runtimeType.toString(), name: "getQuestions", args: []);

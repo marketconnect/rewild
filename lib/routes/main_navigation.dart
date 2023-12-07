@@ -25,7 +25,8 @@ abstract class ScreenFactory {
   Widget makeSingleStatAdvertScreen(int id);
   Widget makeBackgroundNotificationsScreen();
   Widget makeFirstTimeSplashScreen();
-  Widget makeQuestionsScreen();
+  Widget makeAllProductsQuestionsScreen();
+  Widget makeAllQuestionsScreen(int nmId);
 }
 
 class MainNavigation implements AppNavigation {
@@ -182,9 +183,9 @@ class MainNavigation implements AppNavigation {
           builder: (_) => screenFactory.makeSearchStatsWordsScreen(campaignId),
         );
 
-      case MainNavigationRouteNames.questionsScreen:
+      case MainNavigationRouteNames.productsQuestionsScreen:
         return MaterialPageRoute(
-          builder: (_) => screenFactory.makeQuestionsScreen(),
+          builder: (_) => screenFactory.makeAllProductsQuestionsScreen(),
         );
 
       case MainNavigationRouteNames.advertNotificationScreen:
@@ -194,6 +195,13 @@ class MainNavigation implements AppNavigation {
             : NotificationAdvertState.empty();
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAdvertNotificationScreen(state),
+        );
+
+      case MainNavigationRouteNames.allQuestionsScreen:
+        final arguments = settings.arguments;
+        final nmId = arguments is int ? arguments : 0;
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeAllQuestionsScreen(nmId),
         );
 
       default:

@@ -54,7 +54,6 @@ class ApiConstants {
     await _waitForNextRequest();
     final uri = _buildUri(params);
     final resp = await http.get(uri, headers: headers(token));
-    // print('get ${_buildUri(params)} headers: ${headers(token)}');
 
     lastReq = DateTime.now();
 
