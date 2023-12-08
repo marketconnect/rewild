@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rewild/core/constants/icons_constant.dart';
+import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/question.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
@@ -10,25 +12,67 @@ class AllQuestionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AllQuestionsViewModel>();
+    final screenWidth = MediaQuery.of(context).size.width;
     final questions = model.questions;
+    List<Question> unAnsweredQuestions = [];
+    List<Question> answeredQuestions = [];
+    List<Question> editableQuestions = [];
+    for (final question in questions) {
+      if (question.answer != null) {
+        if (question.answer!.editable) {
+          editableQuestions.add(question);
+        } else {
+          answeredQuestions.add(question);
+        }
+      } else {
+        unAnsweredQuestions.add(question);
+      }
+    }
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+          scrolledUnderElevation: 2,
+          shadowColor: Colors.black,
+          surfaceTintColor: Colors.transparent),
       body: SingleChildScrollView(
-        child: Column(
-            children: questions
-                .map((e) => _QuestionCard(
-                      question: e,
-                    ))
-                .toList()),
+        child: Column(children: [
+          SizedBox(
+            height: screenWidth * 0.035,
+          ),
+          ...unAnsweredQuestions.map((e) => _UnAnsweredQuestionCard(
+                question: e,
+              )),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth * 0.07,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text('Отвеченные вопросы:',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    )),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: screenWidth * 0.035,
+          ),
+          ...editableQuestions.map((e) => _EditableQuestionCard(
+                question: e,
+              )),
+          ...answeredQuestions.map((e) => _AnsweredQuestionCard(
+                question: e,
+              )),
+        ]),
       ),
     );
   }
 }
 
-class _QuestionCard extends StatelessWidget {
-  const _QuestionCard({
-    super.key,
+class _UnAnsweredQuestionCard extends StatelessWidget {
+  const _UnAnsweredQuestionCard({
     required this.question,
   });
 
@@ -38,6 +82,7 @@ class _QuestionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final dif = DateTime.now().difference(question.createdDate);
+
     final ago = dif.inDays > 1
         ? getNoun(dif.inDays, "${dif.inDays} день назад",
             "${dif.inDays} дня назад", "${dif.inDays} дней назад")
@@ -52,45 +97,364 @@ class _QuestionCard extends StatelessWidget {
                     '${dif.inMinutes} минуты назад)')
                 : 'только что';
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
+      margin: EdgeInsets.only(bottom: screenWidth * 0.17),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceVariant,
+                        borderRadius:
+                            BorderRadius.circular(screenWidth * 0.027),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.027),
+                      child: Text(question.productDetails.supplierArticle,
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          )),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: screenWidth * 0.04,
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                        width: screenWidth * 0.86,
+                        child: Text(
+                          question.text,
+                          maxLines: 20,
+                          style: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
+                        )),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Задан $ago',
+                      style: TextStyle(
+                          fontSize: screenWidth * 0.04,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onBackground
+                              .withOpacity(0.5)),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: screenWidth * 0.08,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: screenWidth,
+          ),
+          SizedBox(
+            width: screenWidth,
+            height: screenWidth * 0.08,
+            child: Stack(children: [
+              Positioned(
+                top: screenWidth * 0.04 - 1,
+                child: Container(
+                  width: screenWidth,
+                  height: 1,
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                ),
+              ),
+              Positioned(
+                left: screenWidth * 0.3,
+                child: Container(
+                  alignment: Alignment.center,
+                  width: screenWidth * 0.4,
+                  height: screenWidth * 0.08,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(screenWidth * 0.08),
+                      color: Theme.of(context).colorScheme.background,
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                          spreadRadius: 0,
+                          blurRadius: 1,
+                          offset: const Offset(0, 1),
+                        )
+                      ]),
+                  child: Text(
+                    "ОТВЕТИТЬ",
+                    style: TextStyle(
+                        fontSize: screenWidth * 0.04,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
+              ),
+            ]),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _EditableQuestionCard extends StatelessWidget {
+  const _EditableQuestionCard({
+    required this.question,
+  });
+
+  final Question question;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final dif = DateTime.now().difference(question.createdDate);
+
+    final ago = dif.inDays > 1
+        ? getNoun(dif.inDays, "${dif.inDays} день назад",
+            "${dif.inDays} дня назад", "${dif.inDays} дней назад")
+        : dif.inHours > 1
+            ? getNoun(dif.inHours, '${dif.inHours} час назад',
+                '${dif.inHours} часа назад', '${dif.inHours} часов назад')
+            : dif.inMinutes > 1
+                ? getNoun(
+                    dif.inMinutes,
+                    '${dif.inMinutes} минута назад',
+                    '${dif.inMinutes} минуты назад',
+                    '${dif.inMinutes} минуты назад)')
+                : 'только что';
+    return Container(
+      margin: EdgeInsets.only(bottom: screenWidth * 0.17),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceVariant,
+                        borderRadius:
+                            BorderRadius.circular(screenWidth * 0.027),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.027),
+                      child: Text(question.productDetails.supplierArticle,
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          )),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: screenWidth * 0.04,
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                        width: screenWidth * 0.86,
+                        child: Text(
+                          question.text,
+                          maxLines: 20,
+                          style: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
+                        )),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Задан $ago',
+                      style: TextStyle(
+                          fontSize: screenWidth * 0.04,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onBackground
+                              .withOpacity(0.5)),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: screenWidth * 0.08,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: screenWidth,
+          ),
+          SizedBox(
+            width: screenWidth,
+            height: screenWidth * 0.08,
+            child: Stack(children: [
+              _BottomLine(screenWidth: screenWidth),
+              _Btn(
+                screenWidth: screenWidth,
+                onTap: () => print("AAAAAAAAAAAAAAAAA"),
+              ),
+            ]),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _Btn extends StatelessWidget {
+  const _Btn({
+    required this.screenWidth,
+    required this.onTap,
+  });
+
+  final double screenWidth;
+  final void Function() onTap;
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: 0,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurfaceVariant
+                  .withOpacity(0.1),
+            ),
+          ),
+          width: screenWidth * 0.2,
+          height: screenWidth * 0.08,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.08,
+            height: MediaQuery.of(context).size.width * 0.08,
+            padding: EdgeInsets.all(screenWidth * 0.02),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: Image.asset(IconConstant.iconPencil,
+                color: Theme.of(context).colorScheme.onPrimary),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomLine extends StatelessWidget {
+  const _BottomLine({
+    super.key,
+    required this.screenWidth,
+  });
+
+  final double screenWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: screenWidth * 0.04 - 1,
+      child: Container(
+        width: screenWidth,
+        height: 1,
+        color: Theme.of(context).colorScheme.primaryContainer,
+      ),
+    );
+  }
+}
+
+class _AnsweredQuestionCard extends StatelessWidget {
+  const _AnsweredQuestionCard({
+    required this.question,
+  });
+
+  final Question question;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final dateOfAnswer = fromIso8601String(question.answer!.createDate);
+    final dif = DateTime.now().difference(dateOfAnswer);
+
+    final ago = dif.inDays > 1
+        ? getNoun(dif.inDays, "${dif.inDays} день назад",
+            "${dif.inDays} дня назад", "${dif.inDays} дней назад")
+        : dif.inHours > 1
+            ? getNoun(dif.inHours, '${dif.inHours} час назад',
+                '${dif.inHours} часа назад', '${dif.inHours} часов назад')
+            : dif.inMinutes > 1
+                ? getNoun(
+                    dif.inMinutes,
+                    '${dif.inMinutes} минута назад',
+                    '${dif.inMinutes} минуты назад',
+                    '${dif.inMinutes} минуты назад)')
+                : 'только что';
+    return Container(
+      margin: EdgeInsets.only(bottom: screenWidth * 0.17),
       decoration: BoxDecoration(
         border: Border(
-            bottom: BorderSide(
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
-        )),
+          bottom: BorderSide(
+              color:
+                  Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
+        ),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(screenWidth * 0.027),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Отвечено $ago',
+                      style: TextStyle(
+                          fontSize: screenWidth * 0.04,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onBackground
+                              .withOpacity(0.5)),
+                    ),
+                  ],
                 ),
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.027),
-                child: Text(question.productDetails.supplierArticle,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondaryContainer,
-                    )),
-              )
-            ],
+                SizedBox(
+                  height: screenWidth * 0.04,
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                        width: screenWidth * 0.86,
+                        child: Text(
+                          question.text,
+                          maxLines: 20,
+                        )),
+                  ],
+                ),
+                SizedBox(
+                  height: screenWidth * 0.08,
+                ),
+              ],
+            ),
           ),
-          Row(
-            children: [
-              Container(
-                  width: screenWidth * 0.86,
-                  child: Text(
-                    question.text,
-                    maxLines: 20,
-                  )),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(child: Text(ago)),
-            ],
+          Container(
+            width: screenWidth,
           ),
         ],
       ),

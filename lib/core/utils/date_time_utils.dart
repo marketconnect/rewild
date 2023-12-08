@@ -18,7 +18,7 @@ bool isIntraday(DateTime date) {
 }
 
 DateTime fromIso8601String(String iso8601String) {
-  return DateTime.parse(iso8601String);
+  return DateTime.tryParse(iso8601String) ?? DateTime.now();
 }
 
 DateTime yesterdayEndOfTheDay() {
