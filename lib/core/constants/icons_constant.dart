@@ -1,7 +1,7 @@
 class IconConstant {
   // Icone folder path
   static String iconPath = 'assets/icons';
-// TODO Drop ediatble.png
+// TODO Drop all unnecessary icons
   static String iconFilter = '$iconPath/filter.png';
   static String iconFilterDismiss = '$iconPath/filter-dismiss.png';
   static String iconGrouping = '$iconPath/grouping.png';
@@ -17,5 +17,6 @@ class IconConstant {
   static String iconQuestions = '$iconPath/questions.png';
   static String iconReview = '$iconPath/review.png';
   static String iconPencil = '$iconPath/pencil.png';
+  static String iconDownArrow = '$iconPath/down_arrow.png';
   static String iconHappyMale = '$iconPath/happy_male.png';
 }

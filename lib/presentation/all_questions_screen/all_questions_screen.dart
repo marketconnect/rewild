@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/constants/icons_constant.dart';
+
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/strings.dart';
 import 'package:rewild/domain/entities/question.dart';
@@ -42,20 +43,6 @@ class AllQuestionsScreen extends StatelessWidget {
           ...unAnsweredQuestions.map((e) => _UnAnsweredQuestionCard(
                 question: e,
               )),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: screenWidth * 0.07,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text('Отвеченные вопросы:',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                    )),
-              ],
-            ),
-          ),
           SizedBox(
             height: screenWidth * 0.035,
           ),
@@ -163,10 +150,10 @@ class _UnAnsweredQuestionCard extends StatelessWidget {
           ),
           SizedBox(
             width: screenWidth,
-            height: screenWidth * 0.08,
+            height: screenWidth * 0.15,
             child: Stack(children: [
               Positioned(
-                top: screenWidth * 0.04 - 1,
+                top: screenWidth * 0.075 - 1,
                 child: Container(
                   width: screenWidth,
                   height: 1,
@@ -178,14 +165,13 @@ class _UnAnsweredQuestionCard extends StatelessWidget {
                 child: Container(
                   alignment: Alignment.center,
                   width: screenWidth * 0.4,
-                  height: screenWidth * 0.08,
+                  height: screenWidth * 0.15,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(screenWidth * 0.08),
+                      borderRadius: BorderRadius.circular(screenWidth * 0.075),
                       color: Theme.of(context).colorScheme.background,
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
+                          color: Theme.of(context).colorScheme.onBackground,
                           spreadRadius: 0,
                           blurRadius: 1,
                           offset: const Offset(0, 1),
@@ -218,7 +204,8 @@ class _EditableQuestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final dif = DateTime.now().difference(question.createdDate);
+    final dateOfAnswer = fromIso8601String(question.answer!.createDate);
+    final dif = DateTime.now().difference(dateOfAnswer);
 
     final ago = dif.inDays > 1
         ? getNoun(dif.inDays, "${dif.inDays} день назад",
@@ -235,6 +222,13 @@ class _EditableQuestionCard extends StatelessWidget {
                 : 'только что';
     return Container(
       margin: EdgeInsets.only(bottom: screenWidth * 0.17),
+      // decoration: BoxDecoration(
+      //   border: Border(
+      //     bottom: BorderSide(
+      //         color:
+      //             Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
+      //   ),
+      // ),
       child: Column(
         children: [
           Padding(
@@ -242,21 +236,17 @@ class _EditableQuestionCard extends StatelessWidget {
             child: Column(
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceVariant,
-                        borderRadius:
-                            BorderRadius.circular(screenWidth * 0.027),
-                      ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: screenWidth * 0.027),
-                      child: Text(question.productDetails.supplierArticle,
-                          style: TextStyle(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          )),
-                    )
+                    Text(
+                      'Отвечено $ago',
+                      style: TextStyle(
+                          fontSize: screenWidth * 0.04,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onBackground
+                              .withOpacity(0.5)),
+                    ),
                   ],
                 ),
                 SizedBox(
@@ -275,28 +265,40 @@ class _EditableQuestionCard extends StatelessWidget {
                         )),
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Задан $ago',
-                      style: TextStyle(
-                          fontSize: screenWidth * 0.04,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onBackground
-                              .withOpacity(0.5)),
-                    ),
-                  ],
+                Padding(
+                  padding: EdgeInsets.only(
+                      top: screenWidth * 0.07, bottom: screenWidth * 0.03),
+                  child: Row(
+                    children: [
+                      Text("Ответ:",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                          ))
+                    ],
+                  ),
                 ),
-                SizedBox(
-                  height: screenWidth * 0.08,
+                Row(
+                  children: [
+                    SizedBox(
+                        width: screenWidth * 0.86,
+                        child: Text(
+                          question.answer!.text,
+                          maxLines: 20,
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onBackground
+                                  .withOpacity(0.7),
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
+                        )),
+                  ],
                 ),
               ],
             ),
           ),
-          Container(
-            width: screenWidth,
+          SizedBox(
+            height: screenWidth * 0.08,
           ),
           SizedBox(
             width: screenWidth,
@@ -332,10 +334,7 @@ class _Btn extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurfaceVariant
-                  .withOpacity(0.1),
+              color: Colors.transparent,
             ),
           ),
           width: screenWidth * 0.2,
@@ -360,7 +359,6 @@ class _Btn extends StatelessWidget {
 
 class _BottomLine extends StatelessWidget {
   const _BottomLine({
-    super.key,
     required this.screenWidth,
   });
 
@@ -444,6 +442,38 @@ class _AnsweredQuestionCard extends StatelessWidget {
                         child: Text(
                           question.text,
                           maxLines: 20,
+                          style: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
+                        )),
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                      top: screenWidth * 0.07, bottom: screenWidth * 0.03),
+                  child: Row(
+                    children: [
+                      Text("Ответ:",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                          ))
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                        width: screenWidth * 0.86,
+                        child: Text(
+                          question.answer!.text,
+                          maxLines: 20,
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onBackground
+                                  .withOpacity(0.7),
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
                         )),
                   ],
                 ),
@@ -452,9 +482,6 @@ class _AnsweredQuestionCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          Container(
-            width: screenWidth,
           ),
         ],
       ),
