@@ -1,4 +1,4 @@
-import 'package:rewild/core/utils/date_time_utils.dart';
+import 'package:rewild/core/utils/extensions/date_time.dart';
 import 'package:rewild/core/utils/resource.dart';
 
 abstract class OrderServiceOrderApiClient {
@@ -14,8 +14,8 @@ class OrderService {
     List<int> skus,
     DateTime date,
   ) async {
-    final dateFrom = getStartOfDay(date);
-    final dateTo = getEndOfDay(date);
+    final dateFrom = date.getStartOfDay();
+    final dateTo = date.getEndOfDay();
     final resource = await orderApiClient.get(skus, dateFrom, dateTo);
 
     return resource;

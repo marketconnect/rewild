@@ -9,10 +9,12 @@ import 'package:rewild/api_clients/orders_history_api_client.dart';
 
 import 'package:rewild/api_clients/product_card_service_api_client.dart';
 import 'package:rewild/api_clients/questions_api_client.dart';
+import 'package:rewild/api_clients/reviews_api_client.dart';
 import 'package:rewild/api_clients/seller_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/api_clients/warehouse_api_client.dart';
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data_provider.dart';
+import 'package:rewild/data_providers/answer_data_provider/answer_data_provider.dart';
 import 'package:rewild/data_providers/background_message_data_provider/background_message_data_provider.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
@@ -31,11 +33,13 @@ import 'package:rewild/data_providers/seller_data_provider/seller_data_provider.
 import 'package:rewild/data_providers/stock_data_provider.dart/stock_data_provider.dart';
 import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.dart';
 import 'package:rewild/data_providers/warehouse_data_provider.dart';
+import 'package:rewild/domain/entities/question_model.dart';
 
 import 'package:rewild/domain/entities/stream_advert_event.dart';
 import 'package:rewild/domain/entities/stream_notification_event.dart';
 import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
+import 'package:rewild/domain/services/answer_service.dart';
 import 'package:rewild/domain/services/api_keys_service.dart';
 import 'package:rewild/domain/services/auth_service.dart';
 import 'package:rewild/domain/services/advert_stat_service.dart';
@@ -50,6 +54,7 @@ import 'package:rewild/domain/services/notification_service.dart';
 
 import 'package:rewild/domain/services/orders_history_service.dart';
 import 'package:rewild/domain/services/question_service.dart';
+import 'package:rewild/domain/services/review_service.dart';
 
 import 'package:rewild/domain/services/seller_service.dart';
 import 'package:rewild/domain/services/stock_service.dart';
@@ -60,6 +65,8 @@ import 'package:rewild/domain/services/warehouse_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
+import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_screen.dart';
+import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_view_model.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_screen.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
 import 'package:rewild/presentation/first_start_splash_screen/first_start_splash_screen.dart';
@@ -98,6 +105,8 @@ import 'package:rewild/presentation/my_web_view/my_web_view.dart';
 import 'package:rewild/presentation/my_web_view/my_web_view_screen_view_model.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
+import 'package:rewild/presentation/single_question_screen/single_question_view_model.dart';
+import 'package:rewild/presentation/single_question_screen/single_question_screen.dart';
 import 'package:rewild/presentation/single_search_words_screen/single_search_words_screen.dart';
 import 'package:rewild/presentation/single_search_words_screen/single_search_words_view_model.dart';
 
@@ -187,6 +196,7 @@ class _DIContainer {
 
   QuestionsApiClient _makeQuestionsApiClient() => const QuestionsApiClient();
 
+  ReviewApiClient _makeReviewApiClient() => const ReviewApiClient();
   // Data providers ============================================================
 
   // secure storage
@@ -247,6 +257,9 @@ class _DIContainer {
   // keywords
   KeywordDataProvider _makeKeywordsDataProvider() =>
       const KeywordDataProvider();
+
+  // Answers
+  AnswerDataProvider _makeAnswerDataProvider() => const AnswerDataProvider();
 
   // Services ==================================================================
 
@@ -349,6 +362,11 @@ class _DIContainer {
       questionApiClient: _makeQuestionsApiClient(),
       apiKeysDataProvider: _makeSecureDataProvider());
 
+  ReviewService _makeReviewService() => ReviewService(
+        reviewApiClient: _makeReviewApiClient(),
+        apiKeysDataProvider: _makeSecureDataProvider(),
+      );
+
   // Auto stat
   AdvertStatService _makeAutoStatService() => AdvertStatService(
       advertApiClient: _makeAdvertApiClient(),
@@ -372,6 +390,11 @@ class _DIContainer {
       advertApiClient: _makeAdvertApiClient(),
       keywordsDataProvider: _makeKeywordsDataProvider(),
       apiKeysDataProvider: _makeSecureDataProvider());
+
+  // Answer
+  AnswerService _makeAnswerService() => AnswerService(
+        answerDataProvider: _makeAnswerDataProvider(),
+      );
 
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
@@ -441,6 +464,7 @@ class _DIContainer {
           BuildContext context) =>
       AllGroupsScreenViewModel(
           context: context,
+          updateService: _makeUpdateService(),
           internetConnectionChecker: _makeInternetConnectionChecker(),
           groupsProvider: _makeAllGroupsService());
 
@@ -545,12 +569,29 @@ class _DIContainer {
           cardOfProductService: _makeCardOfProductService(),
           questionService: _makeQuestionService());
 
+  AllProductsReviewsViewModel _makeReviewsViewModel(BuildContext context) =>
+      AllProductsReviewsViewModel(
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          cardOfProductService: _makeCardOfProductService(),
+          reviewService: _makeReviewService());
+
   AllQuestionsViewModel _makeAllQuestionsViewModel(
           BuildContext context, int nmId) =>
       AllQuestionsViewModel(nmId,
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
+          answerService: _makeAnswerService(),
           questionService: _makeQuestionService());
+  SingleQuestionViewModel _makeSingleQuestionViewModel(
+          BuildContext context, QuestionModel question) =>
+      SingleQuestionViewModel(
+        question,
+        context: context,
+        answerService: _makeAnswerService(),
+        questionService: _makeQuestionService(),
+        internetConnectionChecker: _makeInternetConnectionChecker(),
+      );
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -724,11 +765,28 @@ class ScreenFactoryDefault implements ScreenFactory {
   }
 
   @override
+  Widget makeAllProductsReviewsScreen() {
+    return ChangeNotifierProvider(
+      create: (context) => _diContainer._makeReviewsViewModel(context),
+      child: const AllProductsReviewsScreen(),
+    );
+  }
+
+  @override
   Widget makeAllQuestionsScreen(int nmId) {
     return ChangeNotifierProvider(
       create: (context) =>
           _diContainer._makeAllQuestionsViewModel(context, nmId),
       child: const AllQuestionsScreen(),
+    );
+  }
+
+  @override
+  Widget makeSingleQuestionScreen(QuestionModel question) {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeSingleQuestionViewModel(context, question),
+      child: const SingleQuestionScreen(),
     );
   }
 }

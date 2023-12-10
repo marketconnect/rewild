@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
+
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
@@ -9,6 +10,7 @@ import 'package:rewild/domain/entities/size_model.dart';
 import 'package:rewild/domain/entities/stocks_model.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
+import 'package:rewild/presentation/all_groups_screen/all_groups_view_model.dart';
 import 'package:rewild/presentation/my_web_view/my_web_view_screen_view_model.dart';
 import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart';
 
@@ -90,6 +92,7 @@ class UpdateService
     implements
         MyWebViewScreenViewModelUpdateService,
         AllCardsScreenUpdateService,
+        AllGroupsScreenUpdateService,
         SplashScreenViewModelUpdateService {
   final UpdateServiceDetailsApiClient detailsApiClient;
   final UpdateServiceSupplyDataProvider supplyDataProvider;
@@ -304,6 +307,7 @@ class UpdateService
   // update cards ==============================================================
   @override
   Future<Resource<void>> update() async {
+    print("UPDATE");
     if (!timeToUpdated()) {
       return Resource.empty();
     }

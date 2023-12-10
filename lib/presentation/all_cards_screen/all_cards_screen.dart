@@ -1,5 +1,5 @@
 import 'package:rewild/core/constants/icons_constant.dart';
-import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/extensions/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:rewild/domain/entities/group_model.dart';
@@ -9,6 +9,7 @@ import 'package:rewild/presentation/all_cards_screen/widgets/product_card_widget
 import 'package:provider/provider.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/custom_elevated_button.dart';
+import 'package:rewild/widgets/popum_menu_item.dart';
 
 import 'package:rewild/widgets/progress_indicator.dart';
 
@@ -137,7 +138,7 @@ class _AppBar extends StatelessWidget {
             return [
               PopupMenuItem(
                 value: MainNavigationRouteNames.myWebViewScreen,
-                child: _PopumMenuItemChild(
+                child: ReWildPopumMenuItemChild(
                   text: "Добавить",
                   child: SizedBox(
                     width: 20,
@@ -150,7 +151,7 @@ class _AppBar extends StatelessWidget {
               ),
               PopupMenuItem(
                 value: MainNavigationRouteNames.allGroupsScreen,
-                child: _PopumMenuItemChild(
+                child: ReWildPopumMenuItemChild(
                   text: "Группы",
                   child: SizedBox(
                     width: 20,
@@ -163,7 +164,7 @@ class _AppBar extends StatelessWidget {
               ),
               PopupMenuItem(
                 value: MainNavigationRouteNames.allCardsFilterScreen,
-                child: _PopumMenuItemChild(
+                child: ReWildPopumMenuItemChild(
                   text: "Фильтр",
                   child: SizedBox(
                     width: 20,
@@ -320,40 +321,6 @@ class _EmptyProductsCards extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _PopumMenuItemChild extends StatelessWidget {
-  const _PopumMenuItemChild({
-    required this.text,
-    this.iconData,
-    this.child,
-  }) : assert(iconData != null || child != null);
-
-  final IconData? iconData;
-  final String text;
-  final Widget? child;
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        child != null
-            ? child!
-            : Icon(
-                iconData,
-              ),
-        const SizedBox(
-          width: 15,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 3.0),
-          child: Text(
-            text,
-          ),
-        ),
-      ],
     );
   }
 }

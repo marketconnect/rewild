@@ -5,6 +5,7 @@ import 'package:rewild/core/constants/icons_constant.dart';
 import 'package:rewild/domain/entities/search_campaign_stat.dart';
 
 class CardContent {
+  final int orderNum;
   final String word;
   final int dif;
   final bool isNew;
@@ -14,6 +15,7 @@ class CardContent {
 
   CardContent(
       {required this.dif,
+      required this.orderNum,
       required this.isNew,
       required this.word,
       this.qty,
@@ -70,44 +72,70 @@ class _Container extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: screenHeight * 0.1,
-      decoration: BoxDecoration(
-          border: Border(
+    return Stack(children: [
+      Positioned(
+          top: 0,
+          left: displayedContent.qty == null
+              ? 0
+              : MediaQuery.of(context).size.width * 0.02,
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border(
               bottom: BorderSide(
-        color: Theme.of(context).colorScheme.surfaceVariant,
-      ))),
-      child: Row(
-        children: [
-          if (displayedContent.qty != null)
-            Container(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                width: 1,
+              ),
+              right: BorderSide(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                width: 1,
+              ),
+            )),
+            child: Text(
+              (displayedContent.orderNum + 1).toString(),
+              style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width * 0.02,
+              ),
+            ),
+          )),
+      Container(
+        height: screenHeight * 0.1,
+        decoration: BoxDecoration(
+            border: Border(
+                bottom: BorderSide(
+          color: Theme.of(context).colorScheme.surfaceVariant,
+        ))),
+        child: Row(
+          children: [
+            if (displayedContent.qty != null)
+              Container(
+                width: MediaQuery.of(context).size.width * 0.02,
+                color: Theme.of(context).colorScheme.secondaryContainer,
+              ),
+            SizedBox(
               width: MediaQuery.of(context).size.width * 0.02,
-              color: Theme.of(context).colorScheme.secondaryContainer,
             ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.02,
-          ),
-          Expanded(
-            flex: displayedContent.qty != null ? 7 : 9,
-            child: AutoSizeText(
-              displayedContent.word,
-              maxLines: 4,
-            ),
-          ),
-          Expanded(flex: 1, child: Container()),
-          if (displayedContent.qty != null)
             Expanded(
-              flex: 2,
-              child: AutoSizeText('${displayedContent.qty}'),
+              flex: displayedContent.qty != null ? 7 : 9,
+              child: AutoSizeText(
+                displayedContent.word,
+                maxLines: 4,
+              ),
             ),
-          if (displayedContent.qty == null)
-            Container(
-              width: MediaQuery.of(context).size.width * 0.02,
-              color: Theme.of(context).colorScheme.secondaryContainer,
-            ),
-        ],
+            Expanded(flex: 1, child: Container()),
+            if (displayedContent.qty != null)
+              Expanded(
+                flex: 2,
+                child: AutoSizeText('${displayedContent.qty}'),
+              ),
+            if (displayedContent.qty == null)
+              Container(
+                width: MediaQuery.of(context).size.width * 0.02,
+                color: Theme.of(context).colorScheme.secondaryContainer,
+              ),
+          ],
+        ),
       ),
-    );
+    ]);
   }
 }
 

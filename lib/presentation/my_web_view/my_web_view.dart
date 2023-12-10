@@ -1,4 +1,4 @@
-import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/extensions/strings.dart';
 import 'package:rewild/presentation/my_web_view/my_web_view_screen_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:provider/provider.dart';

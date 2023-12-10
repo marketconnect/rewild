@@ -1,24 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/constants/icons_constant.dart';
-
 import 'package:rewild/core/utils/date_time_utils.dart';
-import 'package:rewild/core/utils/strings.dart';
-import 'package:rewild/domain/entities/question.dart';
+import 'package:rewild/core/utils/extensions/date_time.dart';
+
+import 'package:rewild/core/utils/strings_utils.dart';
+import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
 
-class AllQuestionsScreen extends StatelessWidget {
+import 'package:rewild/widgets/popum_menu_item.dart';
+
+class AllQuestionsScreen extends StatefulWidget {
   const AllQuestionsScreen({super.key});
+
+  @override
+  _AllQuestionsScreenState createState() => _AllQuestionsScreenState();
+}
+
+class _AllQuestionsScreenState extends State<AllQuestionsScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
 
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AllQuestionsViewModel>();
     final screenWidth = MediaQuery.of(context).size.width;
     final questions = model.questions;
-    List<Question> unAnsweredQuestions = [];
-    List<Question> answeredQuestions = [];
-    List<Question> editableQuestions = [];
-    for (final question in questions) {
+    // Search
+    final setSearchQuery = model.setSearchQuery;
+    final clearSearchQuery = model.clearSearchQuery;
+    final searchQuery = model.searchQuery;
+
+    final displayedQuestions = questions.where((q) {
+      if (q.answer != null) {
+        return q.text.toLowerCase().contains(searchQuery.toLowerCase()) ||
+            q.answer!.text.toLowerCase().contains(searchQuery.toLowerCase());
+      }
+      return q.text.toLowerCase().contains(searchQuery.toLowerCase());
+    }).toList();
+    List<QuestionModel> unAnsweredQuestions = [];
+    List<QuestionModel> answeredQuestions = [];
+    List<QuestionModel> editableQuestions = [];
+    for (final question in displayedQuestions) {
       if (question.answer != null) {
         if (question.answer!.editable) {
           editableQuestions.add(question);
@@ -32,42 +55,80 @@ class AllQuestionsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-          scrolledUnderElevation: 2,
-          shadowColor: Colors.black,
-          surfaceTintColor: Colors.transparent),
+        scrolledUnderElevation: 2,
+        shadowColor: Colors.black,
+        surfaceTintColor: Colors.transparent,
+        actions: [
+          IconButton(
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                _isSearching = !_isSearching;
+                if (!_isSearching) {
+                  _searchController.clear();
+                  clearSearchQuery();
+                }
+              });
+            },
+          ),
+        ],
+        title: _isSearching
+            ? GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isSearching = false;
+                    _searchController.clear();
+                  });
+                },
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setSearchQuery(value);
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'Поиск...',
+                    border: InputBorder.none,
+                    // icon: Icon(Icons.search),
+                  ),
+                ),
+              )
+            : null,
+      ),
       body: SingleChildScrollView(
-        child: Column(children: [
-          SizedBox(
-            height: screenWidth * 0.035,
-          ),
-          ...unAnsweredQuestions.map((e) => _UnAnsweredQuestionCard(
-                question: e,
-              )),
-          SizedBox(
-            height: screenWidth * 0.035,
-          ),
-          ...editableQuestions.map((e) => _EditableQuestionCard(
-                question: e,
-              )),
-          ...answeredQuestions.map((e) => _AnsweredQuestionCard(
-                question: e,
-              )),
-        ]),
+        child: Column(
+          children: [
+            SizedBox(height: screenWidth * 0.035),
+            ...unAnsweredQuestions.map((e) => _UnAnsweredQuestionCard(
+                  question: e,
+                )),
+            SizedBox(height: screenWidth * 0.035),
+            ...editableQuestions.map((e) => _EditableQuestionCard(
+                  question: e,
+                )),
+            ...answeredQuestions.map((e) => _AnsweredQuestionCard(
+                  question: e,
+                )),
+          ],
+        ),
       ),
     );
   }
 }
+
+// The rest of your code remains unchanged
 
 class _UnAnsweredQuestionCard extends StatelessWidget {
   const _UnAnsweredQuestionCard({
     required this.question,
   });
 
-  final Question question;
+  final QuestionModel question;
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final model = context.watch<AllQuestionsViewModel>();
+    final routeToSingleQuestionScreen = model.routeToSingleQuestionScreen;
     final dif = DateTime.now().difference(question.createdDate);
 
     final ago = dif.inDays > 1
@@ -148,45 +209,49 @@ class _UnAnsweredQuestionCard extends StatelessWidget {
           Container(
             width: screenWidth,
           ),
-          SizedBox(
-            width: screenWidth,
-            height: screenWidth * 0.15,
-            child: Stack(children: [
-              Positioned(
-                top: screenWidth * 0.075 - 1,
-                child: Container(
-                  width: screenWidth,
-                  height: 1,
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                ),
-              ),
-              Positioned(
-                left: screenWidth * 0.3,
-                child: Container(
-                  alignment: Alignment.center,
-                  width: screenWidth * 0.4,
-                  height: screenWidth * 0.15,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(screenWidth * 0.075),
-                      color: Theme.of(context).colorScheme.background,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).colorScheme.onBackground,
-                          spreadRadius: 0,
-                          blurRadius: 1,
-                          offset: const Offset(0, 1),
-                        )
-                      ]),
-                  child: Text(
-                    "ОТВЕТИТЬ",
-                    style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary),
+          GestureDetector(
+            onTap: () => routeToSingleQuestionScreen(question),
+            child: SizedBox(
+              width: screenWidth,
+              height: screenWidth * 0.15,
+              child: Stack(children: [
+                Positioned(
+                  top: screenWidth * 0.075 - 1,
+                  child: Container(
+                    width: screenWidth,
+                    height: 1,
+                    color: Theme.of(context).colorScheme.primaryContainer,
                   ),
                 ),
-              ),
-            ]),
+                Positioned(
+                  left: screenWidth * 0.3,
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: screenWidth * 0.4,
+                    height: screenWidth * 0.15,
+                    decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(screenWidth * 0.075),
+                        color: Theme.of(context).colorScheme.background,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).colorScheme.onBackground,
+                            spreadRadius: 0,
+                            blurRadius: 1,
+                            offset: const Offset(0, 1),
+                          )
+                        ]),
+                    child: Text(
+                      "ОТВЕТИТЬ",
+                      style: TextStyle(
+                          fontSize: screenWidth * 0.04,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                  ),
+                ),
+              ]),
+            ),
           )
         ],
       ),
@@ -199,103 +264,118 @@ class _EditableQuestionCard extends StatelessWidget {
     required this.question,
   });
 
-  final Question question;
+  final QuestionModel question;
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final dateOfAnswer = fromIso8601String(question.answer!.createDate);
-    final dif = DateTime.now().difference(dateOfAnswer);
-
-    final ago = dif.inDays > 1
-        ? getNoun(dif.inDays, "${dif.inDays} день назад",
-            "${dif.inDays} дня назад", "${dif.inDays} дней назад")
-        : dif.inHours > 1
-            ? getNoun(dif.inHours, '${dif.inHours} час назад',
-                '${dif.inHours} часа назад', '${dif.inHours} часов назад')
-            : dif.inMinutes > 1
-                ? getNoun(
-                    dif.inMinutes,
-                    '${dif.inMinutes} минута назад',
-                    '${dif.inMinutes} минуты назад',
-                    '${dif.inMinutes} минуты назад)')
-                : 'только что';
+    final dateOfQuestion = question.createdDate;
+    final answerDateText = _dateText(dateOfAnswer);
+    final questionDateText = _dateText(dateOfQuestion);
+    final model = context.read<AllQuestionsViewModel>();
+    final isAnswerSaved = model.isAnswerSaved(question.id);
     return Container(
       margin: EdgeInsets.only(bottom: screenWidth * 0.17),
-      // decoration: BoxDecoration(
-      //   border: Border(
-      //     bottom: BorderSide(
-      //         color:
-      //             Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
-      //   ),
-      // ),
       child: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+          Column(
+            children: [
+              SizedBox(
+                width: screenWidth,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Отвечено $ago',
-                      style: TextStyle(
-                          fontSize: screenWidth * 0.04,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onBackground
-                              .withOpacity(0.5)),
+                    Padding(
+                      padding: EdgeInsets.only(left: screenWidth * 0.07),
+                      child: Text(
+                        "Задан $questionDateText",
+                        style: TextStyle(
+                            fontSize: screenWidth * 0.04,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onBackground
+                                .withOpacity(0.5)),
+                      ),
+                    ),
+                    _PopupMenu(
+                      isEditable: true,
+                      isAnswerSaved: isAnswerSaved,
+                      questionId: question.id,
+                      answerText: question.answer!.text,
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: screenWidth * 0.04,
-                ),
-                Row(
+              ),
+              SizedBox(
+                height: screenWidth * 0.04,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
+                child: Column(
                   children: [
-                    SizedBox(
-                        width: screenWidth * 0.86,
-                        child: Text(
-                          question.text,
-                          maxLines: 20,
+                    Row(
+                      children: [
+                        SizedBox(
+                            width: screenWidth * 0.86,
+                            child: Text(
+                              question.text,
+                              maxLines: 20,
+                              style: TextStyle(
+                                  fontSize: screenWidth * 0.05,
+                                  fontWeight: FontWeight.w500),
+                            )),
+                      ],
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          top: screenWidth * 0.07, bottom: screenWidth * 0.03),
+                      child: Row(
+                        children: [
+                          Text("Ответ:",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                              ))
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          answerDateText,
                           style: TextStyle(
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      top: screenWidth * 0.07, bottom: screenWidth * 0.03),
-                  child: Row(
-                    children: [
-                      Text("Ответ:",
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                          ))
-                    ],
-                  ),
-                ),
-                Row(
-                  children: [
-                    SizedBox(
-                        width: screenWidth * 0.86,
-                        child: Text(
-                          question.answer!.text,
-                          maxLines: 20,
-                          style: TextStyle(
+                              fontSize: screenWidth * 0.04,
                               color: Theme.of(context)
                                   .colorScheme
                                   .onBackground
-                                  .withOpacity(0.7),
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
+                                  .withOpacity(0.5)),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: screenWidth * 0.01,
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(
+                            width: screenWidth * 0.86,
+                            child: Text(
+                              question.answer!.text,
+                              maxLines: 20,
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground
+                                      .withOpacity(0.7),
+                                  fontSize: screenWidth * 0.05,
+                                  fontWeight: FontWeight.w500),
+                            )),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           SizedBox(
             height: screenWidth * 0.08,
@@ -313,6 +393,229 @@ class _EditableQuestionCard extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+}
+
+class _AnsweredQuestionCard extends StatelessWidget {
+  const _AnsweredQuestionCard({
+    required this.question,
+  });
+
+  final QuestionModel question;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final dateOfAnswer = fromIso8601String(question.answer!.createDate);
+    final answerDateText = _dateText(dateOfAnswer);
+    final questionDateText = _dateText(question.createdDate);
+    final model = context.read<AllQuestionsViewModel>();
+    final isAnswerSaved = model.isAnswerSaved(question.id);
+    return Container(
+      margin: EdgeInsets.only(bottom: screenWidth * 0.17),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+              color:
+                  Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
+        ),
+      ),
+      child: Column(
+        children: [
+          Column(
+            children: [
+              SizedBox(
+                width: screenWidth,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: screenWidth * 0.07),
+                      child: Text(
+                        "Задан $questionDateText",
+                        style: TextStyle(
+                            fontSize: screenWidth * 0.04,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onBackground
+                                .withOpacity(0.5)),
+                      ),
+                    ),
+                    _PopupMenu(
+                      isEditable: true,
+                      isAnswerSaved: isAnswerSaved,
+                      questionId: question.id,
+                      answerText: question.answer!.text,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: screenWidth * 0.04,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(
+                            width: screenWidth * 0.86,
+                            child: Text(
+                              question.text,
+                              maxLines: 20,
+                              style: TextStyle(
+                                  fontSize: screenWidth * 0.05,
+                                  fontWeight: FontWeight.w500),
+                            )),
+                      ],
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          top: screenWidth * 0.07, bottom: screenWidth * 0.03),
+                      child: Row(
+                        children: [
+                          Text("Ответ:",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                              ))
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          answerDateText,
+                          style: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onBackground
+                                  .withOpacity(0.5)),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: screenWidth * 0.01,
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(
+                            width: screenWidth * 0.86,
+                            child: Text(
+                              question.answer!.text,
+                              maxLines: 20,
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground
+                                      .withOpacity(0.7),
+                                  fontSize: screenWidth * 0.05,
+                                  fontWeight: FontWeight.w500),
+                            )),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: screenWidth * 0.08,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PopupMenu extends StatelessWidget {
+  const _PopupMenu(
+      {this.isEditable = false,
+      required this.questionId,
+      required this.isAnswerSaved,
+      required this.answerText});
+
+  final bool isEditable;
+  final bool isAnswerSaved;
+  final String questionId;
+  final String answerText;
+  @override
+  Widget build(BuildContext context) {
+    final model = context.read<AllQuestionsViewModel>();
+    final setAnswerToReuse = model.setAnswerToReuse;
+    final delete = model.deleteAnswer;
+    final save = model.saveAnswer;
+
+    return PopupMenuButton(
+      // Menu ============================================ Menu
+      onSelected: (value) => Navigator.popAndPushNamed(context, value),
+      icon: const Icon(
+        Icons.more_vert,
+        size: 20,
+      ),
+      itemBuilder: (BuildContext context) {
+        return [
+          if (isEditable)
+            PopupMenuItem(
+              child: ReWildPopumMenuItemChild(
+                text: "Редактировать",
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: Image.asset(
+                    IconConstant.iconPencil,
+                  ),
+                ),
+              ),
+            ),
+          if (!isAnswerSaved)
+            PopupMenuItem(
+              child: GestureDetector(
+                onTap: () {
+                  setAnswerToReuse(answerText, questionId);
+                  Navigator.of(context).pop();
+                },
+                child: ReWildPopumMenuItemChild(
+                  text: "Использовать ответ",
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Image.asset(
+                      IconConstant.iconReuse,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          PopupMenuItem(
+            child: GestureDetector(
+              onTap: () async {
+                if (isAnswerSaved) {
+                  await delete(questionId);
+                } else {
+                  await save(questionId);
+                }
+                Navigator.of(context).pop();
+              },
+              child: ReWildPopumMenuItemChild(
+                text:
+                    isAnswerSaved ? "Удалить шаблон" : "Создать шаблон ответа",
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: Image.asset(
+                    isAnswerSaved
+                        ? IconConstant.iconBin
+                        : IconConstant.iconSave,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ];
+      },
     );
   }
 }
@@ -377,114 +680,21 @@ class _BottomLine extends StatelessWidget {
   }
 }
 
-class _AnsweredQuestionCard extends StatelessWidget {
-  const _AnsweredQuestionCard({
-    required this.question,
-  });
-
-  final Question question;
-
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final dateOfAnswer = fromIso8601String(question.answer!.createDate);
-    final dif = DateTime.now().difference(dateOfAnswer);
-
-    final ago = dif.inDays > 1
-        ? getNoun(dif.inDays, "${dif.inDays} день назад",
-            "${dif.inDays} дня назад", "${dif.inDays} дней назад")
-        : dif.inHours > 1
-            ? getNoun(dif.inHours, '${dif.inHours} час назад',
-                '${dif.inHours} часа назад', '${dif.inHours} часов назад')
-            : dif.inMinutes > 1
-                ? getNoun(
-                    dif.inMinutes,
-                    '${dif.inMinutes} минута назад',
-                    '${dif.inMinutes} минуты назад',
-                    '${dif.inMinutes} минуты назад)')
-                : 'только что';
-    return Container(
-      margin: EdgeInsets.only(bottom: screenWidth * 0.17),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-              color:
-                  Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
-        ),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Отвечено $ago',
-                      style: TextStyle(
-                          fontSize: screenWidth * 0.04,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onBackground
-                              .withOpacity(0.5)),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: screenWidth * 0.04,
-                ),
-                Row(
-                  children: [
-                    SizedBox(
-                        width: screenWidth * 0.86,
-                        child: Text(
-                          question.text,
-                          maxLines: 20,
-                          style: TextStyle(
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      top: screenWidth * 0.07, bottom: screenWidth * 0.03),
-                  child: Row(
-                    children: [
-                      Text("Ответ:",
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                          ))
-                    ],
-                  ),
-                ),
-                Row(
-                  children: [
-                    SizedBox(
-                        width: screenWidth * 0.86,
-                        child: Text(
-                          question.answer!.text,
-                          maxLines: 20,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onBackground
-                                  .withOpacity(0.7),
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
-                  ],
-                ),
-                SizedBox(
-                  height: screenWidth * 0.08,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+String _dateText(DateTime dateOfAnswer) {
+  final dif = DateTime.now().difference(dateOfAnswer);
+  return dif.inDays > 30
+      ? dateOfAnswer.formatDate()
+      : dif.inDays > 1
+          ? getNoun(dif.inDays, "${dif.inDays} день назад",
+              "${dif.inDays} дня назад", "${dif.inDays} дней назад")
+          : dif.inHours > 1
+              ? getNoun(dif.inHours, '${dif.inHours} час назад',
+                  '${dif.inHours} часа назад', '${dif.inHours} часов назад')
+              : dif.inMinutes > 1
+                  ? getNoun(
+                      dif.inMinutes,
+                      '${dif.inMinutes} минута назад',
+                      '${dif.inMinutes} минуты назад',
+                      '${dif.inMinutes} минуты назад)')
+                  : 'только что';
 }

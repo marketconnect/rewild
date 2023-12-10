@@ -9,11 +9,17 @@ abstract class AllGroupsScreenGroupsService {
   Future<Resource<void>> renameGroup(String groupName, String newGroupName);
 }
 
+abstract class AllGroupsScreenUpdateService {
+  Future<Resource<void>> update();
+}
+
 class AllGroupsScreenViewModel extends ResourceChangeNotifier {
   final AllGroupsScreenGroupsService groupsProvider;
+  final AllGroupsScreenUpdateService updateService;
 
   AllGroupsScreenViewModel({
     required this.groupsProvider,
+    required this.updateService,
     required super.context,
     required super.internetConnectionChecker,
   }) {
@@ -24,6 +30,10 @@ class AllGroupsScreenViewModel extends ResourceChangeNotifier {
     final groups = await fetch(() => groupsProvider.getAll());
     if (groups == null) {
       return;
+    }
+    // Update
+    if (isConnected) {
+      await fetch(() => updateService.update());
     }
     _groups = groups;
     if (context.mounted) {

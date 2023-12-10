@@ -1,7 +1,7 @@
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:rewild/core/constants/image_constant.dart';
 
-import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/extensions/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
@@ -199,8 +199,10 @@ class _CardsList extends StatelessWidget {
               SlidableAction(
                 onPressed: (BuildContext context) async =>
                     await delete(card.nmId),
-                backgroundColor: const Color(0xFFFE4A49),
-                foregroundColor: Colors.white,
+                backgroundColor:
+                    Theme.of(context).colorScheme.tertiaryContainer,
+                foregroundColor:
+                    Theme.of(context).colorScheme.onTertiaryContainer,
                 icon: Icons.remove_circle,
                 label: 'Убрать',
               ),
@@ -222,10 +224,11 @@ class _CardsList extends StatelessWidget {
                 // (BuildContext context) async => await Share.share(
                 //   'https://www.wildberries.ru/catalog/${card.nmId}/detail.aspx',
                 // ),
-                backgroundColor: const Color(0xFF21B7CA),
-                foregroundColor: Colors.white,
-                icon: Icons.remove_red_eye,
-                label: 'Подробнее',
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                foregroundColor:
+                    Theme.of(context).colorScheme.onPrimaryContainer,
+                icon: Icons.open_in_new,
+                label: 'Открыть',
               ),
             ],
           ),

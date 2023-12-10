@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/extensions/strings.dart';
 import 'package:rewild/domain/entities/search_campaign_stat.dart';
 import 'package:rewild/presentation/single_search_words_screen/single_search_words_view_model.dart';
 import 'package:rewild/widgets/keyword_slidable_container.dart';
@@ -152,6 +152,7 @@ class SingleSearchWordsScreen extends StatelessWidget {
                         return CardContent(
                             word: e.keyword,
                             qty: e.count,
+                            orderNum: keywords.indexOf(e),
                             dif: e.diff,
                             stat: s,
                             isNew: e.isNew);
@@ -166,6 +167,7 @@ class SingleSearchWordsScreen extends StatelessWidget {
                           .map((e) => CardContent(
                                 word: e,
                                 dif: 0,
+                                orderNum: excluded.indexOf(e),
                                 isNew: false,
                               ))
                           .toList(),

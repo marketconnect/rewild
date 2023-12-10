@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/extensions/strings.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 import 'package:rewild/widgets/keyword_slidable_container.dart';
 import 'package:rewild/widgets/keyword_tab_body.dart';
@@ -14,6 +14,7 @@ class SingleAutoWordsScreen extends StatelessWidget {
     final model = context.watch<SingleAutoWordsViewModel>();
     final name = model.name;
     final keywords = model.keywords;
+
     final excluded = model.excluded;
     final searchInputOpen = model.searchInputOpen;
     final searchInputToggle = model.toggleSearchInput;
@@ -141,6 +142,7 @@ class SingleAutoWordsScreen extends StatelessWidget {
                           .map((e) => CardContent(
                               word: e.keyword,
                               qty: e.count,
+                              orderNum: keywords.indexOf(e),
                               dif: e.diff,
                               isNew: e.isNew))
                           .toList(),
@@ -154,12 +156,44 @@ class SingleAutoWordsScreen extends StatelessWidget {
                           .map((e) => CardContent(
                                 word: e,
                                 dif: 0,
+                                orderNum: excluded.indexOf(e),
                                 isNew: false,
                               ))
                           .toList(),
                     ),
                   ]),
           )),
+    );
+  }
+}
+
+class HorizontalProgressBar extends StatelessWidget {
+  final int total;
+  final int current;
+
+  HorizontalProgressBar({required this.total, required this.current});
+
+  @override
+  Widget build(BuildContext context) {
+    double progress = current / total;
+
+    return Container(
+      padding: EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          LinearProgressIndicator(
+            value: progress,
+            minHeight: 10.0,
+            backgroundColor: Colors.grey[300]!,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+          ),
+          SizedBox(height: 8.0),
+          Text(
+            'Progress: $current/$total',
+            style: TextStyle(fontSize: 16.0),
+          ),
+        ],
+      ),
     );
   }
 }

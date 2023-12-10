@@ -1,6 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/extensions/strings.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 

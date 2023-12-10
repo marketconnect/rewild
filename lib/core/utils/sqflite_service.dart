@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/extensions/strings.dart';
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_db.dart';
+import 'package:rewild/data_providers/answer_data_provider/answer_db.dart';
 import 'package:rewild/data_providers/background_message_data_provider/background_message_db.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_db.dart';
@@ -62,6 +63,7 @@ class SqfliteService {
     await NotificationDb.createTable(db);
     await BackgroundMessageDb.createTable(db);
     await KeywordDb.createTable(db);
+    await AnswerDb.createTable(db);
   }
 
   static Future<void> printTableContent(String tableName) async {

@@ -1,3 +1,4 @@
+import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/presentation/app/app.dart';
 import 'package:flutter/material.dart';
@@ -23,10 +24,13 @@ abstract class ScreenFactory {
   Widget makeSingleGroupScreen(String name);
   Widget makeSingleCardScreen(int id);
   Widget makeSingleStatAdvertScreen(int id);
+  Widget makeSingleQuestionScreen(QuestionModel question);
   Widget makeBackgroundNotificationsScreen();
   Widget makeFirstTimeSplashScreen();
   Widget makeAllProductsQuestionsScreen();
   Widget makeAllQuestionsScreen(int nmId);
+  Widget makeAllProductsReviewsScreen();
+  // Widget makeAllReviewsScreen(int nmId);
 }
 
 class MainNavigation implements AppNavigation {
@@ -188,6 +192,11 @@ class MainNavigation implements AppNavigation {
           builder: (_) => screenFactory.makeAllProductsQuestionsScreen(),
         );
 
+      case MainNavigationRouteNames.productsReviewsScreen:
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeAllProductsReviewsScreen(),
+        );
+
       case MainNavigationRouteNames.advertNotificationScreen:
         final arguments = settings.arguments;
         final state = arguments is NotificationAdvertState
@@ -202,6 +211,13 @@ class MainNavigation implements AppNavigation {
         final nmId = arguments is int ? arguments : 0;
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllQuestionsScreen(nmId),
+        );
+      case MainNavigationRouteNames.singleQuestionScreen:
+        final arguments = settings.arguments;
+        final question =
+            arguments is QuestionModel ? arguments : QuestionModel.empty();
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeSingleQuestionScreen(question),
         );
 
       default:

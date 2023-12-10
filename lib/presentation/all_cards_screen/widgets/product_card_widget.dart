@@ -1,4 +1,4 @@
-import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/extensions/strings.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 

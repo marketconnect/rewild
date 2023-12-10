@@ -13,6 +13,7 @@ class TabBody extends StatelessWidget {
 
   final List<CardContent> content;
   final bool isExcluded;
+
   final void Function(String word) moveToExcluded;
   final void Function(String word) moveToKeywords;
   final String searchQuery;
@@ -38,6 +39,7 @@ class _CardsList extends StatefulWidget {
 
   final List<CardContent> content;
   final bool isExcluded;
+
   final void Function(String word) moveToExcluded;
   final void Function(String word) moveToKeywords;
   final String searchQuery;
@@ -74,6 +76,11 @@ class _CardsListState extends State<_CardsList> {
   }
 
   void _loadItems([int? qty]) {
+    if (_loadedItems >= widget.content.length) {
+      return;
+    }
+
+    setState(() {});
     if (searchQuery != "") {
       setState(() {
         _displayedContent = widget.content
@@ -117,78 +124,83 @@ class _CardsListState extends State<_CardsList> {
       searchQuery = newSearchQuery;
       _loadItems();
     }
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: Column(
-        children: [
-          ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: _displayedContent.length,
-            itemBuilder: (context, index) {
-              return Slidable(
-                // enabled: false,
-                startActionPane: widget.isExcluded
-                    ? null
-                    : ActionPane(
-                        dragDismissible: false,
-                        // A motion is a widget used to control how the pane animates.
-                        motion: const ScrollMotion(),
 
-                        // A pane can dismiss the Slidable.
-                        dismissible: DismissiblePane(onDismissed: () {}),
+    return Stack(children: [
+      SingleChildScrollView(
+        controller: _scrollController,
+        child: Column(
+          children: [
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: _displayedContent.length,
+              itemBuilder: (context, index) {
+                return Slidable(
+                  // enabled: false,
+                  startActionPane: widget.isExcluded
+                      ? null
+                      : ActionPane(
+                          dragDismissible: false,
+                          // A motion is a widget used to control how the pane animates.
+                          motion: const ScrollMotion(),
 
-                        // All actions are defined in the children parameter.
-                        children: [
-                          // A SlidableAction can have an icon and/or a label.
-                          SlidableAction(
-                            onPressed: (BuildContext context) => dropItem(
-                                _displayedContent[index].word, moveToExcluded),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onSecondaryContainer,
-                            icon: Icons.remove,
-                            label: 'Исключить',
-                          ),
-                        ],
-                      ),
-                endActionPane: !widget.isExcluded
-                    ? null
-                    : ActionPane(
-                        dragDismissible: false,
-                        // A motion is a widget used to control how the pane animates.
-                        motion: const ScrollMotion(),
+                          // A pane can dismiss the Slidable.
+                          dismissible: DismissiblePane(onDismissed: () {}),
 
-                        // A pane can dismiss the Slidable.
-                        dismissible: DismissiblePane(onDismissed: () {}),
+                          // All actions are defined in the children parameter.
+                          children: [
+                            // A SlidableAction can have an icon and/or a label.
+                            SlidableAction(
+                              onPressed: (BuildContext context) => dropItem(
+                                  _displayedContent[index].word,
+                                  moveToExcluded),
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryContainer,
+                              foregroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer,
+                              icon: Icons.remove,
+                              label: 'Исключить',
+                            ),
+                          ],
+                        ),
+                  endActionPane: !widget.isExcluded
+                      ? null
+                      : ActionPane(
+                          dragDismissible: false,
+                          // A motion is a widget used to control how the pane animates.
+                          motion: const ScrollMotion(),
 
-                        // All actions are defined in the children parameter.
-                        children: [
-                          // A SlidableAction can have an icon and/or a label.
-                          SlidableAction(
-                            onPressed: (BuildContext context) => dropItem(
-                                _displayedContent[index].word, moveToKeywords),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onSecondaryContainer,
-                            icon: Icons.add,
-                            label: 'Добавить',
-                          ),
-                        ],
-                      ),
-                child: SlidableContainer(
-                    displayedContent: _displayedContent[index]),
-              );
-            },
-          ),
-        ],
+                          // A pane can dismiss the Slidable.
+                          dismissible: DismissiblePane(onDismissed: () {}),
+
+                          // All actions are defined in the children parameter.
+                          children: [
+                            // A SlidableAction can have an icon and/or a label.
+                            SlidableAction(
+                              onPressed: (BuildContext context) => dropItem(
+                                  _displayedContent[index].word,
+                                  moveToKeywords),
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryContainer,
+                              foregroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer,
+                              icon: Icons.add,
+                              label: 'Добавить',
+                            ),
+                          ],
+                        ),
+                  child: SlidableContainer(
+                      displayedContent: _displayedContent[index]),
+                );
+              },
+            ),
+          ],
+        ),
       ),
-    );
+    ]);
   }
 }

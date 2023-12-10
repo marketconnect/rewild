@@ -1,14 +1,14 @@
-class Question {
+class QuestionModel {
   String id;
   String text;
   DateTime createdDate;
   String state;
-  Answer? answer;
-  ProductDetails productDetails;
+  QuestionAnswer? answer;
+  QuestionProductDetails productDetails;
   bool wasViewed;
   bool isOverdue;
 
-  Question({
+  QuestionModel({
     required this.id,
     required this.text,
     required this.createdDate,
@@ -19,14 +19,29 @@ class Question {
     required this.isOverdue,
   });
 
-  factory Question.fromJson(Map<String, dynamic> json) {
-    return Question(
+  factory QuestionModel.empty() {
+    return QuestionModel(
+      id: "",
+      text: "",
+      createdDate: DateTime.now(),
+      state: "",
+      answer: null,
+      productDetails: QuestionProductDetails.empty(),
+      wasViewed: false,
+      isOverdue: false,
+    );
+  }
+
+  factory QuestionModel.fromJson(Map<String, dynamic> json) {
+    return QuestionModel(
       id: json['id'] ?? "",
       text: json['text'] ?? "",
       createdDate: DateTime.tryParse(json['createdDate']) ?? DateTime.now(),
       state: json['state'] ?? "",
-      answer: json['answer'] == null ? null : Answer.fromJson(json['answer']),
-      productDetails: ProductDetails.fromJson(json['productDetails']),
+      answer: json['answer'] == null
+          ? null
+          : QuestionAnswer.fromJson(json['answer']),
+      productDetails: QuestionProductDetails.fromJson(json['productDetails']),
       wasViewed: json['wasViewed'] ?? false,
       isOverdue: json['isOverdue'] ?? false,
     );
@@ -44,16 +59,25 @@ class Question {
       'isOverdue': isOverdue,
     };
   }
+
+  String? reusedAnswerText;
+  void setReusedAnswerText(String value) {
+    reusedAnswerText = value;
+  }
+
+  void clearReusedAnswerText() {
+    reusedAnswerText = null;
+  }
 }
 
-class Answer {
+class QuestionAnswer {
   final String text;
 
   final bool editable;
 
   final String createDate;
 
-  Answer(
+  QuestionAnswer(
       {required this.text, required this.editable, required this.createDate});
 
   Map<String, dynamic> toMap() {
@@ -64,8 +88,8 @@ class Answer {
     };
   }
 
-  factory Answer.fromJson(Map<String, dynamic> json) {
-    return Answer(
+  factory QuestionAnswer.fromJson(Map<String, dynamic> json) {
+    return QuestionAnswer(
       text: json['text'] ?? "",
       editable: json['editable'] ?? false,
       createDate: json['createDate'] ?? "",
@@ -73,7 +97,7 @@ class Answer {
   }
 }
 
-class ProductDetails {
+class QuestionProductDetails {
   int imtId;
   int nmId;
   String productName;
@@ -81,7 +105,7 @@ class ProductDetails {
   String supplierName;
   String brandName;
 
-  ProductDetails({
+  QuestionProductDetails({
     required this.imtId,
     required this.nmId,
     required this.productName,
@@ -90,14 +114,25 @@ class ProductDetails {
     required this.brandName,
   });
 
-  factory ProductDetails.fromJson(Map<String, dynamic> json) {
-    return ProductDetails(
+  factory QuestionProductDetails.fromJson(Map<String, dynamic> json) {
+    return QuestionProductDetails(
       imtId: json['imtId'],
       nmId: json['nmId'],
       productName: json['productName'],
       supplierArticle: json['supplierArticle'],
       supplierName: json['supplierName'],
       brandName: json['brandName'],
+    );
+  }
+
+  factory QuestionProductDetails.empty() {
+    return QuestionProductDetails(
+      imtId: 0,
+      nmId: 0,
+      productName: "",
+      supplierArticle: "",
+      supplierName: "",
+      brandName: "",
     );
   }
 

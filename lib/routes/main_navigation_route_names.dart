@@ -17,10 +17,13 @@ abstract class MainNavigationRouteNames {
   static const String allAdvertsToolsScreen = '/manage_adverts_screen';
   static const String singleCardScreen = '/single_card_screen';
   static const String singleAdvertStatsScreen = '/single_advert_stats_screen';
+  static const String singleQuestionScreen = '/single_question_screen';
   static const String cardNotificationsSettingsScreen =
       '/card_notifications_settings_screen';
 
   static const String firstStartSplashScreen = 'first_start_splash_screen';
   static const String productsQuestionsScreen = 'products_questions_screen';
   static const String allQuestionsScreen = 'all_questions_screen';
+  static const String productsReviewsScreen = 'products_reviews_screen';
+  static const String allReviewsScreen = 'all_reviews_screen';
 }

@@ -1,15 +1,17 @@
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
-import 'package:rewild/domain/entities/question.dart';
+import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
+import 'package:rewild/presentation/single_question_screen/single_question_view_model.dart';
 
 abstract class QuestionServiceQuestionApiClient {
-  Future<Resource<List<Question>>> getUnansweredQuestions(String token,
+  Future<Resource<List<QuestionModel>>> getUnansweredQuestions(String token,
       [int? nmId]);
-  Future<Resource<List<Question>>> getAnsweredQuestions(String token,
+  Future<Resource<List<QuestionModel>>> getAnsweredQuestions(String token,
       [int? nmId]);
+  Future<Resource<bool>> handleQuestion(String token, String id, String answer);
 }
 
 // Api key
@@ -20,6 +22,7 @@ abstract class QuestionServiceApiKeyDataProvider {
 class QuestionService
     implements
         AllProductsQuestionViewModelQuestionService,
+        SingleQuestionViewModelQuestionService,
         AllQuestionsViewModelQuestionService {
   final QuestionServiceQuestionApiClient questionApiClient;
   final QuestionServiceApiKeyDataProvider apiKeysDataProvider;
@@ -42,7 +45,7 @@ class QuestionService
   }
 
   @override
-  Future<Resource<List<Question>>> getQuestions([int? nmId]) async {
+  Future<Resource<List<QuestionModel>>> getQuestions([int? nmId]) async {
     final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
@@ -77,5 +80,26 @@ class QuestionService
     final answeredQuestions = resourceAnswered.data!;
 
     return Resource.success([...unAnsweredQuestions, ...answeredQuestions]);
+  }
+
+  @override
+  Future<Resource<bool>> publishQuestion(String id, String answer) async {
+    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
+    if (tokenResource is Error) {
+      return Resource.error(tokenResource.message!,
+          source: runtimeType.toString(), name: "getBallance", args: []);
+    }
+    if (tokenResource is Empty) {
+      return Resource.empty();
+    }
+
+    final resource = await questionApiClient.handleQuestion(
+        tokenResource.data!.token, id, answer);
+    if (resource is Error) {
+      return Resource.error(resource.message!,
+          source: runtimeType.toString(), name: "publishQuestion", args: []);
+    }
+
+    return Resource.success(true);
   }
 }

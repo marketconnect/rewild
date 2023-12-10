@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rewild/core/utils/strings.dart';
+import 'package:rewild/core/utils/extensions/strings.dart';
 
 class MyDialogTextFieldRadioCheckBox extends StatefulWidget {
   const MyDialogTextFieldRadioCheckBox(

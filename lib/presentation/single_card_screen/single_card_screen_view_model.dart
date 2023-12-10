@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
+
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 
@@ -274,9 +275,11 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
   // stet for notification screen
 
   String _promo = '';
+  String get promo => _promo;
 
   // price
   int _price = 0;
+  int get price => _price;
 
   // pics
   int _pics = 0;

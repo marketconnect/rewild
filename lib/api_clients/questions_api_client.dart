@@ -3,7 +3,7 @@ import 'dart:async';
 
 import 'package:rewild/core/utils/api/wb_questions_api_helper.dart';
 import 'package:rewild/core/utils/resource.dart';
-import 'package:rewild/domain/entities/question.dart';
+import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/domain/services/question_service.dart';
 
 class QuestionsApiClient implements QuestionServiceQuestionApiClient {
@@ -39,7 +39,7 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   }
 
   @override
-  Future<Resource<List<Question>>> getUnansweredQuestions(String token,
+  Future<Resource<List<QuestionModel>>> getUnansweredQuestions(String token,
       [int? nmId]) async {
     try {
       final params = {
@@ -59,11 +59,11 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData =
             jsonDecode(utf8.decode(response.bodyBytes));
-        final List<Question> questions = [];
+        final List<QuestionModel> questions = [];
         final responseQuestions = (responseData['data']['questions']);
         for (var question in responseQuestions) {
           if (nmId != null) {}
-          questions.add(Question.fromJson(question));
+          questions.add(QuestionModel.fromJson(question));
         }
         return Resource.success(questions);
       } else {
@@ -91,7 +91,7 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   }
 
   @override
-  Future<Resource<List<Question>>> getAnsweredQuestions(String token,
+  Future<Resource<List<QuestionModel>>> getAnsweredQuestions(String token,
       [int? nmId]) async {
     try {
       final params = {
@@ -111,11 +111,11 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData =
             jsonDecode(utf8.decode(response.bodyBytes));
-        final List<Question> questions = [];
+        final List<QuestionModel> questions = [];
         final responseQuestions = (responseData['data']['questions']);
         for (var question in responseQuestions) {
           if (nmId != null) {}
-          questions.add(Question.fromJson(question));
+          questions.add(QuestionModel.fromJson(question));
         }
         return Resource.success(questions);
       } else {
@@ -142,14 +142,14 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
     }
   }
 
-  Future<Resource<bool>> handleQuestion(String token, String id, bool wasViewed,
-      bool wasRejected, String answer) async {
+  @override
+  Future<Resource<bool>> handleQuestion(
+      String token, String id, String answer) async {
     try {
       final body = {
         'id': id,
-        'wasViewed': wasViewed.toString(),
-        'wasRejected': wasRejected.toString(),
-        'answer': answer,
+        'state': 'wbRu',
+        'answer': {'text': answer},
       };
 
       final wbApiHelper = WbQuestionsApiHelper.patchQuestions;
@@ -164,7 +164,7 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
           errString,
           source: runtimeType.toString(),
           name: "handleQuestion",
-          args: [token, id, wasViewed, wasRejected, answer],
+          args: [token, id, answer],
         );
       }
     } catch (e) {
@@ -172,7 +172,7 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
         "Ошибка при обработке вопроса: $e",
         source: runtimeType.toString(),
         name: "handleQuestion",
-        args: [token, id, wasViewed, wasRejected, answer],
+        args: [token, id, answer],
       );
     }
   }

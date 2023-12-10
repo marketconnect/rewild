@@ -37,13 +37,21 @@ class ResourceChangeNotifier extends ChangeNotifier {
     }
   }
 
+  bool _external = false;
   late bool _loading = true;
+  void setLoading(bool value) {
+    _external = true;
+    _loading = value;
+    notifyListeners();
+  }
 
   bool get loading => _loading;
 
   void notify() {
     if (context.mounted) {
-      _loading = false;
+      if (!_external) {
+        _loading = false;
+      }
       notifyListeners();
     }
   }

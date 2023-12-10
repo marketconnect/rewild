@@ -22,6 +22,7 @@ class SingleCardScreen extends StatelessWidget {
     final openNotifications = model.notificationsScreen;
     final tracked = model.tracked;
     final isLoading = model.loading;
+    final promo = model.promo;
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -57,6 +58,31 @@ class SingleCardScreen extends StatelessWidget {
                             horizontal: model.screenWidth * 0.05),
                         child: const _Feedback(),
                       ),
+                      if (promo.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: model.screenWidth * 0.05,
+                              vertical: model.screenHeight * 0.01),
+                          child: Row(children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                      model.screenWidth * 0.01),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .tertiaryContainer),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: model.screenWidth * 0.02,
+                                  vertical: model.screenHeight * 0.01),
+                              child: Text(promo,
+                                  style: TextStyle(
+                                      fontSize: model.screenWidth * 0.04,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onTertiaryContainer)),
+                            ),
+                          ]),
+                        ),
                       SizedBox(
                         height: model.screenHeight * 0.02,
                       ),
@@ -142,6 +168,7 @@ class _ExpansionTile extends StatelessWidget {
 
       final brand = model.brand;
       final tradeMark = model.tradeMark;
+      final price = model.price;
 
       final region = model.region;
 
@@ -150,6 +177,8 @@ class _ExpansionTile extends StatelessWidget {
         _InfoRowContent(header: "Регион регистрации", text: region),
         _InfoRowContent(header: "Брэнд", text: brand),
         _InfoRowContent(header: "Торг. марка", text: tradeMark),
+        _InfoRowContent(
+            header: "Цена", text: '${(price / 100).toStringAsFixed(0)}₽'),
       ]);
 
       children = widgetsContent

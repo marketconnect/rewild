@@ -17,6 +17,10 @@ class IconConstant {
   static String iconQuestions = '$iconPath/questions.png';
   static String iconReview = '$iconPath/review.png';
   static String iconPencil = '$iconPath/pencil.png';
+  static String iconReuse = '$iconPath/reuse.png';
   static String iconDownArrow = '$iconPath/down_arrow.png';
   static String iconHappyMale = '$iconPath/happy_male.png';
+  static String iconSave = '$iconPath/save.png';
+  static String iconDirect = '$iconPath/direct.png';
+  static String iconBin = '$iconPath/bin.png';
 }

@@ -46,7 +46,7 @@ class MainNavigationScreenFeedBackWidget extends StatelessWidget {
               _Link(
                 text: 'Отзывы',
                 color: const Color(0xFFd2a941),
-                route: MainNavigationRouteNames.apiKeysScreen,
+                route: MainNavigationRouteNames.productsReviewsScreen,
                 imageSrc: IconConstant.iconReview,
               ),
             ],

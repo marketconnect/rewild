@@ -3,8 +3,8 @@ import 'package:rewild/api_clients/advert_api_client.dart';
 import 'package:rewild/api_clients/details_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/core/constants/constants.dart';
-
 import 'package:rewild/core/utils/date_time_utils.dart';
+
 import 'package:rewild/core/utils/lists.dart';
 import 'package:rewild/core/utils/resource.dart';
 
