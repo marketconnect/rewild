@@ -10,6 +10,11 @@ abstract class MainNavigationCardService {
   Future<Resource<int>> count();
 }
 
+// question
+abstract class MainNavigationQuestionService {
+  Future<Resource<bool>> apiKeyExists();
+}
+
 // advert
 abstract class MainNavigationAdvertService {
   Future<Resource<List<Advert>>> getAllAdverts();
@@ -23,14 +28,16 @@ abstract class MainNavigationAdvertService {
 class MainNavigationViewModel extends ResourceChangeNotifier {
   final MainNavigationCardService cardService;
   final MainNavigationAdvertService advertService;
+  final MainNavigationQuestionService questionService;
 
   final Stream<int> cardsNumberStream;
   final Stream<StreamAdvertEvent> updatedAdvertStream;
-  final Stream<bool> apiKeyExistsStream;
+  final Stream<Map<ApiKeyType, bool>> apiKeyExistsStream;
 
   MainNavigationViewModel(
       {required this.cardService,
       required this.advertService,
+      required this.questionService,
       required this.cardsNumberStream,
       required this.updatedAdvertStream,
       required this.apiKeyExistsStream,
@@ -49,7 +56,11 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     // Update in MainNavigationAdvertViewModel EmptyWidget or not
     // TODO - Update in FeedbackScreen
     apiKeyExistsStream.listen((event) {
-      setApiKeyExists(event);
+      if (event[ApiKeyType.promo] != null) {
+        setAdvertApiKeyExists(event[ApiKeyType.promo]!);
+      } else if (event[ApiKeyType.question] != null) {
+        setFeedbackApiKeyExists(event[ApiKeyType.question]!);
+      }
       notify();
     });
 
@@ -73,13 +84,21 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
       return;
     }
     setCardsNumber(cardsQty);
-    final exists = await fetch(() => advertService.apiKeyExists());
-    if (exists == null) {
+    // Api keys exist
+    final advertKeyExists = await fetch(() => advertService.apiKeyExists());
+    if (advertKeyExists == null) {
       return;
     }
-    setApiKeyExists(exists);
+    setAdvertApiKeyExists(advertKeyExists);
 
-    if (apiKeyExists) {
+    final qyestionsApiKeyExists =
+        await fetch(() => questionService.apiKeyExists());
+    if (qyestionsApiKeyExists == null) {
+      return;
+    }
+    setFeedbackApiKeyExists(qyestionsApiKeyExists);
+
+    if (advertApiKeyExists) {
       final newAdverts = await fetch(() => advertService.getAllAdverts());
       if (newAdverts == null) {
         return;
@@ -133,7 +152,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
   Map<int, int> get budget => _budget;
 
   Future<void> updateAdverts() async {
-    if (!apiKeyExists) {
+    if (!advertApiKeyExists) {
       return;
     }
     final balance = await fetch(() => advertService.getBallance());
@@ -178,11 +197,18 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     }
   }
 
-  // ApiKeyExists
-  bool _apiKeyExists = false;
-  void setApiKeyExists(bool value) {
-    _apiKeyExists = value;
+  // ApiKeysExists
+  bool _advertApiKeyExists = false;
+  void setAdvertApiKeyExists(bool value) {
+    _advertApiKeyExists = value;
   }
 
-  bool get apiKeyExists => _apiKeyExists;
+  bool get advertApiKeyExists => _advertApiKeyExists;
+
+  bool _feedbackApiKeyExists = false;
+  void setFeedbackApiKeyExists(bool value) {
+    _feedbackApiKeyExists = value;
+  }
+
+  bool get feedbackApiKeyExists => _feedbackApiKeyExists;
 }

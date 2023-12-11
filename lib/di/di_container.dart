@@ -13,6 +13,7 @@ import 'package:rewild/api_clients/reviews_api_client.dart';
 import 'package:rewild/api_clients/seller_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/api_clients/warehouse_api_client.dart';
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data_provider.dart';
 import 'package:rewild/data_providers/answer_data_provider/answer_data_provider.dart';
 import 'package:rewild/data_providers/background_message_data_provider/background_message_data_provider.dart';
@@ -140,8 +141,10 @@ class _DIContainer {
   // streams ===================================================================
 
   // Api Key Exist (AdvertService --> BottomNavigationViewModel)
-  final apiKeyExistsStreamController = StreamController<bool>.broadcast();
-  Stream<bool> get apiKeyExistsStream => apiKeyExistsStreamController.stream;
+  final apiKeyExistsStreamController =
+      StreamController<Map<ApiKeyType, bool>>.broadcast();
+  Stream<Map<ApiKeyType, bool>> get apiKeyExistsStream =>
+      apiKeyExistsStreamController.stream;
 
   // cards number (CardOfProductService --> BottomNavigationViewModel)
   final cardsNumberStreamController = StreamController<int>.broadcast();
@@ -476,6 +479,7 @@ class _DIContainer {
           updatedAdvertStream: updatedAdvertStream,
           cardsNumberStream: cardsNumberStream,
           apiKeyExistsStream: apiKeyExistsStream,
+          questionService: _makeQuestionService(),
           advertService: _makeAdvertService(),
           cardService: _makeCardOfProductService());
 

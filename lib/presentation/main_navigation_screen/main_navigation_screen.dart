@@ -113,7 +113,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
     final model = context.watch<MainNavigationViewModel>();
     final adverts = model.adverts;
-    final apiKeyExists = model.apiKeyExists;
+    final advertApiKeyExists = model.advertApiKeyExists;
+    final feedbackApiKeyExists = model.feedbackApiKeyExists;
     final cardsNumber = model.cardsNumber;
     final budget = model.budget;
     final callback = model.changeAdvertStatus;
@@ -124,11 +125,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       MainNavigationScreenCardsWidget(
         cardsNumber: cardsNumber,
       ),
-      const MainNavigationScreenFeedBackWidget(),
+      MainNavigationScreenFeedBackWidget(
+        apiKeyExists: feedbackApiKeyExists,
+      ),
       MainNavigationScreenAdvertWidget(
         adverts: adverts,
         balance: balance,
-        apiKeyExists: apiKeyExists,
+        apiKeyExists: advertApiKeyExists,
         callback: callback,
         budget: budget,
       )

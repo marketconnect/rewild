@@ -85,22 +85,6 @@ class SecureStorageProvider
     return Resource.success(token);
   }
 
-  // static Future<Resource<String>> getTokenInBackGround() async {
-  //   // read token from local storage
-  //   final resource = await _read(key: 'token');
-  //   if (resource is Error) {
-  //     return Resource.error(
-  //       resource.message!,
-  //     );
-  //   }
-  //   String? token = resource.data;
-  //   if (token == null) {
-  //     return Resource.empty();
-  //   }
-
-  //   return Resource.success(token);
-  // }
-
   @override
   Future<Resource<bool>> tokenNotExpiredInThreeMinutes() async {
     final resource = await _read(key: 'token_expired_at');

@@ -1,58 +1,94 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/icons_constant.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
+import 'package:rewild/widgets/empty_widget.dart';
 
 class MainNavigationScreenFeedBackWidget extends StatelessWidget {
-  const MainNavigationScreenFeedBackWidget({super.key});
-
+  const MainNavigationScreenFeedBackWidget(
+      {super.key, required this.apiKeyExists});
+  final bool apiKeyExists;
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    return SingleChildScrollView(
-      child: Column(children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: screenHeight * 0.1,
-              ),
-              Text(
-                'Отзывы и вопросы',
-                style: TextStyle(
-                    fontSize: screenWidth * 0.08, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: screenHeight * 0.05,
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color:
-                Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-          ),
-          child: Column(
-            children: [
-              _Link(
-                text: 'Вопросы',
-                color: const Color(0xFF8c56ce),
-                imageSrc: IconConstant.iconQuestions,
-                route: MainNavigationRouteNames.productsQuestionsScreen,
-              ),
-              _Link(
-                text: 'Отзывы',
-                color: const Color(0xFFd2a941),
-                route: MainNavigationRouteNames.productsReviewsScreen,
-                imageSrc: IconConstant.iconReview,
-              ),
-            ],
-          ),
-        ),
-      ]),
+    return SafeArea(
+      child: !apiKeyExists
+          ? Center(
+              child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const EmptyWidget(
+                    text:
+                        'Для работы с отзывами и вопросами WB вам необходимо добавить токен "Вопросы и отзывы"'),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.05,
+                ),
+                TextButton(
+                    onPressed: () => Navigator.of(context)
+                        .pushNamed(MainNavigationRouteNames.apiKeysScreen),
+                    child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        width: screenWidth * 0.7,
+                        height: screenHeight * 0.08,
+                        child: Text(
+                          'Добавить токен',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary),
+                        )))
+              ],
+            ))
+          : SingleChildScrollView(
+              child: Column(children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: screenHeight * 0.1,
+                      ),
+                      Text(
+                        'Отзывы и вопросы',
+                        style: TextStyle(
+                            fontSize: screenWidth * 0.08,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: screenHeight * 0.05,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceVariant
+                        .withOpacity(0.3),
+                  ),
+                  child: Column(
+                    children: [
+                      _Link(
+                        text: 'Вопросы',
+                        color: const Color(0xFF8c56ce),
+                        imageSrc: IconConstant.iconQuestions,
+                        route: MainNavigationRouteNames.productsQuestionsScreen,
+                      ),
+                      _Link(
+                        text: 'Отзывы',
+                        color: const Color(0xFFd2a941),
+                        route: MainNavigationRouteNames.productsReviewsScreen,
+                        imageSrc: IconConstant.iconReview,
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
+            ),
     );
   }
 }

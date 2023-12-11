@@ -24,11 +24,14 @@ class _AllProductsReviewsScreenState extends State<AllProductsReviewsScreen> {
     final model = context.watch<AllProductsReviewsViewModel>();
     final screenWidth = MediaQuery.of(context).size.width;
     final apiKeyexists = model.apiKeyExists;
-    final reviews = model.reviewsIds;
+    final reviews = model.reviewsRatings;
     final getImages = model.getImage;
     final getNewQuestionsQty = model.newRewviewsQty;
     final getallQuestionsQty = model.allReviewsQty;
     final getSupplierArticle = model.getSupplierArticle;
+    final beforeMonthAgoReviewsRatings = model.beforeMonthAgoReviewsRatings;
+    final before3MonthAgoReviewsRatings = model.before3MonthAgoReviewsRatings;
+    final beforeWeekAgoReviewsRatings = model.beforeWeekAgoReviewsRatings;
     final isLoading = model.loading;
     final reviewQty = model.reviewQty;
     print('isLoading $isLoading');
@@ -92,6 +95,12 @@ class _AllProductsReviewsScreenState extends State<AllProductsReviewsScreen> {
                                   image: getImages(e.key),
                                   newQuetions: getNewQuestionsQty(e.key),
                                   reviewsRatings: e.value,
+                                  ratingBeforeMonthAgo:
+                                      beforeMonthAgoReviewsRatings(e.key),
+                                  ratingBeforeWeekAgo:
+                                      beforeWeekAgoReviewsRatings(e.key),
+                                  ratingBefore3MonthAgo:
+                                      before3MonthAgoReviewsRatings(e.key),
                                   supplierArticle: getSupplierArticle(e.key),
                                   oldQuetions: getallQuestionsQty(e.key),
                                 )
@@ -102,6 +111,12 @@ class _AllProductsReviewsScreenState extends State<AllProductsReviewsScreen> {
                           image: getImages(e.key),
                           newQuetions: getNewQuestionsQty(e.key),
                           reviewsRatings: e.value,
+                          ratingBeforeMonthAgo:
+                              beforeMonthAgoReviewsRatings(e.key),
+                          ratingBeforeWeekAgo:
+                              beforeWeekAgoReviewsRatings(e.key),
+                          ratingBefore3MonthAgo:
+                              before3MonthAgoReviewsRatings(e.key),
                           supplierArticle: getSupplierArticle(e.key),
                           oldQuetions: getallQuestionsQty(e.key),
                         );
@@ -120,12 +135,18 @@ class _ProductCard extends StatelessWidget {
       required this.nmId,
       required this.reviewsRatings,
       required this.oldQuetions,
+      required this.ratingBeforeMonthAgo,
+      required this.ratingBefore3MonthAgo,
+      required this.ratingBeforeWeekAgo,
       required this.supplierArticle});
   final int nmId;
   final String image;
   final String supplierArticle;
   final int newQuetions;
   final int oldQuetions;
+  final double ratingBeforeMonthAgo;
+  final double ratingBefore3MonthAgo;
+  final double ratingBeforeWeekAgo;
   final Map<int, int> reviewsRatings;
 
   @override
@@ -133,15 +154,27 @@ class _ProductCard extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     int averageRate = 0;
     int qty = 0;
+
     reviewsRatings.forEach((key, value) {
-      if (nmId == 151052843) {
-        print('$nmId $averageRate $key $value');
-      }
       averageRate += key * value;
       qty += value;
     });
 
-    final averageRateString = (averageRate / qty).toStringAsFixed(2);
+    final rating = averageRate / qty;
+    final averageRateString = rating.toStringAsFixed(2);
+
+    // Week
+    final difWeek = rating - ratingBeforeWeekAgo;
+    final progressWeek = difWeek.toStringAsFixed(2);
+
+    // Month
+    final difMonth = rating - ratingBeforeMonthAgo;
+    final progressMonth = difMonth.toStringAsFixed(2);
+
+    // 3 Month
+    final dif3Month = rating - ratingBefore3MonthAgo;
+    final progress3Month = dif3Month.toStringAsFixed(2);
+
     return GestureDetector(
       onTap: () => Navigator.of(context).pushNamed(
           MainNavigationRouteNames.allQuestionsScreen,
@@ -331,34 +364,53 @@ class _ProductCard extends StatelessWidget {
                                   )
                                 ]),
                             ]),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical:
-                                        MediaQuery.of(context).size.width *
-                                            0.01,
-                                    horizontal:
-                                        MediaQuery.of(context).size.width *
-                                            0.02),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(
-                                        screenWidth * 0.01),
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .primaryContainer),
-                                child: Text(
-                                  averageRateString,
-                                  style: TextStyle(
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                if ((difMonth.abs() >= 0.01) ||
+                                    (dif3Month.abs() >= 0.01) ||
+                                    (difWeek.abs() >= 0.01))
+                                  _DifWidget(
+                                    screenWidth: screenWidth,
+                                    difMonth: difMonth,
+                                    progressMonth: progressMonth,
+                                    dif3Month: dif3Month,
+                                    progress3Month: progress3Month,
+                                    difWeek: difWeek,
+                                    progressWeek: progressWeek,
+                                  ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 8.0, right: 8.0),
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical:
+                                            MediaQuery.of(context).size.width *
+                                                0.01,
+                                        horizontal:
+                                            MediaQuery.of(context).size.width *
+                                                0.02),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(
+                                            screenWidth * 0.01),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primaryContainer),
+                                    child: Text(
+                                      averageRateString,
+                                      style: TextStyle(
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
                                               0.04,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
-                                      fontWeight: FontWeight.w500),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimaryContainer,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                           ]),
                     ],
@@ -385,6 +437,93 @@ class _ProductCard extends StatelessWidget {
         Icon(Icons.star, size: size, color: n > 3 ? color : Colors.transparent),
         Icon(Icons.star, size: size, color: n > 4 ? color : Colors.transparent),
       ],
+    );
+  }
+}
+
+class _DifWidget extends StatelessWidget {
+  const _DifWidget({
+    required this.screenWidth,
+    required this.difMonth,
+    required this.progressMonth,
+    required this.dif3Month,
+    required this.progress3Month,
+    required this.difWeek,
+    required this.progressWeek,
+  });
+
+  final double screenWidth;
+  final double difMonth;
+  final String progressMonth;
+  final double dif3Month;
+  final String progress3Month;
+  final double difWeek;
+  final String progressWeek;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(
+          vertical: MediaQuery.of(context).size.width * 0.01,
+          horizontal: MediaQuery.of(context).size.width * 0.01),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(screenWidth * 0.1),
+          color: Colors.transparent),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'за 3 месяца',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.03),
+              ),
+              Text(
+                dif3Month > 0 ? '+$progress3Month' : progress3Month,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.03),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'за месяц     ',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.03),
+              ),
+              Text(
+                difMonth > 0 ? '+$progressMonth' : progressMonth,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.03),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'за неделю',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.03),
+              ),
+              Text(
+                difWeek > 0 ? '+$progressWeek' : progressWeek,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.03),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

@@ -64,8 +64,21 @@ class AllProductsReviewsViewModel extends ResourceChangeNotifier {
       if (review.state == "none") {
         incrementNewReviewsQty(nmId);
       }
-
+      final rating = review.productValuation;
       // Add reviews rates
+      final createdAt = review.createdDate;
+      if (createdAt
+          .isBefore(DateTime.now().subtract(const Duration(days: 7)))) {
+        setBeforeWeekAgoReviewsRatings(nmId, rating);
+      }
+      if (createdAt
+          .isBefore(DateTime.now().subtract(const Duration(days: 30)))) {
+        setBeforeMonthAgoReviewsRatings(nmId, rating);
+      }
+      if (createdAt
+          .isBefore(DateTime.now().subtract(const Duration(days: 90)))) {
+        setBefore3MonthAgoReviewsRatings(nmId, rating);
+      }
 
       incrementReview(nmId, review.productValuation);
       review.productValuation;
@@ -112,13 +125,85 @@ class AllProductsReviewsViewModel extends ResourceChangeNotifier {
 
   String getImage(int nmId) => _images[nmId] ?? '';
 
-  // Reviews
+  // Reviews before week
+  Map<int, int> _beforeWeekAgoReviewsRatings = {};
+  Map<int, int> _beforeWeekAgoReviewsRatingsLength = {};
+  void setBeforeWeekAgoReviewsRatings(int nmIi, int value) {
+    if (_beforeWeekAgoReviewsRatings.containsKey(nmIi)) {
+      _beforeWeekAgoReviewsRatings[nmIi] =
+          _beforeWeekAgoReviewsRatings[nmIi]! + value;
+      _beforeWeekAgoReviewsRatingsLength[nmIi] =
+          _beforeWeekAgoReviewsRatingsLength[nmIi]! + 1;
+    } else {
+      _beforeWeekAgoReviewsRatings[nmIi] = value;
+      _beforeWeekAgoReviewsRatingsLength[nmIi] = 1;
+    }
+  }
+
+  double beforeWeekAgoReviewsRatings(int nmId) {
+    final sum = _beforeWeekAgoReviewsRatings[nmId] ?? 0;
+    final len = _beforeWeekAgoReviewsRatingsLength[nmId] ?? 0;
+    if (len == 0) {
+      return 0;
+    }
+    return sum / len;
+  }
+
+  // Reviews before month
+  Map<int, int> _beforeMonthAgoReviewsRatings = {};
+  Map<int, int> _beforeMonthAgoReviewsRatingsLength = {};
+  void setBeforeMonthAgoReviewsRatings(int nmIi, int value) {
+    if (_beforeMonthAgoReviewsRatings.containsKey(nmIi)) {
+      _beforeMonthAgoReviewsRatings[nmIi] =
+          _beforeMonthAgoReviewsRatings[nmIi]! + value;
+      _beforeMonthAgoReviewsRatingsLength[nmIi] =
+          _beforeMonthAgoReviewsRatingsLength[nmIi]! + 1;
+    } else {
+      _beforeMonthAgoReviewsRatings[nmIi] = value;
+      _beforeMonthAgoReviewsRatingsLength[nmIi] = 1;
+    }
+  }
+
+  double beforeMonthAgoReviewsRatings(int nmId) {
+    final sum = _beforeMonthAgoReviewsRatings[nmId] ?? 0;
+    final len = _beforeMonthAgoReviewsRatingsLength[nmId] ?? 0;
+    if (len == 0) {
+      return 0;
+    }
+    return sum / len;
+  }
+
+  // Reviews before 3 months
+  Map<int, int> _before3MonthAgoReviewsRatings = {};
+  Map<int, int> _before3MonthAgoReviewsRatingsLength = {};
+  void setBefore3MonthAgoReviewsRatings(int nmIi, int value) {
+    if (_before3MonthAgoReviewsRatings.containsKey(nmIi)) {
+      _before3MonthAgoReviewsRatings[nmIi] =
+          _before3MonthAgoReviewsRatings[nmIi]! + value;
+      _before3MonthAgoReviewsRatingsLength[nmIi] =
+          _before3MonthAgoReviewsRatingsLength[nmIi]! + 1;
+    } else {
+      _before3MonthAgoReviewsRatings[nmIi] = value;
+      _before3MonthAgoReviewsRatingsLength[nmIi] = 1;
+    }
+  }
+
+  double before3MonthAgoReviewsRatings(int nmId) {
+    final sum = _before3MonthAgoReviewsRatings[nmId] ?? 0;
+    final len = _before3MonthAgoReviewsRatingsLength[nmId] ?? 0;
+    if (len == 0) {
+      return 0;
+    }
+    return sum / len;
+  }
+
   Map<int, Map<int, int>> _reviewsRatings = {};
   void setreviews(Map<int, Map<int, int>> value) {
     _reviewsRatings = value;
   }
 
   void incrementReview(int nmId, int key) {
+    // last month reviews
     if (_reviewsRatings.containsKey(nmId)) {
       final rating = _reviewsRatings[nmId]!;
       if (rating.containsKey(key)) {
@@ -132,7 +217,7 @@ class AllProductsReviewsViewModel extends ResourceChangeNotifier {
     }
   }
 
-  Map<int, Map<int, int>> get reviewsIds => _reviewsRatings;
+  Map<int, Map<int, int>> get reviewsRatings => _reviewsRatings;
 
   // supplierArticles
   Map<int, String> _supplierArticle = {};
