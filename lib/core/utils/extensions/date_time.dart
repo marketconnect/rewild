@@ -41,12 +41,14 @@ extension DateTimeExtensions on DateTime {
     return DateTime(year, month, day, 0, 1);
   }
 
-  String formatDate() {
+  String formatDate([bool? dropTime]) {
     var m = month.toString().padLeft(2, '0');
     var d = day.toString().padLeft(2, '0');
     var h = hour.toString().padLeft(2, '0');
     var mi = minute.toString().padLeft(2, '0');
-
+    if (dropTime != null && dropTime) {
+      return '$d.$m.$year';
+    }
     return '$d.$m.$year $h:$mi';
   }
 }
