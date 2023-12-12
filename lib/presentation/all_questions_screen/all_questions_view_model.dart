@@ -51,17 +51,6 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
     List<QuestionModel> allQuestions = [];
     int n = 0;
     while (true) {
-      // final reviews = await fetch(() => reviewService.getReviews(
-      //     take: NumericConstants.takeFeedbacksAtOnce,
-      //     skip: NumericConstants.takeFeedbacksAtOnce * n));
-      // if (reviews == null ||
-      //     reviews.length < NumericConstants.takeFeedbacksAtOnce) {
-      //   break;
-      // }
-      // // setReviewQty(allReviews.length);
-      // allReviews.addAll(reviews);
-      // n++;
-      // setReviewQty(allReviews.length);
       final questions = await fetch(() => questionService.getQuestions(
             nmId: nmId,
             take: NumericConstants.takeFeedbacksAtOnce,
