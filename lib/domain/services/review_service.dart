@@ -2,7 +2,7 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/review_model.dart';
-import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_view_model.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_view_model.dart';
 
 abstract class ReviewServiceReviewApiClient {
   Future<Resource<List<ReviewModel>>> getUnansweredReviews(
@@ -26,7 +26,7 @@ abstract class ReviewServiceApiKeyDataProvider {
   Future<Resource<ApiKeyModel>> getApiKey(String type);
 }
 
-class ReviewService implements AllProductsReviewsViewModelReviewService {
+class ReviewService implements AllProductsFeedbackViewModelReviewService {
   final ReviewServiceReviewApiClient reviewApiClient;
   final ReviewServiceApiKeyDataProvider apiKeysDataProvider;
 
@@ -37,22 +37,22 @@ class ReviewService implements AllProductsReviewsViewModelReviewService {
 
   static final keyType = StringConstants.apiKeyTypes[ApiKeyType.question] ?? "";
 
-  @override
-  Future<Resource<bool>> apiKeyExists() async {
-    final resource = await apiKeysDataProvider.getApiKey(keyType);
-    if (resource is Error) {
-      return Resource.error(
-        resource.message!,
-        source: runtimeType.toString(),
-        name: "apiKeyExists",
-        args: [],
-      );
-    }
-    if (resource is Empty) {
-      return Resource.success(false);
-    }
-    return Resource.success(true);
-  }
+  // @override
+  // Future<Resource<bool>> apiKeyExists() async {
+  //   final resource = await apiKeysDataProvider.getApiKey(keyType);
+  //   if (resource is Error) {
+  //     return Resource.error(
+  //       resource.message!,
+  //       source: runtimeType.toString(),
+  //       name: "apiKeyExists",
+  //       args: [],
+  //     );
+  //   }
+  //   if (resource is Empty) {
+  //     return Resource.success(false);
+  //   }
+  //   return Resource.success(true);
+  // }
 
   @override
   Future<Resource<List<ReviewModel>>> getReviews({

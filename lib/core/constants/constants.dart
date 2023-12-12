@@ -149,6 +149,8 @@ class NumericConstants {
     9: "идут показы",
     11: "приостановленно",
   };
+
+  static const int takeFeedbacksAtOnce = 500;
 }
 
 class NotificationConditionConstants {

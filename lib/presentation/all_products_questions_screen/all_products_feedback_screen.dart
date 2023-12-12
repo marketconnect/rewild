@@ -2,33 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/constants/image_constant.dart';
 
-import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/empty_widget.dart';
 import 'package:rewild/widgets/network_image.dart';
 
-class AllProductsQuestionsScreen extends StatefulWidget {
-  const AllProductsQuestionsScreen({super.key});
+class AllProductsFeedbackScreen extends StatefulWidget {
+  const AllProductsFeedbackScreen({super.key});
 
   @override
-  State<AllProductsQuestionsScreen> createState() =>
-      _AllProductsQuestionsScreenState();
+  State<AllProductsFeedbackScreen> createState() =>
+      _AllProductsFeedbackScreenState();
 }
 
-class _AllProductsQuestionsScreenState
-    extends State<AllProductsQuestionsScreen> {
-  bool isSwitched = false;
+class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
+  bool isReviews = false;
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AllProductsQuestionsViewModel>();
+    final model = context.watch<AllProductsFeedbackViewModel>();
     final screenWidth = MediaQuery.of(context).size.width;
     final apiKeyexists = model.apiKeyExists;
-    final questions = model.questions;
+    Set<int> itemsIdsList = {};
+    if (isReviews) {
+      itemsIdsList = model.reviews;
+    } else {
+      itemsIdsList = model.questions;
+    }
+
     final getImages = model.getImage;
     final getNewQuestionsQty = model.newQuestionsQty;
+    final getNewReviewsQty = model.newReviewsQty;
     final getallQuestionsQty = model.allQuestionsQty;
+    final getallReviewsQty = model.allReviewsQty;
     final getSupplierArticle = model.getSupplierArticle;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -41,21 +49,21 @@ class _AllProductsQuestionsScreenState
                     width: screenWidth * 0.15,
                   ),
                   Switch(
-                      value: isSwitched,
+                      value: isReviews,
                       onChanged: (value) {
                         setState(() {
-                          isSwitched = value;
+                          isReviews = value;
                         });
                       }),
                   SizedBox(
                     width: screenWidth * 0.05,
                   ),
-                  isSwitched
-                      ? Text('Новые',
+                  isReviews
+                      ? Text('Отзывы',
                           style: TextStyle(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.05))
-                      : Text('Все',
+                      : Text('Вопросы',
                           style: TextStyle(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.05)),
@@ -69,24 +77,18 @@ class _AllProductsQuestionsScreenState
           : SingleChildScrollView(
               child: Column(children: [
                 Column(
-                  children: questions.entries.map((e) {
-                    if (isSwitched) {
-                      return (getNewQuestionsQty(e.key) > 0)
-                          ? _ProductCard(
-                              nmId: e.key,
-                              image: getImages(e.key),
-                              newQuetions: getNewQuestionsQty(e.key),
-                              supplierArticle: getSupplierArticle(e.key),
-                              oldQuetions: getallQuestionsQty(e.key),
-                            )
-                          : Container();
-                    }
+                  children: itemsIdsList.toList().map((e) {
                     return _ProductCard(
-                      nmId: e.key,
-                      image: getImages(e.key),
-                      newQuetions: getNewQuestionsQty(e.key),
-                      supplierArticle: getSupplierArticle(e.key),
-                      oldQuetions: getallQuestionsQty(e.key),
+                      nmId: e,
+                      image: getImages(e),
+                      newItemsQty: isReviews
+                          ? getNewReviewsQty(e)
+                          : getNewQuestionsQty(e),
+                      supplierArticle: getSupplierArticle(e),
+                      isReview: isReviews,
+                      oldItemsQty: isReviews
+                          ? getallReviewsQty(e)
+                          : getallQuestionsQty(e),
                     );
                   }).toList(),
                 )
@@ -99,15 +101,17 @@ class _AllProductsQuestionsScreenState
 class _ProductCard extends StatelessWidget {
   const _ProductCard(
       {required this.image,
-      required this.newQuetions,
+      required this.newItemsQty,
       required this.nmId,
-      required this.oldQuetions,
-      required this.supplierArticle});
+      required this.oldItemsQty,
+      required this.supplierArticle,
+      this.isReview = false});
   final int nmId;
   final String image;
   final String supplierArticle;
-  final int newQuetions;
-  final int oldQuetions;
+  final int newItemsQty;
+  final int oldItemsQty;
+  final bool isReview;
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +164,7 @@ class _ProductCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Всего вопросов: $oldQuetions',
+                      'Всего ${isReview ? "отзывов" : "вопросов"}: $oldItemsQty',
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * 0.04,
                           color: Theme.of(context)
@@ -170,7 +174,7 @@ class _ProductCard extends StatelessWidget {
                           fontWeight: FontWeight.w500),
                     ),
                     Container(
-                      padding: newQuetions == 0
+                      padding: newItemsQty == 0
                           ? null
                           : EdgeInsets.symmetric(
                               vertical:
@@ -178,7 +182,7 @@ class _ProductCard extends StatelessWidget {
                               horizontal:
                                   MediaQuery.of(context).size.width * 0.02,
                             ),
-                      decoration: newQuetions == 0
+                      decoration: newItemsQty == 0
                           ? null
                           : BoxDecoration(
                               borderRadius: BorderRadius.circular(
@@ -186,10 +190,10 @@ class _ProductCard extends StatelessWidget {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                       child: Text(
-                        'Новых: $newQuetions',
+                        'Новых: $newItemsQty',
                         style: TextStyle(
                             fontSize: MediaQuery.of(context).size.width * 0.04,
-                            color: newQuetions > 0
+                            color: newItemsQty > 0
                                 ? Theme.of(context).colorScheme.onPrimary
                                 : Theme.of(context)
                                     .colorScheme

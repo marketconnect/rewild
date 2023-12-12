@@ -29,7 +29,7 @@ abstract class ScreenFactory {
   Widget makeFirstTimeSplashScreen();
   Widget makeAllProductsQuestionsScreen();
   Widget makeAllQuestionsScreen(int nmId);
-  Widget makeAllProductsReviewsScreen();
+  // Widget makeAllProductsReviewsScreen();
   // Widget makeAllReviewsScreen(int nmId);
 }
 
@@ -187,15 +187,15 @@ class MainNavigation implements AppNavigation {
           builder: (_) => screenFactory.makeSearchStatsWordsScreen(campaignId),
         );
 
-      case MainNavigationRouteNames.productsQuestionsScreen:
+      case MainNavigationRouteNames.productsFeedbackScreen:
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllProductsQuestionsScreen(),
         );
 
-      case MainNavigationRouteNames.productsReviewsScreen:
-        return MaterialPageRoute(
-          builder: (_) => screenFactory.makeAllProductsReviewsScreen(),
-        );
+      // case MainNavigationRouteNames.productsReviewsScreen:
+      //   return MaterialPageRoute(
+      //     builder: (_) => screenFactory.makeAllProductsReviewsScreen(),
+      //   );
 
       case MainNavigationRouteNames.advertNotificationScreen:
         final arguments = settings.arguments;

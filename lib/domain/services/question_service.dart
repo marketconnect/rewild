@@ -2,7 +2,7 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/question_model.dart';
-import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_view_model.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
 import 'package:rewild/presentation/single_question_screen/single_question_view_model.dart';
@@ -22,7 +22,7 @@ abstract class QuestionServiceApiKeyDataProvider {
 
 class QuestionService
     implements
-        AllProductsQuestionViewModelQuestionService,
+        AllProductsFeedbackViewModelQuestionService,
         MainNavigationQuestionService,
         SingleQuestionViewModelQuestionService,
         AllQuestionsViewModelQuestionService {

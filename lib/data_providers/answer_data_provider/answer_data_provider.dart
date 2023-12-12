@@ -10,7 +10,7 @@ class AnswerDataProvider implements AnswerServiceAnswerDataProvider {
   ) async {
     try {
       final db = await SqfliteService().database;
-      ;
+
       final deletedID = await db.rawDelete(
         'DELETE FROM answers WHERE questionId = ? ',
         [questionId],

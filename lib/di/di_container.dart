@@ -66,8 +66,7 @@ import 'package:rewild/domain/services/warehouse_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
-import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_screen.dart';
-import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_view_model.dart';
+
 import 'package:rewild/presentation/all_questions_screen/all_questions_screen.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
 import 'package:rewild/presentation/first_start_splash_screen/first_start_splash_screen.dart';
@@ -87,8 +86,8 @@ import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_screen.dart
 import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
-import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
-import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_screen.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_view_model.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 import 'package:rewild/presentation/background_messages_screen/background_messages_screen.dart';
@@ -566,19 +565,20 @@ class _DIContainer {
           internetConnectionChecker: _makeInternetConnectionChecker(),
           messageService: makeBackgroundMessageService());
 
-  AllProductsQuestionsViewModel _makeQuestionsViewModel(BuildContext context) =>
-      AllProductsQuestionsViewModel(
+  AllProductsFeedbackViewModel _makeQuestionsViewModel(BuildContext context) =>
+      AllProductsFeedbackViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
+          reviewService: _makeReviewService(),
           cardOfProductService: _makeCardOfProductService(),
           questionService: _makeQuestionService());
 
-  AllProductsReviewsViewModel _makeReviewsViewModel(BuildContext context) =>
-      AllProductsReviewsViewModel(
-          context: context,
-          internetConnectionChecker: _makeInternetConnectionChecker(),
-          cardOfProductService: _makeCardOfProductService(),
-          reviewService: _makeReviewService());
+  // AllProductsReviewsViewModel _makeReviewsViewModel(BuildContext context) =>
+  //     AllProductsReviewsViewModel(
+  //         context: context,
+  //         internetConnectionChecker: _makeInternetConnectionChecker(),
+  //         cardOfProductService: _makeCardOfProductService(),
+  //         reviewService: _makeReviewService());
 
   AllQuestionsViewModel _makeAllQuestionsViewModel(
           BuildContext context, int nmId) =>
@@ -764,17 +764,17 @@ class ScreenFactoryDefault implements ScreenFactory {
   Widget makeAllProductsQuestionsScreen() {
     return ChangeNotifierProvider(
       create: (context) => _diContainer._makeQuestionsViewModel(context),
-      child: const AllProductsQuestionsScreen(),
+      child: const AllProductsFeedbackScreen(),
     );
   }
 
-  @override
-  Widget makeAllProductsReviewsScreen() {
-    return ChangeNotifierProvider(
-      create: (context) => _diContainer._makeReviewsViewModel(context),
-      child: const AllProductsReviewsScreen(),
-    );
-  }
+  // @override
+  // Widget makeAllProductsReviewsScreen() {
+  //   return ChangeNotifierProvider(
+  //     create: (context) => _diContainer._makeReviewsViewModel(context),
+  //     child: const AllProductsReviewsScreen(),
+  //   );
+  // }
 
   @override
   Widget makeAllQuestionsScreen(int nmId) {

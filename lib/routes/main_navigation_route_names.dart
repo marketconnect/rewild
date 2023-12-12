@@ -22,8 +22,8 @@ abstract class MainNavigationRouteNames {
       '/card_notifications_settings_screen';
 
   static const String firstStartSplashScreen = 'first_start_splash_screen';
-  static const String productsQuestionsScreen = 'products_questions_screen';
+  static const String productsFeedbackScreen = 'products_feedback_screen';
   static const String allQuestionsScreen = 'all_questions_screen';
-  static const String productsReviewsScreen = 'products_reviews_screen';
+  // static const String productsReviewsScreen = 'products_reviews_screen';
   static const String allReviewsScreen = 'all_reviews_screen';
 }

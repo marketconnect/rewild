@@ -52,7 +52,7 @@ class MainNavigationScreenFeedBackWidget extends StatelessWidget {
                         height: screenHeight * 0.1,
                       ),
                       Text(
-                        'Отзывы и вопросы',
+                        'Обратная связь',
                         style: TextStyle(
                             fontSize: screenWidth * 0.08,
                             fontWeight: FontWeight.bold),
@@ -73,16 +73,17 @@ class MainNavigationScreenFeedBackWidget extends StatelessWidget {
                   child: Column(
                     children: [
                       _Link(
-                        text: 'Вопросы',
+                        text: 'Вопросы и отзывы',
                         color: const Color(0xFF8c56ce),
                         imageSrc: IconConstant.iconQuestions,
-                        route: MainNavigationRouteNames.productsQuestionsScreen,
+                        route: MainNavigationRouteNames.productsFeedbackScreen,
                       ),
                       _Link(
-                        text: 'Отзывы',
+                        text: 'Настройка уведомлений',
                         color: const Color(0xFFd2a941),
-                        route: MainNavigationRouteNames.productsReviewsScreen,
-                        imageSrc: IconConstant.iconReview,
+                        route: MainNavigationRouteNames
+                            .backgroundNotificationsScreen,
+                        imageSrc: IconConstant.iconNotificationSettings,
                       ),
                     ],
                   ),
