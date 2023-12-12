@@ -44,8 +44,14 @@ class SingleSearchWordsViewModel extends ResourceChangeNotifier {
     }
 
     searchStatsWordRes.words.keywords
-        .sort((a, b) => a.count.compareTo(b.count));
-    _keywords = searchStatsWordRes.words.keywords;
+        .sort((a, b) => b.count.compareTo(a.count));
+
+    final tempKeywords = searchStatsWordRes.words.keywords;
+    _keywords = [
+      ...tempKeywords.where((element) => element.isNew),
+      ...tempKeywords.where((element) => !element.isNew),
+    ];
+
     _stat = searchStatsWordRes.stat;
     _excluded = searchStatsWordRes.words.excluded;
     _phrase = searchStatsWordRes.words.phrase;

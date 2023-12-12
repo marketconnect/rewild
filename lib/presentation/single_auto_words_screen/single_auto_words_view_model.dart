@@ -42,8 +42,13 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
       return;
     }
 
-    autoStatsWordRes.keywords.sort((a, b) => a.count.compareTo(b.count));
-    _keywords = autoStatsWordRes.keywords;
+    autoStatsWordRes.keywords.sort((a, b) => b.count.compareTo(a.count));
+
+    final tempKeywords = autoStatsWordRes.keywords;
+    _keywords = [
+      ...tempKeywords.where((element) => element.isNew),
+      ...tempKeywords.where((element) => !element.isNew),
+    ];
     _excluded = autoStatsWordRes.excluded;
     if (advertInfo == null) {
       return;

@@ -2,7 +2,7 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/review_model.dart';
-import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_view_model.dart';
+import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
 
 abstract class ReviewServiceReviewApiClient {
   Future<Resource<List<ReviewModel>>> getUnansweredReviews(

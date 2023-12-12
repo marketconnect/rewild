@@ -40,6 +40,9 @@ class ResourceChangeNotifier extends ChangeNotifier {
   bool _external = false;
   late bool _loading = true;
   void setLoading(bool value) {
+    if (!context.mounted) {
+      return;
+    }
     _external = true;
     _loading = value;
     notifyListeners();
@@ -66,5 +69,11 @@ class ResourceChangeNotifier extends ChangeNotifier {
       return null;
     }
     return resource.data;
+  }
+
+  @override
+  void dispose() {
+    print('disposed $runtimeType');
+    super.dispose();
   }
 }

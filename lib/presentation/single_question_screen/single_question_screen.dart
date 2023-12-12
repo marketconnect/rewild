@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/constants/icons_constant.dart';
@@ -115,7 +116,8 @@ class _SingleQuestionScreenState extends State<SingleQuestionScreen> {
                     Center(
                       child: SizedBox(
                         width: screenWidth * 0.8,
-                        child: Text(
+                        height: screenWidth * 0.3,
+                        child: AutoSizeText(
                           questionText,
                           maxLines: 60,
                           style: TextStyle(

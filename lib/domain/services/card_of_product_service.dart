@@ -17,7 +17,7 @@ import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_v
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
-import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_view_model.dart';
+import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
 
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';

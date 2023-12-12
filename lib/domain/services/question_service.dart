@@ -2,15 +2,21 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/question_model.dart';
-import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_view_model.dart';
+import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
 import 'package:rewild/presentation/single_question_screen/single_question_view_model.dart';
 
 abstract class QuestionServiceQuestionApiClient {
-  Future<Resource<List<QuestionModel>>> getUnansweredQuestions(String token,
+  Future<Resource<List<QuestionModel>>> getUnansweredQuestions(
+      String token,
+      int take, // Обязательный параметр take
+      int skip, // Обязательный параметр skip
       [int? nmId]);
-  Future<Resource<List<QuestionModel>>> getAnsweredQuestions(String token,
+  Future<Resource<List<QuestionModel>>> getAnsweredQuestions(
+      String token,
+      int take, // Обязательный параметр take
+      int skip, // Обязательный параметр skip
       [int? nmId]);
   Future<Resource<bool>> handleQuestion(String token, String id, String answer);
 }
@@ -47,7 +53,11 @@ class QuestionService
   }
 
   @override
-  Future<Resource<List<QuestionModel>>> getQuestions([int? nmId]) async {
+  Future<Resource<List<QuestionModel>>> getQuestions({
+    int? nmId,
+    required int take,
+    required int skip,
+  }) async {
     final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
       return Resource.error(tokenResource.message!,
@@ -59,7 +69,7 @@ class QuestionService
 
     // Unanswered questions
     final resourceUnAnswered = await questionApiClient.getUnansweredQuestions(
-        tokenResource.data!.token, nmId);
+        tokenResource.data!.token, take, skip, nmId);
     if (resourceUnAnswered is Error) {
       return Resource.error(resourceUnAnswered.message!,
           source: runtimeType.toString(), name: "getQuestions", args: []);
@@ -70,7 +80,7 @@ class QuestionService
     final unAnsweredQuestions = resourceUnAnswered.data!;
     // Answered questions
     final resourceAnswered = await questionApiClient.getAnsweredQuestions(
-        tokenResource.data!.token, nmId);
+        tokenResource.data!.token, take, skip, nmId);
     if (resourceAnswered is Error) {
       return Resource.error(resourceAnswered.message!,
           source: runtimeType.toString(), name: "getQuestions", args: []);

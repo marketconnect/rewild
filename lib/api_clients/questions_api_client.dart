@@ -39,13 +39,16 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   }
 
   @override
-  Future<Resource<List<QuestionModel>>> getUnansweredQuestions(String token,
+  Future<Resource<List<QuestionModel>>> getUnansweredQuestions(
+      String token,
+      int take, // Обязательный параметр take
+      int skip, // Обязательный параметр skip
       [int? nmId]) async {
     try {
       final params = {
         'isAnswered': false.toString(),
-        'take': 10000.toString(),
-        'skip': 0.toString(),
+        'take': take.toString(),
+        'skip': skip.toString(),
         'order': 'dateAsc',
       };
 
@@ -91,13 +94,16 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   }
 
   @override
-  Future<Resource<List<QuestionModel>>> getAnsweredQuestions(String token,
+  Future<Resource<List<QuestionModel>>> getAnsweredQuestions(
+      String token,
+      int take, // Обязательный параметр take
+      int skip, // Обязательный параметр skip
       [int? nmId]) async {
     try {
       final params = {
         'isAnswered': true.toString(),
-        'take': 10000.toString(),
-        'skip': 0.toString(),
+        'take': take.toString(),
+        'skip': skip.toString(),
         'order': 'dateAsc',
       };
 

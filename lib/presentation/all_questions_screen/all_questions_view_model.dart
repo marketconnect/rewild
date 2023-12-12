@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 abstract class AllQuestionsViewModelQuestionService {
-  Future<Resource<List<QuestionModel>>> getQuestions(int nmId);
+  Future<Resource<List<QuestionModel>>> getQuestions({
+    int? nmId,
+    required int take,
+    required int skip,
+  });
   Future<Resource<bool>> apiKeyExists();
 }
 
@@ -43,13 +48,37 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
       return;
     }
     // get questions
-    final questions = await fetch(() => questionService.getQuestions(nmId));
-    if (questions == null) {
-      return;
+    List<QuestionModel> allQuestions = [];
+    int n = 0;
+    while (true) {
+      // final reviews = await fetch(() => reviewService.getReviews(
+      //     take: NumericConstants.takeFeedbacksAtOnce,
+      //     skip: NumericConstants.takeFeedbacksAtOnce * n));
+      // if (reviews == null ||
+      //     reviews.length < NumericConstants.takeFeedbacksAtOnce) {
+      //   break;
+      // }
+      // // setReviewQty(allReviews.length);
+      // allReviews.addAll(reviews);
+      // n++;
+      // setReviewQty(allReviews.length);
+      final questions = await fetch(() => questionService.getQuestions(
+            nmId: nmId,
+            take: NumericConstants.takeFeedbacksAtOnce,
+            skip: NumericConstants.takeFeedbacksAtOnce * n,
+          ));
+      if (questions == null) {
+        break;
+      }
+      allQuestions.addAll(questions);
+      if (questions.length < NumericConstants.takeFeedbacksAtOnce) {
+        break;
+      }
+      n++;
     }
 
     // Questions
-    setQuestions(questions);
+    setQuestions(allQuestions);
 
     // Saved answers
     final answers = await fetch(() => answerService.getAllQuestionsIds());

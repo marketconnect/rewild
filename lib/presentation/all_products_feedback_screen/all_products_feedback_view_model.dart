@@ -11,7 +11,11 @@ abstract class AllProductsFeedbackCardOfProductService {
 
 // Questions
 abstract class AllProductsFeedbackViewModelQuestionService {
-  Future<Resource<List<QuestionModel>>> getQuestions();
+  Future<Resource<List<QuestionModel>>> getQuestions({
+    required int take,
+    required int skip,
+    int? nmId,
+  });
   Future<Resource<bool>> apiKeyExists();
 }
 
@@ -53,8 +57,16 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   }
 
   // Reviews ==================================================================== REVIEWS
+  bool _isReviewsLoading = false;
+  void setReviewsLoading(bool value) {
+    _isReviewsLoading = value;
+    notify();
+  }
+
+  bool get isReviewsLoading => _isReviewsLoading;
+
   Future<void> _updateReviews() async {
-    setLoading(true);
+    setReviewsLoading(true);
     // get questions
     List<ReviewModel> allReviews = [];
     int n = 0;
@@ -62,13 +74,16 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
       final reviews = await fetch(() => reviewService.getReviews(
           take: NumericConstants.takeFeedbacksAtOnce,
           skip: NumericConstants.takeFeedbacksAtOnce * n));
-      if (reviews == null ||
-          reviews.length < NumericConstants.takeFeedbacksAtOnce) {
+      if (reviews == null) {
         break;
       }
       // setReviewQty(allReviews.length);
       allReviews.addAll(reviews);
       n++;
+      setReviewQty(allReviews.length);
+      if (reviews.length < NumericConstants.takeFeedbacksAtOnce) {
+        break;
+      }
     }
 
     for (final review in allReviews) {
@@ -102,8 +117,16 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
       }
     }
 
-    setLoading(false);
+    setReviewsLoading(false);
   }
+
+  int _reviewsQty = 0;
+  void setReviewQty(int value) {
+    _reviewsQty = value;
+    notify();
+  }
+
+  int get reviewQty => _reviewsQty;
 
   Map<int, int> _allReviewsQty = {};
   void setAllReviewsQty(Map<int, int> value) {
@@ -139,13 +162,34 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   int newReviewsQty(int nmId) => _newReviewsQty[nmId] ?? 0;
 
   // Questions ================================================================== QUESTIONS
+  bool _isQuestionsLoading = false;
+  void setQuestionsLoading(bool value) {
+    _isQuestionsLoading = value;
+    notify();
+  }
+
+  bool get isQuestionsLoading => _isQuestionsLoading;
   Future<void> _updateQuestions() async {
+    setQuestionsLoading(true);
     // get questions
-    final questions = await fetch(() => questionService.getQuestions());
-    if (questions == null) {
-      return;
+    List<QuestionModel> allQuestions = [];
+    int n = 0;
+    while (true) {
+      final questions = await fetch(() => questionService.getQuestions(
+          take: NumericConstants.takeFeedbacksAtOnce,
+          skip: NumericConstants.takeFeedbacksAtOnce * n));
+      if (questions == null) {
+        break;
+      }
+
+      allQuestions.addAll(questions);
+      n++;
+      setQuestionsQty(allQuestions.length);
+      if (questions.length < NumericConstants.takeFeedbacksAtOnce) {
+        break;
+      }
     }
-    for (final question in questions) {
+    for (final question in allQuestions) {
       final nmId = question.productDetails.nmId;
       // All Questions Qty
       incrementAllQuestionsQty(nmId);
@@ -154,11 +198,6 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
       if (question.state == "suppliersPortalSynch") {
         incrementNewQuestionsQty(nmId);
       }
-
-      // Add Questions
-      // addQuestion(
-      //   nmId,
-      // );
 
       // Image
       if (!_images.containsKey(nmId)) {
@@ -178,7 +217,7 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
         addSupplierArticle(nmId, supplierArticle);
       }
     }
-    notify();
+    setQuestionsLoading(false);
   }
 
   // Images
@@ -238,6 +277,14 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   }
 
   int newQuestionsQty(int nmId) => _newQuestionsQty[nmId] ?? 0;
+
+  int _questionsQty = 0;
+  void setQuestionsQty(int value) {
+    _questionsQty = value;
+    notify();
+  }
+
+  int get questionsQty => _questionsQty;
 
   // all questions qty
   Map<int, int> _allQuestionsQty = {};

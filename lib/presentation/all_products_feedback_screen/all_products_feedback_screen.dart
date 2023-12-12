@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/core/constants/image_constant.dart';
 
-import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_view_model.dart';
+import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/empty_widget.dart';
 import 'package:rewild/widgets/network_image.dart';
+import 'package:rewild/widgets/progress_indicator.dart';
 
 class AllProductsFeedbackScreen extends StatefulWidget {
   const AllProductsFeedbackScreen({super.key});
@@ -23,6 +24,10 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
     final model = context.watch<AllProductsFeedbackViewModel>();
     final screenWidth = MediaQuery.of(context).size.width;
     final apiKeyexists = model.apiKeyExists;
+    final isReviewsLoading = model.isReviewsLoading;
+    final isQuestionsLoading = model.isQuestionsLoading;
+    final reviewQty = model.reviewQty;
+    final questionsQty = model.questionsQty;
     Set<int> itemsIdsList = {};
     if (isReviews) {
       itemsIdsList = model.reviews;
@@ -74,26 +79,40 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
           ? const EmptyWidget(
               text: 'Создайте API ключ, чтобы видеть вопросы',
             )
-          : SingleChildScrollView(
-              child: Column(children: [
-                Column(
-                  children: itemsIdsList.toList().map((e) {
-                    return _ProductCard(
-                      nmId: e,
-                      image: getImages(e),
-                      newItemsQty: isReviews
-                          ? getNewReviewsQty(e)
-                          : getNewQuestionsQty(e),
-                      supplierArticle: getSupplierArticle(e),
-                      isReview: isReviews,
-                      oldItemsQty: isReviews
-                          ? getallReviewsQty(e)
-                          : getallQuestionsQty(e),
-                    );
-                  }).toList(),
-                )
-              ]),
-            ),
+          : (isReviewsLoading && isReviews) ||
+                  (isQuestionsLoading && !isReviews)
+              ? Center(
+                  child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const MyProgressIndicator(),
+                    SizedBox(
+                      height: screenWidth * 0.05,
+                    ),
+                    Text(
+                        "Загружено ${isReviews ? reviewQty : questionsQty} ${isReviews ? "отзыва" : "вопроса"}")
+                  ],
+                ))
+              : SingleChildScrollView(
+                  child: Column(children: [
+                    Column(
+                      children: itemsIdsList.toList().map((e) {
+                        return _ProductCard(
+                          nmId: e,
+                          image: getImages(e),
+                          newItemsQty: isReviews
+                              ? getNewReviewsQty(e)
+                              : getNewQuestionsQty(e),
+                          supplierArticle: getSupplierArticle(e),
+                          isReview: isReviews,
+                          oldItemsQty: isReviews
+                              ? getallReviewsQty(e)
+                              : getallQuestionsQty(e),
+                        );
+                      }).toList(),
+                    )
+                  ]),
+                ),
     );
   }
 }

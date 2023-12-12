@@ -86,8 +86,8 @@ import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_screen.dart
 import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
-import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_view_model.dart';
-import 'package:rewild/presentation/all_products_questions_screen/all_products_feedback_screen.dart';
+import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
+import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 import 'package:rewild/presentation/background_messages_screen/background_messages_screen.dart';
