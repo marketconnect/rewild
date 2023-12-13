@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:rewild/core/constants/image_constant.dart';
 
 import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
-import 'package:rewild/routes/main_navigation_route_names.dart';
+
 import 'package:rewild/widgets/empty_widget.dart';
 import 'package:rewild/widgets/network_image.dart';
 import 'package:rewild/widgets/progress_indicator.dart';
@@ -17,8 +17,6 @@ class AllProductsFeedbackScreen extends StatefulWidget {
 }
 
 class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
-  bool isReviews = false;
-
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AllProductsFeedbackViewModel>();
@@ -29,6 +27,8 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
     final reviewQty = model.reviewQty;
     final questionsQty = model.questionsQty;
     Set<int> itemsIdsList = {};
+    final setIsReview = model.setIsReviews;
+    final isReviews = model.isReviews;
     if (isReviews) {
       itemsIdsList = model.reviews;
     } else {
@@ -41,6 +41,7 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
     final getallQuestionsQty = model.allQuestionsQty;
     final getallReviewsQty = model.allReviewsQty;
     final getSupplierArticle = model.getSupplierArticle;
+    final goTo = model.goTo;
 
     return Scaffold(
       appBar: AppBar(
@@ -56,9 +57,10 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
                   Switch(
                       value: isReviews,
                       onChanged: (value) {
-                        setState(() {
-                          isReviews = value;
-                        });
+                        // setState(() {
+                        //   isReviews = value;
+                        // });
+                        setIsReview(value);
                       }),
                   SizedBox(
                     width: screenWidth * 0.05,
@@ -100,6 +102,7 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
                         return _ProductCard(
                           nmId: e,
                           image: getImages(e),
+                          goTo: goTo,
                           newItemsQty: isReviews
                               ? getNewReviewsQty(e)
                               : getNewQuestionsQty(e),
@@ -123,6 +126,7 @@ class _ProductCard extends StatelessWidget {
       required this.newItemsQty,
       required this.nmId,
       required this.oldItemsQty,
+      required this.goTo,
       required this.supplierArticle,
       this.isReview = false});
   final int nmId;
@@ -131,14 +135,13 @@ class _ProductCard extends StatelessWidget {
   final int newItemsQty;
   final int oldItemsQty;
   final bool isReview;
+  final Function(int nmId) goTo;
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(
-          MainNavigationRouteNames.allQuestionsScreen,
-          arguments: nmId),
+      onTap: () => goTo(nmId),
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),

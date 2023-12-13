@@ -87,10 +87,14 @@ class ReviewModel {
       wasViewed: json['wasViewed'] ?? false,
     );
   }
-  // @override
-  // String toString() {
-  //   return 'ReviewModel(id: $id, userName: $userName, matchingSize: $matchingSize, text: $text, productValuation: $productValuation, createdDate: $createdDate, state: $state, answer: $answer, productDetails: $productDetails, wasViewed: $wasViewed)';
-  // }
+  String? reusedAnswerText;
+  void setReusedAnswerText(String value) {
+    reusedAnswerText = value;
+  }
+
+  void clearReusedAnswerText() {
+    reusedAnswerText = null;
+  }
 }
 
 class ReviewAnswer {

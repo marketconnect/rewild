@@ -29,8 +29,8 @@ abstract class ScreenFactory {
   Widget makeFirstTimeSplashScreen();
   Widget makeAllProductsQuestionsScreen();
   Widget makeAllQuestionsScreen(int nmId);
+  Widget makeAllReviewsScreen(int nmId);
   // Widget makeAllProductsReviewsScreen();
-  // Widget makeAllReviewsScreen(int nmId);
 }
 
 class MainNavigation implements AppNavigation {
@@ -211,6 +211,13 @@ class MainNavigation implements AppNavigation {
         final nmId = arguments is int ? arguments : 0;
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllQuestionsScreen(nmId),
+        );
+
+      case MainNavigationRouteNames.allReviewsScreen:
+        final arguments = settings.arguments;
+        final nmId = arguments is int ? arguments : 0;
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeAllReviewsScreen(nmId),
         );
       case MainNavigationRouteNames.singleQuestionScreen:
         final arguments = settings.arguments;

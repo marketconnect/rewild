@@ -69,6 +69,8 @@ import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model
 
 import 'package:rewild/presentation/all_questions_screen/all_questions_screen.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
+import 'package:rewild/presentation/all_reviews_screen/all_reviews_screen.dart';
+import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.dart';
 import 'package:rewild/presentation/first_start_splash_screen/first_start_splash_screen.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_screen.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
@@ -587,6 +589,15 @@ class _DIContainer {
           internetConnectionChecker: _makeInternetConnectionChecker(),
           answerService: _makeAnswerService(),
           questionService: _makeQuestionService());
+
+  AllReviewsViewModel _makeAllReviewsViewModel(
+          BuildContext context, int nmId) =>
+      AllReviewsViewModel(nmId,
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          reviewService: _makeReviewService(),
+          answerService: _makeAnswerService());
+
   SingleQuestionViewModel _makeSingleQuestionViewModel(
           BuildContext context, QuestionModel question) =>
       SingleQuestionViewModel(
@@ -768,13 +779,13 @@ class ScreenFactoryDefault implements ScreenFactory {
     );
   }
 
-  // @override
-  // Widget makeAllProductsReviewsScreen() {
-  //   return ChangeNotifierProvider(
-  //     create: (context) => _diContainer._makeReviewsViewModel(context),
-  //     child: const AllProductsReviewsScreen(),
-  //   );
-  // }
+  @override
+  Widget makeAllReviewsScreen(int nmId) {
+    return ChangeNotifierProvider(
+      create: (context) => _diContainer._makeAllReviewsViewModel(context, nmId),
+      child: const AllReviewsScreen(),
+    );
+  }
 
   @override
   Widget makeAllQuestionsScreen(int nmId) {

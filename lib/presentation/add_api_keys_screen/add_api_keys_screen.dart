@@ -32,7 +32,7 @@ class _AddApiKeysScreenState extends State<AddApiKeysScreen> {
 
     final emptyTypes =
         types.where((type) => !addedTypes.contains(type)).toList();
-
+    print(types);
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -62,19 +62,22 @@ class _AddApiKeysScreenState extends State<AddApiKeysScreen> {
       floatingActionButton: Container(
         margin: const EdgeInsets.all(3),
         width: model.screenWidth,
-        child: FloatingActionButton(
-          onPressed: () async {
-            if (selectionInProgress) {
-              await delete();
-              return;
-            }
-            _showModalBottomSheet(context, emptyTypes, add)
-                .whenComplete(() => _textEditingController.clear());
-          },
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: Text(selectionInProgress ? "Удалить" : "Добавить токен",
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
-        ),
+        child: !selectionInProgress && emptyTypes.isEmpty
+            ? null
+            : FloatingActionButton(
+                onPressed: () async {
+                  if (selectionInProgress) {
+                    await delete();
+                    return;
+                  }
+                  _showModalBottomSheet(context, emptyTypes, add)
+                      .whenComplete(() => _textEditingController.clear());
+                },
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: Text(selectionInProgress ? "Удалить" : "Добавить токен",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary)),
+              ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: loading
@@ -285,6 +288,12 @@ class _AddApiKeysScreenState extends State<AddApiKeysScreen> {
       List<String> types, Future<void> Function(String key, String type) add) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
+    final intValue = int.tryParse(_value) ?? -1;
+    if (intValue < 0 || (intValue > types.length - 1)) {
+      _value = '0';
+    }
+
     return showModalBottomSheet(
       context: context,
       builder: (context) => StatefulBuilder(builder:
@@ -393,8 +402,11 @@ class _AddApiKeysScreenState extends State<AddApiKeysScreen> {
                     fillColor: Theme.of(context).colorScheme.primaryContainer,
                   ),
                   items: types
-                      .map((e) => DropdownMenuItem(
-                          value: "${types.indexOf(e)}", child: Text(e)))
+                      .map((e) {
+                        print('${types.indexOf(e)} - ${e}');
+                        return DropdownMenuItem(
+                            value: "${types.indexOf(e)}", child: Text(e));
+                      })
                       .toList()
                       .toList(),
                   onChanged: (value) {

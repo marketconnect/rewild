@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/resource.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/domain/entities/review_model.dart';
+import 'package:rewild/routes/main_navigation_route_names.dart';
 
 // Images
 abstract class AllProductsFeedbackCardOfProductService {
@@ -232,20 +234,6 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
   String getImage(int nmId) => _images[nmId] ?? '';
 
-  // Questions
-  // Set<int> _questionsNmIds = {};
-  // void setQuestions(Set<int> value) {
-  //   _questionsNmIds = value;
-  // }
-
-  // void addQuestion(int nmId) {
-  //   if (!_questionsNmIds.contains(nmId)) {
-  //     _questionsNmIds.add(nmId);
-  //   }
-  // }
-
-  // Set<int> get questions => _questionsNmIds;
-
   // supplierArticles
   Map<int, String> _supplierArticle = {};
   void setSupplierArticle(Map<int, String> value) {
@@ -312,4 +300,26 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   }
 
   bool get apiKeyExists => _apiKeyExists;
+
+  void goTo(int nmId) {
+    if (isReviews) {
+      _newReviewsQty.remove(nmId);
+    } else {
+      _newQuestionsQty.remove(nmId);
+    }
+    if (context.mounted) {
+      Navigator.of(context).pushNamed(
+          isReviews
+              ? MainNavigationRouteNames.allReviewsScreen
+              : MainNavigationRouteNames.allQuestionsScreen,
+          arguments: nmId);
+    }
+    notify();
+  }
+
+  bool isReviews = false;
+  void setIsReviews(bool value) {
+    isReviews = value;
+    notify();
+  }
 }
