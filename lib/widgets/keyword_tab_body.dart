@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:rewild/widgets/keyword_slidable_container.dart';
+import 'package:rewild/widgets/progress_indicator.dart';
 
 class TabBody extends StatelessWidget {
   const TabBody(
@@ -135,7 +136,26 @@ class _CardsListState extends State<_CardsList> {
               shrinkWrap: true,
               itemCount: _displayedContent.length,
               itemBuilder: (context, index) {
+                if (index == _displayedContent.length - 1 &&
+                    _loadedItems < widget.content.length) {
+                  return Container(
+                      decoration: BoxDecoration(
+                          border: Border(
+                              left: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.02),
+                              bottom: BorderSide(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceVariant,
+                              ))),
+                      child: MyProgressIndicator());
+                }
                 return Slidable(
+                  key: Key(_displayedContent[index].orderNum.toString()),
                   // enabled: false,
                   startActionPane: widget.isExcluded
                       ? null
