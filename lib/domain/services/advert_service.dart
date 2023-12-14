@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 
@@ -38,7 +39,7 @@ abstract class AdvertServiceAdvertApiClient {
 
 // Api key
 abstract class AdvertServiceApiKeyDataProvider {
-  Future<Either<RewildError, ApiKeyModel>> getApiKey(String type);
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey(String type);
 }
 
 class AdvertService
@@ -61,12 +62,12 @@ class AdvertService
   static final keyType = StringConstants.apiKeyTypes[ApiKeyType.promo] ?? "";
   @override
   Future<Either<RewildError, bool>> apiKeyExists() async {
-    final resource = await apiKeysDataProvider.getApiKey(keyType);
-    if (resource is Error) {
-      return left(RewildError(resource.message!,
-          source: runtimeType.toString(), name: "apiKeyExists", args: []);
+    final result = await apiKeysDataProvider.getApiKey(keyType);
+    if (result is Error) {
+      return left(RewildError(result.message!,
+          source: runtimeType.toString(), name: "apiKeyExists", args: []));
     }
-    if (resource is Empty) {
+    if (result is Empty) {
       return right(false);
     }
     return right(true);
