@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/question_model.dart';
@@ -8,7 +9,8 @@ abstract class SingleQuestionViewModelAnswerService {
 }
 
 abstract class SingleQuestionViewModelQuestionService {
-  Future<Either<RewildError, bool>> publishQuestion(String id, String answer);
+  Future<Either<RewildError, bool>> publishQuestion(
+      String apiKey, String id, String answer);
 }
 
 class SingleQuestionViewModel extends ResourceChangeNotifier {

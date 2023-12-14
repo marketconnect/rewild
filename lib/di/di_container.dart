@@ -143,8 +143,8 @@ class _DIContainer {
 
   // Api Key Exist (AdvertService --> BottomNavigationViewModel)
   final apiKeyExistsStreamController =
-      StreamController<Map<ApiKeyType, bool>>.broadcast();
-  Stream<Map<ApiKeyType, bool>> get apiKeyExistsStream =>
+      StreamController<Map<ApiKeyType, String>>.broadcast();
+  Stream<Map<ApiKeyType, String>> get apiKeyExistsStream =>
       apiKeyExistsStreamController.stream;
 
   // cards number (CardOfProductService --> BottomNavigationViewModel)

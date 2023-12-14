@@ -21,7 +21,8 @@ import 'package:rewild/presentation/single_search_words_screen/single_search_wor
 
 // API
 abstract class AdvertServiceAdvertApiClient {
-  Future<Either<RewildError, Map<int, List<int>>>> count(String token);
+  Future<Either<RewildError, Map<(int aType, int aStatus), List<int>>>> count(
+      String token);
   Future<Either<RewildError, List<AdvertInfoModel>>> getAdverts(
       String token, List<int> ids);
   Future<Either<RewildError, Advert>> getCampaignInfo(String token, int id);
@@ -60,121 +61,131 @@ class AdvertService
       required this.updatedAdvertStreamController});
 
   static final keyType = StringConstants.apiKeyTypes[ApiKeyType.promo] ?? "";
+
+   // Function to check if api key exists
+  // @override
+  // Future<Either<RewildError, bool>> apiKeyExists() async {
+  //   final result = await apiKeysDataProvider.getApiKey(keyType);
+  //   return result.fold((l) => left(l), (r) {
+  //     if (r == null) {
+  //       return right(false);
+  //     }
+  //     return right(true);
+  //   });
+    
+  // }
+
+  // Function to get token string
   @override
-  Future<Either<RewildError, bool>> apiKeyExists() async {
-    final result = await apiKeysDataProvider.getApiKey(keyType);
-    if (result is Error) {
-      return left(RewildError(result.message!,
-          source: runtimeType.toString(), name: "apiKeyExists", args: []));
-    }
-    if (result is Empty) {
-      return right(false);
-    }
-    return right(true);
+  Future<Either<RewildError, String?>> getApiKey() async {
+    final tokenResult = await apiKeysDataProvider.getApiKey(keyType);
+  
+    return tokenResult.fold((l) => left(l), (r) async {
+      if (r == null) {
+        return right(null);
+      }
+     return right(r.token);
+    });
   }
 
+  // Function to get ballance with token
   @override
-  Future<Either<RewildError, int>> getBallance() async {
-    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
-    if (tokenResource is Error) {
-      return left(RewildError(tokenResource.message!,
-          source: runtimeType.toString(), name: "getBallance", args: []);
-    }
-    if (tokenResource is Empty) {
-      return right(null);
-    }
+  Future<Either<RewildError, int?>> getBallance(String token) async {
+    
+      final balanceResult =
+        await advertApiClient.balance(token);
 
-    final balanceResource =
-        await advertApiClient.balance(tokenResource.data!.token);
 
-    if (balanceResource is Error) {
-      return left(RewildError(balanceResource.message!,
-          source: runtimeType.toString(), name: "getBallance", args: []);
-    }
-    return balanceResource;
+    return balanceResult.fold((l) => left(l), (r) {
+      return right(r);
+    });
+
   }
 
+  // Function to get budget of a campaign by id
   @override
-  Future<Either<RewildError, int>> getBudget(int campaignId) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
-    if (tokenResource is Error) {
-      return left(RewildError(tokenResource.message!,
-          source: runtimeType.toString(),
-          name: "getBudget",
-          args: [campaignId]);
-    }
-    if (tokenResource is Empty) {
-      return right(null);
-    }
-
-    final budgetResource = await advertApiClient.getCompanyBudget(
-        tokenResource.data!.token, campaignId);
-
-    if (budgetResource is Error) {
-      return left(RewildError(budgetResource.message!,
-          source: runtimeType.toString(),
-          name: "getBudget",
-          args: [campaignId]);
-    }
-    return budgetResource;
+  Future<Either<RewildError, int>> getBudget(String apiKey, int campaignId) async {
+    final result = await advertApiClient.getCompanyBudget(
+        apiKey, campaignId);
+        return result;
   }
 
+  
+
+  // Function to get ids of all adverts filtered by types or not 
+  Future<Either<RewildError,  List<int> >> _getAllAdvertsIds(String token, [List<int>? types, List<int>? statuses]) async {
+    // get ids of all adverts grouped by type and status
+    final result = await advertApiClient.count(token);
+    return result.fold((l) => left(l), (r) {
+      
+
+    if (types == null && statuses == null) {
+    return right(r.entries.expand((element) => element.value).toList());
+  }
+  
+  if (types != null && statuses == null) {
+    return right(r.entries.where((element) => types.contains(element.key.$1)).expand((element) => element.value).toList());
+  }
+  
+  if (types == null && statuses != null) {
+    return right(r.entries.where((element) => statuses.contains(element.key.$2)).expand((element) => element.value).toList());
+  }
+  
+ 
+  return right(r.entries.where((element) => types!.contains(element.key.$1) && statuses!.contains(element.key.$2)).expand((element) => element.value).toList());
+        
+    });
+  }
+
+
+  // Function to get all adverts filtered by types or not
   Future<Either<RewildError, List<AdvertInfoModel>>> _getAdverts(String token,
       [List<int>? types]) async {
-    // get all adverts Ids
-    final allAdvertsIdsResource = await advertApiClient.count(token);
-    if (allAdvertsIdsResource is Error) {
-      return left(RewildError(allAdvertsIdsResource.message!,
-          source: runtimeType.toString(), name: "getAllAdverts", args: []);
-    }
 
-    List<int> ids = [];
-    final allAdvertsIdsMap = allAdvertsIdsResource.data!;
-    if (types != null) {
-      for (var type in allAdvertsIdsMap.keys) {
-        if (types.contains(type)) {
-          ids.addAll(allAdvertsIdsMap[type]!);
-        }
-      }
-    } else {
-      ids = allAdvertsIdsMap.values.expand((element) => element).toList();
-    }
-
-    final advertsResource = await advertApiClient.getAdverts(token, ids);
-
-    if (advertsResource is Error) {
-      return left(RewildError(advertsResource.message!,
-          source: runtimeType.toString(), name: "getAllAdverts", args: []);
-    }
-    return advertsResource;
+    // get ids of all adverts
+    final allAdvertsIdsResult = await _getAllAdvertsIds(token);
+    // get all adverts as the AdvertInfoModel
+    return allAdvertsIdsResult.fold((l) => left(l), (r) async {
+      final advertsResult = await advertApiClient.getAdverts(token, r);
+      return advertsResult;
+    });   
   }
 
   @override
-  Future<Either<RewildError, List<Advert>>> getAllAdverts() async {
-    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
-    if (tokenResource is Error) {
-      return left(RewildError(tokenResource.message!,
-          source: runtimeType.toString(), name: "getAllAdverts", args: []);
-    }
-    if (tokenResource is Empty) {
-      return left(RewildError("Токен не сохранен",
-          source: runtimeType.toString(), name: "getAllAdverts", args: []);
-    }
+  Future<Either<RewildError, List<Advert>>> getAllAdverts(String apiKey) async {
+    
+    // all adverts
+    final advertsResult = await _getAdverts(apiKey, [9, 11]);
+    
+    return advertsResult.fold((l) => left(l), (r) async {
+       List<Advert> res = [];
+        for (final advert in r) {
+      // if (advert.status != 9 && advert.status != 11) {
+      //   continue;
+      // }
 
-    final advertsResource = await _getAdverts(tokenResource.data!.token);
+      final campaignInfoResource = await advertApiClient.getCampaignInfo(
+          tokenResource.data!.token, advert.campaignId);
 
-    if (advertsResource is Error) {
-      return left(RewildError(advertsResource.message!,
-          source: runtimeType.toString(), name: "getAllAdverts", args: []);
+      if (campaignInfoResource is Error) {
+        return left(RewildError(campaignInfoResource.message!,
+            source: runtimeType.toString(), name: "getAllAdverts", args: []);
+      }
+      res.add(campaignInfoResource.data!);
     }
+    });
+    // if (advertsResource is Error) {
+    //   return left(RewildError(advertsResource.message!,
+    //       source: runtimeType.toString(), name: "getAllAdverts", args: []);
+    // }
 
-    if (advertsResource is Empty) {
-      return left(RewildError(
-          'Токен "Продвижение" недействителен. Пожалуйста удалите его.',
-          source: runtimeType.toString(),
-          name: "getAllAdverts",
-          args: []);
-    }
+    // if (advertsResource is Empty) {
+    //   return left(RewildError(
+    //       'Токен "Продвижение" недействителен. Пожалуйста удалите его.',
+    //       source: runtimeType.toString(),
+    //       name: "getAllAdverts",
+    //       args: []);
+    // }
     List<Advert> res = [];
 
     for (final advert in advertsResource.data!) {

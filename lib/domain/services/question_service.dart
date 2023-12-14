@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
@@ -24,7 +25,7 @@ abstract class QuestionServiceQuestionApiClient {
 
 // Api key
 abstract class QuestionServiceApiKeyDataProvider {
-  Future<Either<RewildError, ApiKeyModel>> getApiKey(String type);
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey(String type);
 }
 
 class QuestionService
@@ -40,80 +41,59 @@ class QuestionService
 
   static final keyType = StringConstants.apiKeyTypes[ApiKeyType.question] ?? "";
 
+  // Function to get api key
   @override
-  Future<Either<RewildError, bool>> apiKeyExists() async {
-    final resource = await apiKeysDataProvider.getApiKey(keyType);
-    if (resource is Error) {
-      return left(RewildError(resource.message!,
-          source: runtimeType.toString(), name: "apiKeyExists", args: []);
-    }
-    if (resource is Empty) {
-      return right(false);
-    }
-    return right(true);
+  Future<Either<RewildError, String?>> getApiKey() async {
+    final result = await apiKeysDataProvider.getApiKey(keyType);
+    return result.fold((l) => left(l), (r) {
+      if (r == null) {
+        return left(RewildError(
+          "Api key not found",
+          name: "getApiKey",
+          source: runtimeType.toString(),
+          args: [],
+        ));
+      }
+      return right(r.token);
+    });
   }
 
+  // Function to get unanswered questions and answered questions by nmId
   @override
   Future<Either<RewildError, List<QuestionModel>>> getQuestions({
     int? nmId,
+    required String apiKey,
     required int take,
     required int skip,
   }) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
-    if (tokenResource is Error) {
-      return left(RewildError(tokenResource.message!,
-          source: runtimeType.toString(), name: "getBallance", args: []);
-    }
-    if (tokenResource is Empty) {
-      return right(null);
-    }
+    late List<QuestionModel> allQuestions;
 
     // Unanswered questions
-    final resourceUnAnswered = await questionApiClient.getUnansweredQuestions(
-        tokenResource.data!.token, take, skip, nmId);
-    if (resourceUnAnswered is Error) {
-      return left(RewildError(resourceUnAnswered.message!,
-          source: runtimeType.toString(), name: "getQuestions", args: []);
-    }
-    if (resourceUnAnswered is Empty) {
-      return right(null);
-    }
-    final unAnsweredQuestions = resourceUnAnswered.data!;
+    final unAnsweredResult = await questionApiClient.getUnansweredQuestions(
+        apiKey, take, skip, nmId);
+
+    unAnsweredResult.fold((l) => left(l), (r) {
+      allQuestions = r;
+    });
     // Answered questions
-    final resourceAnswered = await questionApiClient.getAnsweredQuestions(
-        tokenResource.data!.token, take, skip, nmId);
-    if (resourceAnswered is Error) {
-      return left(RewildError(resourceAnswered.message!,
-          source: runtimeType.toString(), name: "getQuestions", args: []);
-    }
-    if (resourceAnswered is Empty) {
-      return right(unAnsweredQuestions);
-    }
+    final resourceAnswered =
+        await questionApiClient.getAnsweredQuestions(apiKey, take, skip, nmId);
 
-    final answeredQuestions = resourceAnswered.data!;
+    resourceAnswered.fold((l) => left(l), (r) {
+      allQuestions.addAll(r);
+    });
 
-    return right([...unAnsweredQuestions, ...answeredQuestions]);
+    return right(allQuestions);
   }
 
+  // Function to publish question on wb server
   @override
   Future<Either<RewildError, bool>> publishQuestion(
-      String id, String answer) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
-    if (tokenResource is Error) {
-      return left(RewildError(tokenResource.message!,
-          source: runtimeType.toString(), name: "getBallance", args: []);
-    }
-    if (tokenResource is Empty) {
-      return right(null);
-    }
+      String apiKey, String id, String answer) async {
+    final result = await questionApiClient.handleQuestion(apiKey, id, answer);
 
-    final resource = await questionApiClient.handleQuestion(
-        tokenResource.data!.token, id, answer);
-    if (resource is Error) {
-      return left(RewildError(resource.message!,
-          source: runtimeType.toString(), name: "publishQuestion", args: []);
-    }
-
-    return right(true);
+    return result.fold((l) => left(l), (r) {
+      return right(r);
+    });
   }
 }

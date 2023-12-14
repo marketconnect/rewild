@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -12,17 +13,17 @@ abstract class MainNavigationCardService {
 
 // question
 abstract class MainNavigationQuestionService {
-  Future<Either<RewildError, bool>> apiKeyExists();
+  Future<Either<RewildError, String?>> getApiKey();
 }
 
 // advert
 abstract class MainNavigationAdvertService {
   Future<Either<RewildError, List<Advert>>> getAllAdverts();
-  Future<Either<RewildError, bool>> apiKeyExists();
-  Future<Either<RewildError, int>> getBudget(int campaignId);
+  Future<Either<RewildError, String?>> getApiKey();
+  Future<Either<RewildError, int>> getBudget(String apiKey, int campaignId);
   Future<Either<RewildError, bool>> stopAdvert(int campaignId);
   Future<Either<RewildError, bool>> startAdvert(int campaignId);
-  Future<Either<RewildError, int>> getBallance();
+  Future<Either<RewildError, int?>> getBallance(String token);
 }
 
 class MainNavigationViewModel extends ResourceChangeNotifier {
@@ -32,7 +33,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
 
   final Stream<int> cardsNumberStream;
   final Stream<StreamAdvertEvent> updatedAdvertStream;
-  final Stream<Map<ApiKeyType, bool>> apiKeyExistsStream;
+  final Stream<Map<ApiKeyType, String>> apiKeyExistsStream;
 
   MainNavigationViewModel(
       {required this.cardService,
@@ -57,7 +58,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     // TODO - Update in FeedbackScreen
     apiKeyExistsStream.listen((event) {
       if (event[ApiKeyType.promo] != null) {
-        setAdvertApiKeyExists(event[ApiKeyType.promo]!);
+        setAdvertApiKey(event[ApiKeyType.promo]!);
       } else if (event[ApiKeyType.question] != null) {
         setFeedbackApiKeyExists(event[ApiKeyType.question]!);
       }
@@ -85,14 +86,13 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     }
     setCardsNumber(cardsQty);
     // Api keys exist
-    final advertKeyExists = await fetch(() => advertService.apiKeyExists());
-    if (advertKeyExists == null) {
-      return;
+    final advertApiKey = await fetch(() => advertService.getApiKey());
+    if (advertApiKey != null) {
+      setAdvertApiKey(advertApiKey);
     }
-    setAdvertApiKeyExists(advertKeyExists);
-
-    final qyestionsApiKeyExists =
-        await fetch(() => questionService.apiKeyExists());
+    if (advertApiKeyExists)
+      final qyestionsApiKeyExists =
+          await fetch(() => questionService.apiKeyExists());
     if (qyestionsApiKeyExists == null) {
       return;
     }
@@ -198,17 +198,17 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
   }
 
   // ApiKeysExists
-  bool _advertApiKeyExists = false;
-  void setAdvertApiKeyExists(bool value) {
-    _advertApiKeyExists = value;
+  String _advertApiKey = "";
+  void setAdvertApiKey(String value) {
+    _advertApiKey = value;
   }
 
-  bool get advertApiKeyExists => _advertApiKeyExists;
+  bool get advertApiKeyExists => _advertApiKey != "";
 
-  bool _feedbackApiKeyExists = false;
-  void setFeedbackApiKeyExists(bool value) {
-    _feedbackApiKeyExists = value;
+  String _feedbackApiKey = "";
+  void setFeedbackApiKeyExists(String value) {
+    _feedbackApiKey = value;
   }
 
-  bool get feedbackApiKeyExists => _feedbackApiKeyExists;
+  bool get feedbackApiKeyExists => _feedbackApiKey == "";
 }

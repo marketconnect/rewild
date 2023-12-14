@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
@@ -24,7 +25,7 @@ abstract class ReviewServiceReviewApiClient {
 
 // Api key
 abstract class ReviewServiceApiKeyDataProvider {
-  Future<Either<RewildError, ApiKeyModel>> getApiKey(String type);
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey(String type);
 }
 
 class ReviewService

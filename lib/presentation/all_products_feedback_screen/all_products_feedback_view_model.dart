@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -14,11 +15,12 @@ abstract class AllProductsFeedbackCardOfProductService {
 // Questions
 abstract class AllProductsFeedbackViewModelQuestionService {
   Future<Either<RewildError, List<QuestionModel>>> getQuestions({
+    int? nmId,
+    required String apiKey,
     required int take,
     required int skip,
-    int? nmId,
   });
-  Future<Either<RewildError, bool>> apiKeyExists();
+  Future<Either<RewildError, String?>> getApiKey();
 }
 
 // Reviews

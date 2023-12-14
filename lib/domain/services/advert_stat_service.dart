@@ -1,5 +1,6 @@
 // Auto stat
 
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
@@ -8,7 +9,7 @@ import 'package:rewild/presentation/single_advert_stats_screen/single_advert_sta
 
 // Api key
 abstract class AdvertStatServiceApiKeyDataProvider {
-  Future<Either<RewildError, ApiKeyModel>> getApiKey(String type);
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey(String type);
 }
 
 abstract class AdvertStatServiceAdvertApiClient {

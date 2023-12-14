@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -25,7 +26,7 @@ abstract class SingleAdvertStatsViewModelAdvertStatsService {
 }
 
 abstract class SingleAdvertStatsViewModelAdvertService {
-  Future<Either<RewildError, int>> getBudget(int campaignId);
+  Future<Either<RewildError, int>> getBudget(String apiKey, int campaignId);
 
   Future<Either<RewildError, Advert>> advertInfo(int campaignId);
   Future<Either<RewildError, bool>> stopAdvert(int campaignId);

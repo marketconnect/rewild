@@ -332,7 +332,8 @@ class AdvertApiClient
   }
 
   @override
-  Future<Either<RewildError, Map<int, List<int>>>> count(String token) async {
+  Future<Either<RewildError, Map<(int aType, int aStatus), List<int>>>> count(
+      String token) async {
     try {
       final wbApi = WbAdvertApiHelper.getCampaigns;
 
@@ -347,11 +348,12 @@ class AdvertApiClient
         if (adverts == null) {
           return right({});
         }
-        Map<int, List<int>> typeIds = {};
+        Map<(int, int), List<int>> typeIds = {};
         for (final advert in adverts) {
           List<int> ids = [];
           final advertList = advert['advert_list'];
           final type = advert['type'];
+          final status = advert['status'];
           if (advertList == null) {
             continue;
           }
@@ -365,7 +367,7 @@ class AdvertApiClient
           if (typeIds.containsKey(type)) {
             typeIds[type]!.addAll(ids);
           } else {
-            typeIds[type] = ids;
+            typeIds[(type, status)] = ids;
           }
         }
 

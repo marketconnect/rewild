@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -8,10 +9,11 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 abstract class AllQuestionsViewModelQuestionService {
   Future<Either<RewildError, List<QuestionModel>>> getQuestions({
     int? nmId,
+    required String apiKey,
     required int take,
     required int skip,
   });
-  Future<Either<RewildError, bool>> apiKeyExists();
+  Future<Either<RewildError, String?>> getApiKey();
 }
 
 abstract class AllQuestionsViewModelAnswerService {
@@ -38,13 +40,13 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
 
   void _asyncInit() async {
     // check api key
-    final exists = await fetch(() => questionService.apiKeyExists());
-    if (exists == null) {
+    final apiKey = await fetch(() => questionService.getApiKey());
+    if (apiKey == null) {
       return;
     }
 
-    setApiKeyExists(exists);
-    if (!exists) {
+    setApiKey(apiKey);
+    if (apiKey.isEmpty) {
       return;
     }
     // get questions
@@ -52,6 +54,7 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
     int n = 0;
     while (true) {
       final questions = await fetch(() => questionService.getQuestions(
+            apiKey: apiKey,
             nmId: nmId,
             take: NumericConstants.takeFeedbacksAtOnce,
             skip: NumericConstants.takeFeedbacksAtOnce * n,
@@ -81,13 +84,13 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
   }
 
   // ApiKeyExists
-  bool _apiKeyExists = false;
-  void setApiKeyExists(bool value) {
-    _apiKeyExists = value;
+  String _apiKey = "";
+  void setApiKey(String value) {
+    _apiKey = value;
     notify();
   }
 
-  bool get apiKeyExists => _apiKeyExists;
+  bool get apiKeyExists => _apiKey == "";
 
   // Questions
   List<QuestionModel>? _questions;

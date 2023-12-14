@@ -63,14 +63,15 @@ class ResourceChangeNotifier extends ChangeNotifier {
   Future<T?> fetch<T>(
       Future<Either<RewildError, T>> Function() callBack) async {
     final resource = await callBack();
-    T t;
-    resource.fold((l) {
+
+    return resource.fold((l) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(l.message!),
         ));
       }
-    }, (r) => t = r);
+      return null;
+    }, (r) => r);
   }
 
   // @override

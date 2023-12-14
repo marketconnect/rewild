@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
@@ -14,61 +15,53 @@ abstract class ApiKeysServiceApiKeysDataProvider {
 
 class ApiKeysService implements AddApiKeysScreenApiKeysService {
   final ApiKeysServiceApiKeysDataProvider apiKeysDataProvider;
-  final StreamController<Map<ApiKeyType, bool>> apiKeyExistsStreamController;
+  final StreamController<Map<ApiKeyType, String>> apiKeyExistsStreamController;
   ApiKeysService(
       {required this.apiKeysDataProvider,
       required this.apiKeyExistsStreamController});
+
   @override
   Future<Either<RewildError, List<ApiKeyModel>>> getAll(
       List<String> types) async {
-    final apiKeysResource = await apiKeysDataProvider.getAllApiKeys(types);
-    if (apiKeysResource is Error) {
-      return left(RewildError(apiKeysResource.message!,
-          source: runtimeType.toString(), name: "getAll", args: [types]);
-    }
-    if (apiKeysResource is Empty) {
-      return right([]);
-    }
-    return right(apiKeysResource.data!);
+    final apiKeysResult = await apiKeysDataProvider.getAllApiKeys(types);
+    return apiKeysResult;
   }
 
+  // Function to delete api key and update stream
   @override
   Future<Either<RewildError, void>> deleteApiKey(String apiKeyType) async {
-    final ok = await apiKeysDataProvider.deleteApiKey(apiKeyType);
-    if (ok is Error) {
-      return left(RewildError(ok.message!,
-          source: runtimeType.toString(),
-          name: "deleteApiKey",
-          args: [apiKeyType]);
+    final deleteResult = await apiKeysDataProvider.deleteApiKey(apiKeyType);
+    if (deleteResult.isLeft()) {
+      return deleteResult;
     }
+
     if (apiKeyType == StringConstants.apiKeyTypes[ApiKeyType.promo]!) {
-      apiKeyExistsStreamController.add({ApiKeyType.promo: false});
+      apiKeyExistsStreamController.add({ApiKeyType.promo: ""});
     }
 
     if (apiKeyType == StringConstants.apiKeyTypes[ApiKeyType.question]!) {
-      apiKeyExistsStreamController.add({ApiKeyType.question: false});
+      apiKeyExistsStreamController.add({ApiKeyType.question: ""});
     }
 
     return right(null);
   }
 
+  // Function to add api key and update stream
   @override
   Future<Either<RewildError, void>> add(String key, String type) async {
     final apiKey = ApiKeyModel(
       token: key,
       type: type,
     );
-    final ok = await apiKeysDataProvider.addApiKey(apiKey);
-    if (ok is Error) {
-      return left(RewildError(ok.message!,
-          source: runtimeType.toString(), name: "addApiKey", args: [key, type]);
-    }
-    if (type == StringConstants.apiKeyTypes[ApiKeyType.promo]!) {
-      apiKeyExistsStreamController.add({ApiKeyType.promo: true});
-    }
-    if (type == StringConstants.apiKeyTypes[ApiKeyType.question]!) {
-      apiKeyExistsStreamController.add({ApiKeyType.question: true});
-    }
-    return right(null);
+    final addApiKeyResult = await apiKeysDataProvider.addApiKey(apiKey);
+    return addApiKeyResult.fold((l) => left(l), (r) {
+      if (type == StringConstants.apiKeyTypes[ApiKeyType.promo]!) {
+        apiKeyExistsStreamController.add({ApiKeyType.promo: key});
+      }
+      if (type == StringConstants.apiKeyTypes[ApiKeyType.question]!) {
+        apiKeyExistsStreamController.add({ApiKeyType.question: key});
+      }
+      return right(null);
+    });
   }
 }

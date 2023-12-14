@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -13,8 +14,8 @@ import 'package:rewild/domain/entities/stream_advert_event.dart';
 
 abstract class AllAdvertsStatScreenAdvertService {
   Future<Either<RewildError, List<Advert>>> getAll();
-  Future<Either<RewildError, bool>> apiKeyExists();
-  Future<Either<RewildError, int>> getBudget(int campaignId);
+  Future<Either<RewildError, String?>> getApiKey();
+  Future<Either<RewildError, int>> getBudget(String apiKey, int campaignId);
 }
 
 abstract class AllAdvertsStatScreenCardOfProductService {
