@@ -1,6 +1,6 @@
-import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
-
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/api_helpers/initial_stocks_grpc_api_helper.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
 import 'package:rewild/domain/services/update_service.dart';
 import 'package:rewild/pb/message.pb.dart';
@@ -11,11 +11,11 @@ import 'package:grpc/grpc.dart';
 class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
   const InitialStocksApiClient();
   @override
-  Future<Resource<List<InitialStockModel>>> get(
+  Future<Either<RewildError, List<InitialStockModel>>> get(
       List<int> skus, DateTime dateFrom, DateTime dateTo) async {
     final channel = ClientChannel(
-      APIConstants.apiHost,
-      port: APIConstants.apiPort,
+      InitialStocksApiHelper.grpcHost,
+      port: InitialStocksApiHelper.grpcPort,
       options: const ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectTimeout: Duration(seconds: 5),
@@ -25,12 +25,12 @@ class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
     try {
       final dateToSave = dateFrom.add(const Duration(seconds: 6));
       if (skus.isEmpty) {
-        return Resource.error(
+        return left(RewildError(
           "Некорректные данные",
           source: runtimeType.toString(),
           name: "get",
           args: [skus, dateFrom, dateTo],
-        );
+        ));
       }
       final stub = StockServiceClient(channel);
       final request = GetStocksFromToReq(
@@ -55,41 +55,36 @@ class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
         ));
       }
 
-      return Resource.success(initialStocks);
+      return right(initialStocks);
     } catch (e) {
       if (e is GrpcError) {
-        if (e.code == StatusCode.internal) {
-          return Resource.error(
-            "Ошибка сервера",
-            source: runtimeType.toString(),
-            name: "get",
-            args: [skus, dateFrom, dateTo],
-          );
-        } else if (e.code == StatusCode.unavailable) {
-          return Resource.error(
-            ErrorsConstants.unavailable,
-            source: runtimeType.toString(),
-            name: "get",
-            args: [skus, dateFrom, dateTo],
-          );
-        }
+        final apiHelper = InitialStocksApiHelper.get;
+        final errString = apiHelper.errResponse(
+          statusCode: e.code,
+        );
+        return left(RewildError(
+          errString,
+          source: runtimeType.toString(),
+          name: "get",
+          args: [skus, dateFrom, dateTo],
+        ));
       }
-      return Resource.error(
-        "Неизвестная ошибка во время получения данных об остатках с сервера: $e",
+      return left(RewildError(
+        "Неизвестная ошибка",
         source: runtimeType.toString(),
         name: "get",
         args: [skus, dateFrom, dateTo],
-      );
+      ));
     } finally {
       await channel.shutdown();
     }
   }
 
-  static Future<Resource<List<InitialStockModel>>> getInBackground(
+  static Future<Either<RewildError, List<InitialStockModel>>> getInBackground(
       List<int> skus, DateTime dateFrom, DateTime dateTo) async {
     final channel = ClientChannel(
-      APIConstants.apiHost,
-      port: APIConstants.apiPort,
+      InitialStocksApiHelper.grpcHost,
+      port: InitialStocksApiHelper.grpcPort,
       options: const ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectTimeout: Duration(seconds: 5),
@@ -99,12 +94,12 @@ class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
     try {
       final dateToSave = dateFrom.add(const Duration(seconds: 6));
       if (skus.isEmpty) {
-        return Resource.error(
+        return left(RewildError(
           "Некорректные данные",
           source: "InitialStocksApiClient",
           name: "getInBackground",
           args: [skus, dateFrom, dateTo],
-        );
+        ));
       }
       final stub = StockServiceClient(channel);
       final request = GetStocksFromToReq(
@@ -129,31 +124,26 @@ class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
         ));
       }
 
-      return Resource.success(initialStocks);
+      return right(initialStocks);
     } catch (e) {
       if (e is GrpcError) {
-        if (e.code == StatusCode.internal) {
-          return Resource.error(
-            "Ошибка сервера",
-            source: "InitialStocksApiClient",
-            name: "getInBackground",
-            args: [skus, dateFrom, dateTo],
-          );
-        } else if (e.code == StatusCode.unavailable) {
-          return Resource.error(
-            ErrorsConstants.unavailable,
-            source: "InitialStocksApiClient",
-            name: "getInBackground",
-            args: [skus, dateFrom, dateTo],
-          );
-        }
+        final apiHelper = InitialStocksApiHelper.get;
+        final errString = apiHelper.errResponse(
+          statusCode: e.code,
+        );
+        return left(RewildError(
+          errString,
+          source: "InitialStocksApiClient",
+          name: "get",
+          args: [skus, dateFrom, dateTo],
+        ));
       }
-      return Resource.error(
-        "Неизвестная ошибка во время получения данных об остатках с сервера: $e",
+      return left(RewildError(
+        "Неизвестная ошибка",
         source: "InitialStocksApiClient",
-        name: "getInBackground",
+        name: "get",
         args: [skus, dateFrom, dateTo],
-      );
+      ));
     } finally {
       await channel.shutdown();
     }

@@ -6,7 +6,7 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 
 import 'package:rewild/core/utils/lists.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data_provider.dart';
 import 'package:rewild/data_providers/background_message_data_provider/background_message_data_provider.dart';
@@ -44,13 +44,13 @@ class BackgroundService {
     final cardsOfProductsResource =
         await CardOfProductDataProvider.getAllInBackGround();
     if (cardsOfProductsResource is Error) {
-      return Resource.error(cardsOfProductsResource.message!,
+      return left(RewildError(cardsOfProductsResource.message!,
           source: "BackgroundService", name: "updateInitialStocks", args: []);
     }
     final allSavedCardsOfProducts = cardsOfProductsResource.data!;
 
     if (allSavedCardsOfProducts.isEmpty) {
-      return Resource.empty();
+      return right(null);
     }
 
     // try to fetch today`s initial stocks from server
@@ -58,7 +58,7 @@ class BackgroundService {
         await _fetchTodayInitialStocksFromServer(
             allSavedCardsOfProducts.map((e) => e.nmId).toList());
     if (todayInitialStocksFromServerResource is Error) {
-      return Resource.error(todayInitialStocksFromServerResource.message!,
+      return left(RewildError(todayInitialStocksFromServerResource.message!,
           source: "BackgroundService", name: "updateInitialStocks", args: []);
     }
     final todayInitialStocksFromServer =
@@ -70,7 +70,7 @@ class BackgroundService {
       final deleteSuppliesResource =
           await SupplyDataProvider.deleteInBackground(nmId: stock.nmId);
       if (deleteSuppliesResource is Error) {
-        return Resource.error(deleteSuppliesResource.message!,
+        return left(RewildError(deleteSuppliesResource.message!,
             source: "BackgroundService", name: "updateInitialStocks", args: []);
       }
 
@@ -91,9 +91,9 @@ class BackgroundService {
       NotificationDataProvider.getAllInBackground(),
     ]);
 
-    final tokenResource = values[0] as Resource<ApiKeyModel>;
+    final tokenResource = values[0] as Either<RewildError, ApiKeyModel>;
     final notificationResource =
-        values[1] as Resource<List<ReWildNotificationModel>>;
+        values[1] as Either<RewildError, List<ReWildNotificationModel>>;
     // token
     if (tokenResource is Success) {
       token = tokenResource.data!.token;
@@ -102,7 +102,7 @@ class BackgroundService {
     // fetch adverts from API Wb
     final advertResource = await fetchAdverts(token);
     if (advertResource is Error) {
-      return Resource.error(advertResource.message!,
+      return left(RewildError(advertResource.message!,
           source: "BackgroundService", name: "fetchAll", args: []);
     }
     // save all fetched adverts
@@ -113,7 +113,7 @@ class BackgroundService {
     }
 
     if (notificationResource is Error) {
-      return Resource.error(notificationResource.message!,
+      return left(RewildError(notificationResource.message!,
           source: "BackgroundService", name: "fetchAll", args: []);
     }
     if (notificationResource is Empty) {
@@ -139,7 +139,7 @@ class BackgroundService {
     final cardsResource =
         await DetailsApiClient.getInBackground(cardsIds.unique() as List<int>);
     if (cardsResource is Error) {
-      return Resource.error(cardsResource.message!,
+      return left(RewildError(cardsResource.message!,
           source: "BackgroundService", name: "fetchAll", args: []);
     }
     // get notification contents for cards
@@ -171,7 +171,7 @@ class BackgroundService {
           token, advertsIds.unique() as List<int>, advertsNotifications);
 
       if (fetchedAdvertBudgetNotifications is Error) {
-        return Resource.error(fetchedAdvertBudgetNotifications.message!,
+        return left(RewildError(fetchedAdvertBudgetNotifications.message!,
             source: "BackgroundService", name: "fetchAll", args: []);
       }
       if (fetchedAdvertBudgetNotifications is Success) {
@@ -212,16 +212,15 @@ class BackgroundService {
     return subj;
   }
 
-  static Future<Resource<List<ReWildNotificationContent>>> _fetchAdvertBudgets(
-      String token,
-      List<int> advertsIds,
-      List<ReWildNotificationModel> advertsNotifications) async {
+  static Future<Either<RewildError, List<ReWildNotificationContent>>>
+      _fetchAdvertBudgets(String token, List<int> advertsIds,
+          List<ReWildNotificationModel> advertsNotifications) async {
     List<ReWildNotificationContent> notificationContents = [];
     for (final campaignId in advertsIds) {
       // fetch budget
       final budgetResource = await budgetRequest(token, campaignId);
       if (budgetResource is Error) {
-        return Resource.error(budgetResource.message!,
+        return left(RewildError(budgetResource.message!,
             source: "BackgroundService",
             name: "_fetchAdvertBudgets",
             args: [token, advertsIds, advertsNotifications]);
@@ -251,13 +250,13 @@ class BackgroundService {
         notificationContents.add(notContent);
       }
     }
-    return Resource.success(notificationContents);
+    return right(notificationContents);
   }
 
-  static Future<Resource<List<AdvertStatModel>>> fetchAdverts(
+  static Future<Either<RewildError, List<AdvertStatModel>>> fetchAdverts(
       String? token) async {
     if (token == null) {
-      return Resource.empty();
+      return right(null);
     }
     List<AdvertStatModel> fetchedAdverts = [];
 
@@ -265,7 +264,7 @@ class BackgroundService {
     final allAdvertsIdsResource =
         await AdvertApiClient.countInBackground(token);
     if (allAdvertsIdsResource is Error) {
-      return Resource.error(allAdvertsIdsResource.message!,
+      return left(RewildError(allAdvertsIdsResource.message!,
           source: "BackgroundService", name: "getAllAdverts", args: []);
     }
 
@@ -277,7 +276,7 @@ class BackgroundService {
     final advertResource =
         await AdvertApiClient.getAdvertsInBackground(token, ids);
     if (advertResource is Error) {
-      return Resource.error(advertResource.message!,
+      return left(RewildError(advertResource.message!,
           source: "BackgroundService", name: "fetchAdverts", args: [token]);
     }
     final allAdverts = advertResource.data!;
@@ -327,75 +326,76 @@ class BackgroundService {
         default:
       }
     }
-    return Resource.success(fetchedAdverts);
+    return right(fetchedAdverts);
   }
 
-  static Future<Resource<AdvertStatModel>> _fetchAutoAdvertStat(
+  static Future<Either<RewildError, AdvertStatModel>> _fetchAutoAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
     final advertStatResource = await AdvertApiClient.getAutoStatInBackground(
         token, advertInfo.campaignId);
 
     if (advertStatResource is Error) {
-      return Resource.error(advertStatResource.message!,
+      return left(RewildError(advertStatResource.message!,
           source: "BackgroundService",
           name: "_fetchAutoAdvertStat",
           args: [token, advertInfo]);
     }
 
     final advertStat = advertStatResource.data!;
-    return Resource.success(advertStat);
+    return right(advertStat);
   }
 
-  static Future<Resource<AdvertStatModel>> _fetchFullAdvertStat(
+  static Future<Either<RewildError, AdvertStatModel>> _fetchFullAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
     final advertStatResource = await AdvertApiClient.getFullStatInBackground(
         token, advertInfo.campaignId);
 
     if (advertStatResource is Error) {
-      return Resource.error(advertStatResource.message!,
+      return left(RewildError(advertStatResource.message!,
           source: "BackgroundService",
           name: "_fetchFullAdvertStat",
           args: [token, advertInfo]);
     }
 
     final advertStat = advertStatResource.data!;
-    return Resource.success(advertStat);
+    return right(advertStat);
   }
 
-  static Future<Resource<AdvertStatModel>> _fetchSearchAdvertStat(
+  static Future<Either<RewildError, AdvertStatModel>> _fetchSearchAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
     final advertStatResource = await AdvertApiClient.getSearchStatInBackground(
         token, advertInfo.campaignId);
 
     if (advertStatResource is Error) {
-      return Resource.error(advertStatResource.message!,
+      return left(RewildError(advertStatResource.message!,
           source: "BackgroundService",
           name: "_fetchSearchAdvertStat",
           args: [token, advertInfo]);
     }
 
     final advertStat = advertStatResource.data!;
-    return Resource.success(advertStat);
+    return right(advertStat);
   }
 
-  static Future<Resource<int>> budgetRequest(String token, int id) async {
+  static Future<Either<RewildError, int>> budgetRequest(
+      String token, int id) async {
     final budgetResource =
         await AdvertApiClient.getCompanyBudgetInBackground(token, id);
 
     if (budgetResource is Error) {
-      return Resource.error(budgetResource.message!,
+      return left(RewildError(budgetResource.message!,
           source: "BackgroundService",
           name: "budgetRequest",
           args: [token, id]);
     }
 
     final budget = budgetResource.data!;
-    return Resource.success(budget);
+    return right(budget);
   }
 
   // PRIVATE METHODS ===================================================================== PRIVATE METHODS
 
-  static Future<Resource<List<InitialStockModel>>>
+  static Future<Either<RewildError, List<InitialStockModel>>>
       _fetchTodayInitialStocksFromServer(
           List<int> cardsWithoutTodayInitStocksIds) async {
     List<InitialStockModel> initialStocksFromServer = [];
@@ -407,7 +407,7 @@ class BackgroundService {
         DateTime.now(),
       );
       if (initialStocksResource is Error) {
-        return Resource.error(initialStocksResource.message!,
+        return left(RewildError(initialStocksResource.message!,
             source: "BackgroundService",
             name: "_fetchTodayInitialStocksFromServer",
             args: [cardsWithoutTodayInitStocksIds]);
@@ -420,7 +420,7 @@ class BackgroundService {
         final insertStockresource =
             await InitialStockDataProvider.insertInBackground(stock);
         if (insertStockresource is Error) {
-          return Resource.error(insertStockresource.message!,
+          return left(RewildError(insertStockresource.message!,
               source: "BackgroundService",
               name: "_fetchTodayInitialStocksFromServer",
               args: [cardsWithoutTodayInitStocksIds]);
@@ -428,7 +428,7 @@ class BackgroundService {
       }
     }
     await LastUpdateDayDataProvider.updateInBackground();
-    return Resource.success(initialStocksFromServer);
+    return right(initialStocksFromServer);
   }
 
   static Future _instantNotification(String title, String body) async {

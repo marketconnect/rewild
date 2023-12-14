@@ -1,5 +1,5 @@
 import 'package:rewild/core/utils/date_time_utils.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
@@ -9,21 +9,21 @@ import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/domain/entities/warehouse.dart';
 
 abstract class SingleGroupScreenGroupsService {
-  Future<Resource<GroupModel>> loadGroup(String name);
-  Future<Resource<void>> delete(String groupName, int nmId);
+  Future<Either<RewildError, GroupModel>> loadGroup(String name);
+  Future<Either<RewildError, void>> delete(String groupName, int nmId);
 }
 
 abstract class SingleGroupScreenViewModelCardsService {
-  Future<Resource<List<CardOfProductModel>>> getAll(List<int> ids);
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll(List<int> ids);
 }
 
 abstract class SingleGroupScreenSellerService {
-  Future<Resource<SellerModel>> get(int supplierId);
+  Future<Either<RewildError, SellerModel>> get(int supplierId);
 }
 
 // warehouse
 abstract class SingleGroupScreenWarehouseService {
-  Future<Resource<Warehouse?>> getById(int id);
+  Future<Either<RewildError, Warehouse?>> getById(int id);
 }
 
 class SingleGroupScreenViewModel extends ResourceChangeNotifier {

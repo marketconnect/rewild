@@ -1,4 +1,4 @@
-import 'package:rewild/core/utils/api/api_constants.dart';
+import 'package:rewild/core/utils/api_helpers/api_helper.dart';
 
 class WbReviewApiHelper {
   static const String host =
@@ -6,7 +6,7 @@ class WbReviewApiHelper {
   // Add other constants as needed
 
   // Метод позволяет получить список отзывов по заданным параметрам с пагинацией и сортировкой.
-  static ApiConstants getFeedbacks = ApiConstants(
+  static ApiHelper getFeedbacks = ApiHelper(
     host: host,
     url: '/api/v1/feedbacks',
     requestLimitPerMinute: 60, // Set the appropriate limit
@@ -20,7 +20,7 @@ class WbReviewApiHelper {
 
   // В зависимости от тела запроса можно просмотреть отзыв, ответить на отзыв или отредактировать ответ.
   // Отредактировать ответ на отзыв можно в течение 2 месяцев (60 дней) после предоставления ответа и только 1 раз.
-  static ApiConstants patchFeedbacks = ApiConstants(
+  static ApiHelper patchFeedbacks = ApiHelper(
     host: host,
     url: '/api/v1/feedbacks',
     requestLimitPerMinute: 60, // Set the appropriate limit

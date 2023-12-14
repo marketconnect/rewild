@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/api_helpers/orders_history_api_helper.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/orders_history_model.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:rewild/domain/services/orders_history_service.dart';
 
 class OrdersHistoryApiClient
@@ -10,17 +12,18 @@ class OrdersHistoryApiClient
   const OrdersHistoryApiClient();
 
   @override
-  Future<Resource<OrdersHistoryModel>> get(int nmId) async {
+  Future<Either<RewildError, OrdersHistoryModel>> get(int nmId) async {
     try {
-      final uri = Uri.parse(
-          'https://product-order-qnt.wildberries.ru/v2/by-nm/?nm=$nmId');
-
-      final response = await http.get(uri);
+      // final uri = Uri.parse(
+      //     'https://product-order-qnt.wildberries.ru/v2/by-nm/?nm=$nmId');
+      final params = {'nm': nmId.toString()};
+      final wbApiHelper = WbOrdersHistoryApiHelper.get;
+      final response = await wbApiHelper.get(null, params);
       if (response.statusCode == 200) {
         final bodyList = jsonDecode(response.body);
 
         if (bodyList.length == 0) {
-          return Resource.empty();
+          return right(OrdersHistoryModel.empty());
         }
         final json = jsonDecode(response.body)[0];
         // Mapping
@@ -28,26 +31,30 @@ class OrdersHistoryApiClient
         final highBuyout = json['highBuyout'] ?? false;
         final updatetAt = DateTime.now();
 
-        return Resource.success(OrdersHistoryModel(
+        return right(OrdersHistoryModel(
           nmId: nmId,
           qty: qty,
           highBuyout: highBuyout,
           updatetAt: updatetAt,
         ));
+      } else {
+        final errString = wbApiHelper.errResponse(
+          statusCode: response.statusCode,
+        );
+        return left(RewildError(
+          errString,
+          source: runtimeType.toString(),
+          name: "get",
+          args: [nmId],
+        ));
       }
     } catch (e) {
-      return Resource.error(
-        "Ошибка при обращении к WB product-order: $e",
+      return left(RewildError(
+        "Ошибка при получении списка отзывов: $e",
         source: runtimeType.toString(),
         name: "get",
         args: [nmId],
-      );
+      ));
     }
-    return Resource.error(
-      "Неизвестная ошибка при обращении к WB product-order",
-      source: runtimeType.toString(),
-      name: "get",
-      args: [nmId],
-    );
   }
 }

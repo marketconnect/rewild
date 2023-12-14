@@ -1,4 +1,5 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
@@ -12,35 +13,7 @@ class InitialStockDataProvider
         CardOfProductServiceInitStockDataProvider {
   const InitialStockDataProvider();
   @override
-  Future<Resource<int>> insert(InitialStockModel initialStock) async {
-    try {
-      final db = await SqfliteService().database;
-      final id = await db.rawInsert('''
-  INSERT INTO initial_stocks(
-    date,
-    nmId,
-    wh,
-    name,
-    sizeOptionId,
-    qty
-  ) VALUES(
-    ?,?,?,?,?,?
-  )''', [
-        initialStock.date.millisecondsSinceEpoch,
-        initialStock.nmId,
-        initialStock.wh,
-        initialStock.name,
-        initialStock.sizeOptionId,
-        initialStock.qty,
-      ]);
-      return Resource.success(id);
-    } catch (e) {
-      return Resource.error('Не удалось сохранить остатки на начало дня $e',
-          source: runtimeType.toString(), name: "insert", args: [initialStock]);
-    }
-  }
-
-  static Future<Resource<int>> insertInBackground(
+  Future<Either<RewildError, int>> insert(
       InitialStockModel initialStock) async {
     try {
       final db = await SqfliteService().database;
@@ -62,29 +35,60 @@ class InitialStockDataProvider
         initialStock.sizeOptionId,
         initialStock.qty,
       ]);
-      return Resource.success(id);
+      return right(id);
     } catch (e) {
-      return Resource.error('Не удалось сохранить остатки на начало дня $e',
-          source: "InitialStockDataProvider",
-          name: "insertInBackground",
-          args: [initialStock]);
+      return left(RewildError('Не удалось сохранить остатки на начало дня $e',
+          source: runtimeType.toString(),
+          name: "insert",
+          args: [initialStock]));
     }
   }
 
-  Future<Resource<void>> delete(int id) async {
+  static Future<Either<RewildError, int>> insertInBackground(
+      InitialStockModel initialStock) async {
+    try {
+      final db = await SqfliteService().database;
+      final id = await db.rawInsert('''
+  INSERT INTO initial_stocks(
+    date,
+    nmId,
+    wh,
+    name,
+    sizeOptionId,
+    qty
+  ) VALUES(
+    ?,?,?,?,?,?
+  )''', [
+        initialStock.date.millisecondsSinceEpoch,
+        initialStock.nmId,
+        initialStock.wh,
+        initialStock.name,
+        initialStock.sizeOptionId,
+        initialStock.qty,
+      ]);
+      return right(id);
+    } catch (e) {
+      return left(RewildError('Не удалось сохранить остатки на начало дня $e',
+          source: "InitialStockDataProvider",
+          name: "insertInBackground",
+          args: [initialStock]));
+    }
+  }
+
+  Future<Either<RewildError, void>> delete(int id) async {
     try {
       final db = await SqfliteService().database;
 
       await db.rawDelete('DELETE FROM initial_stocks WHERE nmId = ?', [id]);
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error('Не удалось удалить остатки на начало дня $e',
-          source: runtimeType.toString(), name: "delete", args: [id]);
+      return left(RewildError('Не удалось удалить остатки на начало дня $e',
+          source: runtimeType.toString(), name: "delete", args: [id]));
     }
   }
 
   @override
-  Future<Resource<List<InitialStockModel>>> get(
+  Future<Either<RewildError, List<InitialStockModel>>> get(
       int nmId, DateTime dateFrom, DateTime dateTo) async {
     try {
       final db = await SqfliteService().database;
@@ -97,17 +101,17 @@ class InitialStockDataProvider
       final initStocks = initialStocks.map((e) {
         return InitialStockModel.fromMap(e);
       }).toList();
-      return Resource.success(initStocks);
+      return right(initStocks);
     } catch (e) {
-      return Resource.error('Не удалось получить остатки на начало дня $e',
+      return left(RewildError('Не удалось получить остатки на начало дня $e',
           source: runtimeType.toString(),
           name: "get",
-          args: [nmId, dateFrom, dateTo]);
+          args: [nmId, dateFrom, dateTo]));
     }
   }
 
   @override
-  Future<Resource<InitialStockModel>> getOne(
+  Future<Either<RewildError, InitialStockModel?>> getOne(
       {required int nmId,
       required DateTime dateFrom,
       required DateTime dateTo,
@@ -128,18 +132,19 @@ class InitialStockDataProvider
         ],
       );
       if (initialStock.isEmpty) {
-        return Resource.empty();
+        return right(null);
       }
-      return Resource.success(InitialStockModel.fromMap(initialStock.first));
+      return right(InitialStockModel.fromMap(initialStock.first));
     } catch (e) {
-      return Resource.error('Не удалось получить остатки на начало дня $e',
+      return left(RewildError('Не удалось получить остатки на начало дня $e',
           source: runtimeType.toString(),
           name: "getOne",
-          args: [nmId, dateFrom, dateTo, wh, sizeOptionId]);
+          args: [nmId, dateFrom, dateTo, wh, sizeOptionId]));
     }
   }
 
-  Future<Resource<int>> update(InitialStockModel initialStock) async {
+  Future<Either<RewildError, int>> update(
+      InitialStockModel initialStock) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawUpdate('''
@@ -162,15 +167,17 @@ class InitialStockDataProvider
         initialStock.qty,
         initialStock.id
       ]);
-      return Resource.success(id);
+      return right(id);
     } catch (e) {
-      return Resource.error('Не удалось обновить остатки на начало дня $e',
-          source: runtimeType.toString(), name: "update", args: [initialStock]);
+      return left(RewildError('Не удалось обновить остатки на начало дня $e',
+          source: runtimeType.toString(),
+          name: "update",
+          args: [initialStock]));
     }
   }
 
   @override
-  Future<Resource<List<InitialStockModel>>> getAll(
+  Future<Either<RewildError, List<InitialStockModel>>> getAll(
       DateTime dateFrom, DateTime dateTo) async {
     try {
       final db = await SqfliteService().database;
@@ -183,12 +190,12 @@ class InitialStockDataProvider
       final initStocks = initialStocks.map((e) {
         return InitialStockModel.fromMap(e);
       }).toList();
-      return Resource.success(initStocks);
+      return right(initStocks);
     } catch (e) {
-      return Resource.error('Не удалось получить остатки на начало дня $e',
+      return left(RewildError('Не удалось получить остатки на начало дня $e',
           source: runtimeType.toString(),
           name: "getAll",
-          args: [dateFrom, dateTo]);
+          args: [dateFrom, dateTo]));
     }
   }
 }

@@ -1,5 +1,5 @@
 import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 
@@ -7,22 +7,22 @@ import 'package:rewild/domain/entities/stream_advert_event.dart';
 
 // card
 abstract class MainNavigationCardService {
-  Future<Resource<int>> count();
+  Future<Either<RewildError, int>> count();
 }
 
 // question
 abstract class MainNavigationQuestionService {
-  Future<Resource<bool>> apiKeyExists();
+  Future<Either<RewildError, bool>> apiKeyExists();
 }
 
 // advert
 abstract class MainNavigationAdvertService {
-  Future<Resource<List<Advert>>> getAllAdverts();
-  Future<Resource<bool>> apiKeyExists();
-  Future<Resource<int>> getBudget(int campaignId);
-  Future<Resource<bool>> stopAdvert(int campaignId);
-  Future<Resource<bool>> startAdvert(int campaignId);
-  Future<Resource<int>> getBallance();
+  Future<Either<RewildError, List<Advert>>> getAllAdverts();
+  Future<Either<RewildError, bool>> apiKeyExists();
+  Future<Either<RewildError, int>> getBudget(int campaignId);
+  Future<Either<RewildError, bool>> stopAdvert(int campaignId);
+  Future<Either<RewildError, bool>> startAdvert(int campaignId);
+  Future<Either<RewildError, int>> getBallance();
 }
 
 class MainNavigationViewModel extends ResourceChangeNotifier {

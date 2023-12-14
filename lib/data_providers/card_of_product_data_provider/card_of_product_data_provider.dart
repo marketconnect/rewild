@@ -1,4 +1,5 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
@@ -12,51 +13,52 @@ class CardOfProductDataProvider
         AllCardsFilterServiceCardsOfProductDataProvider {
   const CardOfProductDataProvider();
   @override
-  Future<Resource<int>> insertOrUpdate(CardOfProductModel card) async {
+  Future<Either<RewildError, int>> insertOrUpdate(
+      CardOfProductModel card) async {
     try {
-      final numOfUpdatedResource = await update(card);
-      if (numOfUpdatedResource is Error) {
-        return Resource.error(numOfUpdatedResource.message!,
-            source: runtimeType.toString(),
-            name: "insertOrUpdate",
-            args: [card]);
+      final numOfUpdatedResource = await _update(card);
+      if (numOfUpdatedResource.isLeft()) {
+        return numOfUpdatedResource;
       }
-      final numOfUpdated = numOfUpdatedResource.data!;
-      if (numOfUpdated == 0) {
-        return insert(card: card);
+
+      final numOfUpdated = numOfUpdatedResource.getRight();
+      if (numOfUpdated.getOrElse(() => 0) == 0) {
+        return _insert(card: card);
       }
-      return Resource.success(numOfUpdated);
+
+      return numOfUpdatedResource;
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         'Не удалось обновить карточку в памяти телефона: ${e.toString()}',
         source: runtimeType.toString(),
         name: "insertOrUpdate",
         args: [card],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<String>> getImage(int id) async {
+  Future<Either<RewildError, String>> getImage(int id) async {
     try {
       final db = await SqfliteService().database;
       final image =
           await db.rawQuery('SELECT img FROM cards WHERE nmId = ?', [id]);
       if (image.isEmpty) {
-        return Resource.empty();
+        return right("");
       }
-      return Resource.success(image.first['img'].toString());
+      return right(image.first['img'].toString());
     } catch (e) {
-      return Resource.error(
-        'Не удалось получить картинку из памяти телефона: ${e.toString()} id:$id',
+      return left(RewildError(
+        e.toString(),
         source: runtimeType.toString(),
         name: "getImage",
         args: [id],
-      );
+      ));
     }
   }
 
-  Future<Resource<int>> insert({required CardOfProductModel card}) async {
+  Future<Either<RewildError, int>> _insert(
+      {required CardOfProductModel card}) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawInsert('''
@@ -97,53 +99,53 @@ class CardOfProductDataProvider
         card.promoTextCard,
         DateTime.now().millisecondsSinceEpoch
       ]);
-      return Resource.success(id);
+      return right(id);
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         'Failed to add card to phone memory: ${e.toString()}',
         source: runtimeType.toString(),
         name: "insert",
         args: [card],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<int>> delete(int id) async {
+  Future<Either<RewildError, int>> delete(int id) async {
     try {
       final db = await SqfliteService().database;
       final resId =
           await db.rawDelete('DELETE FROM cards WHERE nmId = ?', [id]);
 
-      return Resource.success(resId);
+      return right(resId);
     } catch (e) {
-      return Resource.error(
-        'Не удалось удалить карточку из памяти телефона: ${e.toString()}',
+      return left(RewildError(
+        e.toString(),
         source: runtimeType.toString(),
         name: "delete",
         args: [id],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<CardOfProductModel>> get(int id) async {
+  Future<Either<RewildError, CardOfProductModel>> get(int id) async {
     try {
       final db = await SqfliteService().database;
       final card =
           await db.rawQuery('SELECT * FROM cards WHERE nmId = ?', [id]);
-      return Resource.success(CardOfProductModel.fromMap(card.first));
+      return right(CardOfProductModel.fromMap(card.first));
     } catch (e) {
-      return Resource.error(
-        'Не удалось получить карточку из памяти телефона: ${e.toString()}',
+      return left(RewildError(
+        e.toString(),
         source: runtimeType.toString(),
         name: "get",
         args: [id],
-      );
+      ));
     }
   }
 
-  Future<Resource<int>> update(CardOfProductModel card) async {
+  Future<Either<RewildError, int>> _update(CardOfProductModel card) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawUpdate(
@@ -183,53 +185,19 @@ class CardOfProductDataProvider
           card.nmId
         ],
       );
-      return Resource.success(id);
+      return right(id);
     } catch (e) {
-      return Resource.error(
-        'Не удалось обновить карточку в памяти телефона: ${e.toString()}',
+      return left(RewildError(
+        e.toString(),
         source: runtimeType.toString(),
         name: "update",
         args: [card],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<List<CardOfProductModel>>> getAll([List<int>? nmIds]) async {
-    try {
-      final db = await SqfliteService().database;
-      if (nmIds != null) {
-        final cards = await db.rawQuery(
-          '''
-            SELECT * FROM cards
-            WHERE nmId IN (${nmIds.map((e) => '?').join(',')})
-          ''',
-          nmIds,
-        );
-
-        return Resource.success(
-          cards.map((e) => CardOfProductModel.fromMap(e)).toList(),
-        );
-      }
-
-      final cards = await db.rawQuery(
-        '''
-          SELECT * FROM cards
-        ''',
-      );
-      return Resource.success(
-          cards.map((e) => CardOfProductModel.fromMap(e)).toList());
-    } catch (e) {
-      return Resource.error(
-        'Не удалось получить карточки из памяти телефона: ${e.toString()}',
-        source: runtimeType.toString(),
-        name: "getAll",
-        args: [nmIds],
-      );
-    }
-  }
-
-  static Future<Resource<List<CardOfProductModel>>> getAllInBackGround(
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll(
       [List<int>? nmIds]) async {
     try {
       final db = await SqfliteService().database;
@@ -242,7 +210,7 @@ class CardOfProductDataProvider
           nmIds,
         );
 
-        return Resource.success(
+        return right(
           cards.map((e) => CardOfProductModel.fromMap(e)).toList(),
         );
       }
@@ -252,19 +220,52 @@ class CardOfProductDataProvider
           SELECT * FROM cards
         ''',
       );
-      return Resource.success(
-          cards.map((e) => CardOfProductModel.fromMap(e)).toList());
+      return right(cards.map((e) => CardOfProductModel.fromMap(e)).toList());
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
+        'Не удалось получить карточки из памяти телефона: ${e.toString()}',
+        source: runtimeType.toString(),
+        name: "getAll",
+        args: [nmIds],
+      ));
+    }
+  }
+
+  static Future<Either<RewildError, List<CardOfProductModel>>>
+      getAllInBackGround([List<int>? nmIds]) async {
+    try {
+      final db = await SqfliteService().database;
+      if (nmIds != null) {
+        final cards = await db.rawQuery(
+          '''
+            SELECT * FROM cards
+            WHERE nmId IN (${nmIds.map((e) => '?').join(',')})
+          ''',
+          nmIds,
+        );
+
+        return right(
+          cards.map((e) => CardOfProductModel.fromMap(e)).toList(),
+        );
+      }
+
+      final cards = await db.rawQuery(
+        '''
+          SELECT * FROM cards
+        ''',
+      );
+      return right(cards.map((e) => CardOfProductModel.fromMap(e)).toList());
+    } catch (e) {
+      return left(RewildError(
         'Не удалось получить карточки из памяти телефона: ${e.toString()}',
         source: "CardOfProductDataProvider",
         name: "getAll",
         args: [nmIds],
-      );
+      ));
     }
   }
 
-  static Future<Resource<int>> updateInBackGround(
+  static Future<Either<RewildError, int>> updateInBackGround(
       CardOfProductModel card) async {
     try {
       final db = await SqfliteService().database;
@@ -305,19 +306,19 @@ class CardOfProductDataProvider
           card.nmId
         ],
       );
-      return Resource.success(id);
+      return right(id);
     } catch (e) {
-      return Resource.error(
-        'Не удалось обновить карточку в памяти телефона: ${e.toString()}',
+      return left(RewildError(
+        e.toString(),
         source: "CardOfProductDataProvider",
         name: "update",
         args: [card],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<List<CardOfProductModel>>> getAllBySupplierId(
+  Future<Either<RewildError, List<CardOfProductModel>>> getAllBySupplierId(
       int supplierId) async {
     try {
       final db = await SqfliteService().database;
@@ -329,16 +330,16 @@ class CardOfProductDataProvider
         [supplierId],
       );
 
-      return Resource.success(
+      return right(
         cards.map((e) => CardOfProductModel.fromMap(e)).toList(),
       );
     } catch (e) {
-      return Resource.error(
-        'Не удалось получить карточки из памяти телефона: ${e.toString()}',
+      return left(RewildError(
+        e.toString(),
         source: runtimeType.toString(),
         name: "getAllBySupplierId",
         args: [supplierId],
-      );
+      ));
     }
   }
 }

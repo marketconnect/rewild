@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/core/utils/text_filed_validator.dart';
@@ -20,18 +20,18 @@ import 'package:rewild/widgets/my_dialog_textfield_radio_checkbox.dart';
 import '../../domain/entities/advert_base.dart';
 
 abstract class SingleAdvertStatsViewModelAdvertStatsService {
-  Future<Resource<AdvertStatModel>> getCurrent(int campaignId);
-  Future<Resource<List<AdvertStatModel>>> getTodays(int campaignId);
+  Future<Either<RewildError, AdvertStatModel>> getCurrent(int campaignId);
+  Future<Either<RewildError, List<AdvertStatModel>>> getTodays(int campaignId);
 }
 
 abstract class SingleAdvertStatsViewModelAdvertService {
-  Future<Resource<int>> getBudget(int campaignId);
+  Future<Either<RewildError, int>> getBudget(int campaignId);
 
-  Future<Resource<Advert>> advertInfo(int campaignId);
-  Future<Resource<bool>> stopAdvert(int campaignId);
-  Future<Resource<bool>> startAdvert(int campaignId);
+  Future<Either<RewildError, Advert>> advertInfo(int campaignId);
+  Future<Either<RewildError, bool>> stopAdvert(int campaignId);
+  Future<Either<RewildError, bool>> startAdvert(int campaignId);
 
-  Future<Resource<bool>> setCpm(
+  Future<Either<RewildError, bool>> setCpm(
       {required int campaignId,
       required int type,
       required int cpm,
@@ -40,7 +40,7 @@ abstract class SingleAdvertStatsViewModelAdvertService {
 }
 
 abstract class SingleAdvertStatsViewModelNotificationService {
-  Future<Resource<bool>> checkForParent(int id);
+  Future<Either<RewildError, bool>> checkForParent(int id);
 }
 
 class SingleAdvertStatsViewModel extends ResourceChangeNotifier {

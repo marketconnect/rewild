@@ -1,4 +1,4 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/warehouse.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/warehouse_service.dart';
@@ -10,7 +10,7 @@ class WarehouseDataProvider
         WarehouseServiceWarehouseProvider {
   const WarehouseDataProvider();
   @override
-  Future<Resource<bool>> update(List<Warehouse> warehouses) async {
+  Future<Either<RewildError, bool>> update(List<Warehouse> warehouses) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.clear();
@@ -19,32 +19,32 @@ class WarehouseDataProvider
         final ok =
             await prefs.setString(warehouse.id.toString(), warehouse.name);
         if (!ok) {
-          return Resource.error(
+          return left(RewildError(
               'Не удалось сохранить склад ${warehouse.id} ${warehouse.name} ',
               source: runtimeType.toString(),
               name: "update",
               args: [warehouse]);
         }
       }
-      return Resource.success(true);
+      return right(true);
     } on Exception catch (e) {
-      return Resource.error('Не удалось сохранить склады: $e',
+      return left(RewildError('Не удалось сохранить склады: $e',
           source: runtimeType.toString(), name: "update", args: [warehouses]);
     }
   }
 
   @override
-  Future<Resource<String>> get(int id) async {
+  Future<Either<RewildError, String>> get(int id) async {
     try {
       final strId = id.toString();
       final prefs = await SharedPreferences.getInstance();
       final name = prefs.getString(strId) ?? '';
       if (name.isNotEmpty) {
-        return Resource.success(name);
+        return right(name);
       }
-      return Resource.empty();
+      return right(null);
     } on Exception catch (e) {
-      return Resource.error('Не удалось сохранить склад $id:  $e',
+      return left(RewildError('Не удалось сохранить склад $id:  $e',
           source: runtimeType.toString(), name: "get", args: [id]);
     }
   }

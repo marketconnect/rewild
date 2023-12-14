@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/review_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 abstract class AllReviewsViewModelReviewService {
-  Future<Resource<List<ReviewModel>>> getReviews({
+  Future<Either<RewildError, List<ReviewModel>>> getReviews({
     required int take,
     required int skip,
     int? nmId,
   });
-  Future<Resource<bool>> apiKeyExists();
+  Future<Either<RewildError, bool>> apiKeyExists();
 }
 
 abstract class AllReviewsViewModelAnswerService {
-  Future<Resource<bool>> insert(String questionId, String answer);
-  Future<Resource<bool>> delete(
+  Future<Either<RewildError, bool>> insert(String questionId, String answer);
+  Future<Either<RewildError, bool>> delete(
     String questionId,
   );
 
-  Future<Resource<List<String>>> getAllQuestionsIds();
+  Future<Either<RewildError, List<String>>> getAllQuestionsIds();
 }
 
 class AllReviewsViewModel extends ResourceChangeNotifier {

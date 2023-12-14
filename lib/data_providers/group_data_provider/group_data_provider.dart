@@ -1,4 +1,5 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/domain/services/group_service.dart';
@@ -6,7 +7,7 @@ import 'package:rewild/domain/services/group_service.dart';
 class GroupDataProvider implements GroupServiceGroupDataProvider {
   const GroupDataProvider();
   @override
-  Future<Resource<int>> insert(GroupModel group) async {
+  Future<Either<RewildError, int>> insert(GroupModel group) async {
     try {
       final db = await SqfliteService().database;
       for (final nmId in group.cardsNmIds) {
@@ -16,15 +17,15 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
         );
       }
 
-      return Resource.success(group.cardsNmIds.length);
+      return right(group.cardsNmIds.length);
     } catch (e) {
-      return Resource.error(e.toString(),
-          source: runtimeType.toString(), name: "insert", args: [group]);
+      return left(RewildError(e.toString(),
+          source: runtimeType.toString(), name: "insert", args: [group]));
     }
   }
 
   @override
-  Future<Resource<void>> renameGroup(
+  Future<Either<RewildError, void>> renameGroup(
       String groupName, String newGroupName) async {
     try {
       final db = await SqfliteService().database;
@@ -32,17 +33,17 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
         'UPDATE groups SET name = ? WHERE name = ?',
         [newGroupName, groupName],
       );
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error(e.toString(),
+      return left(RewildError(e.toString(),
           source: runtimeType.toString(),
           name: "renameGroup",
-          args: [groupName, newGroupName]);
+          args: [groupName, newGroupName]));
     }
   }
 
   @override
-  Future<Resource<void>> delete(String name, [int? nmId]) async {
+  Future<Either<RewildError, void>> delete(String name, [int? nmId]) async {
     try {
       final db = await SqfliteService().database;
       if (nmId != null) {
@@ -53,22 +54,22 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
       } else {
         await db.rawDelete('DELETE FROM groups WHERE name = ?', [name]);
       }
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error(e.toString(),
-          source: runtimeType.toString(), name: "delete", args: [name, nmId]);
+      return left(RewildError(e.toString(),
+          source: runtimeType.toString(), name: "delete", args: [name, nmId]));
     }
   }
 
   @override
-  Future<Resource<GroupModel>> get(String name) async {
+  Future<Either<RewildError, GroupModel?>> get(String name) async {
     try {
       final db = await SqfliteService().database;
       final groups =
           await db.rawQuery('SELECT * FROM groups WHERE name = ?', [name]);
 
       if (groups.isEmpty) {
-        return Resource.empty();
+        return right(null);
       }
 
       int? bgColor;
@@ -84,18 +85,18 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
         nmIds.add(nmId);
       }
 
-      return Resource.success(GroupModel(
+      return right(GroupModel(
           name: name,
           bgColor: bgColor!,
           fontColor: fontColor!,
           cardsNmIds: nmIds));
     } catch (e) {
-      return Resource.error(e.toString(),
-          source: runtimeType.toString(), name: "get", args: [name]);
+      return left(RewildError(e.toString(),
+          source: runtimeType.toString(), name: "get", args: [name]));
     }
   }
 
-  Future<Resource<int>> update(GroupModel group) async {
+  Future<Either<RewildError, int>> update(GroupModel group) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawUpdate(
@@ -115,15 +116,16 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
           group.id,
         ],
       );
-      return Resource.success(id);
+      return right(id);
     } catch (e) {
-      return Resource.error(e.toString(),
-          source: runtimeType.toString(), name: "update", args: [group]);
+      return left(RewildError(e.toString(),
+          source: runtimeType.toString(), name: "update", args: [group]));
     }
   }
 
   @override
-  Future<Resource<List<GroupModel>>> getAll([List<int>? nmIds]) async {
+  Future<Either<RewildError, List<GroupModel>?>> getAll(
+      [List<int>? nmIds]) async {
     try {
       List<GroupModel> resultGroups = [];
       List<Map<String, Object?>> groups;
@@ -138,7 +140,7 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
       // final
 
       if (groups.isEmpty) {
-        return Resource.empty();
+        return right(null);
       }
       // get distinct groups names
       List<String> groupsNames = [];
@@ -172,10 +174,10 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
             cardsNmIds: nmIds));
       }
 
-      return Resource.success(resultGroups);
+      return right(resultGroups);
     } catch (e) {
-      return Resource.error(e.toString(),
-          source: runtimeType.toString(), name: "getAll", args: [nmIds]);
+      return left(RewildError(e.toString(),
+          source: runtimeType.toString(), name: "getAll", args: [nmIds]));
     }
   }
 }

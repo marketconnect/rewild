@@ -1,10 +1,11 @@
 import 'dart:convert';
 
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/api_helpers/warehouses_api_helper%20copy.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/warehouse.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/warehouse_service.dart';
-import 'package:http/http.dart' as http;
 
 class WarehouseApiClient
     implements
@@ -12,52 +13,48 @@ class WarehouseApiClient
         WarehouseServiceWerehouseApiClient {
   const WarehouseApiClient();
   @override
-  Future<Resource<List<Warehouse>>> getAll() async {
-    final params = {
-      'latitude': '55.753737',
-      'longitude': '37.6201',
-    };
+  Future<Either<RewildError, List<Warehouse>>> getAll() async {
+    try {
+      final params = {
+        'latitude': '55.753737',
+        'longitude': '37.6201',
+      };
+      final wbApiHelper = WbWarehousesHistoryApiHelper.get;
+      final response = await wbApiHelper.get(null, params);
+      // final uri =
+      //     Uri.parse('https://www.wildberries.ru/webapi/spa/product/deliveryinfo')
+      //         .replace(queryParameters: params);
+      // final response = await http.get(uri);
 
-    final uri =
-        Uri.parse('https://www.wildberries.ru/webapi/spa/product/deliveryinfo')
-            .replace(queryParameters: params);
-    final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final warehouses = data['value']['times'];
+        List<Warehouse> resultWarehousesList = [];
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final warehouses = data['value']['times'];
-      List<Warehouse> resultWarehousesList = [];
+        for (final warehouse in warehouses) {
+          Warehouse w = Warehouse.fromJson(warehouse);
+          resultWarehousesList.add(w);
+        }
 
-      for (final warehouse in warehouses) {
-        Warehouse w = Warehouse.fromJson(warehouse);
-        resultWarehousesList.add(w);
+        return right(resultWarehousesList);
+      } else {
+        final errString = wbApiHelper.errResponse(
+          statusCode: response.statusCode,
+        );
+        return left(RewildError(
+          errString,
+          source: runtimeType.toString(),
+          name: "getAll",
+          args: [],
+        ));
       }
-
-      return Resource.success(resultWarehousesList);
-    } else if (response.statusCode == 429) {
-      return Resource.error(
-        "Слишком много запросов",
+    } catch (e) {
+      return left(RewildError(
+        "$e",
         source: runtimeType.toString(),
         name: "getAll",
-      );
-    } else if (response.statusCode == 400) {
-      return Resource.error(
-        "Некорректные данные",
-        source: runtimeType.toString(),
-        name: "getAll",
-      );
-    } else if (response.statusCode == 401) {
-      return Resource.error(
-        "Вы не авторизованы",
-        source: runtimeType.toString(),
-        name: "getAll",
-      );
-    } else {
-      return Resource.error(
-        "Неизвестная ошибка",
-        source: runtimeType.toString(),
-        name: "getAll",
-      );
+        args: [],
+      ));
     }
   }
 }

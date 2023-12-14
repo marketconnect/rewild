@@ -1,7 +1,7 @@
-class APIConstants {
-  static const int apiPort = 25891;
-  static const String apiHost = "89.108.70.221";
-}
+// class APIConstants {
+//   static const int apiPort = 25891;
+//   static const String apiHost = "89.108.70.221";
+// }
 
 enum ApiKeyType {
   stat,
@@ -122,10 +122,10 @@ class StringConstants {
   };
 }
 
-class ErrorsConstants {
-  static const String unavailable =
-      "Сервер временно недоступен, попробуйте позже.";
-}
+// class ErrorsConstants {
+//   static const String unavailable =
+//       "Сервер временно недоступен, попробуйте позже.";
+// }
 
 class TimeConstants {
   static const Duration updatePeriod = Duration(minutes: 1);

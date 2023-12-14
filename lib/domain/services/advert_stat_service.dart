@@ -1,24 +1,25 @@
 // Auto stat
 
 import 'package:rewild/core/utils/date_time_utils.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 
 // Api key
 abstract class AdvertStatServiceApiKeyDataProvider {
-  Future<Resource<ApiKeyModel>> getApiKey(String type);
+  Future<Either<RewildError, ApiKeyModel>> getApiKey(String type);
 }
 
 abstract class AdvertStatServiceAdvertApiClient {
-  Future<Resource<AdvertStatModel>> getAutoStat(String token, int campaignId);
+  Future<Either<RewildError, AdvertStatModel>> getAutoStat(
+      String token, int campaignId);
 }
 
 abstract class AdvertStatServiceAdvertStatDataProvider {
-  Future<Resource<List<AdvertStatModel>>> getAll(int campaignId,
+  Future<Either<RewildError, List<AdvertStatModel>>> getAll(int campaignId,
       [DateTime? from]);
-  Future<Resource<void>> save(AdvertStatModel autoStat);
+  Future<Either<RewildError, void>> save(AdvertStatModel autoStat);
 }
 
 class AdvertStatService
@@ -35,12 +36,13 @@ class AdvertStatService
 
   // returns all saved today's auto stats
   @override
-  Future<Resource<List<AdvertStatModel>>> getTodays(int campaignId) async {
+  Future<Either<RewildError, List<AdvertStatModel>>> getTodays(
+      int campaignId) async {
     // get all stored auto stats for the auto advert
     final storedAutoStatsResource =
         await autoStatDataProvider.getAll(campaignId, yesterdayEndOfTheDay());
     if (storedAutoStatsResource is Error) {
-      return Resource.error(
+      return left(RewildError(
         storedAutoStatsResource.message!,
         source: runtimeType.toString(),
         name: "getTodays",
@@ -48,22 +50,23 @@ class AdvertStatService
       );
     }
     if (storedAutoStatsResource is Empty) {
-      return Resource.success([]);
+      return right([]);
     }
     return storedAutoStatsResource;
   }
 
   @override
-  Future<Resource<AdvertStatModel>> getCurrent(int campaignId) async {
+  Future<Either<RewildError, AdvertStatModel>> getCurrent(
+      int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!,
+      return left(RewildError(tokenResource.message!,
           source: runtimeType.toString(),
           name: "getCurrent",
           args: [campaignId]);
     }
     if (tokenResource is Empty) {
-      return Resource.empty();
+      return right(null);
     }
 
     // get current auto stat from API
@@ -72,12 +75,12 @@ class AdvertStatService
       campaignId,
     );
     if (currentAutoStatResource is Error) {
-      return Resource.error(currentAutoStatResource.message!,
+      return left(RewildError(currentAutoStatResource.message!,
           source: runtimeType.toString(),
           name: "getCurrent",
           args: [campaignId]);
     }
 
-    return Resource.success(currentAutoStatResource.data!);
+    return right(currentAutoStatResource.data!);
   }
 }

@@ -1,30 +1,30 @@
 import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/review_model.dart';
 import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
 import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.dart';
 
 abstract class ReviewServiceReviewApiClient {
-  Future<Resource<List<ReviewModel>>> getUnansweredReviews(
+  Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(
       String token,
       int take, // Обязательный параметр take
       int skip, // Обязательный параметр skip
       [int? nmId]);
 
-  Future<Resource<List<ReviewModel>>> getAnsweredReviews(
+  Future<Either<RewildError, List<ReviewModel>>> getAnsweredReviews(
       String token,
       int take, // Обязательный параметр take
       int skip, // Обязательный параметр skip
       [int? nmId]);
 
-  Future<Resource<bool>> handleReview(
+  Future<Either<RewildError, bool>> handleReview(
       String token, String id, bool wasViewed, bool wasRejected, String answer);
 }
 
 // Api key
 abstract class ReviewServiceApiKeyDataProvider {
-  Future<Resource<ApiKeyModel>> getApiKey(String type);
+  Future<Either<RewildError, ApiKeyModel>> getApiKey(String type);
 }
 
 class ReviewService
@@ -42,10 +42,10 @@ class ReviewService
   static final keyType = StringConstants.apiKeyTypes[ApiKeyType.question] ?? "";
 
   // @override
-  Future<Resource<bool>> apiKeyExists() async {
+  Future<Either<RewildError, bool>> apiKeyExists() async {
     final resource = await apiKeysDataProvider.getApiKey(keyType);
     if (resource is Error) {
-      return Resource.error(
+      return left(RewildError(
         resource.message!,
         source: runtimeType.toString(),
         name: "apiKeyExists",
@@ -53,20 +53,20 @@ class ReviewService
       );
     }
     if (resource is Empty) {
-      return Resource.success(false);
+      return right(false);
     }
-    return Resource.success(true);
+    return right(true);
   }
 
   @override
-  Future<Resource<List<ReviewModel>>> getReviews({
+  Future<Either<RewildError, List<ReviewModel>>> getReviews({
     required int take,
     required int skip,
     int? nmId,
   }) async {
     final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
-      return Resource.error(
+      return left(RewildError(
         tokenResource.message!,
         source: runtimeType.toString(),
         name: "getReviews",
@@ -74,7 +74,7 @@ class ReviewService
       );
     }
     if (tokenResource is Empty) {
-      return Resource.empty();
+      return right(null);
     }
 
     // Unanswered reviews
@@ -85,7 +85,7 @@ class ReviewService
       nmId,
     );
     if (resourceUnAnswered is Error) {
-      return Resource.error(
+      return left(RewildError(
         resourceUnAnswered.message!,
         source: runtimeType.toString(),
         name: "getReviews",
@@ -93,7 +93,7 @@ class ReviewService
       );
     }
     if (resourceUnAnswered is Empty) {
-      return Resource.empty();
+      return right(null);
     }
     final unAnsweredReviews = resourceUnAnswered.data!;
 
@@ -105,7 +105,7 @@ class ReviewService
       nmId,
     );
     if (resourceAnswered is Error) {
-      return Resource.error(
+      return left(RewildError(
         resourceAnswered.message!,
         source: runtimeType.toString(),
         name: "getReviews",
@@ -113,14 +113,14 @@ class ReviewService
       );
     }
     if (resourceAnswered is Empty) {
-      return Resource.success(unAnsweredReviews);
+      return right(unAnsweredReviews);
     }
     final answeredReviews = resourceAnswered.data!;
 
-    return Resource.success([...unAnsweredReviews, ...answeredReviews]);
+    return right([...unAnsweredReviews, ...answeredReviews]);
   }
 
-  Future<Resource<bool>> publishReview(
+  Future<Either<RewildError, bool>> publishReview(
     String id,
     bool wasViewed,
     bool wasRejected,
@@ -128,7 +128,7 @@ class ReviewService
   ) async {
     final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
     if (tokenResource is Error) {
-      return Resource.error(
+      return left(RewildError(
         tokenResource.message!,
         source: runtimeType.toString(),
         name: "publishReview",
@@ -136,7 +136,7 @@ class ReviewService
       );
     }
     if (tokenResource is Empty) {
-      return Resource.empty();
+      return right(null);
     }
 
     final resource = await reviewApiClient.handleReview(
@@ -147,7 +147,7 @@ class ReviewService
       answer,
     );
     if (resource is Error) {
-      return Resource.error(
+      return left(RewildError(
         resource.message!,
         source: runtimeType.toString(),
         name: "publishReview",
@@ -155,6 +155,6 @@ class ReviewService
       );
     }
 
-    return Resource.success(true);
+    return right(true);
   }
 }

@@ -1,4 +1,4 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/filter_model.dart';
 import 'package:rewild/domain/entities/seller_model.dart';
@@ -6,17 +6,18 @@ import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_scr
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 
 abstract class AllCardsFilterFilterDataProvider {
-  Future<Resource<void>> insert(FilterModel filter);
-  Future<Resource<void>> delete();
-  Future<Resource<FilterModel>> get();
+  Future<Either<RewildError, void>> insert(FilterModel filter);
+  Future<Either<RewildError, void>> delete();
+  Future<Either<RewildError, FilterModel>> get();
 }
 
 abstract class AllCardsFilterServiceCardsOfProductDataProvider {
-  Future<Resource<List<CardOfProductModel>>> getAll([List<int>? nmIds]);
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll(
+      [List<int>? nmIds]);
 }
 
 abstract class AllCardsFilterServiceSellerDataProvider {
-  Future<Resource<SellerModel>> get(int id);
+  Future<Either<RewildError, SellerModel>> get(int id);
 }
 
 class AllCardsFilterService
@@ -35,11 +36,11 @@ class AllCardsFilterService
       required this.sellerDataProvider});
 
   @override
-  Future<Resource<FilterModel>> getCompletlyFilledFilter() async {
+  Future<Either<RewildError, FilterModel>> getCompletlyFilledFilter() async {
     // get cards
     final getCardsResource = await cardsOfProductsDataProvider.getAll();
     if (getCardsResource is Error) {
-      return Resource.error(getCardsResource.message!,
+      return left(RewildError(getCardsResource.message!,
           source: runtimeType.toString(),
           name: "getCompletlyFilledFilter",
           args: []);
@@ -90,7 +91,7 @@ class AllCardsFilterService
           final getSupplierResource =
               await sellerDataProvider.get(card.supplierId!);
           if (getSupplierResource is Error) {
-            return Resource.error(getSupplierResource.message!,
+            return left(RewildError(getSupplierResource.message!,
                 source: runtimeType.toString(),
                 name: "getCompletlyFilledFilter",
                 args: []);
@@ -100,7 +101,7 @@ class AllCardsFilterService
       }
     }
 
-    return Resource.success(
+    return right(
       FilterModel(
           brands: brands,
           promos: promos,
@@ -112,10 +113,10 @@ class AllCardsFilterService
   }
 
   @override
-  Future<Resource<FilterModel>> getCurrentFilter() async {
+  Future<Either<RewildError, FilterModel>> getCurrentFilter() async {
     final filterResource = await filterDataProvider.get();
     if (filterResource is Empty) {
-      return Resource.success(FilterModel(
+      return right(FilterModel(
         brands: {},
         promos: {},
         subjects: {},
@@ -128,18 +129,18 @@ class AllCardsFilterService
   }
 
   @override
-  Future<Resource<void>> deleteFilter() async {
+  Future<Either<RewildError, void>> deleteFilter() async {
     final deleteFilterResource = await filterDataProvider.delete();
     if (deleteFilterResource is Error) {
-      return Resource.error(deleteFilterResource.message!,
+      return left(RewildError(deleteFilterResource.message!,
           source: runtimeType.toString(), name: "deleteFilter", args: []);
     }
 
-    return Resource.empty();
+    return right(null);
   }
 
   @override
-  Future<Resource<void>> setFilter(FilterModel filter) async {
+  Future<Either<RewildError, void>> setFilter(FilterModel filter) async {
     final values = await Future.wait(
         [filterDataProvider.delete(), filterDataProvider.insert(filter)]);
 
@@ -149,15 +150,15 @@ class AllCardsFilterService
     // delete previous filter
     // final deleteFilterResource = await filterDataProvider.delete();
     if (deleteFilterResource is Error) {
-      return Resource.error(deleteFilterResource.message!,
+      return left(RewildError(deleteFilterResource.message!,
           source: runtimeType.toString(), name: "setFilter", args: [filter]);
     }
     // insert new
     // final insertFilterResource = await filterDataProvider.insert(filter);
     if (insertFilterResource is Error) {
-      return Resource.error(insertFilterResource.message!,
+      return left(RewildError(insertFilterResource.message!,
           source: runtimeType.toString(), name: "setFilter", args: [filter]);
     }
-    return Resource.empty();
+    return right(null);
   }
 }

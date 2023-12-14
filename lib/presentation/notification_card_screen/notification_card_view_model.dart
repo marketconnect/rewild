@@ -1,15 +1,16 @@
 import 'package:flutter/widgets.dart';
 import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/notification.dart';
 import 'package:rewild/domain/entities/warehouse.dart';
 
 abstract class NotificationCardNotificationService {
-  Future<Resource<void>> addForParent(
+  Future<Either<RewildError, void>> addForParent(
       List<ReWildNotificationModel> notifications, int parentId, bool wasEmpty);
-  Future<Resource<List<ReWildNotificationModel>>> getForParent(int bnmId);
+  Future<Either<RewildError, List<ReWildNotificationModel>>> getForParent(
+      int bnmId);
 }
 
 class NotificationCardState {

@@ -1,16 +1,17 @@
 import 'dart:convert';
 
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 
 abstract class MyWebViewScreenViewModelUpdateService {
-  Future<Resource<int>> insert(String token, List<CardOfProductModel> cards);
+  Future<Either<RewildError, int>> insert(
+      String token, List<CardOfProductModel> cards);
 }
 
 abstract class MyWebViewScreenViewModelTokenProvider {
-  Future<Resource<String>> getToken();
+  Future<Either<RewildError, String>> getToken();
 }
 
 class MyWebViewScreenViewModel extends ResourceChangeNotifier {
@@ -68,7 +69,7 @@ class MyWebViewScreenViewModel extends ResourceChangeNotifier {
     return 0;
   }
 
-  Resource<List<CardOfProductModel>> _parseCards(String jsonString) {
+  Either<RewildError, List<CardOfProductModel>> _parseCards(String jsonString) {
     try {
       List<dynamic> jsonList = json.decode(jsonString);
       List<CardOfProductModel> cards = [];
@@ -78,9 +79,9 @@ class MyWebViewScreenViewModel extends ResourceChangeNotifier {
             CardOfProductModel(nmId: jsonObject['id'], img: jsonObject['img']));
       }
 
-      return Resource.success(cards);
+      return right(cards);
     } catch (e) {
-      return Resource.error(e.toString(),
+      return left(RewildError(e.toString(),
           source: runtimeType.toString(),
           name: "_parseCards",
           args: [jsonString]);

@@ -1,16 +1,17 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/group_model.dart';
 
 abstract class AllGroupsScreenGroupsService {
-  Future<Resource<List<GroupModel>>> getAll();
-  Future<Resource<void>> deleteGroup(String groupName);
-  Future<Resource<void>> renameGroup(String groupName, String newGroupName);
+  Future<Either<RewildError, List<GroupModel>>> getAll();
+  Future<Either<RewildError, void>> deleteGroup(String groupName);
+  Future<Either<RewildError, void>> renameGroup(
+      String groupName, String newGroupName);
 }
 
 abstract class AllGroupsScreenUpdateService {
-  Future<Resource<void>> update();
+  Future<Either<RewildError, void>> update();
 }
 
 class AllGroupsScreenViewModel extends ResourceChangeNotifier {

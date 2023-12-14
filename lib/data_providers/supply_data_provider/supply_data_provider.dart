@@ -1,4 +1,5 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/supply_model.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
@@ -12,7 +13,7 @@ class SupplyDataProvider
         CardOfProductServiceSupplyDataProvider {
   const SupplyDataProvider();
   @override
-  Future<Resource<int>> insert(SupplyModel supply) async {
+  Future<Either<RewildError, int>> insert(SupplyModel supply) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawInsert('''
@@ -32,15 +33,15 @@ class SupplyDataProvider
         supply.qty
       ]);
 
-      return Resource.success(id);
+      return right(id);
     } catch (e) {
-      return Resource.error('Не удалось сохранить поставки $e',
-          source: runtimeType.toString(), name: "insert", args: [supply]);
+      return left(RewildError('Не удалось сохранить поставки $e',
+          source: runtimeType.toString(), name: "insert", args: [supply]));
     }
   }
 
   @override
-  Future<Resource<void>> delete({
+  Future<Either<RewildError, void>> delete({
     required int nmId,
     int? wh,
     int? sizeOptionId,
@@ -49,7 +50,7 @@ class SupplyDataProvider
       final db = await SqfliteService().database;
       if (wh == null || sizeOptionId == null) {
         await db.rawDelete('DELETE FROM supplies WHERE nmId = ?', [nmId]);
-        return Resource.empty();
+        return right(null);
       }
       await db.rawDelete(
           'DELETE FROM supplies WHERE nmId = ? AND wh = ? AND sizeOptionId = ?',
@@ -58,14 +59,14 @@ class SupplyDataProvider
             wh,
             sizeOptionId,
           ]);
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error('Не удалось удалить поставки $e',
-          source: runtimeType.toString(), name: "delete", args: [nmId]);
+      return left(RewildError('Не удалось удалить поставки $e',
+          source: runtimeType.toString(), name: "delete", args: [nmId]));
     }
   }
 
-  static Future<Resource<void>> deleteInBackground({
+  static Future<Either<RewildError, void>> deleteInBackground({
     required int nmId,
     int? wh,
     int? sizeOptionId,
@@ -74,7 +75,7 @@ class SupplyDataProvider
       final db = await SqfliteService().database;
       if (wh == null || sizeOptionId == null) {
         await db.rawDelete('DELETE FROM supplies WHERE nmId = ?', [nmId]);
-        return Resource.empty();
+        return right(null);
       }
       await db.rawDelete(
           'DELETE FROM supplies WHERE nmId = ? AND wh = ? AND sizeOptionId = ?',
@@ -83,17 +84,17 @@ class SupplyDataProvider
             wh,
             sizeOptionId,
           ]);
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error('Не удалось удалить поставки $e',
+      return left(RewildError('Не удалось удалить поставки $e',
           source: "SupplyDataProvider",
           name: "deleteInBackground",
-          args: [nmId]);
+          args: [nmId]));
     }
   }
 
   @override
-  Future<Resource<SupplyModel>> getOne({
+  Future<Either<RewildError, SupplyModel?>> getOne({
     required int nmId,
     required int wh,
     required int sizeOptionId,
@@ -108,20 +109,19 @@ class SupplyDataProvider
             sizeOptionId,
           ]);
       if (supplies.isEmpty) {
-        return Resource.empty();
+        return right(null);
       }
-      return Resource.success(
-          supplies.map((e) => SupplyModel.fromMap(e)).first);
+      return right(supplies.map((e) => SupplyModel.fromMap(e)).first);
     } catch (e) {
-      return Resource.error('Не удалось получить поставки: $e',
+      return left(RewildError('Не удалось получить поставки: $e',
           source: runtimeType.toString(),
           name: "getOne",
-          args: [nmId, wh, sizeOptionId]);
+          args: [nmId, wh, sizeOptionId]));
     }
   }
 
   @override
-  Future<Resource<List<SupplyModel>>> getForOne(
+  Future<Either<RewildError, List<SupplyModel>?>> getForOne(
     int nmId,
   ) async {
     try {
@@ -132,40 +132,38 @@ class SupplyDataProvider
       ]);
 
       if (supplies.isEmpty) {
-        return Resource.empty();
+        return right(null);
       }
 
-      return Resource.success(
-          supplies.map((e) => SupplyModel.fromMap(e)).toList());
+      return right(supplies.map((e) => SupplyModel.fromMap(e)).toList());
     } catch (e) {
-      return Resource.error('Не удалось получить поставки: $e',
-          source: runtimeType.toString(), name: "getForOne", args: [nmId]);
+      return left(RewildError('Не удалось получить поставки: $e',
+          source: runtimeType.toString(), name: "getForOne", args: [nmId]));
     }
   }
 
   @override
-  Future<Resource<List<SupplyModel>>> get(int nmId) async {
+  Future<Either<RewildError, List<SupplyModel>>> get(int nmId) async {
     try {
       final db = await SqfliteService().database;
       final supplies =
           await db.rawQuery('SELECT * FROM supplies WHERE nmId = ?', [nmId]);
-      return Resource.success(
-          supplies.map((e) => SupplyModel.fromMap(e)).toList());
+      return right(supplies.map((e) => SupplyModel.fromMap(e)).toList());
     } catch (e) {
-      return Resource.error('Не удалось получить поставки $e',
-          source: runtimeType.toString(), name: "get", args: [nmId]);
+      return left(RewildError('Не удалось получить поставки $e',
+          source: runtimeType.toString(), name: "get", args: [nmId]));
     }
   }
 
   // @override
-  // Future<Resource<List<SupplyModel>>> getAll() async {
+  // Future<Either<RewildError,List<SupplyModel>>> getAll() async {
   //   try {
   //     final db = await SqfliteService().database;
   //     final supplies = await db.rawQuery('SELECT * FROM supplies');
-  //     return Resource.success(
+  //     return right(
   //         supplies.map((e) => SupplyModel.fromMap(e)).toList());
   //   } catch (e) {
-  //     return Resource.error('Не удалось Получить поставки $e');
+  //     return left(RewildError('Не удалось Получить поставки $e');
   //   }
   // }
 }

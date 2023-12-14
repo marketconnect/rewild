@@ -1,4 +1,5 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/filter_model.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
@@ -6,7 +7,7 @@ import 'package:rewild/domain/services/all_cards_filter_service.dart';
 class FilterDataProvider implements AllCardsFilterFilterDataProvider {
   const FilterDataProvider();
   @override
-  Future<Resource<void>> insert(FilterModel filter) async {
+  Future<Either<RewildError, void>> insert(FilterModel filter) async {
     try {
       final db = await SqfliteService().database;
       // subjects
@@ -59,34 +60,34 @@ class FilterDataProvider implements AllCardsFilterFilterDataProvider {
           ["withStocks", 1, ""],
         );
       }
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error(e.toString(),
-          source: runtimeType.toString(), name: "insert", args: [filter]);
+      return left(RewildError(e.toString(),
+          source: runtimeType.toString(), name: "insert", args: [filter]));
     }
   }
 
   @override
-  Future<Resource<void>> delete() async {
+  Future<Either<RewildError, void>> delete() async {
     try {
       final db = await SqfliteService().database;
       await db.rawDelete(
         'DELETE FROM filters',
       );
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error(e.toString(),
-          source: runtimeType.toString(), name: "delete", args: []);
+      return left(RewildError(e.toString(),
+          source: runtimeType.toString(), name: "delete", args: []));
     }
   }
 
   @override
-  Future<Resource<FilterModel>> get() async {
+  Future<Either<RewildError, FilterModel?>> get() async {
     try {
       final db = await SqfliteService().database;
       final result = await db.rawQuery('SELECT * FROM filters');
       if (result.isEmpty) {
-        return Resource.empty();
+        return right(null);
       }
       Map<int, String> subjects = {};
       Map<int, String> brands = {};
@@ -128,10 +129,10 @@ class FilterDataProvider implements AllCardsFilterFilterDataProvider {
           withSales: withSales,
           withStocks: withStocks);
 
-      return Resource.success(newFilter);
+      return right(newFilter);
     } catch (e) {
-      return Resource.error(e.toString(),
-          source: runtimeType.toString(), name: "get", args: []);
+      return left(RewildError(e.toString(),
+          source: runtimeType.toString(), name: "get", args: []));
     }
   }
 }

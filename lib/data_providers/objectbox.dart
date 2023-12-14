@@ -39,7 +39,7 @@
 //     return ObjectBox._create(store);
 //   }
 
-//   Resource<SellerModel> getSellerBySupplierId(int supplierId) {
+//   Either<RewildError,SellerModel> getSellerBySupplierId(int supplierId) {
 //     try {
 //       final sellersQuery = sellerModelBox
 //           .query(SellerModel_.sellerId.equals(supplierId))
@@ -47,50 +47,50 @@
 //       final sellers = sellersQuery.find();
 //       sellersQuery.close();
 //       if (sellers.isEmpty) {
-//         return Resource.empty();
+//         return right(null);
 //       }
 
-//       return Resource.success(sellers.first);
+//       return right(sellers.first);
 //     } catch (e) {
-//       return Resource.error(e.toString());
+//       return left(RewildError(e.toString());
 //     }
 //   }
 
 //   // CardOfProductModel
-//   Resource<List<CardOfProductModel>> getAll() {
+//   Either<RewildError,List<CardOfProductModel>> getAll() {
 //     try {
 //       final cards = cardOfProductModelBox.getAll();
 
-//       return Resource.success(cards);
+//       return right(cards);
 //     } catch (e) {
-//       return Resource.error(e.toString());
+//       return left(RewildError(e.toString());
 //     }
 //   }
 
-//   Resource<int> getNmid(int id) {
+//   Either<RewildError,int> getNmid(int id) {
 //     try {
 //       final card = cardOfProductModelBox.get(id);
-//       return Resource.success(card!.nmId);
+//       return right(card!.nmId);
 //     } catch (e) {
-//       return Resource.error(e.toString());
+//       return left(RewildError(e.toString());
 //     }
 //   }
 
-//   Resource<List<CardOfProductModel>> getAllByGroup(int groupId) {
+//   Either<RewildError,List<CardOfProductModel>> getAllByGroup(int groupId) {
 //     try {
 //       // final query = groupModelBox.query(GroupModel_.id.equals(groupId)).build();
 //       GroupModel? group = groupModelBox.get(groupId);
 //       if (group == null) {
-//         return Resource.error('Группы не существует');
+//         return left(RewildError('Группы не существует');
 //       }
 //       final cards = group.cards;
-//       return Resource.success(cards);
+//       return right(cards);
 //     } catch (e) {
-//       return Resource.error(e.toString());
+//       return left(RewildError(e.toString());
 //     }
 //   }
 
-//   Resource<int> insertOrUpdate(CardOfProductModel card) {
+//   Either<RewildError,int> insertOrUpdate(CardOfProductModel card) {
 //     try {
 //       CardOfProductModel? storedCard = cardOfProductModelBox.get(card.nmId);
 //       if (storedCard != null) {
@@ -98,12 +98,12 @@
 //       }
 //       return _insert(card);
 //     } catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //           'Не удалось сохранить карточку id ${card.nmId} в память телефона: ${e.toString()}');
 //     }
 //   }
 
-//   Resource<int> _update(
+//   Either<RewildError,int> _update(
 //       CardOfProductModel storedCard, CardOfProductModel updatedCard) {
 //     try {
 //       print("_update");
@@ -148,147 +148,147 @@
 
 //       // save
 //       final id = cardOfProductModelBox.put(storedCard);
-//       return Resource.success(id);
+//       return right(id);
 //     } catch (e) {
-//       return Resource.error(e.toString());
+//       return left(RewildError(e.toString());
 //     }
 //   }
 
-//   Resource<int> _insert(CardOfProductModel card) {
+//   Either<RewildError,int> _insert(CardOfProductModel card) {
 //     try {
 //       final id = cardOfProductModelBox.put(card);
-//       return Resource.success(id);
+//       return right(id);
 //     } catch (e) {
-//       return Resource.error(e.toString());
+//       return left(RewildError(e.toString());
 //     }
 //   }
 
-//   Resource<bool> drop(int id) {
+//   Either<RewildError,bool> drop(int id) {
 //     try {
 //       final isRemoved = cardOfProductModelBox.remove(id);
 
-//       return Resource.success(isRemoved);
+//       return right(isRemoved);
 //     } on Exception catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //           'Не удалось удалить карточку из памяти телефона: ${e.toString()}');
 //     }
 //   }
 
-//   Resource<CardOfProductModel?> getOne(int id) {
+//   Either<RewildError,CardOfProductModel?> getOne(int id) {
 //     try {
 //       final card = cardOfProductModelBox.get(id);
 
-//       return Resource.success(card);
+//       return right(card);
 //     } on Exception catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //           'Не удалось получить карточку из локальной памяти: ${e.toString()}');
 //     }
 //   }
 
-//   Resource<int> insertInitialStocks(
+//   Either<RewildError,int> insertInitialStocks(
 //       int cardId, List<InitialStockModel> initialStocksModels) {
 //     try {
 //       CardOfProductModel? card = cardOfProductModelBox.get(cardId);
 //       if (card == null) {
-//         return Resource.error('Карточки с id $cardId не существует');
+//         return left(RewildError('Карточки с id $cardId не существует');
 //       }
 //       for (final initialStock in initialStocksModels) {
 //         card.initialStocks.add(initialStock);
 //       }
 //       final id = cardOfProductModelBox.put(card);
-//       return Resource.success(id);
+//       return right(id);
 //     } on Exception catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //           'Не удалось добавить остатки в память телефона: ${e.toString()}');
 //     }
 //   }
 
-//   Resource<int> addGroup(GroupModel group) {
+//   Either<RewildError,int> addGroup(GroupModel group) {
 //     try {
 //       final id = groupModelBox.put(group);
-//       return Resource.success(id);
+//       return right(id);
 //     } on Exception catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //           'Не удалось добавить группу в память телефона: ${e.toString()}');
 //     }
 //   }
 
-//   Resource<List<GroupModel>> getAllGroups() {
+//   Either<RewildError,List<GroupModel>> getAllGroups() {
 //     try {
 //       final groups = groupModelBox.getAll();
 //       // print(groups[0].name);
-//       return Resource.success(groups);
+//       return right(groups);
 //     } on Exception catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //           'Не удалось получить группы из локальной памяти: ${e.toString()}');
 //     }
 //   }
 
-//   Resource<int> addGroupInCard(int groupId, int cardId) {
+//   Either<RewildError,int> addGroupInCard(int groupId, int cardId) {
 //     try {
 //       CardOfProductModel? card = cardOfProductModelBox.get(cardId);
 //       if (card == null) {
 //         print('card not found');
-//         return Resource.error('Карточки с id $cardId не существует');
+//         return left(RewildError('Карточки с id $cardId не существует');
 //       }
 //       GroupModel? group = groupModelBox.get(groupId);
 //       if (group == null) {
 //         print('group not found');
-//         return Resource.error('Группы с id $groupId не существует');
+//         return left(RewildError('Группы с id $groupId не существует');
 //       }
 
 //       List<GroupModel> groupsOfCard = card.groups;
 //       if (groupsOfCard.contains(group)) {
 //         print('group already in card');
-//         return Resource.success(0);
+//         return right(0);
 //       }
 //       card.groups.add(group);
 //       print('add group ${group.name} to card ${card.nmId}');
 //       final id = cardOfProductModelBox.put(card);
-//       return Resource.success(id);
+//       return right(id);
 //     } on Exception catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //           'Не удалось добавить карточку в группу: ${e.toString()}');
 //     }
 //   }
 
-//   Resource<int> removeGroupFromCard(int groupId, int cardId) {
+//   Either<RewildError,int> removeGroupFromCard(int groupId, int cardId) {
 //     try {
 //       CardOfProductModel? card = cardOfProductModelBox.get(cardId);
 //       if (card == null) {
-//         return Resource.error('Карточки с id $cardId не существует');
+//         return left(RewildError('Карточки с id $cardId не существует');
 //       }
 
 //       GroupModel? group = groupModelBox.get(groupId);
 //       if (group == null) {
-//         return Resource.error('Группы с id $groupId не существует');
+//         return left(RewildError('Группы с id $groupId не существует');
 //       }
 
 //       card.groups.remove(group);
 //       final id = cardOfProductModelBox.put(card);
-//       return Resource.success(id);
+//       return right(id);
 //     } on Exception catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //           'Не удалось удалить карточку из группы: ${e.toString()}');
 //     }
 //   }
 
-//   Resource<GroupModel> getGroup(int id) {
+//   Either<RewildError,GroupModel> getGroup(int id) {
 //     try {
 //       final group = groupModelBox.get(id);
 //       if (group == null) {
-//         return Resource.error('Группы с id $id не существует');
+//         return left(RewildError('Группы с id $id не существует');
 //       }
-//       return Resource.success(group);
+//       return right(group);
 //     } on Exception catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //           'Не удалось получить группу из локальной памяти: ${e.toString()}');
 //     }
 //   }
 
-//   Resource<Stream<int>> getCardsNum() {
+//   Either<RewildError,Stream<int>> getCardsNum() {
 //     final builer = cardOfProductModelBox.query();
-//     return Resource.success(builer
+//     return right(builer
 //         .watch(triggerImmediately: true)
 //         .map((query) => query.find().length));
 //   }

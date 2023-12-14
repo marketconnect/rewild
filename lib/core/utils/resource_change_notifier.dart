@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 
 import 'package:rewild/widgets/alert_widget.dart';
 
@@ -59,21 +60,22 @@ class ResourceChangeNotifier extends ChangeNotifier {
     }
   }
 
-  Future<T?> fetch<T>(Future<Resource<T>> Function() callBack) async {
+  Future<T?> fetch<T>(
+      Future<Either<RewildError, T>> Function() callBack) async {
     final resource = await callBack();
-    if (resource is Error && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(resource.message!),
-      ));
-      notify();
-      return null;
-    }
-    return resource.data;
+    T t;
+    resource.fold((l) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(l.message!),
+        ));
+      }
+    }, (r) => t = r);
   }
 
-  @override
-  void dispose() {
-    print('disposed $runtimeType');
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   print('disposed $runtimeType');
+  //   super.dispose();
+  // }
 }

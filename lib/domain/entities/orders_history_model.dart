@@ -14,6 +14,15 @@ class OrdersHistoryModel {
     required this.updatetAt,
   });
 
+  factory OrdersHistoryModel.empty() {
+    return OrdersHistoryModel(
+      nmId: 0,
+      qty: 0,
+      highBuyout: false,
+      updatetAt: DateTime.now(),
+    );
+  }
+
   OrdersHistoryModel copyWith({
     int? nmId,
     int? qty,

@@ -16,32 +16,32 @@ import 'package:rewild/domain/entities/supply_model.dart';
 
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 
 // Token
 abstract class AllCardsScreenTokenProvider {
-  Future<Resource<String>> getToken();
+  Future<Either<RewildError, String>> getToken();
 }
 
 // Cards
 abstract class AllCardsScreenCardOfProductService {
-  Future<Resource<List<CardOfProductModel>>> getAll();
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll();
 }
 
 // Filter
 abstract class AllCardsScreenFilterService {
-  Future<Resource<FilterModel>> getCurrentFilter();
-  Future<Resource<void>> deleteFilter();
+  Future<Either<RewildError, FilterModel>> getCurrentFilter();
+  Future<Either<RewildError, void>> deleteFilter();
 }
 
 // Groups
 abstract class AllCardsScreenGroupsService {
-  Future<Resource<List<GroupModel>>> getAll([List<int>? nmIds]);
+  Future<Either<RewildError, List<GroupModel>>> getAll([List<int>? nmIds]);
 }
 
 // Supply
 abstract class AllCardsScreenSupplyService {
-  Future<Resource<List<SupplyModel>>> getForOne(
+  Future<Either<RewildError, List<SupplyModel>>> getForOne(
       {required int nmId,
       required DateTime dateFrom,
       required DateTime dateTo});
@@ -49,13 +49,13 @@ abstract class AllCardsScreenSupplyService {
 
 // Update
 abstract class AllCardsScreenUpdateService {
-  Future<Resource<void>> update();
-  Future<Resource<int>> delete(String token, List<int> nmIds);
+  Future<Either<RewildError, void>> update();
+  Future<Either<RewildError, int>> delete(String token, List<int> nmIds);
 }
 
 // Notifications
 abstract class AllCardsScreenNotificationsService {
-  Future<Resource<List<ReWildNotificationModel>>> getAll();
+  Future<Either<RewildError, List<ReWildNotificationModel>>> getAll();
 }
 
 class AllCardsScreenViewModel extends ResourceChangeNotifier {

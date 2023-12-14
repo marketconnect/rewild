@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 
 abstract class AddApiKeysScreenApiKeysService {
-  Future<Resource<List<ApiKeyModel>>> getAll(List<String> types);
-  Future<Resource<void>> add(String key, String type);
-  Future<Resource<void>> deleteApiKey(String apiKeyType);
+  Future<Either<RewildError, List<ApiKeyModel>>> getAll(List<String> types);
+  Future<Either<RewildError, void>> add(String key, String type);
+  Future<Either<RewildError, void>> deleteApiKey(String apiKeyType);
 }
 
 class AddApiKeysScreenViewModel extends ResourceChangeNotifier {

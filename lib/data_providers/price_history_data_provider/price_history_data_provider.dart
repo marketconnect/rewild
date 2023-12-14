@@ -7,7 +7,7 @@
 //     implements PriceHistoryServicePriceHistoryDataProvider {
 //   const PriceHistoryDataProvider();
 //   @override
-//   Future<Resource<void>> insert(
+//   Future<Either<RewildError,void>> insert(
 //       List<PriceHistoryModel> priceHistoryList) async {
 //     try {
 //       final db = await SqfliteService().database;
@@ -21,39 +21,39 @@
 //               priceHistory.updateAt
 //             ]);
 //       }
-//       return Resource.empty();
+//       return right(null);
 //     } catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //           'Не удалось обновить историю изменения цены: ${e.toString()}');
 //     }
 //   }
 
 //   @override
-//   Future<Resource<List<PriceHistoryModel>>> fetch(List<int> nmId) async {
+//   Future<Either<RewildError,List<PriceHistoryModel>>> fetch(List<int> nmId) async {
 //     try {
 //       final db = await SqfliteService().database;
 //       final priceHistoryList = await db.rawQuery(
 //           'SELECT * FROM price_history WHERE nmId IN (${nmId.join(',')})');
-//       return Resource.success(
+//       return right(
 //         priceHistoryList.map((e) => PriceHistoryModel.fromMap(e)).toList(),
 //       );
 //     } catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //         'Не удалось получить историю изменения цены: ${e.toString()}',
 //       );
 //     }
 //   }
 
 //   @override
-//   Future<Resource<void>> delete(List<int> nmId) async {
+//   Future<Either<RewildError,void>> delete(List<int> nmId) async {
 //     try {
 //       final db = await SqfliteService().database;
 //       for (final nmId in nmId) {
 //         await db.rawDelete('DELETE FROM price_history WHERE nmId = ?', [nmId]);
 //       }
-//       return Resource.empty();
+//       return right(null);
 //     } catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //         'Не удалось удалить историю изменения цены: ${e.toString()}',
 //       );
 //     }

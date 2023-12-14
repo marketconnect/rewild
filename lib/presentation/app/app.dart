@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/theme/color_schemes.g.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ abstract class AppNavigation {
 }
 
 abstract class AppMessagesService {
-  Future<Resource<bool>> isNotEmpty();
+  Future<Either<RewildError, bool>> isNotEmpty();
 }
 
 class App extends StatefulWidget {

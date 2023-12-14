@@ -1,15 +1,15 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/warehouse.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 
 abstract class WarehouseServiceWarehouseProvider {
-  Future<Resource<bool>> update(List<Warehouse> warehouses);
-  Future<Resource<String>> get(int id);
+  Future<Either<RewildError, bool>> update(List<Warehouse> warehouses);
+  Future<Either<RewildError, String>> get(int id);
 }
 
 abstract class WarehouseServiceWerehouseApiClient {
-  Future<Resource<List<Warehouse>>> getAll();
+  Future<Either<RewildError, List<Warehouse>>> getAll();
 }
 
 class WarehouseService
@@ -22,10 +22,10 @@ class WarehouseService
       {required this.warehouseProvider, required this.warehouseApiClient});
 
   @override
-  Future<Resource<Warehouse>> getById(int id) async {
+  Future<Either<RewildError, Warehouse>> getById(int id) async {
     final getResource = await warehouseProvider.get(id);
     if (getResource is Error) {
-      return Resource.error(getResource.message!,
+      return left(RewildError(getResource.message!,
           source: runtimeType.toString(), name: "getById", args: [id]);
     }
     // warehouse exists
@@ -35,23 +35,23 @@ class WarehouseService
         id: id,
         name: name,
       );
-      return Resource.success(warehouse);
+      return right(warehouse);
     }
     // warehouse does`t exist
     final fetchedWarehusesResource = await warehouseApiClient.getAll();
     if (fetchedWarehusesResource is Error) {
-      return Resource.error(fetchedWarehusesResource.message!,
+      return left(RewildError(fetchedWarehusesResource.message!,
           source: runtimeType.toString(), name: "getById", args: [id]);
     }
     final fetchedWarehouses = fetchedWarehusesResource.data!;
     final okResource = await warehouseProvider.update(fetchedWarehouses);
     if (okResource is Error) {
-      return Resource.error(okResource.message!,
+      return left(RewildError(okResource.message!,
           source: runtimeType.toString(), name: "getById", args: [id]);
     }
     final againGetResource = await warehouseProvider.get(id);
     if (againGetResource is Error) {
-      return Resource.error(againGetResource.message!,
+      return left(RewildError(againGetResource.message!,
           source: runtimeType.toString(), name: "getById", args: [id]);
     }
     // warehouse exists
@@ -61,6 +61,6 @@ class WarehouseService
       id: id,
       name: name ?? "",
     );
-    return Resource.success(warehouse);
+    return right(warehouse);
   }
 }

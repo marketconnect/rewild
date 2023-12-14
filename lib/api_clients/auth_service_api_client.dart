@@ -1,5 +1,6 @@
-import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/api_helpers/auth_grpc_api_helper.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/user_auth_data.dart';
 import 'package:rewild/domain/services/auth_service.dart';
 import 'package:rewild/pb/message.pb.dart';
@@ -10,11 +11,11 @@ class AuthApiClient implements AuthServiceAuthApiClient {
   const AuthApiClient();
 
   @override
-  Future<Resource<UserAuthData?>> registerUser(
+  Future<Either<RewildError, UserAuthData?>> registerUser(
       String username, String password) async {
     final channel = ClientChannel(
-      APIConstants.apiHost,
-      port: APIConstants.apiPort,
+      AuthApiHelper.grpcHost,
+      port: AuthApiHelper.grpcPort,
       options: const ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectTimeout: Duration(seconds: 5),
@@ -33,64 +34,37 @@ class AuthApiClient implements AuthServiceAuthApiClient {
 
       final expiredAt = response.expiredAt;
 
-      return Resource.success(UserAuthData(
+      return right(UserAuthData(
           token: token, expiredAt: expiredAt.toInt(), freebie: true));
     } catch (e) {
       if (e is GrpcError) {
-        if (e.code == StatusCode.alreadyExists) {
-          return Resource.error(
-            "ALREADY_EXISTS",
-            source: runtimeType.toString(),
-            name: "registerUser",
-            args: [username, password],
-          );
-        } else if (e.code == StatusCode.invalidArgument) {
-          return Resource.error(
-            "Некорректные данные",
-            source: runtimeType.toString(),
-            name: "registerUser",
-            args: [username, password],
-          );
-        } else if (e.code == StatusCode.internal) {
-          return Resource.error(
-            "Ошибка сервера",
-            source: runtimeType.toString(),
-            name: "registerUser",
-            args: [username, password],
-          );
-        } else if (e.code == StatusCode.unavailable) {
-          return Resource.error(
-            ErrorsConstants.unavailable,
-            source: runtimeType.toString(),
-            name: "registerUser",
-            args: [username, password],
-          );
-        } else {
-          return Resource.error(
-            "Неизвестная ошибка",
-            source: runtimeType.toString(),
-            name: "registerUser",
-            args: [username, password],
-          );
-        }
+        final apiHelper = AuthApiHelper.registerUser;
+        final errString = apiHelper.errResponse(
+          statusCode: e.code,
+        );
+        return left(RewildError(
+          errString,
+          source: runtimeType.toString(),
+          name: "registerUser",
+          args: [username, password],
+        ));
       }
+      return left(RewildError(
+        "Неизвестная ошибка",
+        source: runtimeType.toString(),
+        name: "registerUser",
+        args: [username, password],
+      ));
     } finally {
       await channel.shutdown();
     }
-
-    return Resource.error(
-      "Неизвестная ошибка",
-      source: runtimeType.toString(),
-      name: "registerUser",
-      args: [username, password],
-    );
   }
 
   @override
-  Future<Resource<UserAuthData?>> loginUser(
+  Future<Either<RewildError, UserAuthData?>> loginUser(
       String username, String password) async {
-    final channel = ClientChannel(APIConstants.apiHost,
-        port: APIConstants.apiPort,
+    final channel = ClientChannel(AuthApiHelper.grpcHost,
+        port: AuthApiHelper.grpcPort,
         options: const ChannelOptions(
             credentials: ChannelCredentials.insecure(),
             connectTimeout: Duration(seconds: 5),
@@ -106,35 +80,30 @@ class AuthApiClient implements AuthServiceAuthApiClient {
       final token = response.token;
 
       final expiredAt = response.expiredAt;
-
-      return Resource.success(UserAuthData(
+      return right(UserAuthData(
           token: token, expiredAt: expiredAt.toInt(), freebie: true));
     } catch (e) {
       if (e is GrpcError) {
-        if (e.code == StatusCode.notFound) {
-          return Resource.error("Пользователь не найден",
-              source: runtimeType.toString(),
-              name: "loginUser",
-              args: [username, password]);
-        } else if (e.code == StatusCode.internal) {
-          return Resource.error("Ошибка сервера",
-              source: runtimeType.toString(),
-              name: "loginUser",
-              args: [username, password]);
-        } else if (e.code == StatusCode.unavailable) {
-          return Resource.error(ErrorsConstants.unavailable,
-              source: runtimeType.toString(),
-              name: "loginUser",
-              args: [username, password]);
-        } else {}
+        final apiHelper = AuthApiHelper.loginUser;
+        final errString = apiHelper.errResponse(
+          statusCode: e.code,
+        );
+        return left(RewildError(
+          errString,
+          source: runtimeType.toString(),
+          name: "loginUser",
+          args: [username, password],
+        ));
       }
+
+      return left(RewildError(
+        "Неизвестная ошибка",
+        source: runtimeType.toString(),
+        name: "loginUser",
+        args: [username, password],
+      ));
     } finally {
       await channel.shutdown();
     }
-
-    return Resource.error("Неизвестная ошибка",
-        source: runtimeType.toString(),
-        name: "loginUser",
-        args: [username, password]);
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:android_id/android_id.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/services/advert_service.dart';
 import 'package:rewild/domain/services/api_keys_service.dart';
@@ -33,7 +34,7 @@ class SecureStorageProvider
   const SecureStorageProvider();
 
   @override
-  Future<Resource<void>> updateUsername(
+  Future<Either<RewildError, void>> updateUsername(
       {String? username,
       String? token,
       String? expiredAt,
@@ -63,113 +64,94 @@ class SecureStorageProvider
         return resource;
       }
     }
-    return Resource.empty();
+    return right(null);
   }
 
   @override
-  Future<Resource<String>> getToken() async {
+  Future<Either<RewildError, String?>> getToken() async {
     // read token from local storage
     final resource = await _read(key: 'token');
-    if (resource is Error) {
-      return Resource.error(
-        resource.message!,
-        source: runtimeType.toString(),
-        name: "getToken",
-      );
+    if (resource.isLeft()) {
+      return resource;
     }
-    String? token = resource.data;
+    final r = resource.getRight();
+    String? token = r.getOrElse(() => null);
     if (token == null) {
-      return Resource.empty();
+      return right(null);
     }
 
-    return Resource.success(token);
+    return right(token);
   }
 
   @override
-  Future<Resource<bool>> tokenNotExpiredInThreeMinutes() async {
-    final resource = await _read(key: 'token_expired_at');
-    if (resource is Error) {
-      return Resource.error(
-        resource.message!,
-        source: runtimeType.toString(),
-        name: 'tokenNotExpiredInThreeMinutes',
-      );
-    }
-    String? expiredAt = resource.data;
-    if (expiredAt == null) {
-      return Resource.error(
-        'No token expiration data',
-        source: runtimeType.toString(),
-        name: 'tokenNotExpiredInThreeMinutes',
-      );
-    }
-    final now = DateTime.now().add(const Duration(minutes: 3));
-    final timestamp = int.parse(expiredAt);
-
-    final expiredAtDT = DateTime.fromMicrosecondsSinceEpoch(timestamp);
-
-    return Resource.success(
-      expiredAtDT.isAfter(now),
-    );
-  }
-
-  @override
-  Future<Resource<String>> getUsername() async {
-    // May be deviceId already exists
-    final resource = await _read(key: 'username');
-    if (resource is Error) {
-      return Resource.error(
-        resource.message!,
-        source: runtimeType.toString(),
-        name: 'getUsername',
-      );
-    }
-    String? deviceId = resource.data;
-
-    // If not
-    if (deviceId == null) {
-      try {
-        const androidId = AndroidId();
-        deviceId = await androidId.getId();
-        // If AndroidId returns null
-        deviceId ??= getRandomString(10);
-        // Save username
-
-        await updateUsername(username: deviceId);
-      } on Exception catch (e) {
-        return Resource.error(
-          e.toString(),
+  Future<Either<RewildError, bool>> tokenNotExpiredInThreeMinutes() async {
+    final result = await _read(key: 'token_expired_at');
+    return result.fold((l) => left(l), (r) {
+      if (r == null) {
+        return left(RewildError(
+          'No token expiration data',
           source: runtimeType.toString(),
-          name: 'getUsername',
-          args: [],
-        );
+          name: 'tokenNotExpiredInThreeMinutes',
+        ));
       }
-    }
-    return Resource.success(deviceId);
+      final now = DateTime.now().add(const Duration(minutes: 3));
+      final timestamp = int.parse(r);
+       final expiredAtDT = DateTime.fromMicrosecondsSinceEpoch(timestamp);
+       return right(
+         expiredAtDT.isAfter(now),
+       );
+    },);
   }
 
   @override
-  Future<Resource<ApiKeyModel>> getApiKey(String type) async {
-    final resource = await _read(key: type);
-    if (resource is Error) {
-      return Resource.error(resource.message!,
-          source: runtimeType.toString(), name: 'getApiKey', args: [type]);
-    }
-
-    if (resource.data == null) {
-      return Resource.empty();
-    }
-
-    return Resource.success(ApiKeyModel(token: resource.data!, type: type));
+  Future<Either<RewildError, String>> getUsername() async {
+    // May be deviceId already exists
+    final result = await _read(key: 'username');
+    return result.fold((l) => left(l), (r) async {
+      if (r == null) {
+        try {
+          const androidId = AndroidId();
+          String? deviceId = await androidId.getId();
+          // If AndroidId returns null
+          deviceId ??= getRandomString(10);
+          // Save username
+          await updateUsername(username: deviceId);
+          return right(deviceId);
+        } on Exception catch (e) {
+          return left(RewildError(
+            e.toString(),
+            source: runtimeType.toString(),
+            name: 'getUsername',
+            args: [],
+          ));
+        }
+      }
+      return right(r);
+    });
   }
 
   @override
-  Future<Resource<List<ApiKeyModel>>> getAllApiKeys(List<String> types) async {
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey(String type) async {
+    final result = await _read(key: type);
+
+    return result.fold((l) => left(l), (r) {
+      if (r == null) {
+        return right(null);
+      }  
+    return right(ApiKeyModel(token: r, type: type));
+    });
+
+
+  }
+
+  @override
+  Future<Either<RewildError, List<ApiKeyModel>>> getAllApiKeys(
+      List<String> types) async {
     List<ApiKeyModel> apiKeys = [];
     for (final type in types) {
       final resource = await _read(key: type);
       if (resource is Error) {
-        return Resource.error(resource.message!,
+        return left(RewildError(resource.message!,
             source: runtimeType.toString(),
             name: 'getAllApiKeys',
             args: [types]);
@@ -179,24 +161,24 @@ class SecureStorageProvider
         apiKeys.add(apiKey);
       }
     }
-    return Resource.success(apiKeys);
+    return right(apiKeys);
   }
 
   @override
-  Future<Resource<void>> addApiKey(ApiKeyModel apiKey) async {
+  Future<Either<RewildError, void>> addApiKey(ApiKeyModel apiKey) async {
     return await _write(key: apiKey.type, value: apiKey.token);
   }
 
   @override
-  Future<Resource<void>> deleteApiKey(String apiKeyType) async {
+  Future<Either<RewildError, void>> deleteApiKey(String apiKeyType) async {
     await _secureStorage.delete(
         key: apiKeyType,
         aOptions: const AndroidOptions(encryptedSharedPreferences: true));
 
-    return Resource.empty();
+    return right(null);
   }
 
-  Future<Resource<void>> _write(
+  Future<Either<RewildError, void>> _write(
       {required String key, required String? value}) async {
     try {
       await _secureStorage.write(
@@ -205,9 +187,9 @@ class SecureStorageProvider
           aOptions: const AndroidOptions(
             encryptedSharedPreferences: true,
           ));
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         "could not write to secure storage: $e",
         source: runtimeType.toString(),
         name: '_write',
@@ -225,7 +207,8 @@ class SecureStorageProvider
   }
 
   // STATIC METHODS ========================================================== STATIC METHODS
-  static Future<Resource<String?>> _read({required String key}) async {
+  static Future<Either<RewildError, String?>> _read(
+      {required String key}) async {
     try {
       final value = await _secureStorage.read(
           key: key,
@@ -233,46 +216,46 @@ class SecureStorageProvider
             encryptedSharedPreferences: true,
           ));
       if (value == null) {
-        return Resource.empty();
+        return right(null);
       }
-      return Resource.success(value);
+      return right(value);
     } catch (e) {
-      return Resource.error(
+      return Either.left(RewildError(
         "could not read from secure storage: $e",
         source: "SecureStorageDataProvider",
         name: '_read',
         args: [key],
-      );
+      ));
     }
   }
 
-  static Future<Resource<ApiKeyModel>> getApiKeyInBackground(
+  static Future<Either<RewildError, ApiKeyModel>> getApiKeyInBackground(
+      String type) async {
+    final either = await _read(key: type);
+    if (either.isLeft()) {
+      return left(RewildError(resource.message!,
+          source: "SecureStorageDataProvider", name: 'getApiKey', args: [type]));
+    }
+
+    if (resource.data == null) {
+      return right(null);
+    }
+
+    return right(ApiKeyModel(token: resource.data!, type: type));
+  }
+
+  static Future<Either<RewildError, ApiKeyModel>> getApiKeyFromBackground(
       String type) async {
     final resource = await _read(key: type);
     if (resource is Error) {
-      return Resource.error(resource.message!,
+      return left(RewildError(resource.message!,
           source: "SecureStorageDataProvider", name: 'getApiKey', args: [type]);
     }
 
     if (resource.data == null) {
-      return Resource.empty();
+      return right(null);
     }
 
-    return Resource.success(ApiKeyModel(token: resource.data!, type: type));
-  }
-
-  static Future<Resource<ApiKeyModel>> getApiKeyFromBackground(
-      String type) async {
-    final resource = await _read(key: type);
-    if (resource is Error) {
-      return Resource.error(resource.message!,
-          source: "SecureStorageDataProvider", name: 'getApiKey', args: [type]);
-    }
-
-    if (resource.data == null) {
-      return Resource.empty();
-    }
-
-    return Resource.success(ApiKeyModel(token: resource.data!, type: type));
+    return right(ApiKeyModel(token: resource.data!, type: type));
   }
 }

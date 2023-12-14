@@ -1,4 +1,5 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/commission_model.dart';
 import 'package:rewild/domain/services/commission_service.dart';
@@ -7,28 +8,28 @@ class CommissionDataProvider
     implements CommissionServiceCommissionDataProvider {
   const CommissionDataProvider();
   @override
-  Future<Resource<CommissionModel>> get(int id) async {
+  Future<Either<RewildError, CommissionModel?>> get(int id) async {
     try {
       final db = await SqfliteService().database;
       final commissions =
           await db.rawQuery('SELECT * FROM commissions WHERE id = ?', [id]);
       if (commissions.isEmpty) {
-        return Resource.empty();
+        return right(null);
       }
 
-      return Resource.success(CommissionModel.fromMap(commissions.first));
+      return right(CommissionModel.fromMap(commissions.first));
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         'Ошибка во время получения комиссии ${e.toString()}',
         source: runtimeType.toString(),
         name: "get",
         args: [id],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<void>> insert(CommissionModel commission) async {
+  Future<Either<RewildError, void>> insert(CommissionModel commission) async {
     try {
       final db = await SqfliteService().database;
       final _ = await db.rawInsert('''
@@ -49,14 +50,14 @@ class CommissionDataProvider
         commission.fbs,
         commission.fbo
       ]);
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         'Ошибка во время добавления комиссии ${e.toString()}',
         source: runtimeType.toString(),
         name: "insert",
         args: [commission],
-      );
+      ));
     }
   }
 }

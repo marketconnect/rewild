@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:rewild/core/utils/date_time_utils.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
@@ -24,49 +24,51 @@ import 'package:rewild/presentation/single_group_screen/single_groups_screen_vie
 
 // API clients
 abstract class CardOfProductServiceSellerApiClient {
-  Future<Resource<SellerModel>> fetchSeller(int sellerID);
+  Future<Either<RewildError, SellerModel>> fetchSeller(int sellerID);
 }
 
 // Warehouse
 abstract class CardOfProductServiceWarehouseApiCient {
-  Future<Resource<List<Warehouse>>> getAll();
+  Future<Either<RewildError, List<Warehouse>>> getAll();
 }
 
 // Card
 abstract class CardOfProductServiceCardOfProductApiClient {
-  Future<Resource<void>> delete(String token, int id);
+  Future<Either<RewildError, void>> delete(String token, int id);
 }
 
 // Data providers
 // warehouse
 abstract class CardOfProductServiceWarehouseDataProvider {
-  Future<Resource<bool>> update(List<Warehouse> warehouses);
-  Future<Resource<String>> get(int id);
+  Future<Either<RewildError, bool>> update(List<Warehouse> warehouses);
+  Future<Either<RewildError, String>> get(int id);
 }
 
 // stock
 abstract class CardOfProductServiceStockDataProvider {
-  Future<Resource<List<StocksModel>>> getAll();
+  Future<Either<RewildError, List<StocksModel>>> getAll();
 }
 
 // init stock
 abstract class CardOfProductServiceInitStockDataProvider {
-  Future<Resource<List<InitialStockModel>>> getAll(
+  Future<Either<RewildError, List<InitialStockModel>>> getAll(
       DateTime dateFrom, DateTime dateTo);
 }
 
 // supply
 abstract class CardOfProductServiceSupplyDataProvider {
-  Future<Resource<List<SupplyModel>>> get(int nmId);
+  Future<Either<RewildError, List<SupplyModel>>> get(int nmId);
 }
 
 // card
 abstract class CardOfProductServiceCardOfProductDataProvider {
-  Future<Resource<List<CardOfProductModel>>> getAll([List<int>? nmIds]);
-  Future<Resource<CardOfProductModel>> get(int id);
-  Future<Resource<int>> delete(int id);
-  Future<Resource<String>> getImage(int id);
-  Future<Resource<List<CardOfProductModel>>> getAllBySupplierId(int sellerId);
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll(
+      [List<int>? nmIds]);
+  Future<Either<RewildError, CardOfProductModel>> get(int id);
+  Future<Either<RewildError, int>> delete(int id);
+  Future<Either<RewildError, String>> getImage(int id);
+  Future<Either<RewildError, List<CardOfProductModel>>> getAllBySupplierId(
+      int sellerId);
 }
 
 class CardOfProductService
@@ -97,23 +99,24 @@ class CardOfProductService
   });
 
   @override
-  Future<Resource<int>> count() async {
+  Future<Either<RewildError, int>> count() async {
     final allCardsResource = await cardOfProductDataProvider.getAll();
     if (allCardsResource is Error) {
-      return Resource.error(allCardsResource.message!,
+      return left(RewildError(allCardsResource.message!,
           source: runtimeType.toString(), name: 'count', args: []);
     }
 
-    return Resource.success(allCardsResource.data!.length);
+    return right(allCardsResource.data!.length);
   }
 
   @override
-  Future<Resource<List<CardOfProductModel>>> getAll([List<int>? nmIds]) async {
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll(
+      [List<int>? nmIds]) async {
     List<CardOfProductModel> resultCards = [];
     // Cards
     final allCardsResource = await cardOfProductDataProvider.getAll(nmIds);
     if (allCardsResource is Error) {
-      return Resource.error(allCardsResource.message!,
+      return left(RewildError(allCardsResource.message!,
           source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
     }
     List<CardOfProductModel> allCards = allCardsResource.data!;
@@ -121,7 +124,7 @@ class CardOfProductService
     // get stocks
     final stocksResource = await stockDataprovider.getAll();
     if (stocksResource is Error) {
-      return Resource.error(stocksResource.message!,
+      return left(RewildError(stocksResource.message!,
           source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
     }
     final stocks = stocksResource.data!;
@@ -134,7 +137,7 @@ class CardOfProductService
       dateTo,
     );
     if (initStocksResource is Error) {
-      return Resource.error(initStocksResource.message!,
+      return left(RewildError(initStocksResource.message!,
           source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
     }
 
@@ -158,7 +161,7 @@ class CardOfProductService
       // append supplies
       final suppliesResource = await supplyDataProvider.get(newCard.nmId);
       if (suppliesResource is Error) {
-        return Resource.error(suppliesResource.message!,
+        return left(RewildError(suppliesResource.message!,
             source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
       }
 
@@ -167,28 +170,28 @@ class CardOfProductService
       resultCards.add(newCard);
     }
 
-    return Resource.success(resultCards);
+    return right(resultCards);
   }
 
   @override
-  Future<Resource<CardOfProductModel?>> getOne(int nmId) async {
+  Future<Either<RewildError, CardOfProductModel?>> getOne(int nmId) async {
     return await cardOfProductDataProvider.get(nmId);
   }
 
   @override
-  Future<Resource<String>> getImageForNmId(int id) async {
+  Future<Either<RewildError, String>> getImageForNmId(int id) async {
     final imgResource = await cardOfProductDataProvider.getImage(id);
 
     if (imgResource is Error) {
-      return Resource.error(imgResource.message!,
+      return left(RewildError(imgResource.message!,
           source: runtimeType.toString(), name: 'getImageForNmId', args: [id]);
     }
 
     final img = imgResource.data;
     if (img == null || img.isEmpty) {
-      return Resource.success('');
+      return right('');
     }
 
-    return Resource.success(img);
+    return right(img);
   }
 }

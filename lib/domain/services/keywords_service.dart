@@ -1,4 +1,4 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/auto_campaign_stat.dart';
@@ -9,25 +9,25 @@ import 'package:rewild/presentation/single_search_words_screen/single_search_wor
 
 // Api key
 abstract class KeywordsServiceApiKeyDataProvider {
-  Future<Resource<ApiKeyModel>> getApiKey(String type);
+  Future<Either<RewildError, ApiKeyModel>> getApiKey(String type);
 }
 
 // api client
 abstract class KeywordsServiceAdvertApiClient {
-  Future<Resource<AutoCampaignStatWord>> autoStatWords(
+  Future<Either<RewildError, AutoCampaignStatWord>> autoStatWords(
       String token, int campaignId);
-  Future<Resource<SearchCampaignStat>> getSearchStat(
+  Future<Either<RewildError, SearchCampaignStat>> getSearchStat(
       String token, int campaignId);
-  Future<Resource<bool>> setAutoSetExcluded(
+  Future<Either<RewildError, bool>> setAutoSetExcluded(
       String token, int campaignId, List<String> excludedKw);
-  Future<Resource<bool>> setSearchExcludedKeywords(
+  Future<Either<RewildError, bool>> setSearchExcludedKeywords(
       String token, int campaignId, List<String> excludedKeywords);
 }
 
 // data provider
 abstract class KeywordsServiceKeywordsDataProvider {
-  Future<Resource<List<Keyword>>> getAll(int campaignId);
-  Future<Resource<bool>> save(Keyword keyword);
+  Future<Either<RewildError, List<Keyword>>> getAll(int campaignId);
+  Future<Either<RewildError, bool>> save(Keyword keyword);
 }
 
 class KeywordsService
@@ -42,43 +42,43 @@ class KeywordsService
   });
 
   @override
-  Future<Resource<bool>> setAutoExcluded(
+  Future<Either<RewildError, bool>> setAutoExcluded(
       int campaignId, List<String> excluded) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!,
+      return left(RewildError(tokenResource.message!,
           source: runtimeType.toString(),
           name: 'setAutoExcluded',
           args: [campaignId, excluded]);
     }
     if (tokenResource is Empty) {
-      return Resource.empty();
+      return right(null);
     }
 
     final autoExcludedResource = await advertApiClient.setAutoSetExcluded(
         tokenResource.data!.token, campaignId, excluded);
 
     if (autoExcludedResource is Error) {
-      return Resource.error(autoExcludedResource.message!,
+      return left(RewildError(autoExcludedResource.message!,
           source: runtimeType.toString(),
           name: 'setAutoExcluded',
           args: [campaignId, excluded]);
     }
-    return Resource.success(autoExcludedResource.data!);
+    return right(autoExcludedResource.data!);
   }
 
   @override
-  Future<Resource<AutoCampaignStatWord>> getAutoStatWords(
+  Future<Either<RewildError, AutoCampaignStatWord>> getAutoStatWords(
       int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!,
+      return left(RewildError(tokenResource.message!,
           source: runtimeType.toString(),
           name: 'getAutoStatWords',
           args: [campaignId]);
     }
     if (tokenResource is Empty) {
-      return Resource.empty();
+      return right(null);
     }
 
     // get current auto stat from API
@@ -87,7 +87,7 @@ class KeywordsService
       campaignId,
     );
     if (currentAutoStatResource is Error) {
-      return Resource.error(currentAutoStatResource.message!,
+      return left(RewildError(currentAutoStatResource.message!,
           source: runtimeType.toString(),
           name: 'getAutoStatWords',
           args: [campaignId]);
@@ -96,7 +96,7 @@ class KeywordsService
     // get saved auto stat from DB
     final keywordsResource = await keywordsDataProvider.getAll(campaignId);
     if (keywordsResource is Error) {
-      return Resource.error(keywordsResource.message!,
+      return left(RewildError(keywordsResource.message!,
           source: runtimeType.toString(),
           name: 'getAutoStatWords',
           args: [campaignId]);
@@ -128,7 +128,7 @@ class KeywordsService
         // save in database
         final saveResource = await keywordsDataProvider.save(keyword);
         if (saveResource is Error) {
-          return Resource.error(saveResource.message!,
+          return left(RewildError(saveResource.message!,
               source: runtimeType.toString(),
               name: 'getAutoStatWords',
               args: [campaignId]);
@@ -148,7 +148,7 @@ class KeywordsService
         // update in database
         final saveResource = await keywordsDataProvider.save(keyword);
         if (saveResource is Error) {
-          return Resource.error(saveResource.message!,
+          return left(RewildError(saveResource.message!,
               source: runtimeType.toString(),
               name: 'getAutoStatWords',
               args: [campaignId]);
@@ -160,22 +160,22 @@ class KeywordsService
 
     final newAutoStat = autoStat.copyWith(keywords: newKeywords);
 
-    return Resource.success(newAutoStat);
+    return right(newAutoStat);
   }
 
   // search
   @override
-  Future<Resource<bool>> setSearchExcluded(
+  Future<Either<RewildError, bool>> setSearchExcluded(
       int campaignId, List<String> excluded) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!,
+      return left(RewildError(tokenResource.message!,
           source: runtimeType.toString(),
           name: 'setAutoExcluded',
           args: [campaignId, excluded]);
     }
     if (tokenResource is Empty) {
-      return Resource.empty();
+      return right(null);
     }
 
     final searchExcludedResource =
@@ -183,26 +183,26 @@ class KeywordsService
             tokenResource.data!.token, campaignId, excluded);
 
     if (searchExcludedResource is Error) {
-      return Resource.error(searchExcludedResource.message!,
+      return left(RewildError(searchExcludedResource.message!,
           source: runtimeType.toString(),
           name: 'setAutoExcluded',
           args: [campaignId, excluded]);
     }
-    return Resource.success(searchExcludedResource.data!);
+    return right(searchExcludedResource.data!);
   }
 
   @override
-  Future<Resource<SearchCampaignStat>> getSearchCampaignStat(
+  Future<Either<RewildError, SearchCampaignStat>> getSearchCampaignStat(
       int campaignId) async {
     final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
     if (tokenResource is Error) {
-      return Resource.error(tokenResource.message!,
+      return left(RewildError(tokenResource.message!,
           source: runtimeType.toString(),
           name: 'getSearchCampaignStat',
           args: [campaignId]);
     }
     if (tokenResource is Empty) {
-      return Resource.empty();
+      return right(null);
     }
 
     // get current auto stat from API
@@ -211,7 +211,7 @@ class KeywordsService
       campaignId,
     );
     if (currentSearchStatResource is Error) {
-      return Resource.error(currentSearchStatResource.message!,
+      return left(RewildError(currentSearchStatResource.message!,
           source: runtimeType.toString(),
           name: 'getSearchCampaignStat',
           args: [campaignId]);
@@ -220,7 +220,7 @@ class KeywordsService
     // get saved auto stat from DB
     final keywordsResource = await keywordsDataProvider.getAll(campaignId);
     if (keywordsResource is Error) {
-      return Resource.error(keywordsResource.message!,
+      return left(RewildError(keywordsResource.message!,
           source: runtimeType.toString(),
           name: 'getSearchCampaignStat',
           args: [campaignId]);
@@ -252,7 +252,7 @@ class KeywordsService
         // save in database
         final saveResource = await keywordsDataProvider.save(keyword);
         if (saveResource is Error) {
-          return Resource.error(saveResource.message!,
+          return left(RewildError(saveResource.message!,
               source: runtimeType.toString(),
               name: 'getSearchCampaignStat',
               args: [campaignId]);
@@ -272,7 +272,7 @@ class KeywordsService
         // update in database
         final saveResource = await keywordsDataProvider.save(keyword);
         if (saveResource is Error) {
-          return Resource.error(saveResource.message!,
+          return left(RewildError(saveResource.message!,
               source: runtimeType.toString(),
               name: 'getSearchCampaignStat',
               args: [campaignId]);
@@ -288,6 +288,6 @@ class KeywordsService
 
     final newSearchStat = searchStat.copyWith(words: newWords);
 
-    return Resource.success(newSearchStat);
+    return right(newSearchStat);
   }
 }

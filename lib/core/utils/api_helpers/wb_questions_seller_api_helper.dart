@@ -1,10 +1,10 @@
-import 'package:rewild/core/utils/api/api_constants.dart';
+import 'package:rewild/core/utils/api_helpers/api_helper.dart';
 
 class WbQuestionsApiHelper {
   static const String host = 'feedbacks-api.wildberries.ru';
 
   // Получение количества неотвеченных вопросов за сегодня и всё время
-  static ApiConstants getUnansweredQuestionsCount = ApiConstants(
+  static ApiHelper getUnansweredQuestionsCount = ApiHelper(
     host: host,
     url: '/api/v1/questions/count-unanswered',
     requestLimitPerMinute: 300, // 300 per minute
@@ -15,7 +15,7 @@ class WbQuestionsApiHelper {
   );
 
   // Информация о наличии непросмотренных отзывов и вопросов
-  static ApiConstants getNewFeedbacksQuestions = ApiConstants(
+  static ApiHelper getNewFeedbacksQuestions = ApiHelper(
     host: host,
     url: '/api/v1/new-feedbacks-questions',
     requestLimitPerMinute: 300, // 300 per minute
@@ -26,7 +26,7 @@ class WbQuestionsApiHelper {
   );
 
   // Получение товаров, про которые чаще всего спрашивают
-  static ApiConstants getFrequentlyAskedProducts = ApiConstants(
+  static ApiHelper getFrequentlyAskedProducts = ApiHelper(
     host: host,
     url: '/api/v1/questions/products/rating',
     requestLimitPerMinute: 240, // 240 per minute
@@ -38,7 +38,7 @@ class WbQuestionsApiHelper {
   );
 
   // Получение списка вопросов
-  static ApiConstants getQuestionsList = ApiConstants(
+  static ApiHelper getQuestionsList = ApiHelper(
     host: host,
     url: '/api/v1/questions',
     requestLimitPerMinute: 300, // 300 per minute
@@ -50,7 +50,7 @@ class WbQuestionsApiHelper {
   );
 
   // Работа с вопросами
-  static ApiConstants patchQuestions = ApiConstants(
+  static ApiHelper patchQuestions = ApiHelper(
     host: host,
     url: '/api/v1/questions',
     requestLimitPerMinute: 300, // 300 per minute
@@ -62,7 +62,7 @@ class WbQuestionsApiHelper {
     },
   );
   // Метод позволяет получить вопрос по его Id.
-  static ApiConstants getQuestionById = ApiConstants(
+  static ApiHelper getQuestionById = ApiHelper(
     host: host,
     url: '/api/v1/question',
     requestLimitPerMinute: 60, // unknown

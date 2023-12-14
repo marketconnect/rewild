@@ -10,12 +10,12 @@
 //   const PriceHistoryApiClient();
 
 //   @override
-//   Future<Resource<List<PriceHistoryModel>>> fetch(String link) async {
+//   Future<Either<RewildError,List<PriceHistoryModel>>> fetch(String link) async {
 //     try {
 //       final nmId = int.tryParse(
 //           link.split('/info/price-history.json')[0].split('/').last);
 //       if (nmId == null) {
-//         return Resource.error(
+//         return left(RewildError(
 //           "Некорректные данные: $nmId.",
 //         );
 //       }
@@ -28,7 +28,7 @@
 //         final bodyList = jsonDecode(response.body);
 
 //         if (bodyList.length == 0) {
-//           return Resource.empty();
+//           return right(null);
 //         }
 //         final json = jsonDecode(response.body);
 //         // Mapping
@@ -40,14 +40,14 @@
 //               price: priceHistory['price']['RUB'] ?? 0,
 //               updateAt: DateTime.now().millisecondsSinceEpoch));
 //         }
-//         return Resource.success(priceHistoryList);
+//         return right(priceHistoryList);
 //       }
 //     } catch (e) {
-//       return Resource.error(
+//       return left(RewildError(
 //         "Ошибка при обращении к WB product-order: $e",
 //       );
 //     }
-//     return Resource.error(
+//     return left(RewildError(
 //       "Неизвестная ошибка при обращении к WB product-order",
 //     );
 //   }

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
 import 'package:rewild/domain/entities/size_model.dart';
@@ -16,18 +16,18 @@ import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart'
 
 // Details
 abstract class UpdateServiceDetailsApiClient {
-  Future<Resource<List<CardOfProductModel>>> get(List<int> ids);
+  Future<Either<RewildError, List<CardOfProductModel>>> get(List<int> ids);
 }
 
 // Supply
 abstract class UpdateServiceSupplyDataProvider {
-  Future<Resource<int>> insert(SupplyModel supply);
-  Future<Resource<void>> delete({
+  Future<Either<RewildError, int>> insert(SupplyModel supply);
+  Future<Either<RewildError, void>> delete({
     required int nmId,
     int? wh,
     int? sizeOptionId,
   });
-  Future<Resource<SupplyModel>> getOne({
+  Future<Either<RewildError, SupplyModel>> getOne({
     required int nmId,
     required int wh,
     required int sizeOptionId,
@@ -36,32 +36,32 @@ abstract class UpdateServiceSupplyDataProvider {
 
 // Card of product data provider
 abstract class UpdateServiceCardOfProductDataProvider {
-  Future<Resource<List<CardOfProductModel>>> getAll();
-  Future<Resource<int>> insertOrUpdate(CardOfProductModel card);
-  Future<Resource<CardOfProductModel>> get(int id);
-  Future<Resource<int>> delete(int id);
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll();
+  Future<Either<RewildError, int>> insertOrUpdate(CardOfProductModel card);
+  Future<Either<RewildError, CardOfProductModel>> get(int id);
+  Future<Either<RewildError, int>> delete(int id);
 }
 
 // Card of product api client
 abstract class UpdateServiceCardOfProductApiClient {
-  Future<Resource<void>> save(
+  Future<Either<RewildError, void>> save(
       String token, List<CardOfProductModel> productCards);
-  Future<Resource<List<CardOfProductModel>>> getAll(String token);
-  Future<Resource<void>> delete(String token, int id);
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll(String token);
+  Future<Either<RewildError, void>> delete(String token, int id);
 }
 
 // initial stock api client
 abstract class UpdateServiceInitialStockApiClient {
-  Future<Resource<List<InitialStockModel>>> get(
+  Future<Either<RewildError, List<InitialStockModel>>> get(
       List<int> skus, DateTime dateFrom, DateTime dateTo);
 }
 
 // init stock data provider
 abstract class UpdateServiceInitStockDataProvider {
-  Future<Resource<int>> insert(InitialStockModel initialStock);
-  Future<Resource<List<InitialStockModel>>> get(
+  Future<Either<RewildError, int>> insert(InitialStockModel initialStock);
+  Future<Either<RewildError, List<InitialStockModel>>> get(
       int nmId, DateTime dateFrom, DateTime dateTo);
-  Future<Resource<InitialStockModel>> getOne(
+  Future<Either<RewildError, InitialStockModel>> getOne(
       {required int nmId,
       required DateTime dateFrom,
       required DateTime dateTo,
@@ -71,21 +71,21 @@ abstract class UpdateServiceInitStockDataProvider {
 
 // stock data provider
 abstract class UpdateServiceStockDataProvider {
-  Future<Resource<int>> insert(StocksModel initialStock);
-  Future<Resource<List<StocksModel>>> get(int nmId);
-  Future<Resource<StocksModel>> getOne(
+  Future<Either<RewildError, int>> insert(StocksModel initialStock);
+  Future<Either<RewildError, List<StocksModel>>> get(int nmId);
+  Future<Either<RewildError, StocksModel>> getOne(
       {required int nmId, required int wh, required int sizeOptionId});
 }
 
 // advert stat data provider
 abstract class UpdateServiceAdvertStatDataProvider {
-  Future<Resource<void>> deleteOldRecordsOlderThanMonth();
+  Future<Either<RewildError, void>> deleteOldRecordsOlderThanMonth();
 }
 
 // last update day data provider
 abstract class UpdateServiceLastUpdateDayDataProvider {
-  Future<Resource<void>> update();
-  Future<Resource<bool>> todayUpdated();
+  Future<Either<RewildError, void>> update();
+  Future<Either<RewildError, bool>> todayUpdated();
 }
 
 class UpdateService
@@ -127,12 +127,13 @@ class UpdateService
       : DateTime.now().difference(updatedAt!) > TimeConstants.updatePeriod;
 
   @override
-  Future<Resource<void>> fetchAllUserCardsFromServer(String token) async {
+  Future<Either<RewildError, void>> fetchAllUserCardsFromServer(
+      String token) async {
     // check db is empty when app starts
     final cardsInDBResource = await cardOfProductDataProvider.getAll();
 
     if (cardsInDBResource is Error) {
-      return Resource.error(cardsInDBResource.message!,
+      return left(RewildError(cardsInDBResource.message!,
           source: runtimeType.toString(),
           name: 'fetchAllUserCardsFromServer',
           args: [token]);
@@ -143,7 +144,7 @@ class UpdateService
     if (cardsInDB.isEmpty) {
       final cardsFromServer = await cardOfProductApiClient.getAll(token);
       if (cardsFromServer is Error) {
-        return Resource.error(cardsFromServer.message!,
+        return left(RewildError(cardsFromServer.message!,
             source: runtimeType.toString(),
             name: 'fetchAllUserCardsFromServer',
             args: [token]);
@@ -154,7 +155,7 @@ class UpdateService
         if (cards.isNotEmpty) {
           final insertOrUpdateResource = await insert(token, cards);
           if (insertOrUpdateResource is Error) {
-            return Resource.error(insertOrUpdateResource.message!,
+            return left(RewildError(insertOrUpdateResource.message!,
                 source: runtimeType.toString(),
                 name: 'fetchAllUserCardsFromServer',
                 args: [token]);
@@ -162,18 +163,18 @@ class UpdateService
         }
       }
     }
-    return Resource.empty();
+    return right(null);
   }
 
   // returns quantity of inserted cards ========================================================================
   @override
-  Future<Resource<int>> insert(
+  Future<Either<RewildError, int>> insert(
       String token, List<CardOfProductModel> cardOfProductsToInsert) async {
     // get all cards from local db
     final cardsInDBResource = await cardOfProductDataProvider.getAll();
 
     if (cardsInDBResource is Error) {
-      return Resource.error(cardsInDBResource.message!,
+      return left(RewildError(cardsInDBResource.message!,
           source: runtimeType.toString(),
           name: 'insert',
           args: [token, cardOfProductsToInsert]);
@@ -192,14 +193,14 @@ class UpdateService
 
     // if there are no new cards - return 0
     if (newCards.isEmpty) {
-      return Resource.success(0);
+      return right(0);
     }
 
     // save on server cards that do not exist in DB
     final saveOnServerResource =
         await cardOfProductApiClient.save(token, newCards);
     if (saveOnServerResource is Error) {
-      return Resource.error(saveOnServerResource.message!,
+      return left(RewildError(saveOnServerResource.message!,
           source: runtimeType.toString(),
           name: 'insert',
           args: [token, cardOfProductsToInsert]);
@@ -220,7 +221,7 @@ class UpdateService
       DateTime.now(),
     );
     if (initialStocksResource is Error) {
-      return Resource.error(initialStocksResource.message!,
+      return left(RewildError(initialStocksResource.message!,
           source: runtimeType.toString(),
           name: 'insert',
           args: [token, cardOfProductsToInsert]);
@@ -232,7 +233,7 @@ class UpdateService
     for (final stock in initStocksFromServer) {
       final insertStockresource = await initialStockDataProvider.insert(stock);
       if (insertStockresource is Error) {
-        return Resource.error(insertStockresource.message!,
+        return left(RewildError(insertStockresource.message!,
             source: runtimeType.toString(),
             name: 'insert',
             args: [token, cardOfProductsToInsert]);
@@ -246,7 +247,7 @@ class UpdateService
     final fetchedCardsOfProductsResource =
         await detailsApiClient.get(newCards.map((e) => e.nmId).toList());
     if (fetchedCardsOfProductsResource is Error) {
-      return Resource.error(fetchedCardsOfProductsResource.message!,
+      return left(RewildError(fetchedCardsOfProductsResource.message!,
           source: runtimeType.toString(),
           name: 'insert',
           args: [token, cardOfProductsToInsert]);
@@ -262,7 +263,7 @@ class UpdateService
       final insertResource =
           await cardOfProductDataProvider.insertOrUpdate(card);
       if (insertResource is Error) {
-        return Resource.error(insertResource.message!,
+        return left(RewildError(insertResource.message!,
             source: runtimeType.toString(),
             name: 'insert',
             args: [token, cardOfProductsToInsert]);
@@ -273,7 +274,7 @@ class UpdateService
         for (final stock in size.stocks) {
           final insertStockresource = await stockDataProvider.insert(stock);
           if (insertStockresource is Error) {
-            return Resource.error(insertStockresource.message!,
+            return left(RewildError(insertStockresource.message!,
                 source: runtimeType.toString(),
                 name: 'insert',
                 args: [token, cardOfProductsToInsert]);
@@ -291,7 +292,7 @@ class UpdateService
               qty: stock.qty,
             ));
             if (insertStockresource is Error) {
-              return Resource.error(insertStockresource.message!,
+              return left(RewildError(insertStockresource.message!,
                   source: runtimeType.toString(),
                   name: 'insert',
                   args: [token, cardOfProductsToInsert]);
@@ -301,33 +302,33 @@ class UpdateService
       }
     }
     cardsNumberStreamController.add(newCards.length + cardsInDB.length);
-    return Resource.success(newCards.length);
+    return right(newCards.length);
   }
 
   // update cards ==============================================================
   @override
-  Future<Resource<void>> update() async {
+  Future<Either<RewildError, void>> update() async {
     print("UPDATE");
     if (!timeToUpdated()) {
-      return Resource.empty();
+      return right(null);
     }
     // get cards from the local storage
     final cardsOfProductsResource = await cardOfProductDataProvider.getAll();
     if (cardsOfProductsResource is Error) {
-      return Resource.error(cardsOfProductsResource.message!,
+      return left(RewildError(cardsOfProductsResource.message!,
           source: runtimeType.toString(), name: 'update', args: []);
     }
     final allSavedCardsOfProducts = cardsOfProductsResource.data!;
 
     if (allSavedCardsOfProducts.isEmpty) {
-      return Resource.empty();
+      return right(null);
     }
 
     // if it is Today`s first time update - update initial stocks
     // were today updated?
     final isUpdatedResource = await lastUpdateDayDataProvider.todayUpdated();
     if (isUpdatedResource is Error) {
-      return Resource.error(isUpdatedResource.message!,
+      return left(RewildError(isUpdatedResource.message!,
           source: runtimeType.toString(), name: 'update', args: []);
     }
     final isUpdated = isUpdatedResource.data!;
@@ -339,7 +340,7 @@ class UpdateService
       final deleteResource =
           await advertStatDataProvider.deleteOldRecordsOlderThanMonth();
       if (deleteResource is Error) {
-        return Resource.error(deleteResource.message!,
+        return left(RewildError(deleteResource.message!,
             source: runtimeType.toString(), name: 'update', args: []);
       }
       // try to fetch today`s initial stocks from server
@@ -347,7 +348,7 @@ class UpdateService
           await _fetchTodayInitialStocksFromServer(
               allSavedCardsOfProducts.map((e) => e.nmId).toList());
       if (todayInitialStocksFromServerResource is Error) {
-        return Resource.error(todayInitialStocksFromServerResource.message!,
+        return left(RewildError(todayInitialStocksFromServerResource.message!,
             source: runtimeType.toString(), name: 'update', args: []);
       }
       final todayInitialStocksFromServer =
@@ -359,14 +360,14 @@ class UpdateService
         // final insertStockresource =
         //     await initialStockDataProvider.insert(stock);
         // if (insertStockresource is Error) {
-        //   return Resource.error(insertStockresource.message!);
+        //   return left(RewildError(insertStockresource.message!);
         // }
 
         // delete supplies because they are not today`s
         final deleteSuppliesResource =
             await supplyDataProvider.delete(nmId: stock.nmId);
         if (deleteSuppliesResource is Error) {
-          return Resource.error(deleteSuppliesResource.message!,
+          return left(RewildError(deleteSuppliesResource.message!,
               source: runtimeType.toString(), name: 'update', args: []);
         }
       }
@@ -379,7 +380,7 @@ class UpdateService
     final fetchedCardsOfProductsResource = await detailsApiClient
         .get(allSavedCardsOfProducts.map((e) => e.nmId).toList());
     if (fetchedCardsOfProductsResource is Error) {
-      return Resource.error(fetchedCardsOfProductsResource.message!,
+      return left(RewildError(fetchedCardsOfProductsResource.message!,
           source: runtimeType.toString(), name: 'update', args: []);
     }
     final fetchedCardsOfProducts = fetchedCardsOfProductsResource.data!;
@@ -391,22 +392,22 @@ class UpdateService
       final insertResource =
           await cardOfProductDataProvider.insertOrUpdate(card);
       if (insertResource is Error) {
-        return Resource.error(insertResource.message!,
+        return left(RewildError(insertResource.message!,
             source: runtimeType.toString(), name: 'update', args: []);
       }
 
       // add stocks
       final addStocksResource = await _addStocks(card.sizes);
       if (addStocksResource is Error) {
-        return Resource.error(addStocksResource.message!,
+        return left(RewildError(addStocksResource.message!,
             source: runtimeType.toString(), name: 'update', args: []);
       }
     }
     setUpdatedAt();
-    return Resource.empty();
+    return right(null);
   }
 
-  Future<Resource<void>> _addStocks(List<SizeModel> sizes) async {
+  Future<Either<RewildError, void>> _addStocks(List<SizeModel> sizes) async {
     final dateFrom = yesterdayEndOfTheDay();
     final dateTo = DateTime.now();
     for (final size in sizes) {
@@ -419,7 +420,7 @@ class UpdateService
             wh: stock.wh,
             sizeOptionId: stock.sizeOptionId);
         if (initStockResource is Error) {
-          return Resource.error(initStockResource.message!,
+          return left(RewildError(initStockResource.message!,
               source: runtimeType.toString(), name: 'update', args: []);
         }
         // if init stock does not exist
@@ -433,7 +434,7 @@ class UpdateService
                   sizeOptionId: stock.sizeOptionId,
                   qty: 0));
           if (insertInitStockResource is Error) {
-            return Resource.error(insertInitStockResource.message!,
+            return left(RewildError(insertInitStockResource.message!,
                 source: runtimeType.toString(), name: 'update', args: []);
           }
 
@@ -448,7 +449,7 @@ class UpdateService
                     lastStocks: 0,
                     qty: stock.qty));
             if (insertSupplyResource is Error) {
-              return Resource.error(insertSupplyResource.message!,
+              return left(RewildError(insertSupplyResource.message!,
                   source: runtimeType.toString(), name: 'update', args: []);
             }
           }
@@ -464,7 +465,7 @@ class UpdateService
               sizeOptionId: stock.sizeOptionId,
             );
             if (supplyResource is Error) {
-              return Resource.error(supplyResource.message!,
+              return left(RewildError(supplyResource.message!,
                   source: runtimeType.toString(), name: 'update', args: []);
             }
             // init stock exists and supply does not exists
@@ -477,7 +478,7 @@ class UpdateService
                 sizeOptionId: stock.sizeOptionId,
               );
               if (savedStock is Error) {
-                return Resource.error(savedStock.message!,
+                return left(RewildError(savedStock.message!,
                     source: runtimeType.toString(), name: 'update', args: []);
               }
               // insert supply with last saved stocks as lastStocks
@@ -490,7 +491,7 @@ class UpdateService
                 qty: stock.qty - initStock.qty,
               ));
               if (insertSupplyResource is Error) {
-                return Resource.error(insertSupplyResource.message!,
+                return left(RewildError(insertSupplyResource.message!,
                     source: runtimeType.toString(), name: 'update', args: []);
               }
             } else {
@@ -505,7 +506,7 @@ class UpdateService
                 qty: stock.qty - initStock.qty,
               ));
               if (insertSupplyResource is Error) {
-                return Resource.error(insertSupplyResource.message!,
+                return left(RewildError(insertSupplyResource.message!,
                     source: runtimeType.toString(), name: 'update', args: []);
               }
             }
@@ -515,16 +516,17 @@ class UpdateService
         // save stock to local db
         final insertStockResource = await stockDataProvider.insert(stock);
         if (insertStockResource is Error) {
-          return Resource.error(insertStockResource.message!,
+          return left(RewildError(insertStockResource.message!,
               source: runtimeType.toString(), name: 'update', args: []);
         }
       }
     }
-    return Resource.empty();
+    return right(null);
   }
 
-  Future<Resource<List<InitialStockModel>>> _fetchTodayInitialStocksFromServer(
-      List<int> cardsWithoutTodayInitStocksIds) async {
+  Future<Either<RewildError, List<InitialStockModel>>>
+      _fetchTodayInitialStocksFromServer(
+          List<int> cardsWithoutTodayInitStocksIds) async {
     List<InitialStockModel> initialStocksFromServer = [];
     if (cardsWithoutTodayInitStocksIds.isNotEmpty) {
       final initialStocksResource = await initialStockApiClient.get(
@@ -533,7 +535,7 @@ class UpdateService
         DateTime.now(),
       );
       if (initialStocksResource is Error) {
-        return Resource.error(initialStocksResource.message!,
+        return left(RewildError(initialStocksResource.message!,
             source: runtimeType.toString(), name: 'update', args: []);
       }
 
@@ -544,30 +546,30 @@ class UpdateService
         final insertStockresource =
             await initialStockDataProvider.insert(stock);
         if (insertStockresource is Error) {
-          return Resource.error(insertStockresource.message!,
+          return left(RewildError(insertStockresource.message!,
               source: runtimeType.toString(), name: 'update', args: []);
         }
       }
     }
-    return Resource.success(initialStocksFromServer);
+    return right(initialStocksFromServer);
   }
 
   @override
-  Future<Resource<int>> delete(String token, List<int> ids) async {
+  Future<Either<RewildError, int>> delete(String token, List<int> ids) async {
     for (final id in ids) {
       // delete card from the server
       final deleteFromServerResource =
           await cardOfProductApiClient.delete(token, id);
 
       if (deleteFromServerResource is Error) {
-        return Resource.error(deleteFromServerResource.message!,
+        return left(RewildError(deleteFromServerResource.message!,
             source: runtimeType.toString(), name: 'delete', args: [token, id]);
       }
 
       // delete card from the local storage
       final deleteResource = await cardOfProductDataProvider.delete(id);
       if (deleteResource is Error) {
-        return Resource.error(deleteResource.message!,
+        return left(RewildError(deleteResource.message!,
             source: runtimeType.toString(), name: 'delete', args: [token, id]);
       }
     }
@@ -575,11 +577,11 @@ class UpdateService
     final cardsInDBResource = await cardOfProductDataProvider.getAll();
 
     if (cardsInDBResource is Error) {
-      return Resource.error(cardsInDBResource.message!,
+      return left(RewildError(cardsInDBResource.message!,
           source: runtimeType.toString(), name: 'delete', args: [token, ids]);
     }
     final cardsInDB = cardsInDBResource.data!;
     cardsNumberStreamController.add(cardsInDB.length);
-    return Resource.success(ids.length);
+    return right(ids.length);
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
@@ -20,43 +20,43 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 
 // card
 abstract class SingleCardScreenCardOfProductService {
-  Future<Resource<CardOfProductModel?>> getOne(int nmId);
+  Future<Either<RewildError, CardOfProductModel?>> getOne(int nmId);
 }
 
 // warehouse
 abstract class SingleCardScreenWarehouseService {
-  Future<Resource<Warehouse?>> getById(int id);
+  Future<Either<RewildError, Warehouse?>> getById(int id);
 }
 
 // initial stock
 abstract class SingleCardScreenInitialStockService {
-  Future<Resource<List<InitialStockModel>>> get(int nmId,
+  Future<Either<RewildError, List<InitialStockModel>>> get(int nmId,
       [DateTime? dateFrom, DateTime? dateTo]);
 }
 
 // stock
 abstract class SingleCardScreenStockService {
-  Future<Resource<List<StocksModel>>> get(int nmId);
+  Future<Either<RewildError, List<StocksModel>>> get(int nmId);
 }
 
 // seller
 abstract class SingleCardScreenSellerService {
-  Future<Resource<SellerModel>> get(int supplierId);
+  Future<Either<RewildError, SellerModel>> get(int supplierId);
 }
 
 // commission
 abstract class SingleCardScreenCommissionService {
-  Future<Resource<CommissionModel>> get(int id);
+  Future<Either<RewildError, CommissionModel>> get(int id);
 }
 
 // orders history
 abstract class SingleCardScreenOrdersHistoryService {
-  Future<Resource<OrdersHistoryModel>> get(int nmId);
+  Future<Either<RewildError, OrdersHistoryModel>> get(int nmId);
 }
 
 // supply
 abstract class SingleCardScreenSupplyService {
-  Future<Resource<List<SupplyModel>>> getForOne(
+  Future<Either<RewildError, List<SupplyModel>>> getForOne(
       {required int nmId,
       required DateTime dateFrom,
       required DateTime dateTo});
@@ -64,7 +64,7 @@ abstract class SingleCardScreenSupplyService {
 
 // notification
 abstract class SingleCardScreenNotificationService {
-  Future<Resource<bool>> checkForParent(int id);
+  Future<Either<RewildError, bool>> checkForParent(int id);
 }
 
 class SingleCardScreenViewModel extends ResourceChangeNotifier {

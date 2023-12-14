@@ -1,5 +1,5 @@
 import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/extensions/strings.dart';
 import 'package:rewild/domain/entities/advert_auto_model.dart';
@@ -7,11 +7,11 @@ import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/advert_search_model.dart';
 
 abstract class AllAdvertsWordsAdvertService {
-  Future<Resource<List<Advert>>> getAll([List<int>? types]);
+  Future<Either<RewildError, List<Advert>>> getAll([List<int>? types]);
 }
 
 abstract class AllAdvertsWordsScreenCardOfProductService {
-  Future<Resource<String>> getImageForNmId(int id);
+  Future<Either<RewildError, String>> getImageForNmId(int id);
 }
 
 class AllAdvertsWordsViewModel extends ResourceChangeNotifier {

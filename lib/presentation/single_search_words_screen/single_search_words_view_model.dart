@@ -1,17 +1,18 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/keyword.dart';
 import 'package:rewild/domain/entities/search_campaign_stat.dart';
 
 abstract class SingleSearchWordsKeywordService {
-  Future<Resource<SearchCampaignStat>> getSearchCampaignStat(int campaignId);
-  Future<Resource<bool>> setSearchExcluded(
+  Future<Either<RewildError, SearchCampaignStat>> getSearchCampaignStat(
+      int campaignId);
+  Future<Either<RewildError, bool>> setSearchExcluded(
       int campaignId, List<String> excluded);
 }
 
 abstract class SingleSearchWordsAdvertService {
-  Future<Resource<Advert>> advertInfo(int campaignId);
+  Future<Either<RewildError, Advert>> advertInfo(int campaignId);
 }
 
 class SingleSearchWordsViewModel extends ResourceChangeNotifier {

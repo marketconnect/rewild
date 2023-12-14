@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-class ApiConstants {
+class ApiHelper {
   final String _url;
   final String _host;
   DateTime? lastReq;
@@ -16,7 +16,7 @@ class ApiConstants {
 
   final Map<int, String> statusCodeDescriptions;
 
-  ApiConstants(
+  ApiHelper(
       {required String url,
       required String host,
       required this.requestLimitPerMinute,
@@ -50,14 +50,19 @@ class ApiConstants {
     lastReq = DateTime.now();
   }
 
-  Future<http.Response> get(String token, [Map<String, String>? params]) async {
+  Future<http.Response> get(String? token,
+      [Map<String, String>? params]) async {
     await _waitForNextRequest();
     final uri = _buildUri(params);
-    final resp = await http.get(uri, headers: headers(token));
+    if (token != null) {
+      final resp = await http.get(uri, headers: headers(token));
+      lastReq = DateTime.now();
 
-    lastReq = DateTime.now();
-
-    return resp;
+      return resp;
+    } else {
+      final resp = await http.get(uri);
+      return resp;
+    }
   }
 
   Future<http.Response> post(String token, dynamic body,

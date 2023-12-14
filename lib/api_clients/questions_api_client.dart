@@ -1,15 +1,17 @@
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:rewild/core/utils/api/wb_questions_api_helper.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/api_helpers/wb_questions_seller_api_helper.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/domain/services/question_service.dart';
 
 class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   const QuestionsApiClient();
 
-  Future<Resource<int>> getCountUnansweredQuestions(String token) async {
+  Future<Either<RewildError, int>> getCountUnansweredQuestions(
+      String token) async {
     try {
       final wbApiHelper = WbQuestionsApiHelper.getUnansweredQuestionsCount;
       final response = await wbApiHelper.get(token);
@@ -17,29 +19,29 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
         final countUnanswered = responseData['data']['countUnanswered'] ?? 0;
-        return Resource.success(countUnanswered);
+        return right(countUnanswered);
       } else {
         final errString =
             wbApiHelper.errResponse(statusCode: response.statusCode);
-        return Resource.error(
+        return left(RewildError(
           errString,
           source: runtimeType.toString(),
           name: "getCountUnansweredQuestions",
           args: [token],
-        );
+        ));
       }
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         "Ошибка при получении количества неотвеченных вопросов: $e",
         source: runtimeType.toString(),
         name: "getCountUnansweredQuestions",
         args: [token],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<List<QuestionModel>>> getUnansweredQuestions(
+  Future<Either<RewildError, List<QuestionModel>>> getUnansweredQuestions(
       String token,
       int take, // Обязательный параметр take
       int skip, // Обязательный параметр skip
@@ -68,33 +70,33 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
           if (nmId != null) {}
           questions.add(QuestionModel.fromJson(question));
         }
-        return Resource.success(questions);
+        return right(questions);
       } else {
         final errString =
             wbApiHelper.errResponse(statusCode: response.statusCode);
-        return Resource.error(
+        return left(RewildError(
           errString,
           source: runtimeType.toString(),
           name: "getUnansweredQuestions",
           args: [
             token,
           ],
-        );
+        ));
       }
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         "Ошибка при получении списка вопросов: $e",
         source: runtimeType.toString(),
         name: "getUnansweredQuestions",
         args: [
           token,
         ],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<List<QuestionModel>>> getAnsweredQuestions(
+  Future<Either<RewildError, List<QuestionModel>>> getAnsweredQuestions(
       String token,
       int take, // Обязательный параметр take
       int skip, // Обязательный параметр skip
@@ -123,33 +125,33 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
           if (nmId != null) {}
           questions.add(QuestionModel.fromJson(question));
         }
-        return Resource.success(questions);
+        return right(questions);
       } else {
         final errString =
             wbApiHelper.errResponse(statusCode: response.statusCode);
-        return Resource.error(
+        return left(RewildError(
           errString,
           source: runtimeType.toString(),
           name: "getAnsweredQuestions",
           args: [
             token,
           ],
-        );
+        ));
       }
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         "Ошибка при получении списка вопросов: $e",
         source: runtimeType.toString(),
         name: "getAnsweredQuestions",
         args: [
           token,
         ],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<bool>> handleQuestion(
+  Future<Either<RewildError, bool>> handleQuestion(
       String token, String id, String answer) async {
     try {
       final body = {
@@ -162,28 +164,28 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
       final response = await wbApiHelper.patch(token, body);
 
       if (response.statusCode == 200) {
-        return Resource.success(true);
+        return right(true);
       } else {
         final errString =
             wbApiHelper.errResponse(statusCode: response.statusCode);
-        return Resource.error(
+        return left(RewildError(
           errString,
           source: runtimeType.toString(),
           name: "handleQuestion",
           args: [token, id, answer],
-        );
+        ));
       }
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         "Ошибка при обработке вопроса: $e",
         source: runtimeType.toString(),
         name: "handleQuestion",
         args: [token, id, answer],
-      );
+      ));
     }
   }
 
-  // Future<Resource<bool>> hasNewFeedbacksAndQuestions(String token) async {
+  // Future<Either<RewildErrbool>> hasNewFeedbacksAndQuestions(String token) async {
   //   try {
   //     final wbApi = WbQuestionsApiHelper.getNewFeedbacksQuestions;
   //     final response = await wbApi.get(token);
@@ -194,10 +196,10 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   //           responseData['data']['hasNewQuestions'] ?? false;
   //       final hasNewFeedbacks =
   //           responseData['data']['hasNewFeedbacks'] ?? false;
-  //       return Resource.success(hasNewQuestions || hasNewFeedbacks);
+  //       return right(hasNewQuestions || hasNewFeedbacks);
   //     } else {
   //       final errString = wbApi.errResponse(statusCode: response.statusCode);
-  //       return Resource.error(
+  //       return left(RewildError(
   //         errString,
   //         source: runtimeType.toString(),
   //         name: "hasNewFeedbacksAndQuestions",
@@ -205,7 +207,7 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   //       );
   //     }
   //   } catch (e) {
-  //     return Resource.error(
+  //     return left(RewildError(
   //       "Ошибка при проверке наличия новых отзывов и вопросов: $e",
   //       source: runtimeType.toString(),
   //       name: "hasNewFeedbacksAndQuestions",
@@ -214,7 +216,7 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   //   }
   // }
 
-  // Future<Resource<List<String>>> getFrequentlyAskedProducts(
+  // Future<Either<RewildErrList<String>>> getFrequentlyAskedProducts(
   //     String token, int size) async {
   //   try {
   //     final params = {'size': size.toString()};
@@ -225,10 +227,10 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   //       final Map<String, dynamic> responseData = json.decode(response.body);
   //       final List<String> products =
   //           List<String>.from(responseData['data']['products']);
-  //       return Resource.success(products);
+  //       return right(products);
   //     } else {
   //       final errString = wbApi.errResponse(statusCode: response.statusCode);
-  //       return Resource.error(
+  //       return left(RewildError(
   //         errString,
   //         source: runtimeType.toString(),
   //         name: "getFrequentlyAskedProducts",
@@ -236,7 +238,7 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   //       );
   //     }
   //   } catch (e) {
-  //     return Resource.error(
+  //     return left(RewildError(
   //       "Ошибка при получении часто задаваемых товаров: $e",
   //       source: runtimeType.toString(),
   //       name: "getFrequentlyAskedProducts",

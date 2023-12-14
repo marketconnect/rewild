@@ -1,15 +1,15 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/commission_model.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen_view_model.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 
 abstract class CommissionServiceCommissionApiClient {
-  Future<Resource<CommissionModel>> get(int id);
+  Future<Either<RewildError, CommissionModel>> get(int id);
 }
 
 abstract class CommissionServiceCommissionDataProvider {
-  Future<Resource<CommissionModel>> get(int id);
-  Future<Resource<void>> insert(CommissionModel commission);
+  Future<Either<RewildError, CommissionModel>> get(int id);
+  Future<Either<RewildError, void>> insert(CommissionModel commission);
 }
 
 class CommissionService
@@ -24,11 +24,11 @@ class CommissionService
       required this.commissionDataProvider});
 
   @override
-  Future<Resource<CommissionModel>> get(int id) async {
+  Future<Either<RewildError, CommissionModel>> get(int id) async {
     // get from local db
     final commissionResource = await commissionDataProvider.get(id);
     if (commissionResource is Error) {
-      return Resource.error(commissionResource.message!,
+      return left(RewildError(commissionResource.message!,
           source: runtimeType.toString(), name: 'get', args: [id]);
     }
     if (commissionResource is Success) {
@@ -38,7 +38,7 @@ class CommissionService
     // get from server
     final commissionFromServerResource = await commissionApiClient.get(id);
     if (commissionFromServerResource is Error) {
-      return Resource.error(commissionFromServerResource.message!,
+      return left(RewildError(commissionFromServerResource.message!,
           source: runtimeType.toString(), name: 'get', args: [id]);
     }
 
@@ -46,9 +46,9 @@ class CommissionService
     final saveResource =
         await commissionDataProvider.insert(commissionFromServerResource.data!);
     if (saveResource is Error) {
-      return Resource.error(saveResource.message!,
+      return left(RewildError(saveResource.message!,
           source: runtimeType.toString(), name: 'get', args: [id]);
     }
-    return Resource.success(commissionFromServerResource.data!);
+    return right(commissionFromServerResource.data!);
   }
 }

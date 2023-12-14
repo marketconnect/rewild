@@ -1,10 +1,10 @@
-import 'package:rewild/core/utils/api/api_constants.dart';
+import 'package:rewild/core/utils/api_helpers/api_helper.dart';
 
 class WbAdvertApiHelper {
   static const String host = 'advert-api.wb.ru';
   // General =========================================================== General
   // Изменение ставки у кампании
-  static ApiConstants setCpm = ApiConstants(
+  static ApiHelper setCpm = ApiHelper(
     host: host,
     url: '/adv/v0/cpm',
     requestLimitPerMinute: 300, // 300 per minute
@@ -16,7 +16,7 @@ class WbAdvertApiHelper {
   );
 
   // Пауза кампании
-  static ApiConstants pauseCampaign = ApiConstants(
+  static ApiHelper pauseCampaign = ApiHelper(
     host: host,
     url: '/adv/v0/pause',
     requestLimitPerMinute: 300, // 300 per minute
@@ -27,7 +27,7 @@ class WbAdvertApiHelper {
   );
 
   // Запуск кампании
-  static ApiConstants startCampaign = ApiConstants(
+  static ApiHelper startCampaign = ApiHelper(
     host: host,
     url: '/adv/v0/start',
     requestLimitPerMinute: 300, // 300 per minute
@@ -38,7 +38,7 @@ class WbAdvertApiHelper {
   );
 
   // Бюджет кампании
-  static ApiConstants getCompanyBudget = ApiConstants(
+  static ApiHelper getCompanyBudget = ApiHelper(
     host: host,
     url: '/adv/v1/budget',
     requestLimitPerMinute:
@@ -51,7 +51,7 @@ class WbAdvertApiHelper {
   );
 
   // Списки кампаний
-  static ApiConstants getCampaigns = ApiConstants(
+  static ApiHelper getCampaigns = ApiHelper(
     host: host,
     url: '/adv/v1/promotion/count',
     requestLimitPerMinute: 300, // 300 per minute
@@ -61,7 +61,7 @@ class WbAdvertApiHelper {
   );
 
   // Информация о кампаниях
-  static ApiConstants getCampaignsInfo = ApiConstants(
+  static ApiHelper getCampaignsInfo = ApiHelper(
     host: host,
     url: '/adv/v1/promotion/adverts',
     requestLimitPerMinute: 300, // 300 per minute
@@ -73,7 +73,7 @@ class WbAdvertApiHelper {
   );
 
   // Информация о кампании
-  static ApiConstants getCampaignInfo = ApiConstants(
+  static ApiHelper getCampaignInfo = ApiHelper(
     host: host,
     url: '/adv/v0/advert',
     requestLimitPerMinute: 300, // 300 per minute
@@ -86,7 +86,7 @@ class WbAdvertApiHelper {
   );
 
   // Баланс
-  static ApiConstants getBalance = ApiConstants(
+  static ApiHelper getBalance = ApiHelper(
     host: host,
     url: '/adv/v1/balance',
     requestLimitPerMinute: 60, // 60 per minute
@@ -97,7 +97,7 @@ class WbAdvertApiHelper {
   );
 
   // Полная статистика кампании
-  static ApiConstants getFullStat = ApiConstants(
+  static ApiHelper getFullStat = ApiHelper(
     host: host,
     url: '/adv/v1/fullstat',
     requestLimitPerMinute: 10, // 10 per minute
@@ -110,7 +110,7 @@ class WbAdvertApiHelper {
 
   // Auto ================================================================= Auto
   // Статистика автоматической кампании
-  static ApiConstants autoGetStat = ApiConstants(
+  static ApiHelper autoGetStat = ApiHelper(
     host: host,
     url: '/adv/v1/auto/stat',
     requestLimitPerMinute: 10, // 10 per minute
@@ -122,7 +122,7 @@ class WbAdvertApiHelper {
   );
 
   // Статистика автоматической кампании по ключевым фразам
-  static ApiConstants autoGetStatsWords = ApiConstants(
+  static ApiHelper autoGetStatsWords = ApiHelper(
     host: host,
     url: '/adv/v1/auto/stat-words',
     requestLimitPerMinute: 10, // 10 per minute
@@ -134,7 +134,7 @@ class WbAdvertApiHelper {
 
   // Search ============================================================= Search
   // Статистика поисковой кампании по ключевым фразам
-  static ApiConstants searchGetStatsWords = ApiConstants(
+  static ApiHelper searchGetStatsWords = ApiHelper(
     host: host,
     url: '/adv/v1/stat/words',
     requestLimitPerMinute: 240, // 240 per minute
@@ -145,7 +145,7 @@ class WbAdvertApiHelper {
   );
 
   // Установка/удаление минус-фраз из поиска для кампании в поиске
-  static ApiConstants searchSetExcludedKeywords = ApiConstants(
+  static ApiHelper searchSetExcludedKeywords = ApiHelper(
     host: host,
     url: '/adv/v1/search/set-excluded',
     requestLimitPerMinute: 60, // unknown TODO
@@ -156,7 +156,7 @@ class WbAdvertApiHelper {
   );
 
   // Установка/удаление минус-фраз фразового соответствия для кампании в поиске
-  static ApiConstants searchSetPhraseKeywords = ApiConstants(
+  static ApiHelper searchSetPhraseKeywords = ApiHelper(
     host: host,
     url: '/adv/v1/search/set-phrase',
     requestLimitPerMinute: 60, // unknown TODO
@@ -167,7 +167,7 @@ class WbAdvertApiHelper {
   );
 
   // Установка/удаление минус-фраз точного соответствия для кампании в поиске
-  static ApiConstants searchSetStrongKeywords = ApiConstants(
+  static ApiHelper searchSetStrongKeywords = ApiHelper(
     host: host,
     url: '/adv/v1/search/set-strong',
     requestLimitPerMinute: 60, // unknown TODO
@@ -178,7 +178,7 @@ class WbAdvertApiHelper {
   );
 
   // Установка/удаление фиксированных фраз у кампании в поиске
-  static ApiConstants searchSetPlusKeywords = ApiConstants(
+  static ApiHelper searchSetPlusKeywords = ApiHelper(
     host: host,
     url: '/adv/v1/search/set-plus',
     requestLimitPerMinute: 120, // 2 per second
@@ -188,7 +188,7 @@ class WbAdvertApiHelper {
   );
 
   // Установка/удаление минус-фраз для автоматической кампаний
-  static ApiConstants autoSetExcludedKeywords = ApiConstants(
+  static ApiHelper autoSetExcludedKeywords = ApiHelper(
     host: host,
     url: '/adv/v1/auto/set-excluded',
     requestLimitPerMinute: 10, // 10 per min

@@ -1,7 +1,8 @@
 import 'package:fixnum/fixnum.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:grpc/grpc.dart';
-import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/api_helpers/commission_grpc_api_helper.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/commission_model.dart';
 import 'package:rewild/domain/services/commission_service.dart';
 
@@ -11,10 +12,10 @@ import 'package:rewild/pb/service.pbgrpc.dart';
 class CommissionApiClient implements CommissionServiceCommissionApiClient {
   const CommissionApiClient();
   @override
-  Future<Resource<CommissionModel>> get(int id) async {
+  Future<Either<RewildError, CommissionModel>> get(int id) async {
     final channel = ClientChannel(
-      APIConstants.apiHost,
-      port: APIConstants.apiPort,
+      CommissionApiHelper.grpcHost,
+      port: CommissionApiHelper.grpcPort,
       options: const ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectTimeout: Duration(seconds: 5),
@@ -23,12 +24,12 @@ class CommissionApiClient implements CommissionServiceCommissionApiClient {
     );
     try {
       if (id == 0) {
-        return Resource.error(
+        return left(RewildError(
           "Некорректные данные",
           source: runtimeType.toString(),
           name: "get",
           args: [id],
-        );
+        ));
       }
       final stub = CommissionServiceClient(channel);
       final request = GetCommissionReq(
@@ -46,31 +47,26 @@ class CommissionApiClient implements CommissionServiceCommissionApiClient {
           fbs: response.fbs,
           fbo: response.fbo);
 
-      return Resource.success(resultCommission);
+      return right(resultCommission);
     } catch (e) {
       if (e is GrpcError) {
-        if (e.code == StatusCode.internal) {
-          return Resource.error(
-            "Ошибка сервера",
-            source: runtimeType.toString(),
-            name: "get",
-            args: [id],
-          );
-        } else if (e.code == StatusCode.unavailable) {
-          return Resource.error(
-            ErrorsConstants.unavailable,
-            source: runtimeType.toString(),
-            name: "get",
-            args: [id],
-          );
-        }
+        final apiHelper = CommissionApiHelper.get;
+        final errString = apiHelper.errResponse(
+          statusCode: e.code,
+        );
+        return left(RewildError(
+          errString,
+          source: runtimeType.toString(),
+          name: "get",
+          args: [id],
+        ));
       }
-      return Resource.error(
-        "Неизвестная ошибка во время получения данных об остатках с сервера: $e",
+      return left(RewildError(
+        "Неизвестная ошибка",
         source: runtimeType.toString(),
         name: "get",
         args: [id],
-      );
+      ));
     } finally {
       await channel.shutdown();
     }

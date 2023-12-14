@@ -1,16 +1,18 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/auto_campaign_stat.dart';
 import 'package:rewild/domain/entities/keyword.dart';
 
 abstract class SingleAutoWordsKeywordService {
-  Future<Resource<AutoCampaignStatWord>> getAutoStatWords(int campaignId);
-  Future<Resource<bool>> setAutoExcluded(int campaignId, List<String> excluded);
+  Future<Either<RewildError, AutoCampaignStatWord>> getAutoStatWords(
+      int campaignId);
+  Future<Either<RewildError, bool>> setAutoExcluded(
+      int campaignId, List<String> excluded);
 }
 
 abstract class SingleAutoWordsAdvertService {
-  Future<Resource<Advert>> advertInfo(int campaignId);
+  Future<Either<RewildError, Advert>> advertInfo(int campaignId);
 }
 
 class SingleAutoWordsViewModel extends ResourceChangeNotifier {

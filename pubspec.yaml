@@ -39,6 +39,7 @@ dependencies:
   awesome_notifications_core: ^0.8.0 # <~ always ensure to use the latest version
   awesome_notifications: any # <~ this version is managed by awesome_notifications_core package
   animated_text_kit: ^4.2.2
+  fpdart: ^1.1.0
 
 dev_dependencies:
   flutter_test:

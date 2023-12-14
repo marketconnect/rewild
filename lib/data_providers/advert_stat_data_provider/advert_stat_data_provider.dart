@@ -1,4 +1,5 @@
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:rewild/domain/services/advert_stat_service.dart';
@@ -10,7 +11,7 @@ class AdvertStatDataProvider
         UpdateServiceAdvertStatDataProvider {
   const AdvertStatDataProvider();
   @override
-  Future<Resource<void>> save(AdvertStatModel autoStat) async {
+  Future<Either<RewildError, void>> save(AdvertStatModel autoStat) async {
     try {
       final db = await SqfliteService().database;
       final _ = await db.rawInsert(
@@ -24,19 +25,19 @@ class AdvertStatDataProvider
             autoStat.campaignId,
             DateTime.now().toIso8601String(),
           ]);
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         "Не удалось сохранить статистику: $e",
         source: runtimeType.toString(),
         name: "save",
         args: [autoStat],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<List<AdvertStatModel>>> getAll(int campaignId,
+  Future<Either<RewildError, List<AdvertStatModel>>> getAll(int campaignId,
       [DateTime? from]) async {
     try {
       final db = await SqfliteService().database;
@@ -46,43 +47,45 @@ class AdvertStatDataProvider
             'SELECT * FROM advert_stat WHERE campaignId = ? AND createdAt >= ?',
             [campaignId, from.toIso8601String()]);
         if (maps.isEmpty) {
-          return Resource.empty();
+          return right([]);
         }
-        return Resource.success(
+        return right(
             maps.map((e) => AdvertStatModel.fromMap(e, campaignId)).toList());
       }
 
       final List<Map<String, Object?>> maps = await db.rawQuery(
           'SELECT * FROM advert_stat WHERE campaignId = ?', [campaignId]);
       if (maps.isEmpty) {
-        return Resource.empty();
+        return right([]);
       }
 
-      return Resource.success(
+      return right(
           maps.map((e) => AdvertStatModel.fromMap(e, campaignId)).toList());
     } catch (e) {
-      return Resource.error("Не удалось получить статистику: $e",
+      return left(RewildError("Не удалось получить статистику: $e",
           source: runtimeType.toString(),
           name: "getAll",
-          args: [campaignId, from]);
+          args: [campaignId, from]));
     }
   }
 
-  Future<Resource<void>> deleteAll(int campaignId) async {
+  Future<Either<RewildError, void>> deleteAll(int campaignId) async {
     try {
       final db = await SqfliteService().database;
       final _ = await db.rawDelete(
         'DELETE FROM advert_stat WHERE campaignId = ?',
       );
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error("Не удалось удалить статистику: $e",
-          source: runtimeType.toString(), name: "deletAll", args: [campaignId]);
+      return left(RewildError("Не удалось удалить статистику: $e",
+          source: runtimeType.toString(),
+          name: "deletAll",
+          args: [campaignId]));
     }
   }
 
   @override
-  Future<Resource<void>> deleteOldRecordsOlderThanMonth() async {
+  Future<Either<RewildError, void>> deleteOldRecordsOlderThanMonth() async {
     try {
       // Calculate the date one month ago
       DateTime oneMonthAgo = DateTime.now().subtract(const Duration(days: 30));
@@ -97,17 +100,17 @@ class AdvertStatDataProvider
         where: 'createdAt < ?',
         whereArgs: [formattedDate],
       );
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error("Не удалось удалить статистику: $e",
+      return left(RewildError("Не удалось удалить статистику: $e",
           source: runtimeType.toString(),
           name: "deleteOldRecordsOlderThanMonth",
-          args: []);
+          args: []));
     }
   }
 
   // Static methods
-  static Future<Resource<void>> saveInBackground(
+  static Future<Either<RewildError, void>> saveInBackground(
       AdvertStatModel autoStat) async {
     try {
       final db = await SqfliteService().database;
@@ -122,12 +125,12 @@ class AdvertStatDataProvider
             autoStat.campaignId,
             DateTime.now().toIso8601String(),
           ]);
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error("Не удалось сохранить статистику: $e",
+      return left(RewildError("Не удалось сохранить статистику: $e",
           source: "AdvertStatDataProvider",
           name: "saveInBackground",
-          args: [autoStat]);
+          args: [autoStat]));
     }
   }
 }

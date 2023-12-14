@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/domain/entities/review_model.dart';
@@ -8,22 +8,22 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 
 // Images
 abstract class AllProductsFeedbackCardOfProductService {
-  Future<Resource<String>> getImageForNmId(int id);
+  Future<Either<RewildError, String>> getImageForNmId(int id);
 }
 
 // Questions
 abstract class AllProductsFeedbackViewModelQuestionService {
-  Future<Resource<List<QuestionModel>>> getQuestions({
+  Future<Either<RewildError, List<QuestionModel>>> getQuestions({
     required int take,
     required int skip,
     int? nmId,
   });
-  Future<Resource<bool>> apiKeyExists();
+  Future<Either<RewildError, bool>> apiKeyExists();
 }
 
 // Reviews
 abstract class AllProductsFeedbackViewModelReviewService {
-  Future<Resource<List<ReviewModel>>> getReviews({
+  Future<Either<RewildError, List<ReviewModel>>> getReviews({
     required int take,
     required int skip,
     int? nmId,

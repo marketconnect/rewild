@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/commission_model.dart';
 import 'package:rewild/domain/entities/filter_model.dart';
@@ -8,19 +8,19 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 
 // filter
 abstract class AllCardsFilterAllCardsFilterService {
-  Future<Resource<FilterModel>> getCompletlyFilledFilter();
-  Future<Resource<void>> setFilter(FilterModel filter);
-  Future<Resource<FilterModel>> getCurrentFilter();
+  Future<Either<RewildError, FilterModel>> getCompletlyFilledFilter();
+  Future<Either<RewildError, void>> setFilter(FilterModel filter);
+  Future<Either<RewildError, FilterModel>> getCurrentFilter();
 }
 
 // Commission
 abstract class AllCardsFilterCommissionService {
-  Future<Resource<CommissionModel>> get(int id);
+  Future<Either<RewildError, CommissionModel>> get(int id);
 }
 
 // Supplier
 abstract class AllCardsFilterSellerService {
-  Future<Resource<SellerModel>> get(int supplierId);
+  Future<Either<RewildError, SellerModel>> get(int supplierId);
 }
 
 class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {

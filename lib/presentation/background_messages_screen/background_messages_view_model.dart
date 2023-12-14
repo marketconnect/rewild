@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/extensions/date_time.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/background_message.dart';
 import 'package:rewild/presentation/background_messages_screen/background_messages_screen.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 abstract class BackgroundMessagesBackgroundMessageService {
-  Future<Resource<List<BackgroundMessage>>> getAll();
-  Future<Resource<bool>> delete(int id, int subject, int condition);
+  Future<Either<RewildError, List<BackgroundMessage>>> getAll();
+  Future<Either<RewildError, bool>> delete(int id, int subject, int condition);
 }
 
 abstract class BackgroundMessagesNotificationService {
-  Future<Resource<bool>> delete(int id, int condition);
+  Future<Either<RewildError, bool>> delete(int id, int condition);
 }
 
 class BackgroundMessagesViewModel extends ResourceChangeNotifier {

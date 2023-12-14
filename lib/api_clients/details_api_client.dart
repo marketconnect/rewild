@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/entities/size_model.dart';
@@ -11,7 +12,8 @@ import 'package:rewild/domain/services/update_service.dart';
 class DetailsApiClient implements UpdateServiceDetailsApiClient {
   const DetailsApiClient();
   @override
-  Future<Resource<List<CardOfProductModel>>> get(List<int> ids) async {
+  Future<Either<RewildError, List<CardOfProductModel>>> get(
+      List<int> ids) async {
     try {
       final params = {
         'appType': '1',
@@ -105,56 +107,31 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
               reviewRating: reviewRating,
               feedbacks: json['feedbacks'] ?? 0,
               promoTextCard: json['promoTextCard'] ?? "",
-              sizes: fetchedSizes
-              // img: img
-              );
-
-          // newCardModel.initialStocks.addAll(initStocks);
-          // newCardModel.seller = seller;
+              sizes: fetchedSizes);
 
           resultProductCardsList.add(newCardModel);
         }
 
-        return Resource.success(resultProductCardsList);
-      } else if (response.statusCode == 429) {
-        return Resource.error(
-          "Слишком много запросов",
+        return right(resultProductCardsList);
+      } else {
+        return left(RewildError(
+          "Ошибка при обращении к WB status code:${response.statusCode}",
           source: runtimeType.toString(),
           name: "get",
           args: [ids],
-        );
-      } else if (response.statusCode == 400) {
-        return Resource.error(
-          "Некорректные данные",
-          source: runtimeType.toString(),
-          name: "get",
-          args: [ids],
-        );
-      } else if (response.statusCode == 401) {
-        return Resource.error(
-          "Вы не авторизованы",
-          source: runtimeType.toString(),
-          name: "get",
-          args: [ids],
-        );
+        ));
       }
-    } on Exception catch (e) {
-      return Resource.error(
+    } catch (e) {
+      return left(RewildError(
         "Ошибка при обращении к WB: $e",
         source: runtimeType.toString(),
         name: "get",
         args: [ids],
-      );
+      ));
     }
-    return Resource.error(
-      "Неизвестная ошибка",
-      source: runtimeType.toString(),
-      name: "get",
-      args: [ids],
-    );
   }
 
-  static Future<Resource<List<CardOfProductModel>>> getInBackground(
+  static Future<Either<RewildError, List<CardOfProductModel>>> getInBackground(
       List<int> ids) async {
     try {
       final params = {
@@ -254,42 +231,22 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
           resultProductCardsList.add(newCardModel);
         }
 
-        return Resource.success(resultProductCardsList);
-      } else if (response.statusCode == 429) {
-        return Resource.error(
+        return right(resultProductCardsList);
+      } else {
+        return left(RewildError(
           "Слишком много запросов",
           source: "DetailsApiClient",
           name: "getInBackground",
           args: [ids],
-        );
-      } else if (response.statusCode == 400) {
-        return Resource.error(
-          "Некорректные данные",
-          source: "DetailsApiClient",
-          name: "getInBackground",
-          args: [ids],
-        );
-      } else if (response.statusCode == 401) {
-        return Resource.error(
-          "Вы не авторизованы",
-          source: "DetailsApiClient",
-          name: "getInBackground",
-          args: [ids],
-        );
+        ));
       }
-    } on Exception catch (e) {
-      return Resource.error(
+    } catch (e) {
+      return left(RewildError(
         "Ошибка при обращении к WB: $e",
         source: "DetailsApiClient",
         name: "getInBackground",
         args: [ids],
-      );
+      ));
     }
-    return Resource.error(
-      "Неизвестная ошибка",
-      source: "DetailsApiClient",
-      name: "getInBackground",
-      args: [ids],
-    );
   }
 }

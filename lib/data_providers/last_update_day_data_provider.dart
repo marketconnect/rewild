@@ -1,5 +1,6 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:intl/intl.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 
 import 'package:rewild/domain/services/update_service.dart';
 
@@ -10,7 +11,7 @@ class LastUpdateDayDataProvider
   const LastUpdateDayDataProvider();
   static const updatedAtKey = 'updatedAt';
   @override
-  Future<Resource<void>> update() async {
+  Future<Either<RewildError, void>> update() async {
     final now = DateTime.now();
     final formatter = DateFormat('yyyy-MM-dd');
     String formattedDate = formatter.format(now);
@@ -21,23 +22,23 @@ class LastUpdateDayDataProvider
 
       final ok = await prefs.setString(updatedAtKey, formattedDate);
       if (!ok) {
-        return Resource.error(
+        return left(RewildError(
           'Не удалось сохранить дату последнего обновления',
           source: runtimeType.toString(),
           name: "update",
-        );
+        ));
       }
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         'Не удалось сохранить дату последнего обновления: $e',
         source: runtimeType.toString(),
         name: "update",
-      );
+      ));
     }
   }
 
-  static Future<Resource<void>> updateInBackground() async {
+  static Future<Either<RewildError, void>> updateInBackground() async {
     final now = DateTime.now();
     final formatter = DateFormat('yyyy-MM-dd');
     String formattedDate = formatter.format(now);
@@ -48,24 +49,24 @@ class LastUpdateDayDataProvider
 
       final ok = await prefs.setString(updatedAtKey, formattedDate);
       if (!ok) {
-        return Resource.error(
+        return left(RewildError(
           'Не удалось сохранить дату последнего обновления',
           source: "LastUpdateDayDataProvider",
           name: "updateInBackground",
-        );
+        ));
       }
-      return Resource.empty();
+      return right(null);
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         'Не удалось сохранить дату последнего обновления: $e',
         source: "LastUpdateDayDataProvider",
         name: "updateInBackground",
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<bool>> todayUpdated() async {
+  Future<Either<RewildError, bool>> todayUpdated() async {
     final now = DateTime.now();
     final formatter = DateFormat('yyyy-MM-dd');
     String formattedDate = formatter.format(now);
@@ -73,15 +74,15 @@ class LastUpdateDayDataProvider
       final prefs = await SharedPreferences.getInstance();
       final updatedAt = prefs.getString(updatedAtKey);
       if (updatedAt != null) {
-        return Resource.success(formattedDate == updatedAt);
+        return right(formattedDate == updatedAt);
       }
-      return Resource.success(false);
+      return right(false);
     } on Exception catch (e) {
-      return Resource.error(
+      return left(RewildError(
         'Не удалось получить дату последнего обновления:  $e',
         source: runtimeType.toString(),
         name: "todayUpdated",
-      );
+      ));
     }
   }
 }

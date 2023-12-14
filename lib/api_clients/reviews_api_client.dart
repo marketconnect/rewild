@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:rewild/core/utils/api/wb_review_api_helper.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:rewild/core/utils/api_helpers/wb_review_seller_api_helper.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/review_model.dart';
 import 'package:rewild/domain/services/review_service.dart';
 
@@ -10,7 +11,7 @@ class ReviewApiClient implements ReviewServiceReviewApiClient {
   const ReviewApiClient();
 
   @override
-  Future<Resource<List<ReviewModel>>> getUnansweredReviews(
+  Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(
       String token,
       int take, // Обязательный параметр take
       int skip, // Обязательный параметр skip
@@ -38,28 +39,28 @@ class ReviewApiClient implements ReviewServiceReviewApiClient {
         for (final review in responseReviews) {
           reviews.add(ReviewModel.fromJson(review));
         }
-        return Resource.success(reviews);
+        return right(reviews);
       } else {
         final errString = wbApi.errResponse(statusCode: response.statusCode);
-        return Resource.error(
+        return left(RewildError(
           errString,
           source: runtimeType.toString(),
           name: "getUnAnsweredReviews",
           args: [token, take, skip, nmId],
-        );
+        ));
       }
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         "Ошибка при получении списка отзывов: $e",
         source: runtimeType.toString(),
         name: "getFeedbacks",
         args: [token, take, skip, nmId],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<List<ReviewModel>>> getAnsweredReviews(
+  Future<Either<RewildError, List<ReviewModel>>> getAnsweredReviews(
       String token,
       int take, // Обязательный параметр take
       int skip, // Обязательный параметр skip
@@ -87,29 +88,29 @@ class ReviewApiClient implements ReviewServiceReviewApiClient {
         for (final review in responseReviews) {
           reviews.add(ReviewModel.fromJson(review));
         }
-        return Resource.success(reviews);
+        return right(reviews);
       } else {
         final errString = wbApi.errResponse(statusCode: response.statusCode);
-        return Resource.error(
+        return left(RewildError(
           errString,
           source: runtimeType.toString(),
           name: "getAnsweredReviews",
           args: [token, take, skip, nmId],
-        );
+        ));
       }
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         "Ошибка при получении списка отзывов: $e",
         source: runtimeType.toString(),
         name: "getFeedbacks",
         args: [token, take, skip, nmId],
-      );
+      ));
     }
   }
 
   @override
-  Future<Resource<bool>> handleReview(String token, String id, bool wasViewed,
-      bool wasRejected, String answer) async {
+  Future<Either<RewildError, bool>> handleReview(String token, String id,
+      bool wasViewed, bool wasRejected, String answer) async {
     try {
       final body = {
         'id': id,
@@ -122,23 +123,23 @@ class ReviewApiClient implements ReviewServiceReviewApiClient {
       final response = await wbApi.patch(token, body);
 
       if (response.statusCode == 200) {
-        return Resource.success(true);
+        return right(true);
       } else {
         final errString = wbApi.errResponse(statusCode: response.statusCode);
-        return Resource.error(
+        return left(RewildError(
           errString,
           source: runtimeType.toString(),
           name: "handleFeedback",
           args: [token, id, wasViewed, wasRejected, answer],
-        );
+        ));
       }
     } catch (e) {
-      return Resource.error(
+      return left(RewildError(
         "Ошибка при обработке отзыва: $e",
         source: runtimeType.toString(),
         name: "handleFeedback",
         args: [token, id, wasViewed, wasRejected, answer],
-      );
+      ));
     }
   }
 }

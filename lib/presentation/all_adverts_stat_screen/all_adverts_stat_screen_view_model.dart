@@ -1,5 +1,5 @@
 import 'package:rewild/core/constants/constants.dart';
-import 'package:rewild/core/utils/resource.dart';
+import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/advert_auto_model.dart';
@@ -12,13 +12,13 @@ import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
 import 'package:rewild/domain/entities/stream_advert_event.dart';
 
 abstract class AllAdvertsStatScreenAdvertService {
-  Future<Resource<List<Advert>>> getAll();
-  Future<Resource<bool>> apiKeyExists();
-  Future<Resource<int>> getBudget(int campaignId);
+  Future<Either<RewildError, List<Advert>>> getAll();
+  Future<Either<RewildError, bool>> apiKeyExists();
+  Future<Either<RewildError, int>> getBudget(int campaignId);
 }
 
 abstract class AllAdvertsStatScreenCardOfProductService {
-  Future<Resource<String>> getImageForNmId(int id);
+  Future<Either<RewildError, String>> getImageForNmId(int id);
 }
 
 class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
