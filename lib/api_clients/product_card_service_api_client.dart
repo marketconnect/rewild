@@ -17,7 +17,8 @@ class CardOfProductApiClient
   const CardOfProductApiClient();
   @override
   Future<Either<RewildError, void>> save(
-      String token, List<CardOfProductModel> productCards) async {
+      {required String token,
+      required List<CardOfProductModel> productCards}) async {
     final channel = ClientChannel(
       ProductCardApiHelper.grpcHost,
       port: ProductCardApiHelper.grpcPort,
@@ -74,7 +75,7 @@ class CardOfProductApiClient
 
   @override
   Future<Either<RewildError, List<CardOfProductModel>>> getAll(
-      String token) async {
+      {required String token}) async {
     final channel = ClientChannel(
       ProductCardApiHelper.grpcHost,
       port: ProductCardApiHelper.grpcPort,
@@ -129,7 +130,8 @@ class CardOfProductApiClient
   }
 
   @override
-  Future<Either<RewildError, void>> delete(String token, int id) async {
+  Future<Either<RewildError, void>> delete(
+      {required String token, required int id}) async {
     final channel = ClientChannel(
       ProductCardApiHelper.grpcHost,
       port: ProductCardApiHelper.grpcPort,

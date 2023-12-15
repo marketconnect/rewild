@@ -175,6 +175,7 @@ class AdvertStatusConstants {
   static const int refused = 8;
   static const int active = 9;
   static const int paused = 11;
+  static const List<int> useable = [active, paused];
 }
 
 class AdvertTypeConstants {

@@ -13,7 +13,8 @@ class WarehouseDataProvider
 
   // Function to update a list of warehouses
   @override
-  Future<Either<RewildError, bool>> update(List<Warehouse> warehouses) async {
+  Future<Either<RewildError, bool>> update(
+      {required List<Warehouse> warehouses}) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.clear();
@@ -37,7 +38,7 @@ class WarehouseDataProvider
 
   // Function to get a warehouse name by id
   @override
-  Future<Either<RewildError, String?>> get(int id) async {
+  Future<Either<RewildError, String?>> get({required int id}) async {
     try {
       final strId = id.toString();
       final prefs = await SharedPreferences.getInstance();

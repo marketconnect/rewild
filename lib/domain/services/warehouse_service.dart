@@ -1,11 +1,12 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/warehouse.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 
 abstract class WarehouseServiceWarehouseProvider {
-  Future<Either<RewildError, bool>> update(List<Warehouse> warehouses);
-  Future<Either<RewildError, String>> get(int id);
+  Future<Either<RewildError, bool>> update({required List<Warehouse> warehouses});
+  Future<Either<RewildError, String?>> get({required int id}) ;
 }
 
 abstract class WarehouseServiceWerehouseApiClient {

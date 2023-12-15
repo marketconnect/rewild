@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/stocks_model.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
@@ -5,7 +6,7 @@ import 'package:rewild/presentation/single_card_screen/single_card_screen_view_m
 
 abstract class StockServiceStocksDataProvider {
   Future<Either<RewildError, List<StocksModel>>> getAll();
-  Future<Either<RewildError, List<StocksModel>>> get(int nmId);
+  Future<Either<RewildError, List<StocksModel>>> get({required int nmId});
 }
 
 class StockService
@@ -23,6 +24,6 @@ class StockService
 
   @override
   Future<Either<RewildError, List<StocksModel>>> get(int nmId) async {
-    return stocksDataProvider.get(nmId);
+    return stocksDataProvider.get(nmId: nmId);
   }
 }

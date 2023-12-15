@@ -18,11 +18,15 @@ abstract class MainNavigationQuestionService {
 
 // advert
 abstract class MainNavigationAdvertService {
-  Future<Either<RewildError, List<Advert>>> getAllAdverts();
+  Future<Either<RewildError, List<Advert>>> getAllAdverts(
+      {required String token});
   Future<Either<RewildError, String?>> getApiKey();
   Future<Either<RewildError, int>> getBudget(String apiKey, int campaignId);
-  Future<Either<RewildError, bool>> stopAdvert(int campaignId);
-  Future<Either<RewildError, bool>> startAdvert(int campaignId);
+  Future<Either<RewildError, bool>> checkAdvertIsActive(
+      {required String token, required int campaignId}) ;
+  Future<Either<RewildError, bool>> stopAdvert(String token, int campaignId);
+  Future<Either<RewildError, bool>> startAdvert(
+      {required String token, required int campaignId});
   Future<Either<RewildError, int?>> getBallance(String token);
 }
 
@@ -192,6 +196,8 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
       // now the advert is paused
       // start
       final _ = await fetch(() => advertService.startAdvert(campaignId));
+
+      checkAdvert!!!!!!!!!!!!!
 
       return;
     }

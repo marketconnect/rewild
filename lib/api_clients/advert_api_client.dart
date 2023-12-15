@@ -30,7 +30,9 @@ class AdvertApiClient
 
   @override
   Future<Either<RewildError, bool>> setSearchExcludedKeywords(
-      String token, int campaignId, List<String> excludedKeywords) async {
+      {required String token,
+      required int campaignId,
+      required List<String> excludedKeywords}) async {
     try {
       final params = {'id': campaignId.toString()};
       final body = {'excluded': excludedKeywords};
@@ -58,101 +60,11 @@ class AdvertApiClient
     }
   }
 
-  Future<Either<RewildError, List<String>>> setSearchPhraseKeywords(
-      String token, int campaignId, List<String> phraseKeywords) async {
-    try {
-      final params = {'id': campaignId.toString()};
-      final body = {'phrase': phraseKeywords};
-
-      final wbApi = WbAdvertApiHelper.searchSetPhraseKeywords;
-
-      final response = await wbApi.post(token, body, params);
-
-      if (response.statusCode == 200) {
-        final List<String> responseList =
-            List<String>.from(json.decode(response.body));
-        return right(responseList);
-      } else {
-        final errString = wbApi.errResponse(
-          statusCode: response.statusCode,
-        );
-        return left(RewildError(errString,
-            source: runtimeType.toString(),
-            name: "setSearchPhraseKeywords",
-            args: [token, campaignId, ...phraseKeywords]));
-      }
-    } catch (e) {
-      return left(RewildError("Ошибка при установке фраз для поиска: $e",
-          source: runtimeType.toString(),
-          name: "setSearchPhraseKeywords",
-          args: [token, campaignId, ...phraseKeywords]));
-    }
-  }
-
-  Future<Either<RewildError, List<String>>> setSearchStrongKeywords(
-      String token, int campaignId, List<String> strongKeywords) async {
-    try {
-      final params = {'id': campaignId.toString()};
-      final body = {'strong': strongKeywords};
-
-      final wbApi = WbAdvertApiHelper.searchSetPhraseKeywords;
-      final response = await wbApi.post(token, body, params);
-
-      if (response.statusCode == 200) {
-        final List<String> responseList =
-            List<String>.from(json.decode(response.body));
-        return right(responseList);
-      } else {
-        final errString = wbApi.errResponse(
-          statusCode: response.statusCode,
-        );
-        return left(RewildError(errString,
-            source: runtimeType.toString(),
-            name: "setSearchStrongKeywords",
-            args: [token, campaignId, ...strongKeywords]));
-      }
-    } catch (e) {
-      return left(RewildError(
-          "Ошибка при установке точных совпадений для поиска: $e",
-          source: runtimeType.toString(),
-          name: "setSearchStrongKeywords",
-          args: [token, campaignId, ...strongKeywords]));
-    }
-  }
-
-  Future<Either<RewildError, List<String>>> setSearchPlusKeywords(
-      String token, int campaignId, List<String> plusKeywords) async {
-    try {
-      final params = {'id': campaignId.toString()};
-      final body = {'pluse': plusKeywords};
-
-      final wbApi = WbAdvertApiHelper.searchSetPlusKeywords;
-      final response = await wbApi.post(token, body, params);
-
-      if (response.statusCode == 200) {
-        final List<String> responseList =
-            List<String>.from(json.decode(response.body));
-        return right(responseList);
-      } else {
-        final errString = wbApi.errResponse(
-          statusCode: response.statusCode,
-        );
-        return left(RewildError(errString,
-            source: runtimeType.toString(),
-            name: "setSearchPlusKeywords",
-            args: [token, campaignId, ...plusKeywords]));
-      }
-    } catch (e) {
-      return left(RewildError("Ошибка при установке ключей для поиска: $e",
-          source: runtimeType.toString(),
-          name: "setSearchPlusKeywords",
-          args: [token, campaignId, ...plusKeywords]));
-    }
-  }
-
   @override
   Future<Either<RewildError, bool>> setAutoSetExcluded(
-      String token, int campaignId, List<String> excludedKw) async {
+      {required String token,
+      required int campaignId,
+      required List<String> excludedKw}) async {
     try {
       final params = {'id': campaignId.toString()};
       final body = {
@@ -184,8 +96,13 @@ class AdvertApiClient
   }
 
   @override
-  Future<Either<RewildError, bool>> changeCpm(String token, int campaignId,
-      int type, int cpm, int param, int? instrument) async {
+  Future<Either<RewildError, bool>> changeCpm(
+      {required String token,
+      required int campaignId,
+      required int type,
+      required int cpm,
+      required int param,
+      int? instrument}) async {
     try {
       final body = {
         'advertId': campaignId,
@@ -225,7 +142,7 @@ class AdvertApiClient
 
   @override
   Future<Either<RewildError, bool>> pauseAdvert(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     try {
       final params = {'id': campaignId.toString()};
 
@@ -260,7 +177,7 @@ class AdvertApiClient
   // max 300 requests per minute
   @override
   Future<Either<RewildError, bool>> startAdvert(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     try {
       final params = {'id': campaignId.toString()};
 
@@ -295,7 +212,7 @@ class AdvertApiClient
 
   @override
   Future<Either<RewildError, int>> getCompanyBudget(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     try {
       final params = {'id': campaignId.toString()};
 
@@ -333,7 +250,7 @@ class AdvertApiClient
 
   @override
   Future<Either<RewildError, Map<(int aType, int aStatus), List<int>>>> count(
-      String token) async {
+      {required String token}) async {
     try {
       final wbApi = WbAdvertApiHelper.getCampaigns;
 
@@ -396,49 +313,7 @@ class AdvertApiClient
   }
 
   @override
-  Future<Either<RewildError, List<AdvertInfoModel>>> getAdverts(
-      String token, List<int> ids) async {
-    try {
-      final body = ids;
-      final wbApi = WbAdvertApiHelper.getCampaignsInfo;
-      final response = await wbApi.post(token, body);
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
-        if (data == null || data.length == 0) {
-          return right([]);
-        }
-
-        return right(
-          List<AdvertInfoModel>.from(
-            data.map((x) => AdvertInfoModel.fromJson(x)),
-          ),
-        );
-      } else if (response.statusCode == 204) {
-        return right([]);
-      } else {
-        final errString = wbApi.errResponse(
-          statusCode: response.statusCode,
-        );
-        return left(RewildError(
-          errString,
-          source: runtimeType.toString(),
-          name: "getAdverts",
-          args: [token],
-        ));
-      }
-    } catch (e) {
-      return left(RewildError(
-        "Ошибка при обращении к WB продвижение список кампаний: $e",
-        source: runtimeType.toString(),
-        name: "getAdverts",
-        args: [token],
-      ));
-    }
-  }
-
-  @override
-  Future<Either<RewildError, int>> balance(String token) async {
+  Future<Either<RewildError, int>> balance({required String token}) async {
     try {
       final wbApi = WbAdvertApiHelper.getBalance;
       final response = await wbApi.get(
@@ -545,7 +420,7 @@ class AdvertApiClient
 
   @override
   Future<Either<RewildError, AdvertStatModel>> getAutoStat(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     try {
       final params = {'id': campaignId.toString()};
 
@@ -579,52 +454,107 @@ class AdvertApiClient
     }
   }
 
-  @override
-  Future<Either<RewildError, Advert>> getCampaignInfo(
-      String token, int id) async {
-    try {
-      final params = {'id': id.toString()};
-      final wbApi = WbAdvertApiHelper.getCampaignInfo;
+  // @override
+  // Future<Either<RewildError, List<AdvertInfoModel>>> getAdverts(
+  //     {required String token, required List<int> ids}) async {
+  //   try {
+  //     final body = ids;
+  //     final wbApi = WbAdvertApiHelper.getCampaignsInfo;
+  //     final response = await wbApi.post(token, body);
 
-      final response = await wbApi.get(
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(utf8.decode(response.bodyBytes));
+  //       if (data == null || data.length == 0) {
+  //         return right([]);
+  //       }
+
+  //       return right(
+  //         List<AdvertInfoModel>.from(
+  //           data.map((x) => AdvertInfoModel.fromJson(x)),
+  //         ),
+  //       );
+  //     } else if (response.statusCode == 204) {
+  //       return right([]);
+  //     } else {
+  //       final errString = wbApi.errResponse(
+  //         statusCode: response.statusCode,
+  //       );
+  //       return left(RewildError(
+  //         errString,
+  //         source: runtimeType.toString(),
+  //         name: "getAdverts",
+  //         args: [token],
+  //       ));
+  //     }
+  //   } catch (e) {
+  //     return left(RewildError(
+  //       "Ошибка при обращении к WB продвижение список кампаний: $e",
+  //       source: runtimeType.toString(),
+  //       name: "getAdverts",
+  //       args: [token],
+  //     ));
+  //   }
+  // }
+
+  @override
+  Future<Either<RewildError, List<Advert>>> getAdverts(
+      {required String token,
+      required List<int> ids,
+      int? status,
+      int? type}) async {
+    try {
+      final body = ids;
+      Map<String, String> params = {};
+      if (status != null) {
+        params['status'] = status.toString();
+      }
+      if (type != null) {
+        params['type'] = type.toString();
+      }
+      final wbApi = WbAdvertApiHelper.getCampaignsInfo;
+
+      final response = await wbApi.post(
         token,
+        body,
         params,
       );
 
       if (response.statusCode == 200) {
         final stats = json.decode(utf8.decode(response.bodyBytes));
+        List<Advert> res = [];
+        for (final stat in stats) {
+          final advType = stat['type'];
 
-        final advType = stats['type'];
+          switch (advType) {
+            case AdvertTypeConstants.inCatalog:
+              // catalog
+              res.add(AdvertCatalogueModel.fromJson(stats));
+            case AdvertTypeConstants.inCard:
+              // card
+              res.add(AdvertCardModel.fromJson(stats));
+            case AdvertTypeConstants.inSearch:
+              // search
+              res.add(AdvertSearchModel.fromJson(stats));
+            case AdvertTypeConstants.inRecomendation:
+              // recomendation
+              res.add(AdvertRecomendaionModel.fromJson(stats));
+            case AdvertTypeConstants.auto:
+              // auto
+              res.add(AdvertAutoModel.fromJson(stats));
+            case AdvertTypeConstants.searchPlusCatalog:
+              // search+catalogue
+              res.add(AdvertSearchPlusCatalogueModel.fromJson(stats));
 
-        switch (advType) {
-          case AdvertTypeConstants.inCatalog:
-            // catalog
-            return right(AdvertCatalogueModel.fromJson(stats));
-
-          case AdvertTypeConstants.inCard:
-            // card
-            return right(AdvertCardModel.fromJson(stats));
-          case AdvertTypeConstants.inSearch:
-            // search
-            return right(AdvertSearchModel.fromJson(stats));
-          case AdvertTypeConstants.inRecomendation:
-            // recomendation
-            return right(AdvertRecomendaionModel.fromJson(stats));
-          case AdvertTypeConstants.auto:
-            // auto
-            return right(AdvertAutoModel.fromJson(stats));
-          case AdvertTypeConstants.searchPlusCatalog:
-            // search+catalogue
-            return right(AdvertSearchPlusCatalogueModel.fromJson(stats));
-
-          default:
-            return left(RewildError(
-              "Неизвестный тип кампании: $advType",
-              source: runtimeType.toString(),
-              name: "getCampaignInfo",
-              args: [token, id],
-            ));
+            default:
+              return left(RewildError(
+                "Неизвестный тип кампании: $advType",
+                source: runtimeType.toString(),
+                name: "getCampaignInfo",
+                args: [token, ids],
+              ));
+          }
         }
+        return right(res);
       } else {
         final errString = wbApi.errResponse(
           statusCode: response.statusCode,
@@ -633,7 +563,7 @@ class AdvertApiClient
           errString,
           source: runtimeType.toString(),
           name: "getCampaignInfo",
-          args: [token, id],
+          args: [token, ids],
         ));
       }
     } catch (e) {
@@ -641,14 +571,14 @@ class AdvertApiClient
         "Неизвестная ошибка: $e",
         source: runtimeType.toString(),
         name: "getCampaignInfo",
-        args: [token, id],
+        args: [token, ids],
       ));
     }
   }
 
   // STATIC METHODS ====================================================================== STATIC METHODS
   static Future<Either<RewildError, AdvertStatModel>> getFullStatInBackground(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     try {
       final params = {'id': campaignId.toString()};
 
@@ -685,7 +615,7 @@ class AdvertApiClient
   }
 
   static Future<Either<RewildError, AdvertStatModel>> getSearchStatInBackground(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     try {
       final params = {'id': campaignId.toString()};
       // final uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
@@ -721,7 +651,7 @@ class AdvertApiClient
   }
 
   static Future<Either<RewildError, Map<int, List<int>>>> countInBackground(
-      String token) async {
+      {required String token}) async {
     try {
       final wbApi = WbAdvertApiHelper.getCampaigns;
 
@@ -783,7 +713,8 @@ class AdvertApiClient
   }
 
   static Future<Either<RewildError, List<AdvertInfoModel>>>
-      getAdvertsInBackground(String token, List<int> ids) async {
+      getAdvertsInBackground(
+          {required String token, required List<int> ids}) async {
     try {
       final body = ids;
 
@@ -826,7 +757,7 @@ class AdvertApiClient
   }
 
   static Future<Either<RewildError, AdvertStatModel>> getAutoStatInBackground(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     try {
       final params = {'id': campaignId.toString()};
 
@@ -860,7 +791,7 @@ class AdvertApiClient
   }
 
   static Future<Either<RewildError, int>> getCompanyBudgetInBackground(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     try {
       final params = {'id': campaignId.toString()};
       final wbApi = WbAdvertApiHelper.getCompanyBudget;

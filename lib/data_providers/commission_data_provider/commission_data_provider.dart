@@ -8,7 +8,7 @@ class CommissionDataProvider
     implements CommissionServiceCommissionDataProvider {
   const CommissionDataProvider();
   @override
-  Future<Either<RewildError, CommissionModel?>> get(int id) async {
+  Future<Either<RewildError, CommissionModel?>> get({required int id}) async {
     try {
       final db = await SqfliteService().database;
       final commissions =
@@ -29,7 +29,8 @@ class CommissionDataProvider
   }
 
   @override
-  Future<Either<RewildError, void>> insert(CommissionModel commission) async {
+  Future<Either<RewildError, void>> insert(
+      {required CommissionModel commission}) async {
     try {
       final db = await SqfliteService().database;
       final _ = await db.rawInsert('''

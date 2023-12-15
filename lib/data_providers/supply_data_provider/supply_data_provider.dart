@@ -13,7 +13,7 @@ class SupplyDataProvider
         CardOfProductServiceSupplyDataProvider {
   const SupplyDataProvider();
   @override
-  Future<Either<RewildError, int>> insert(SupplyModel supply) async {
+  Future<Either<RewildError, int>> insert({required SupplyModel supply}) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawInsert('''
@@ -122,8 +122,7 @@ class SupplyDataProvider
 
   @override
   Future<Either<RewildError, List<SupplyModel>?>> getForOne(
-    int nmId,
-  ) async {
+      {required int nmId}) async {
     try {
       final db = await SqfliteService().database;
       final supplies =
@@ -143,7 +142,8 @@ class SupplyDataProvider
   }
 
   @override
-  Future<Either<RewildError, List<SupplyModel>>> get(int nmId) async {
+  Future<Either<RewildError, List<SupplyModel>>> get(
+      {required int nmId}) async {
     try {
       final db = await SqfliteService().database;
       final supplies =

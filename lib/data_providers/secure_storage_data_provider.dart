@@ -131,7 +131,8 @@ class SecureStorageProvider
 
   // Function to get an API key of a specific type
   @override
-  Future<Either<RewildError, ApiKeyModel?>> getApiKey(String type) async {
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey(
+      {required String type}) async {
     final result = await _read(key: type);
 
     return result.fold((l) => left(l), (r) {

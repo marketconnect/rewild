@@ -10,42 +10,42 @@ import 'package:rewild/domain/services/question_service.dart';
 class QuestionsApiClient implements QuestionServiceQuestionApiClient {
   const QuestionsApiClient();
 
-  Future<Either<RewildError, int>> getCountUnansweredQuestions(
-      String token) async {
-    try {
-      final wbApiHelper = WbQuestionsApiHelper.getUnansweredQuestionsCount;
-      final response = await wbApiHelper.get(token);
+  // Future<Either<RewildError, int>> getCountUnansweredQuestions(
+  //     {required String token}) async {
+  //   try {
+  //     final wbApiHelper = WbQuestionsApiHelper.getUnansweredQuestionsCount;
+  //     final response = await wbApiHelper.get(token);
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        final countUnanswered = responseData['data']['countUnanswered'] ?? 0;
-        return right(countUnanswered);
-      } else {
-        final errString =
-            wbApiHelper.errResponse(statusCode: response.statusCode);
-        return left(RewildError(
-          errString,
-          source: runtimeType.toString(),
-          name: "getCountUnansweredQuestions",
-          args: [token],
-        ));
-      }
-    } catch (e) {
-      return left(RewildError(
-        "Ошибка при получении количества неотвеченных вопросов: $e",
-        source: runtimeType.toString(),
-        name: "getCountUnansweredQuestions",
-        args: [token],
-      ));
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> responseData = json.decode(response.body);
+  //       final countUnanswered = responseData['data']['countUnanswered'] ?? 0;
+  //       return right(countUnanswered);
+  //     } else {
+  //       final errString =
+  //           wbApiHelper.errResponse(statusCode: response.statusCode);
+  //       return left(RewildError(
+  //         errString,
+  //         source: runtimeType.toString(),
+  //         name: "getCountUnansweredQuestions",
+  //         args: [token],
+  //       ));
+  //     }
+  //   } catch (e) {
+  //     return left(RewildError(
+  //       "Ошибка при получении количества неотвеченных вопросов: $e",
+  //       source: runtimeType.toString(),
+  //       name: "getCountUnansweredQuestions",
+  //       args: [token],
+  //     ));
+  //   }
+  // }
 
   @override
   Future<Either<RewildError, List<QuestionModel>>> getUnansweredQuestions(
-      String token,
-      int take, // Обязательный параметр take
-      int skip, // Обязательный параметр skip
-      [int? nmId]) async {
+      {required String token,
+      required int take,
+      required int skip,
+      int? nmId}) async {
     try {
       final params = {
         'isAnswered': false.toString(),
@@ -97,10 +97,10 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
 
   @override
   Future<Either<RewildError, List<QuestionModel>>> getAnsweredQuestions(
-      String token,
-      int take, // Обязательный параметр take
-      int skip, // Обязательный параметр skip
-      [int? nmId]) async {
+      {required String token,
+      required int take,
+      required int skip,
+      int? nmId}) async {
     try {
       final params = {
         'isAnswered': true.toString(),
@@ -152,7 +152,9 @@ class QuestionsApiClient implements QuestionServiceQuestionApiClient {
 
   @override
   Future<Either<RewildError, bool>> handleQuestion(
-      String token, String id, String answer) async {
+      {required String token,
+      required String id,
+      required String answer}) async {
     try {
       final body = {
         'id': id,

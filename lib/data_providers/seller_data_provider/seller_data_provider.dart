@@ -11,7 +11,7 @@ class SellerDataProvider
         AllCardsFilterServiceSellerDataProvider {
   const SellerDataProvider();
   @override
-  Future<Either<RewildError, int>> insert(SellerModel seller) async {
+  Future<Either<RewildError, int>> insert({required SellerModel seller}) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawInsert('''
@@ -61,18 +61,19 @@ class SellerDataProvider
   }
 
   @override
-  Future<Either<RewildError, SellerModel?>> get(int id) async {
+  Future<Either<RewildError, SellerModel?>> get(
+      {required int supplierId}) async {
     try {
       final db = await SqfliteService().database;
-      final seller =
-          await db.rawQuery('SELECT * FROM sellers WHERE supplierId = ?', [id]);
+      final seller = await db
+          .rawQuery('SELECT * FROM sellers WHERE supplierId = ?', [supplierId]);
       if (seller.isEmpty) {
         return right(null);
       }
       return right(SellerModel.fromMap(seller.first));
     } catch (e) {
       return left(RewildError("Не удалось получить данные продавца $e",
-          source: runtimeType.toString(), name: "get", args: [id]));
+          source: runtimeType.toString(), name: "get", args: [supplierId]));
     }
   }
 

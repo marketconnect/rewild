@@ -10,7 +10,8 @@ import 'package:rewild/presentation/single_search_words_screen/single_search_wor
 
 // Api key
 abstract class KeywordsServiceApiKeyDataProvider {
-  Future<Either<RewildError, ApiKeyModel?>> getApiKey(String type);
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey(
+      {required String type});
 }
 
 // api client
@@ -20,9 +21,9 @@ abstract class KeywordsServiceAdvertApiClient {
   Future<Either<RewildError, SearchCampaignStat>> getSearchStat(
       String token, int campaignId);
   Future<Either<RewildError, bool>> setAutoSetExcluded(
-      String token, int campaignId, List<String> excludedKw);
+      {required String token, required  int campaignId, required  List<String> excludedKw});
   Future<Either<RewildError, bool>> setSearchExcludedKeywords(
-      String token, int campaignId, List<String> excludedKeywords);
+      {required String token,required int campaignId, required List<String> excludedKeywords});
 }
 
 // data provider

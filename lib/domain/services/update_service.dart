@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 
@@ -16,52 +17,52 @@ import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart'
 
 // Details
 abstract class UpdateServiceDetailsApiClient {
-  Future<Either<RewildError, List<CardOfProductModel>>> get(List<int> ids);
+  Future<Either<RewildError, List<CardOfProductModel>>> get({required List<int> ids});
 }
 
 // Supply
 abstract class UpdateServiceSupplyDataProvider {
-  Future<Either<RewildError, int>> insert(SupplyModel supply);
+  Future<Either<RewildError, int>> insert({required SupplyModel supply});
   Future<Either<RewildError, void>> delete({
     required int nmId,
     int? wh,
     int? sizeOptionId,
   });
-  Future<Either<RewildError, SupplyModel>> getOne({
+  Future<Either<RewildError, SupplyModel?>> getOne({
     required int nmId,
     required int wh,
     required int sizeOptionId,
-  });
+  }) ;
 }
 
 // Card of product data provider
 abstract class UpdateServiceCardOfProductDataProvider {
   Future<Either<RewildError, List<CardOfProductModel>>> getAll();
-  Future<Either<RewildError, int>> insertOrUpdate(CardOfProductModel card);
-  Future<Either<RewildError, CardOfProductModel>> get(int id);
-  Future<Either<RewildError, int>> delete(int id);
+  Future<Either<RewildError, int>> insertOrUpdate({required CardOfProductModel card});
+  Future<Either<RewildError, CardOfProductModel>> get({required int id});
+  Future<Either<RewildError, int>> delete({required int id});
 }
 
 // Card of product api client
 abstract class UpdateServiceCardOfProductApiClient {
   Future<Either<RewildError, void>> save(
-      String token, List<CardOfProductModel> productCards);
-  Future<Either<RewildError, List<CardOfProductModel>>> getAll(String token);
-  Future<Either<RewildError, void>> delete(String token, int id);
+      {required String token,required List<CardOfProductModel> productCards});
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll({required String token});
+  Future<Either<RewildError, void>> delete({required String token,required int id});
 }
 
 // initial stock api client
 abstract class UpdateServiceInitialStockApiClient {
   Future<Either<RewildError, List<InitialStockModel>>> get(
-      List<int> skus, DateTime dateFrom, DateTime dateTo);
+      {required List<int> skus,required DateTime dateFrom,required DateTime dateTo});
 }
 
 // init stock data provider
 abstract class UpdateServiceInitStockDataProvider {
-  Future<Either<RewildError, int>> insert(InitialStockModel initialStock);
+  Future<Either<RewildError, int>> insert({required InitialStockModel initialStock});
   Future<Either<RewildError, List<InitialStockModel>>> get(
-      int nmId, DateTime dateFrom, DateTime dateTo);
-  Future<Either<RewildError, InitialStockModel>> getOne(
+      {required int nmId,required DateTime dateFrom,required DateTime dateTo});
+  Future<Either<RewildError, InitialStockModel?>> getOne(
       {required int nmId,
       required DateTime dateFrom,
       required DateTime dateTo,
@@ -71,8 +72,8 @@ abstract class UpdateServiceInitStockDataProvider {
 
 // stock data provider
 abstract class UpdateServiceStockDataProvider {
-  Future<Either<RewildError, int>> insert(StocksModel initialStock);
-  Future<Either<RewildError, List<StocksModel>>> get(int nmId);
+  Future<Either<RewildError, int>> insert({required StocksModel stock}) ;
+  Future<Either<RewildError, List<StocksModel>>> get({required int nmId});
   Future<Either<RewildError, StocksModel>> getOne(
       {required int nmId, required int wh, required int sizeOptionId});
 }

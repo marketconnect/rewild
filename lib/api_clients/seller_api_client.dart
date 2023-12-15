@@ -11,7 +11,8 @@ import 'package:rewild/domain/services/seller_service.dart';
 class SellerApiClient implements SellerServiceSelerApiClient {
   const SellerApiClient();
   @override
-  Future<Either<RewildError, SellerModel>> get(int supplierId) async {
+  Future<Either<RewildError, SellerModel>> get(
+      {required int supplierId}) async {
     try {
       final uri = Uri.parse(
           'https://www.wildberries.ru/webapi/seller/data/short/$supplierId');

@@ -12,7 +12,7 @@ import 'package:rewild/pb/service.pbgrpc.dart';
 class CommissionApiClient implements CommissionServiceCommissionApiClient {
   const CommissionApiClient();
   @override
-  Future<Either<RewildError, CommissionModel>> get(int id) async {
+  Future<Either<RewildError, CommissionModel>> get({required int id}) async {
     final channel = ClientChannel(
       CommissionApiHelper.grpcHost,
       port: CommissionApiHelper.grpcPort,

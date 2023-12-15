@@ -13,7 +13,8 @@ import 'package:rewild/domain/entities/advert_search_plus_catalogue_model.dart';
 import 'package:rewild/domain/entities/stream_advert_event.dart';
 
 abstract class AllAdvertsStatScreenAdvertService {
-  Future<Either<RewildError, List<Advert>>> getAll();
+  Future<Either<RewildError, List<Advert>>> getAll(
+      {required String token, List<int>? types});
   Future<Either<RewildError, String?>> getApiKey();
   Future<Either<RewildError, int>> getBudget(String apiKey, int campaignId);
 }

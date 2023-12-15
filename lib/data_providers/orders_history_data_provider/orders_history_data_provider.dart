@@ -9,7 +9,9 @@ class OrdersHistoryDataProvider
   const OrdersHistoryDataProvider();
   @override
   Future<Either<RewildError, OrdersHistoryModel?>> get(
-      int nmId, DateTime dateFrom, DateTime dateTo) async {
+      {required int nmId,
+      required DateTime dateFrom,
+      required DateTime dateTo}) async {
     try {
       final db = await SqfliteService().database;
       final ordersHistory = await db.rawQuery(

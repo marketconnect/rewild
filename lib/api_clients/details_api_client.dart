@@ -13,7 +13,7 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
   const DetailsApiClient();
   @override
   Future<Either<RewildError, List<CardOfProductModel>>> get(
-      List<int> ids) async {
+      {required List<int> ids}) async {
     try {
       final params = {
         'appType': '1',
@@ -132,7 +132,7 @@ class DetailsApiClient implements UpdateServiceDetailsApiClient {
   }
 
   static Future<Either<RewildError, List<CardOfProductModel>>> getInBackground(
-      List<int> ids) async {
+      {required List<int> ids}) async {
     try {
       final params = {
         'appType': '1',

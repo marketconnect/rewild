@@ -2,6 +2,7 @@ import 'package:rewild/core/utils/api_helpers/api_helper.dart';
 
 class WbAdvertApiHelper {
   static const String host = 'advert-api.wb.ru';
+
   // General =========================================================== General
   // Изменение ставки у кампании
   static ApiHelper setCpm = ApiHelper(
@@ -73,17 +74,17 @@ class WbAdvertApiHelper {
   );
 
   // Информация о кампании
-  static ApiHelper getCampaignInfo = ApiHelper(
-    host: host,
-    url: '/adv/v0/advert',
-    requestLimitPerMinute: 300, // 300 per minute
-    statusCodeDescriptions: {
-      204: 'Кампания не найдена',
-      400: 'Некорректный идентификатор РК',
-      401: 'Пустой авторизационный заголовок',
-      429: 'Превышен лимит запросов в минуту',
-    },
-  );
+  // static ApiHelper getCampaignInfo = ApiHelper(
+  //   host: host,
+  //   url: '/adv/v1/promotion/adverts',
+  //   requestLimitPerMinute: 300, // 300 per minute
+  //   statusCodeDescriptions: {
+  //     204: 'Кампания не найдена',
+  //     400: 'Некорректное значение параметра type',
+  //     401: 'Пустой авторизационный заголовок',
+  //     422: 'Ошибка обработки параметров запроса',
+  //   },
+  // );
 
   // Баланс
   static ApiHelper getBalance = ApiHelper(

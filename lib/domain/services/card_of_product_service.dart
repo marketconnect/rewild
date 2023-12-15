@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 
@@ -24,7 +25,7 @@ import 'package:rewild/presentation/single_group_screen/single_groups_screen_vie
 
 // API clients
 abstract class CardOfProductServiceSellerApiClient {
-  Future<Either<RewildError, SellerModel>> fetchSeller(int sellerID);
+  Future<Either<RewildError, SellerModel>> fetchSeller({required int sellerID});
 }
 
 // Warehouse
@@ -34,14 +35,16 @@ abstract class CardOfProductServiceWarehouseApiCient {
 
 // Card
 abstract class CardOfProductServiceCardOfProductApiClient {
-  Future<Either<RewildError, void>> delete(String token, int id);
+  Future<Either<RewildError, void>> delete(
+      {required String token, required int id});
 }
 
 // Data providers
 // warehouse
 abstract class CardOfProductServiceWarehouseDataProvider {
-  Future<Either<RewildError, bool>> update(List<Warehouse> warehouses);
-  Future<Either<RewildError, String>> get(int id);
+  Future<Either<RewildError, String?>> get({required int id}) ;
+  Future<Either<RewildError, bool>> update({required List<Warehouse> warehouses});
+  
 }
 
 // stock
@@ -52,23 +55,24 @@ abstract class CardOfProductServiceStockDataProvider {
 // init stock
 abstract class CardOfProductServiceInitStockDataProvider {
   Future<Either<RewildError, List<InitialStockModel>>> getAll(
-      DateTime dateFrom, DateTime dateTo);
+      {required DateTime dateFrom, required DateTime dateTo});
 }
 
 // supply
 abstract class CardOfProductServiceSupplyDataProvider {
-  Future<Either<RewildError, List<SupplyModel>>> get(int nmId);
+  Future<Either<RewildError, List<SupplyModel>>> get(
+      {required int nmId});
 }
 
 // card
 abstract class CardOfProductServiceCardOfProductDataProvider {
   Future<Either<RewildError, List<CardOfProductModel>>> getAll(
       [List<int>? nmIds]);
-  Future<Either<RewildError, CardOfProductModel>> get(int id);
-  Future<Either<RewildError, int>> delete(int id);
-  Future<Either<RewildError, String>> getImage(int id);
+  Future<Either<RewildError, CardOfProductModel>> get({required int id});
+  Future<Either<RewildError, int>> delete({required int id});
+  Future<Either<RewildError, String>> getImage({required int id});
   Future<Either<RewildError, List<CardOfProductModel>>> getAllBySupplierId(
-      int sellerId);
+      {required int supplierId});
 }
 
 class CardOfProductService

@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/initial_stock_model.dart';
@@ -5,10 +6,12 @@ import 'package:rewild/presentation/single_card_screen/single_card_screen_view_m
 
 abstract class InitStockServiceInitStockDataProvider {
   Future<Either<RewildError, List<InitialStockModel>>> getAll(
-      DateTime dateFrom, DateTime dateTo);
+      {required DateTime dateFrom, required DateTime dateTo});
 
   Future<Either<RewildError, List<InitialStockModel>>> get(
-      int nmId, DateTime dateFrom, DateTime dateTo);
+      {required int nmId,
+      required DateTime dateFrom,
+      required DateTime dateTo});
 }
 
 class InitialStockService
@@ -35,6 +38,7 @@ class InitialStockService
       dateFrom = yesterdayEndOfTheDay();
       dateTo = DateTime.now();
     }
-    return initStockDataProvider.get(nmId, dateFrom, dateTo);
+    return initStockDataProvider.get(
+        nmId: nmId, dateFrom: dateFrom, dateTo: dateTo);
   }
 }

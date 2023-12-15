@@ -8,24 +8,25 @@ import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.da
 
 abstract class ReviewServiceReviewApiClient {
   Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(
-      String token,
-      int take, // Обязательный параметр take
-      int skip, // Обязательный параметр skip
-      [int? nmId]);
+     {required String token,
+      required int take, 
+      required int skip, 
+      int? nmId});
 
   Future<Either<RewildError, List<ReviewModel>>> getAnsweredReviews(
-      String token,
-      int take, // Обязательный параметр take
-      int skip, // Обязательный параметр skip
-      [int? nmId]);
+      {required String token,
+      required int take, 
+      required int skip, 
+      required int? nmId});
 
   Future<Either<RewildError, bool>> handleReview(
-      String token, String id, bool wasViewed, bool wasRejected, String answer);
+      {required  String token, required  String id, required  bool wasViewed, required  bool wasRejected, required  String answer});
 }
 
 // Api key
 abstract class ReviewServiceApiKeyDataProvider {
-  Future<Either<RewildError, ApiKeyModel?>> getApiKey(String type);
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey(
+      {required String type});
 }
 
 class ReviewService

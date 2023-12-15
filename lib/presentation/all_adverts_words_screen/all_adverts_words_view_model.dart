@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -7,7 +8,8 @@ import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/advert_search_model.dart';
 
 abstract class AllAdvertsWordsAdvertService {
-  Future<Either<RewildError, List<Advert>>> getAll([List<int>? types]);
+  Future<Either<RewildError, List<Advert>>> getAll(
+      {required String token, List<int>? types});
 }
 
 abstract class AllAdvertsWordsScreenCardOfProductService {

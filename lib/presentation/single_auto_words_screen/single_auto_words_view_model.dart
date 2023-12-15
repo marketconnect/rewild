@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/advert_base.dart';
@@ -12,7 +13,7 @@ abstract class SingleAutoWordsKeywordService {
 }
 
 abstract class SingleAutoWordsAdvertService {
-  Future<Either<RewildError, Advert>> advertInfo(int campaignId);
+  Future<Either<RewildError, Advert>> getAdvert(String apiKey, int campaignId);
 }
 
 class SingleAutoWordsViewModel extends ResourceChangeNotifier {
@@ -34,7 +35,7 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
   Future<void> _update() async {
     final values = await Future.wait([
       fetch(() => keywordService.getAutoStatWords(campaignId)),
-      fetch(() => advertService.advertInfo(campaignId)),
+      fetch(() => advertService.getAdvert(campaignId)),
     ]);
 
     // Advert Info

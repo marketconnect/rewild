@@ -12,7 +12,9 @@ class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
   const InitialStocksApiClient();
   @override
   Future<Either<RewildError, List<InitialStockModel>>> get(
-      List<int> skus, DateTime dateFrom, DateTime dateTo) async {
+      {required List<int> skus,
+      required DateTime dateFrom,
+      required DateTime dateTo}) async {
     final channel = ClientChannel(
       InitialStocksApiHelper.grpcHost,
       port: InitialStocksApiHelper.grpcPort,
@@ -81,7 +83,9 @@ class InitialStocksApiClient implements UpdateServiceInitialStockApiClient {
   }
 
   static Future<Either<RewildError, List<InitialStockModel>>> getInBackground(
-      List<int> skus, DateTime dateFrom, DateTime dateTo) async {
+      {required List<int> skus,
+      required DateTime dateFrom,
+      required DateTime dateTo}) async {
     final channel = ClientChannel(
       InitialStocksApiHelper.grpcHost,
       port: InitialStocksApiHelper.grpcPort,

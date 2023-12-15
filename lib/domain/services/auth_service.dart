@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/user_auth_data.dart';
 
@@ -8,16 +9,16 @@ import 'package:rewild/presentation/splash_screen/splash_screen_view_model.dart'
 abstract class AuthServiceSecureDataProvider {
   Future<Either<RewildError, void>> updateUsername(
       {String? username, String? token, String? expiredAt, bool? freebie});
-  Future<Either<RewildError, String>> getToken();
+  Future<Either<RewildError, String?>> getToken();
   Future<Either<RewildError, String>> getUsername();
   Future<Either<RewildError, bool>> tokenNotExpiredInThreeMinutes();
 }
 
 abstract class AuthServiceAuthApiClient {
-  Future<Either<RewildError, UserAuthData?>> registerUser(
-      String username, String password);
+ Future<Either<RewildError, UserAuthData?>> registerUser(
+      {required String username, required String password});
   Future<Either<RewildError, UserAuthData?>> loginUser(
-      String username, String password);
+      {required String username, required String password});
 }
 
 class AuthServiceImpl
@@ -34,24 +35,20 @@ class AuthServiceImpl
   @override
   Future<Either<RewildError, bool>> isLogined() async {
     // get token
-    final getTokenResource = await secureDataProvider.getToken();
-    if (getTokenResource is Error) {
-      return left(RewildError(getTokenResource.message!,
-          source: runtimeType.toString(), name: 'isLogined', args: []);
-    }
-    // If token exist (registered)
-    if (getTokenResource is Success) {
-      // check expiration
-
-      final tokenNotExpiredResource =
+    final getTokenResult = await secureDataProvider.getToken();
+    
+    // check if token is not expired
+    return getTokenResult.fold((l) => right(false), (r) async {
+       final isTokenNotExpiredResult =
           await secureDataProvider.tokenNotExpiredInThreeMinutes();
-      if (tokenNotExpiredResource is Error) {
-        return left(RewildError(tokenNotExpiredResource.message!,
-            source: runtimeType.toString(), name: 'isLogined', args: []);
-      }
-      return right(true);
-    }
-    return right(false);
+
+      return isTokenNotExpiredResult.fold((l) => right(false), (r) async {
+        return right(r);
+      });
+      
+    });
+
+    
   }
 
   @override
@@ -60,33 +57,42 @@ class AuthServiceImpl
         [secureDataProvider.getUsername(), secureDataProvider.getToken()]);
 
     // Advert Info
-    final userNameResource = values[0];
-    final getTokenResource = values[1];
-    // get user name
-    // final userNameResource = await secureDataProvider.getUsername();
-    if (userNameResource is Error) {
-      return left(RewildError(userNameResource.message!,
-          source: runtimeType.toString(), name: 'getToken', args: []);
-    }
-    final userName = userNameResource.data!;
-
-    // get token from secure storage
-    // final getTokenResource = await secureDataProvider.getToken();
-    if (getTokenResource is Error) {
-      return left(RewildError(getTokenResource.message!,
-          source: runtimeType.toString(), name: 'getToken', args: []);
-    }
-    // If token exist (registered)
-    if (getTokenResource is Success) {
+    final userNameResult = values[0];
+    final getTokenResult = values[1];
+   
+     // get user name
+    return userNameResult.fold((l) => left(l), (userName) async {
+     return getTokenResult.fold((l) => left(l), (token) async {
+       
+       if (token != null) { // token exists
       // check expiration
-      final tokenNotExpiredResource =
+      final tokenNotExpiredResult =
           await secureDataProvider.tokenNotExpiredInThreeMinutes();
 
-      if (tokenNotExpiredResource is Error) {
-        return left(RewildError(tokenNotExpiredResource.message!,
-            source: runtimeType.toString(), name: 'getToken', args: []);
-      }
-      final tokenNotExpired = tokenNotExpiredResource.data!;
+      return tokenNotExpiredResult.fold((l) => left(l), (tokenNotExpired) async {
+        if (tokenNotExpired) { // token not expired
+          return right(token);
+        } else { // token expired
+          // login
+          final loginResult = await _login(userName);
+        if (loginResult is Error) {
+          return Resource.error(loginResult.message!,
+              source: runtimeType.toString(), name: 'getToken', args: []);
+        }
+
+        // save received token
+        final token = loginResult.data!.token;
+        final expiredAt = loginResult.data!.expiredAt;
+        final freebie = loginResult.data!.freebie;
+        final saveResource = await _saveAuthData(
+            UserAuthData(token: token, expiredAt: expiredAt, freebie: freebie));
+        if (saveResource is Error) {
+          return Resource.error(saveResource.message!,
+              source: runtimeType.toString(), name: 'getToken', args: []);
+        }
+        }
+      });
+      
       // If token not expired return token
       if (tokenNotExpired) {
         return getTokenResource;
@@ -96,7 +102,7 @@ class AuthServiceImpl
 
         final loginResource = await _login(userName);
         if (loginResource is Error) {
-          return left(RewildError(loginResource.message!,
+          return Resource.error(loginResource.message!,
               source: runtimeType.toString(), name: 'getToken', args: []);
         }
 
@@ -107,32 +113,25 @@ class AuthServiceImpl
         final saveResource = await _saveAuthData(
             UserAuthData(token: token, expiredAt: expiredAt, freebie: freebie));
         if (saveResource is Error) {
-          return left(RewildError(saveResource.message!,
+          return Resource.error(saveResource.message!,
               source: runtimeType.toString(), name: 'getToken', args: []);
         }
 
-        return right(loginResource.data!.token);
+        return Resource.success(loginResource.data!.token);
       }
-    } else {
-      // Token does not exist (not registered)
-      // register
-      final registerResource = await _register(userName);
-      if (registerResource is Error) {
-        return left(RewildError(registerResource.message!,
-            source: runtimeType.toString(), name: 'getToken', args: []);
-      }
-      // save received data
-      final token = registerResource.data!.token;
-      final expiredAt = registerResource.data!.expiredAt;
-      final freebie = registerResource.data!.freebie;
-      final saveResource = await _saveAuthData(
-          UserAuthData(token: token, expiredAt: expiredAt, freebie: freebie));
-      if (saveResource is Error) {
-        return left(RewildError(saveResource.message!,
-            source: runtimeType.toString(), name: 'getToken', args: []);
-      }
-      return right(registerResource.data!.token);
-    }
+
+       } else {}
+       
+
+     });
+    });
+   
+
+     
+    
+
+    
+
   }
 
   Future<Either<RewildError, void>> _saveAuthData(UserAuthData authData) async {

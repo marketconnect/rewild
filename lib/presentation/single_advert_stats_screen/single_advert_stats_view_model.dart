@@ -21,19 +21,23 @@ import 'package:rewild/widgets/my_dialog_textfield_radio_checkbox.dart';
 import '../../domain/entities/advert_base.dart';
 
 abstract class SingleAdvertStatsViewModelAdvertStatsService {
-  Future<Either<RewildError, AdvertStatModel>> getCurrent(int campaignId);
-  Future<Either<RewildError, List<AdvertStatModel>>> getTodays(int campaignId);
+  Future<Either<RewildError, AdvertStatModel>> getCurrent(
+      {required String token, required int campaignId});
+  Future<Either<RewildError, List<AdvertStatModel>>> getTodays(
+      {required int campaignId});
 }
 
 abstract class SingleAdvertStatsViewModelAdvertService {
   Future<Either<RewildError, int>> getBudget(String apiKey, int campaignId);
 
-  Future<Either<RewildError, Advert>> advertInfo(int campaignId);
-  Future<Either<RewildError, bool>> stopAdvert(int campaignId);
-  Future<Either<RewildError, bool>> startAdvert(int campaignId);
+  Future<Either<RewildError, Advert>> getAdvert(String apiKey, int campaignId);
+  Future<Either<RewildError, bool>> stopAdvert(String token, int campaignId);
+  Future<Either<RewildError, bool>> startAdvert(
+      {required String token, required int campaignId});
 
   Future<Either<RewildError, bool>> setCpm(
-      {required int campaignId,
+      {required String token,
+      required int campaignId,
       required int type,
       required int cpm,
       required int param,
@@ -82,7 +86,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
 
   Future<void> _update() async {
     final values = await Future.wait([
-      fetch(() => advertService.advertInfo(campaignId)), // advertInfo
+      fetch(() => advertService.getAdvert(campaignId)), // advertInfo
       fetch(() => advertService.getBudget(campaignId)), // budget
       fetch(() => advertStatService.getTodays(campaignId)), // autoStatList
     ]);
@@ -580,6 +584,7 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   // PRIVATE METHODS ======================================================================== PRIVATE METHODS
   Future<void> _start() async {
     final adv = await fetch(() => advertService.startAdvert(campaignId));
+    checkAdvert!!!!!!!!!!!!!!!!!!!!!!!!!!
     if (adv == null || !adv) {
       // could not start
       setActive(false); // still paused

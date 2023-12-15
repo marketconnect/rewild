@@ -14,7 +14,7 @@ class InitialStockDataProvider
   const InitialStockDataProvider();
   @override
   Future<Either<RewildError, int>> insert(
-      InitialStockModel initialStock) async {
+      {required InitialStockModel initialStock}) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawInsert('''
@@ -45,7 +45,7 @@ class InitialStockDataProvider
   }
 
   static Future<Either<RewildError, int>> insertInBackground(
-      InitialStockModel initialStock) async {
+      {required InitialStockModel initialStock}) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawInsert('''
@@ -75,7 +75,7 @@ class InitialStockDataProvider
     }
   }
 
-  Future<Either<RewildError, void>> delete(int id) async {
+  Future<Either<RewildError, void>> delete({required int id}) async {
     try {
       final db = await SqfliteService().database;
 
@@ -89,7 +89,9 @@ class InitialStockDataProvider
 
   @override
   Future<Either<RewildError, List<InitialStockModel>>> get(
-      int nmId, DateTime dateFrom, DateTime dateTo) async {
+      {required int nmId,
+      required DateTime dateFrom,
+      required DateTime dateTo}) async {
     try {
       final db = await SqfliteService().database;
       final initialStocks = await db.rawQuery(
@@ -144,7 +146,7 @@ class InitialStockDataProvider
   }
 
   Future<Either<RewildError, int>> update(
-      InitialStockModel initialStock) async {
+      {required InitialStockModel initialStock}) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawUpdate('''
@@ -178,7 +180,7 @@ class InitialStockDataProvider
 
   @override
   Future<Either<RewildError, List<InitialStockModel>>> getAll(
-      DateTime dateFrom, DateTime dateTo) async {
+      {required DateTime dateFrom, required DateTime dateTo}) async {
     try {
       final db = await SqfliteService().database;
       final initialStocks = await db.rawQuery(

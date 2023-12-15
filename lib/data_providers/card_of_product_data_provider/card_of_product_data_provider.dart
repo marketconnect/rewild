@@ -14,9 +14,9 @@ class CardOfProductDataProvider
   const CardOfProductDataProvider();
   @override
   Future<Either<RewildError, int>> insertOrUpdate(
-      CardOfProductModel card) async {
+      {required CardOfProductModel card}) async {
     try {
-      final numOfUpdatedResource = await _update(card);
+      final numOfUpdatedResource = await _update(card: card);
       if (numOfUpdatedResource.isLeft()) {
         return numOfUpdatedResource;
       }
@@ -38,7 +38,7 @@ class CardOfProductDataProvider
   }
 
   @override
-  Future<Either<RewildError, String>> getImage(int id) async {
+  Future<Either<RewildError, String>> getImage({required int id}) async {
     try {
       final db = await SqfliteService().database;
       final image =
@@ -111,7 +111,7 @@ class CardOfProductDataProvider
   }
 
   @override
-  Future<Either<RewildError, int>> delete(int id) async {
+  Future<Either<RewildError, int>> delete({required int id}) async {
     try {
       final db = await SqfliteService().database;
       final resId =
@@ -129,7 +129,7 @@ class CardOfProductDataProvider
   }
 
   @override
-  Future<Either<RewildError, CardOfProductModel>> get(int id) async {
+  Future<Either<RewildError, CardOfProductModel>> get({required int id}) async {
     try {
       final db = await SqfliteService().database;
       final card =
@@ -145,7 +145,8 @@ class CardOfProductDataProvider
     }
   }
 
-  Future<Either<RewildError, int>> _update(CardOfProductModel card) async {
+  Future<Either<RewildError, int>> _update(
+      {required CardOfProductModel card}) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawUpdate(
@@ -266,7 +267,7 @@ class CardOfProductDataProvider
   }
 
   static Future<Either<RewildError, int>> updateInBackGround(
-      CardOfProductModel card) async {
+      {required CardOfProductModel card}) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawUpdate(
@@ -319,7 +320,7 @@ class CardOfProductDataProvider
 
   @override
   Future<Either<RewildError, List<CardOfProductModel>>> getAllBySupplierId(
-      int supplierId) async {
+      {required int supplierId}) async {
     try {
       final db = await SqfliteService().database;
       final cards = await db.rawQuery(

@@ -11,7 +11,8 @@ class AdvertStatDataProvider
         UpdateServiceAdvertStatDataProvider {
   const AdvertStatDataProvider();
   @override
-  Future<Either<RewildError, void>> save(AdvertStatModel autoStat) async {
+  Future<Either<RewildError, void>> save(
+      {required AdvertStatModel autoStat}) async {
     try {
       final db = await SqfliteService().database;
       final _ = await db.rawInsert(
@@ -37,8 +38,8 @@ class AdvertStatDataProvider
   }
 
   @override
-  Future<Either<RewildError, List<AdvertStatModel>>> getAll(int campaignId,
-      [DateTime? from]) async {
+  Future<Either<RewildError, List<AdvertStatModel>>> getAll(
+      {required int campaignId, DateTime? from}) async {
     try {
       final db = await SqfliteService().database;
 

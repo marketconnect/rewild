@@ -10,22 +10,16 @@ import 'package:rewild/presentation/single_question_screen/single_question_view_
 
 abstract class QuestionServiceQuestionApiClient {
   Future<Either<RewildError, List<QuestionModel>>> getUnansweredQuestions(
-      String token,
-      int take, // Обязательный параметр take
-      int skip, // Обязательный параметр skip
-      [int? nmId]);
+      {required String token, required int take, required int skip, int? nmId});
   Future<Either<RewildError, List<QuestionModel>>> getAnsweredQuestions(
-      String token,
-      int take, // Обязательный параметр take
-      int skip, // Обязательный параметр skip
-      [int? nmId]);
+      {required String token, required int take, required int skip, int? nmId});
   Future<Either<RewildError, bool>> handleQuestion(
-      String token, String id, String answer);
+      {required String token, required String id, required String answer});
 }
 
 // Api key
 abstract class QuestionServiceApiKeyDataProvider {
-  Future<Either<RewildError, ApiKeyModel?>> getApiKey(String type);
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey({required String type});
 }
 
 class QuestionService

@@ -12,7 +12,8 @@ class OrdersHistoryApiClient
   const OrdersHistoryApiClient();
 
   @override
-  Future<Either<RewildError, OrdersHistoryModel>> get(int nmId) async {
+  Future<Either<RewildError, OrdersHistoryModel>> get(
+      {required int nmId}) async {
     try {
       // final uri = Uri.parse(
       //     'https://product-order-qnt.wildberries.ru/v2/by-nm/?nm=$nmId');

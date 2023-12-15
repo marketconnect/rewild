@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/commission_model.dart';
@@ -10,7 +11,7 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 abstract class AllCardsFilterAllCardsFilterService {
   Future<Either<RewildError, FilterModel>> getCompletlyFilledFilter();
   Future<Either<RewildError, void>> setFilter(FilterModel filter);
-  Future<Either<RewildError, FilterModel>> getCurrentFilter();
+  Future<Either<RewildError, FilterModel?>> getCurrentFilter();
 }
 
 // Commission

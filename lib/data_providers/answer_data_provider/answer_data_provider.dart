@@ -6,9 +6,7 @@ import 'package:rewild/domain/services/answer_service.dart';
 class AnswerDataProvider implements AnswerServiceAnswerDataProvider {
   const AnswerDataProvider();
   @override
-  Future<Either<RewildError, bool>> delete(
-    String questionId,
-  ) async {
+  Future<Either<RewildError, bool>> delete({required String questionId}) async {
     try {
       final db = await SqfliteService().database;
 
@@ -25,7 +23,7 @@ class AnswerDataProvider implements AnswerServiceAnswerDataProvider {
 
   @override
   Future<Either<RewildError, bool>> insert(
-      String questionId, String answer) async {
+      {required String questionId, required String answer}) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawInsert(

@@ -1,15 +1,16 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/commission_model.dart';
 import 'package:rewild/presentation/all_cards_filter_screen/all_cards_filter_screen_view_model.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 
 abstract class CommissionServiceCommissionApiClient {
-  Future<Either<RewildError, CommissionModel>> get(int id);
+  Future<Either<RewildError, CommissionModel>> get({required int id});
 }
 
 abstract class CommissionServiceCommissionDataProvider {
-  Future<Either<RewildError, CommissionModel>> get(int id);
-  Future<Either<RewildError, void>> insert(CommissionModel commission);
+  Future<Either<RewildError, CommissionModel?>> get({required int id});
+  Future<Either<RewildError, void>> insert({required CommissionModel commission});
 }
 
 class CommissionService

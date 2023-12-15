@@ -1,13 +1,13 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
 import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.dart';
 import 'package:rewild/presentation/single_question_screen/single_question_view_model.dart';
 
 abstract class AnswerServiceAnswerDataProvider {
-  Future<Either<RewildError, bool>> delete(
-    String questionId,
-  );
-  Future<Either<RewildError, bool>> insert(String questionId, String answer);
+  Future<Either<RewildError, bool>> delete({required String questionId});
+  Future<Either<RewildError, bool>> insert(
+      {required String questionId, required String answer});
   Future<Either<RewildError, List<String>>> getAllQuestionsIds();
   Future<Either<RewildError, List<String>>> getAll();
 }
@@ -24,13 +24,14 @@ class AnswerService
   Future<Either<RewildError, bool>> delete(
     String questionId,
   ) async {
-    return await answerDataProvider.delete(questionId);
+    return await answerDataProvider.delete(questionId: questionId);
   }
 
   @override
   Future<Either<RewildError, bool>> insert(
       String questionId, String answer) async {
-    return await answerDataProvider.insert(questionId, answer);
+    return await answerDataProvider.insert(
+        questionId: questionId, answer: answer);
   }
 
   @override
@@ -40,10 +41,6 @@ class AnswerService
 
   @override
   Future<Either<RewildError, List<String>>> getAllQuestionsIds() async {
-    final response = await answerDataProvider.getAllQuestionsIds();
-    if (response is Empty) {
-      return right([]);
-    }
-    return right(response.data!);
+    return await answerDataProvider.getAllQuestionsIds();
   }
 }

@@ -12,10 +12,10 @@ class ReviewApiClient implements ReviewServiceReviewApiClient {
 
   @override
   Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(
-      String token,
-      int take, // Обязательный параметр take
-      int skip, // Обязательный параметр skip
-      [int? nmId]) async {
+      {required String token,
+      required int take,
+      required int skip,
+      int? nmId}) async {
     try {
       final params = {
         'isAnswered': false.toString(),
@@ -61,10 +61,10 @@ class ReviewApiClient implements ReviewServiceReviewApiClient {
 
   @override
   Future<Either<RewildError, List<ReviewModel>>> getAnsweredReviews(
-      String token,
-      int take, // Обязательный параметр take
-      int skip, // Обязательный параметр skip
-      [int? nmId]) async {
+      {required String token,
+      required int take,
+      required int skip,
+      int? nmId}) async {
     try {
       final params = {
         'isAnswered': true.toString(),
@@ -109,8 +109,12 @@ class ReviewApiClient implements ReviewServiceReviewApiClient {
   }
 
   @override
-  Future<Either<RewildError, bool>> handleReview(String token, String id,
-      bool wasViewed, bool wasRejected, String answer) async {
+  Future<Either<RewildError, bool>> handleReview(
+      {required String token,
+      required String id,
+      required bool wasViewed,
+      required bool wasRejected,
+      required String answer}) async {
     try {
       final body = {
         'id': id,

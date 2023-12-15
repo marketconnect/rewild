@@ -7,7 +7,8 @@ import 'package:rewild/domain/services/all_cards_filter_service.dart';
 class FilterDataProvider implements AllCardsFilterFilterDataProvider {
   const FilterDataProvider();
   @override
-  Future<Either<RewildError, void>> insert(FilterModel filter) async {
+  Future<Either<RewildError, void>> insert(
+      {required FilterModel filter}) async {
     try {
       final db = await SqfliteService().database;
       // subjects
