@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/notification.dart';
@@ -13,14 +14,15 @@ import 'package:rewild/presentation/single_card_screen/single_card_screen_view_m
 // import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 
 abstract class NotificationServiceNotificationDataProvider {
-  Future<Either<RewildError, List<ReWildNotificationModel>>> getAll();
-  Future<Either<RewildError, bool>> save(ReWildNotificationModel notificate);
-  Future<Either<RewildError, int>> deleteAll(int parentId);
+  Future<Either<RewildError, List<ReWildNotificationModel>?>> getAll();
+  Future<Either<RewildError, bool>> save(
+      {required ReWildNotificationModel notification});
+  Future<Either<RewildError, int>> deleteAll({required int parentId});
   Future<Either<RewildError, List<ReWildNotificationModel>>> getForParent(
-      int parentId);
-  Future<Either<RewildError, bool>> delete(int parentId, int condition,
-      [bool? reusableAlso]);
-  Future<Either<RewildError, bool>> checkForParent(int id);
+      {required int parentId});
+  Future<Either<RewildError, bool>> delete(
+      {required int parentId, required int condition, bool? reusableAlso});
+  Future<Either<RewildError, bool>> checkForParent({required int id});
 }
 
 class NotificationService
@@ -39,89 +41,83 @@ class NotificationService
       required this.updatedNotificationStreamController});
 
   @override
-  Future<Either<RewildError, bool>> delete(int id, int condition,
-      [bool? isEmpty]) async {
-    final resource = await notificationDataProvider.delete(id, condition);
-    if (resource is Error) {
-      return left(RewildError(resource.message!,
-          source: runtimeType.toString(),
-          name: 'delete',
-          args: [id, condition, isEmpty]);
-    }
-    if (isEmpty != null && isEmpty) {
-      updatedNotificationStreamController.add(StreamNotificationEvent(
-          parentId: id,
-          parentType: condition == NotificationConditionConstants.budgetLessThan
-              ? ParentType.advert
-              : ParentType.card,
-          exists: false));
-    }
-    return resource;
+  Future<Either<RewildError, bool>> delete(
+      {required int id, required int condition, bool? isEmpty}) async {
+    final either = await notificationDataProvider.delete(
+        parentId: id, condition: condition);
+    return either.fold((l) => left(l), (r) {
+      if (isEmpty != null && isEmpty) {
+        updatedNotificationStreamController.add(StreamNotificationEvent(
+            parentId: id,
+            parentType:
+                condition == NotificationConditionConstants.budgetLessThan
+                    ? ParentType.advert
+                    : ParentType.card,
+            exists: false));
+      }
+      return either;
+    });
   }
 
   @override
-  Future<Either<RewildError, bool>> checkForParent(int id) async {
-    final resource = await notificationDataProvider.checkForParent(id);
+  Future<Either<RewildError, bool>> checkForParent(
+      {required int campaignId}) async {
+    final resource =
+        await notificationDataProvider.checkForParent(id: campaignId);
 
     return resource;
   }
 
   @override
   Future<Either<RewildError, void>> addForParent(
-      List<ReWildNotificationModel> notifications,
-      int parentId,
-      bool wasEmpty) async {
-    final resource = await notificationDataProvider.deleteAll(parentId);
-    if (resource is Error) {
-      return left(RewildError(resource.message!,
-          source: runtimeType.toString(), name: 'deleteAll', args: [parentId]);
-    }
-    for (final notification in notifications) {
-      final resource = await notificationDataProvider.save(notification);
-      if (resource is Error) {
-        return left(RewildError(resource.message!,
-            source: runtimeType.toString(), name: 'save', args: [notification]);
+      {required List<ReWildNotificationModel> notifications,
+      required int parentId,
+      required bool wasEmpty}) async {
+    final either = await notificationDataProvider.deleteAll(parentId: parentId);
+    return either.fold((l) => left(l), (r) async {
+      for (final notification in notifications) {
+        final either =
+            await notificationDataProvider.save(notification: notification);
+        if (either.isLeft()) {
+          return either;
+        }
       }
-    }
-    if ((wasEmpty && notifications.isNotEmpty) ||
-        (!wasEmpty && notifications.isEmpty)) {
-      updatedNotificationStreamController.add(StreamNotificationEvent(
-          parentId: parentId,
-          parentType: ParentType.card,
-          exists: notifications.isNotEmpty));
-    }
-
-    return right(null);
+      if ((wasEmpty && notifications.isNotEmpty) ||
+          (!wasEmpty && notifications.isEmpty)) {
+        updatedNotificationStreamController.add(StreamNotificationEvent(
+            parentId: parentId,
+            parentType: ParentType.card,
+            exists: notifications.isNotEmpty));
+      }
+      return right(null);
+    });
   }
 
   @override
   Future<Either<RewildError, List<ReWildNotificationModel>>> getForParent(
-      int parentId) async {
-    final resource = await notificationDataProvider.getForParent(parentId);
-    if (resource is Error) {
-      return left(RewildError(resource.message!,
-          source: runtimeType.toString(),
-          name: 'getForParent',
-          args: [parentId]);
+      {required int parentId}) async {
+    final either =
+        await notificationDataProvider.getForParent(parentId: parentId);
+    if (either.isLeft()) {
+      return either;
     }
-    if (resource is Empty) {
-      return right([]);
-    }
-    return resource;
+    return either.fold((l) => left(l), (notifications) {
+      if (notifications.isEmpty) {
+        return right([]);
+      }
+      return either;
+    });
   }
 
   @override
   Future<Either<RewildError, List<ReWildNotificationModel>>> getAll() async {
-    final resource = await notificationDataProvider.getAll();
-    if (resource is Error) {
-      return left(RewildError(resource.message!,
-          source: runtimeType.toString(), name: 'getAll', args: []);
-    }
+    final either = await notificationDataProvider.getAll();
 
-    if (resource is Empty) {
-      return right([]);
-    }
-
-    return resource;
+    return either.fold((l) => left(l), (notifications) {
+      if (notifications == null || notifications.isEmpty) {
+        return right([]);
+      }
+      return right(notifications);
+    });
   }
 }

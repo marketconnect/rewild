@@ -21,13 +21,15 @@ abstract class MainNavigationAdvertService {
   Future<Either<RewildError, List<Advert>>> getAllAdverts(
       {required String token});
   Future<Either<RewildError, String?>> getApiKey();
-  Future<Either<RewildError, int>> getBudget(String apiKey, int campaignId);
+  Future<Either<RewildError, int>> getBudget(
+      {required String token, required int campaignId});
   Future<Either<RewildError, bool>> checkAdvertIsActive(
-      {required String token, required int campaignId}) ;
-  Future<Either<RewildError, bool>> stopAdvert(String token, int campaignId);
+      {required String token, required int campaignId});
+  Future<Either<RewildError, bool>> stopAdvert(
+      {required String token, required int campaignId});
   Future<Either<RewildError, bool>> startAdvert(
       {required String token, required int campaignId});
-  Future<Either<RewildError, int?>> getBallance(String token);
+  Future<Either<RewildError, int?>> getBallance({required String token});
 }
 
 class MainNavigationViewModel extends ResourceChangeNotifier {
@@ -64,7 +66,7 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
       if (event[ApiKeyType.promo] != null) {
         setAdvertApiKey(event[ApiKeyType.promo]!);
       } else if (event[ApiKeyType.question] != null) {
-        setFeedbackApiKeyExists(event[ApiKeyType.question]!);
+        setFeedbackApiKey(event[ApiKeyType.question]!);
       }
       notify();
     });
@@ -90,24 +92,24 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     }
     setCardsNumber(cardsQty);
     // Api keys exist
+    // Advert
     final advertApiKey = await fetch(() => advertService.getApiKey());
-    if (advertApiKey != null) {
-      setAdvertApiKey(advertApiKey);
-    }
-    if (advertApiKeyExists)
-      final qyestionsApiKeyExists =
-          await fetch(() => questionService.apiKeyExists());
-    if (qyestionsApiKeyExists == null) {
+    if (advertApiKey == null) {
       return;
     }
-    setFeedbackApiKeyExists(qyestionsApiKeyExists);
+    setAdvertApiKey(advertApiKey);
 
-    if (advertApiKeyExists) {
-      final newAdverts = await fetch(() => advertService.getAllAdverts());
-      if (newAdverts == null) {
-        return;
-      }
+    final newAdverts =
+        await fetch(() => advertService.getAllAdverts(token: _advertApiKey!));
+    if (newAdverts == null) {
+      return;
     }
+    // Question
+    final questionApiKey = await fetch(() => questionService.getApiKey());
+    if (questionApiKey == null) {
+      return;
+    }
+    setFeedbackApiKey(questionApiKey);
 
     notify();
   }
@@ -156,25 +158,27 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
   Map<int, int> get budget => _budget;
 
   Future<void> updateAdverts() async {
-    if (!advertApiKeyExists) {
+    if (_advertApiKey == null) {
       return;
     }
-    final balance = await fetch(() => advertService.getBallance());
+    final balance =
+        await fetch(() => advertService.getBallance(token: _advertApiKey!));
     if (balance == null) {
       return;
     }
     setBalance(balance);
     notify();
 
-    final newAdverts = await fetch(() => advertService.getAllAdverts());
+    final newAdverts =
+        await fetch(() => advertService.getAllAdverts(token: _advertApiKey!));
     if (newAdverts == null) {
       return;
     }
     setAdverts(newAdverts);
 
     for (final advert in _adverts) {
-      final budget =
-          await fetch(() => advertService.getBudget(advert.campaignId));
+      final budget = await fetch(() => advertService.getBudget(
+          token: _advertApiKey!, campaignId: advert.campaignId));
       if (budget != null) {
         addBudget(advert.campaignId, budget);
         notify();
@@ -186,35 +190,38 @@ class MainNavigationViewModel extends ResourceChangeNotifier {
     final isPaused =
         adverts.firstWhere((adv) => adv.campaignId == campaignId).status ==
             AdvertStatusConstants.paused;
+    if (_advertApiKey == null) {
+      return;
+    }
 
     if (!isPaused) {
       // now the advert is not paused
       // stop
-      final _ = await fetch(() => advertService.stopAdvert(campaignId));
+      final _ = await fetch(() => advertService.stopAdvert(
+          token: _advertApiKey!, campaignId: campaignId));
       return;
     } else {
       // now the advert is paused
       // start
-      final _ = await fetch(() => advertService.startAdvert(campaignId));
-
-      checkAdvert!!!!!!!!!!!!!
+      final _ = await fetch(() => advertService.startAdvert(
+          token: _advertApiKey!, campaignId: campaignId));
 
       return;
     }
   }
 
   // ApiKeysExists
-  String _advertApiKey = "";
+  String? _advertApiKey;
   void setAdvertApiKey(String value) {
     _advertApiKey = value;
   }
 
-  bool get advertApiKeyExists => _advertApiKey != "";
+  bool get advertApiKeyExists => _advertApiKey != null;
 
-  String _feedbackApiKey = "";
-  void setFeedbackApiKeyExists(String value) {
+  String? _feedbackApiKey;
+  void setFeedbackApiKey(String value) {
     _feedbackApiKey = value;
   }
 
-  bool get feedbackApiKeyExists => _feedbackApiKey == "";
+  bool get feedbackApiKeyExists => _feedbackApiKey != null;
 }

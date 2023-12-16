@@ -14,7 +14,7 @@ class SingleAutoWordsScreen extends StatelessWidget {
     final model = context.watch<SingleAutoWordsViewModel>();
     final name = model.name;
     final keywords = model.keywords;
-
+    print('keywords ${keywords.length} aaaaaaa');
     final excluded = model.excluded;
     final searchInputOpen = model.searchInputOpen;
     final searchInputToggle = model.toggleSearchInput;
@@ -133,35 +133,37 @@ class SingleAutoWordsScreen extends StatelessWidget {
             ),
             body: model.loading
                 ? const Center(child: CircularProgressIndicator())
-                : TabBarView(children: [
-                    TabBody(
-                      moveToExcluded: moveToExcluded,
-                      moveToKeywords: moveToKeywords,
-                      searchQuery: newSearchQuery,
-                      content: keywords
-                          .map((e) => CardContent(
-                              word: e.keyword,
-                              qty: e.count,
-                              orderNum: keywords.indexOf(e),
-                              dif: e.diff,
-                              isNew: e.isNew))
-                          .toList(),
-                    ),
-                    TabBody(
-                      moveToExcluded: moveToExcluded,
-                      moveToKeywords: moveToKeywords,
-                      searchQuery: newSearchQuery,
-                      isExcluded: true,
-                      content: excluded
-                          .map((e) => CardContent(
-                                word: e,
-                                dif: 0,
-                                orderNum: excluded.indexOf(e),
-                                isNew: false,
-                              ))
-                          .toList(),
-                    ),
-                  ]),
+                : keywords.isEmpty && excluded.isEmpty
+                    ? const Center(child: Text('Нет данных'))
+                    : TabBarView(children: [
+                        TabBody(
+                          moveToExcluded: moveToExcluded,
+                          moveToKeywords: moveToKeywords,
+                          searchQuery: newSearchQuery,
+                          content: keywords
+                              .map((e) => CardContent(
+                                  word: e.keyword,
+                                  qty: e.count,
+                                  orderNum: keywords.indexOf(e),
+                                  dif: e.diff,
+                                  isNew: e.isNew))
+                              .toList(),
+                        ),
+                        TabBody(
+                          moveToExcluded: moveToExcluded,
+                          moveToKeywords: moveToKeywords,
+                          searchQuery: newSearchQuery,
+                          isExcluded: true,
+                          content: excluded
+                              .map((e) => CardContent(
+                                    word: e,
+                                    dif: 0,
+                                    orderNum: excluded.indexOf(e),
+                                    isNew: false,
+                                  ))
+                              .toList(),
+                        ),
+                      ]),
           )),
     );
   }

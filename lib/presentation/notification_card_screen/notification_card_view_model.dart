@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -8,9 +9,11 @@ import 'package:rewild/domain/entities/warehouse.dart';
 
 abstract class NotificationCardNotificationService {
   Future<Either<RewildError, void>> addForParent(
-      List<ReWildNotificationModel> notifications, int parentId, bool wasEmpty);
+      {required List<ReWildNotificationModel> notifications,
+      required int parentId,
+      required bool wasEmpty});
   Future<Either<RewildError, List<ReWildNotificationModel>>> getForParent(
-      int bnmId);
+      {required int parentId});
 }
 
 class NotificationCardState {
@@ -75,8 +78,8 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
   Future<void> _asyncInit() async {
     SqfliteService.printTableContent('notifications');
     SqfliteService.printTableContent('background_messages');
-    final savedNotifications =
-        await fetch(() => notificationService.getForParent(state.nmId));
+    final savedNotifications = await fetch(
+        () => notificationService.getForParent(parentId: state.nmId));
     if (savedNotifications == null) {
       return;
     }
@@ -119,7 +122,8 @@ class CardNotificationViewModel extends ResourceChangeNotifier {
   Future<void> save() async {
     final listToAdd = _notifications.values.toList();
 
-    await notificationService.addForParent(listToAdd, state.nmId, _wasEmpty);
+    await notificationService.addForParent(
+        notifications: listToAdd, parentId: state.nmId, wasEmpty: _wasEmpty);
 
     if (context.mounted) Navigator.of(context).pop();
   }

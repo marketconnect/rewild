@@ -33,6 +33,10 @@ class FilterModel {
         withStocks: withStocks == false ? null : withStocks ?? this.withStocks);
   }
 
+  factory FilterModel.empty() {
+    return FilterModel();
+  }
+
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'subjects': subjects,

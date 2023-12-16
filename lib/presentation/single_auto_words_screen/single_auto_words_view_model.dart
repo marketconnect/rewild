@@ -7,13 +7,17 @@ import 'package:rewild/domain/entities/keyword.dart';
 
 abstract class SingleAutoWordsKeywordService {
   Future<Either<RewildError, AutoCampaignStatWord>> getAutoStatWords(
-      int campaignId);
+      {required String token, required int campaignId});
+  Future<Either<RewildError, String?>> getToken();
   Future<Either<RewildError, bool>> setAutoExcluded(
-      int campaignId, List<String> excluded);
+      {required String token,
+      required int campaignId,
+      required List<String> excluded});
 }
 
 abstract class SingleAutoWordsAdvertService {
-  Future<Either<RewildError, Advert>> getAdvert(String apiKey, int campaignId);
+  Future<Either<RewildError, Advert>> getAdvert(
+      {required String token, required int campaignId});
 }
 
 class SingleAutoWordsViewModel extends ResourceChangeNotifier {
@@ -33,9 +37,16 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> _update() async {
+    final apiKey = await fetch(() => keywordService.getToken());
+    if (apiKey == null) {
+      return;
+    }
+    setApiKey(apiKey);
     final values = await Future.wait([
-      fetch(() => keywordService.getAutoStatWords(campaignId)),
-      fetch(() => advertService.getAdvert(campaignId)),
+      fetch(() => keywordService.getAutoStatWords(
+          token: apiKey, campaignId: campaignId)),
+      fetch(
+          () => advertService.getAdvert(token: apiKey, campaignId: campaignId)),
     ]);
 
     // Advert Info
@@ -57,6 +68,15 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
       return;
     }
     _name = advertInfo.name;
+    print('keywords: ${_keywords.length}');
+    notify();
+  }
+
+  // Api Key
+  String? _apiKey;
+  String? get apiKey => _apiKey;
+  void setApiKey(String? apiKey) {
+    _apiKey = apiKey;
     notify();
   }
 
@@ -106,7 +126,11 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> save() async {
-    await fetch(() => keywordService.setAutoExcluded(campaignId, _excluded));
+    if (_apiKey == null) {
+      return;
+    }
+    await fetch(() => keywordService.setAutoExcluded(
+        token: _apiKey!, campaignId: campaignId, excluded: _excluded));
   }
 
   // Search functionality

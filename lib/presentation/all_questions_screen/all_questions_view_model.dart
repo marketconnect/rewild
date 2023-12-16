@@ -9,7 +9,7 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 abstract class AllQuestionsViewModelQuestionService {
   Future<Either<RewildError, List<QuestionModel>>> getQuestions({
     int? nmId,
-    required String apiKey,
+    required String token,
     required int take,
     required int skip,
   });
@@ -17,10 +17,11 @@ abstract class AllQuestionsViewModelQuestionService {
 }
 
 abstract class AllQuestionsViewModelAnswerService {
-  Future<Either<RewildError, bool>> insert(String questionId, String answer);
-  Future<Either<RewildError, bool>> delete(
-    String questionId,
-  );
+  Future<Either<RewildError, bool>> insert(
+      {required String questionId, required String answer});
+  Future<Either<RewildError, bool>> delete({
+    required String questionId,
+  });
 
   Future<Either<RewildError, List<String>>> getAllQuestionsIds();
 }
@@ -54,7 +55,7 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
     int n = 0;
     while (true) {
       final questions = await fetch(() => questionService.getQuestions(
-            apiKey: apiKey,
+            token: apiKey,
             nmId: nmId,
             take: NumericConstants.takeFeedbacksAtOnce,
             skip: NumericConstants.takeFeedbacksAtOnce * n,
@@ -84,13 +85,13 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
   }
 
   // ApiKeyExists
-  String _apiKey = "";
+  String? _apiKey;
   void setApiKey(String value) {
     _apiKey = value;
     notify();
   }
 
-  bool get apiKeyExists => _apiKey == "";
+  bool get apiKeyExists => _apiKey != null;
 
   // Questions
   List<QuestionModel>? _questions;
@@ -162,7 +163,8 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
       _savedAnswersQuestionsIds = [questionId];
     }
     final answerText = answer.text;
-    final ok = await fetch(() => answerService.insert(questionId, answerText));
+    final ok = await fetch(
+        () => answerService.insert(questionId: questionId, answer: answerText));
     if (ok == null) {
       return false;
     }
@@ -176,7 +178,7 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
       _savedAnswersQuestionsIds!.remove(questionId);
     }
 
-    final ok = await fetch(() => answerService.delete(questionId));
+    final ok = await fetch(() => answerService.delete(questionId: questionId));
     if (ok == null) {
       return false;
     }

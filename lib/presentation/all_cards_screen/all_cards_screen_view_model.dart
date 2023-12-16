@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 
@@ -25,7 +26,8 @@ abstract class AllCardsScreenTokenProvider {
 
 // Cards
 abstract class AllCardsScreenCardOfProductService {
-  Future<Either<RewildError, List<CardOfProductModel>>> getAll();
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll(
+      [List<int>? nmIds]);
 }
 
 // Filter
@@ -36,12 +38,12 @@ abstract class AllCardsScreenFilterService {
 
 // Groups
 abstract class AllCardsScreenGroupsService {
-  Future<Either<RewildError, List<GroupModel>>> getAll([List<int>? nmIds]);
+  Future<Either<RewildError, List<GroupModel>?>> getAll([List<int>? nmIds]);
 }
 
 // Supply
 abstract class AllCardsScreenSupplyService {
-  Future<Either<RewildError, List<SupplyModel>>> getForOne(
+  Future<Either<RewildError, List<SupplyModel>?>> getForOne(
       {required int nmId,
       required DateTime dateFrom,
       required DateTime dateTo});
@@ -50,7 +52,8 @@ abstract class AllCardsScreenSupplyService {
 // Update
 abstract class AllCardsScreenUpdateService {
   Future<Either<RewildError, void>> update();
-  Future<Either<RewildError, int>> delete(String token, List<int> nmIds);
+  Future<Either<RewildError, int>> delete(
+      {required String token, required List<int> nmIds});
 }
 
 // Notifications
@@ -335,7 +338,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
 
     final token = await _getToken();
 
-    await fetch(() => updateService.delete(token, idsForDelete));
+    await fetch(() => updateService.delete(token: token, nmIds: idsForDelete));
 
     _update();
   }

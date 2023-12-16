@@ -8,25 +8,25 @@ import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.da
 
 abstract class ReviewServiceReviewApiClient {
   Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(
-     {required String token,
-      required int take, 
-      required int skip, 
-      int? nmId});
+      {required String token, required int take, required int skip, int? nmId});
 
   Future<Either<RewildError, List<ReviewModel>>> getAnsweredReviews(
       {required String token,
-      required int take, 
-      required int skip, 
+      required int take,
+      required int skip,
       required int? nmId});
 
   Future<Either<RewildError, bool>> handleReview(
-      {required  String token, required  String id, required  bool wasViewed, required  bool wasRejected, required  String answer});
+      {required String token,
+      required String id,
+      required bool wasViewed,
+      required bool wasRejected,
+      required String answer});
 }
 
 // Api key
 abstract class ReviewServiceApiKeyDataProvider {
-  Future<Either<RewildError, ApiKeyModel?>> getApiKey(
-      {required String type});
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey({required String type});
 }
 
 class ReviewService
@@ -43,21 +43,15 @@ class ReviewService
 
   static final keyType = StringConstants.apiKeyTypes[ApiKeyType.question] ?? "";
 
-  // @override
+  @override
   Future<Either<RewildError, bool>> apiKeyExists() async {
-    final resource = await apiKeysDataProvider.getApiKey(keyType);
-    if (resource is Error) {
-      return left(RewildError(
-        resource.message!,
-        source: runtimeType.toString(),
-        name: "apiKeyExists",
-        args: [],
-      );
-    }
-    if (resource is Empty) {
-      return right(false);
-    }
-    return right(true);
+    final either = await apiKeysDataProvider.getApiKey(type: keyType);
+    return either.fold((l) => left(l), (r) {
+      if (r == null) {
+        return right(false);
+      }
+      return right(true);
+    });
   }
 
   @override
@@ -66,61 +60,72 @@ class ReviewService
     required int skip,
     int? nmId,
   }) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
-    if (tokenResource is Error) {
-      return left(RewildError(
-        tokenResource.message!,
-        source: runtimeType.toString(),
-        name: "getReviews",
-        args: [],
+    final tokenEither = await apiKeysDataProvider.getApiKey(type: keyType);
+    return tokenEither.fold((l) => left(l), (apiKeyModel) async {
+      if (apiKeyModel == null) {
+        return left(RewildError(
+          'Api key not found',
+          source: runtimeType.toString(),
+          name: 'getReviews',
+          args: [],
+        ));
+      }
+      final unAnsweredEther = await reviewApiClient.getUnansweredReviews(
+        token: apiKeyModel.token,
+        take: take,
+        skip: skip,
+        nmId: nmId,
       );
-    }
-    if (tokenResource is Empty) {
-      return right(null);
-    }
-
-    // Unanswered reviews
-    final resourceUnAnswered = await reviewApiClient.getUnansweredReviews(
-      tokenResource.data!.token,
-      take,
-      skip,
-      nmId,
-    );
-    if (resourceUnAnswered is Error) {
-      return left(RewildError(
-        resourceUnAnswered.message!,
-        source: runtimeType.toString(),
-        name: "getReviews",
-        args: [],
-      );
-    }
-    if (resourceUnAnswered is Empty) {
-      return right(null);
-    }
-    final unAnsweredReviews = resourceUnAnswered.data!;
-
-    // Answered reviews
-    final resourceAnswered = await reviewApiClient.getAnsweredReviews(
-      tokenResource.data!.token,
-      take,
-      skip,
-      nmId,
-    );
-    if (resourceAnswered is Error) {
-      return left(RewildError(
-        resourceAnswered.message!,
-        source: runtimeType.toString(),
-        name: "getReviews",
-        args: [],
-      );
-    }
-    if (resourceAnswered is Empty) {
-      return right(unAnsweredReviews);
-    }
-    final answeredReviews = resourceAnswered.data!;
-
-    return right([...unAnsweredReviews, ...answeredReviews]);
+      return unAnsweredEther.fold((l) => left(l), (unAnsweredReviews) async {
+        final answeredEither = await reviewApiClient.getAnsweredReviews(
+          nmId: nmId,
+          token: apiKeyModel.token,
+          take: take,
+          skip: skip,
+        );
+        return answeredEither.fold((l) => left(l), (answeredReviews) {
+          return right([...unAnsweredReviews, ...answeredReviews]);
+        });
+      });
+    });
   }
+
+  // Unanswered reviews
+
+  // if (resourceUnAnswered is Error) {
+  //   return left(RewildError(
+  //     resourceUnAnswered.message!,
+  //     source: runtimeType.toString(),
+  //     name: "getReviews",
+  //     args: [],
+  //   );
+  // }
+  // if (resourceUnAnswered is Empty) {
+  //   return right(null);
+  // }
+  // final unAnsweredReviews = resourceUnAnswered.data!;
+
+  // Answered reviews
+  // final resourceAnswered = await reviewApiClient.getAnsweredReviews(
+  //   tokenEither.data!.token,
+  //   take,
+  //   skip,
+  //   nmId,
+  // );
+  // if (resourceAnswered is Error) {
+  //   return left(RewildError(
+  //     resourceAnswered.message!,
+  //     source: runtimeType.toString(),
+  //     name: "getReviews",
+  //     args: [],
+  //   );
+  // }
+  // if (resourceAnswered is Empty) {
+  // //   return right(unAnsweredReviews);
+  // // }
+  // final answeredReviews = resourceAnswered.data!;
+
+  // return right([...unAnsweredReviews, ...answeredReviews]);
 
   Future<Either<RewildError, bool>> publishReview(
     String id,
@@ -128,35 +133,28 @@ class ReviewService
     bool wasRejected,
     String answer,
   ) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey(keyType);
-    if (tokenResource is Error) {
-      return left(RewildError(
-        tokenResource.message!,
-        source: runtimeType.toString(),
-        name: "publishReview",
-        args: [],
-      );
-    }
-    if (tokenResource is Empty) {
-      return right(null);
-    }
+    final tokenEither = await apiKeysDataProvider.getApiKey(type: keyType);
+    return tokenEither.fold((l) => left(l), (apiKeyModel) async {
+      if (apiKeyModel == null) {
+        return left(RewildError(
+          'Api key not found',
+          source: runtimeType.toString(),
+          name: 'publishReview',
+          args: [],
+        ));
+      }
 
-    final resource = await reviewApiClient.handleReview(
-      tokenResource.data!.token,
-      id,
-      wasViewed,
-      wasRejected,
-      answer,
-    );
-    if (resource is Error) {
-      return left(RewildError(
-        resource.message!,
-        source: runtimeType.toString(),
-        name: "publishReview",
-        args: [],
+      final either = await reviewApiClient.handleReview(
+        token: apiKeyModel.token,
+        id: id,
+        wasViewed: wasViewed,
+        wasRejected: wasRejected,
+        answer: answer,
       );
-    }
-
-    return right(true);
+      return either.fold(
+        (l) => left(l),
+        (r) => right(r),
+      );
+    });
   }
 }

@@ -42,9 +42,9 @@ abstract class CardOfProductServiceCardOfProductApiClient {
 // Data providers
 // warehouse
 abstract class CardOfProductServiceWarehouseDataProvider {
-  Future<Either<RewildError, String?>> get({required int id}) ;
-  Future<Either<RewildError, bool>> update({required List<Warehouse> warehouses});
-  
+  Future<Either<RewildError, String?>> get({required int id});
+  Future<Either<RewildError, bool>> update(
+      {required List<Warehouse> warehouses});
 }
 
 // stock
@@ -60,15 +60,14 @@ abstract class CardOfProductServiceInitStockDataProvider {
 
 // supply
 abstract class CardOfProductServiceSupplyDataProvider {
-  Future<Either<RewildError, List<SupplyModel>>> get(
-      {required int nmId});
+  Future<Either<RewildError, List<SupplyModel>>> get({required int nmId});
 }
 
 // card
 abstract class CardOfProductServiceCardOfProductDataProvider {
   Future<Either<RewildError, List<CardOfProductModel>>> getAll(
       [List<int>? nmIds]);
-  Future<Either<RewildError, CardOfProductModel>> get({required int id});
+  Future<Either<RewildError, CardOfProductModel>> get({required int nmId});
   Future<Either<RewildError, int>> delete({required int id});
   Future<Either<RewildError, String>> getImage({required int id});
   Future<Either<RewildError, List<CardOfProductModel>>> getAllBySupplierId(
@@ -104,13 +103,9 @@ class CardOfProductService
 
   @override
   Future<Either<RewildError, int>> count() async {
-    final allCardsResource = await cardOfProductDataProvider.getAll();
-    if (allCardsResource is Error) {
-      return left(RewildError(allCardsResource.message!,
-          source: runtimeType.toString(), name: 'count', args: []);
-    }
-
-    return right(allCardsResource.data!.length);
+    final allCardsEither = await cardOfProductDataProvider.getAll();
+    return allCardsEither.fold(
+        (l) => left(l), (allCards) => right(allCards.length));
   }
 
   @override
@@ -118,84 +113,67 @@ class CardOfProductService
       [List<int>? nmIds]) async {
     List<CardOfProductModel> resultCards = [];
     // Cards
-    final allCardsResource = await cardOfProductDataProvider.getAll(nmIds);
-    if (allCardsResource is Error) {
-      return left(RewildError(allCardsResource.message!,
-          source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
-    }
-    List<CardOfProductModel> allCards = allCardsResource.data!;
+    final allCardsEither = await cardOfProductDataProvider.getAll(nmIds);
 
-    // get stocks
-    final stocksResource = await stockDataprovider.getAll();
-    if (stocksResource is Error) {
-      return left(RewildError(stocksResource.message!,
-          source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
-    }
-    final stocks = stocksResource.data!;
-    final dateFrom = yesterdayEndOfTheDay();
-    final dateTo = DateTime.now();
+    return allCardsEither.fold((l) => left(l), (allCards) async {
+      // get stocks
+      final stocksEither = await stockDataprovider.getAll();
+      return stocksEither.fold((l) => left(l), (stocks) async {
+        final dateFrom = yesterdayEndOfTheDay();
+        final dateTo = DateTime.now();
+        // get init stocks
+        final initStocksEither = await initStockDataProvider.getAll(
+          dateFrom: dateFrom,
+          dateTo: dateTo,
+        );
+        return initStocksEither.fold((l) => left(l), (initialStocks) async {
+          // append stocks and init stocks to cards
+          for (final card in allCards) {
+            // append stocks
+            final cardStocks =
+                stocks.where((stock) => stock.nmId == card.nmId).toList();
+            final sizes = [SizeModel(stocks: cardStocks)];
+            final cardWithStocks = card.copyWith(sizes: sizes);
 
-    // get init stocks
-    final initStocksResource = await initStockDataProvider.getAll(
-      dateFrom,
-      dateTo,
-    );
-    if (initStocksResource is Error) {
-      return left(RewildError(initStocksResource.message!,
-          source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
-    }
+            // append init stocks
+            final initStocks = initialStocks
+                .where((initStock) => initStock.nmId == card.nmId)
+                .toList();
 
-    final initialStocks = initStocksResource.data!;
+            final newCard = cardWithStocks.copyWith(initialStocks: initStocks);
 
-    // append stocks and init stocks to cards
-    for (final card in allCards) {
-      // append stocks
-      final cardStocks =
-          stocks.where((stock) => stock.nmId == card.nmId).toList();
-      final sizes = [SizeModel(stocks: cardStocks)];
-      final cardWithStocks = card.copyWith(sizes: sizes);
-
-      // append init stocks
-      final initStocks = initialStocks
-          .where((initStock) => initStock.nmId == card.nmId)
-          .toList();
-
-      final newCard = cardWithStocks.copyWith(initialStocks: initStocks);
-
-      // append supplies
-      final suppliesResource = await supplyDataProvider.get(newCard.nmId);
-      if (suppliesResource is Error) {
-        return left(RewildError(suppliesResource.message!,
-            source: runtimeType.toString(), name: 'getAll', args: [nmIds]);
-      }
-
-      final supplies = suppliesResource.data!;
-      newCard.setSupplies(supplies);
-      resultCards.add(newCard);
-    }
-
-    return right(resultCards);
+            // append supplies
+            final suppliesResource =
+                await supplyDataProvider.get(nmId: newCard.nmId);
+            suppliesResource.fold((l) => left(l), (supplies) {
+              newCard.setSupplies(supplies);
+              resultCards.add(newCard);
+            });
+          }
+          return right(resultCards);
+        });
+      });
+    });
   }
 
   @override
   Future<Either<RewildError, CardOfProductModel?>> getOne(int nmId) async {
-    return await cardOfProductDataProvider.get(nmId);
+    return await cardOfProductDataProvider.get(nmId: nmId);
   }
 
   @override
-  Future<Either<RewildError, String>> getImageForNmId(int id) async {
-    final imgResource = await cardOfProductDataProvider.getImage(id);
+  Future<Either<RewildError, String>> getImageForNmId(
+      {required int nmId}) async {
+    final imgEither = await cardOfProductDataProvider.getImage(id: nmId);
 
-    if (imgResource is Error) {
-      return left(RewildError(imgResource.message!,
-          source: runtimeType.toString(), name: 'getImageForNmId', args: [id]);
-    }
-
-    final img = imgResource.data;
-    if (img == null || img.isEmpty) {
-      return right('');
-    }
-
-    return right(img);
+    return imgEither.fold((l) => left(l), (img) => right(img));
   }
+
+  //   final img = imgEither.data;
+  //   if (img == null || img.isEmpty) {
+  //     return right('');
+  //   }
+
+  //   return right(img);
+  // }
 }

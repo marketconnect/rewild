@@ -227,7 +227,7 @@ class _Card extends StatelessWidget {
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.5,
                 child: AutoSizeText(
-                  subjects!.join(', '),
+                  subjects == null ? "" : subjects.join(', '),
                   maxLines: 1,
                   style: TextStyle(
                       fontSize: MediaQuery.of(context).size.width * 0.02,

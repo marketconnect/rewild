@@ -10,14 +10,14 @@ abstract class AuthServiceSecureDataProvider {
   Future<Either<RewildError, void>> updateUsername(
       {String? username, String? token, String? expiredAt, bool? freebie});
   Future<Either<RewildError, String?>> getToken();
-  Future<Either<RewildError, String>> getUsername();
+  Future<Either<RewildError, String?>> getUsername();
   Future<Either<RewildError, bool>> tokenNotExpiredInThreeMinutes();
 }
 
 abstract class AuthServiceAuthApiClient {
- Future<Either<RewildError, UserAuthData?>> registerUser(
+  Future<Either<RewildError, UserAuthData>> registerUser(
       {required String username, required String password});
-  Future<Either<RewildError, UserAuthData?>> loginUser(
+  Future<Either<RewildError, UserAuthData>> loginUser(
       {required String username, required String password});
 }
 
@@ -34,21 +34,25 @@ class AuthServiceImpl
 
   @override
   Future<Either<RewildError, bool>> isLogined() async {
-    // get token
-    final getTokenResult = await secureDataProvider.getToken();
-    
-    // check if token is not expired
-    return getTokenResult.fold((l) => right(false), (r) async {
-       final isTokenNotExpiredResult =
+    final getTokenEither = await secureDataProvider.getToken();
+    if (getTokenEither.isLeft()) {
+      return left(
+          getTokenEither.fold((l) => l, (r) => throw UnimplementedError()));
+    }
+
+    // If token exist (registered)
+    if (getTokenEither.isRight()) {
+      // check expiration
+
+      final tokenNotExpiredEither =
           await secureDataProvider.tokenNotExpiredInThreeMinutes();
-
-      return isTokenNotExpiredResult.fold((l) => right(false), (r) async {
-        return right(r);
-      });
-      
-    });
-
-    
+      if (tokenNotExpiredEither.isLeft()) {
+        return left(tokenNotExpiredEither.fold(
+            (l) => l, (r) => throw UnimplementedError()));
+      }
+      return right(true);
+    }
+    return right(false);
   }
 
   @override
@@ -57,118 +61,131 @@ class AuthServiceImpl
         [secureDataProvider.getUsername(), secureDataProvider.getToken()]);
 
     // Advert Info
-    final userNameResult = values[0];
-    final getTokenResult = values[1];
-   
-     // get user name
-    return userNameResult.fold((l) => left(l), (userName) async {
-     return getTokenResult.fold((l) => left(l), (token) async {
-       
-       if (token != null) { // token exists
+    final userNameEither = values[0];
+    final getTokenEither = values[1];
+    // get user name
+    // final userNameResource = await secureDataProvider.getUsername();
+    if (userNameEither.isLeft()) {
+      return left(
+          userNameEither.fold((l) => l, (r) => throw UnimplementedError()));
+    }
+    final userName = userNameEither.fold((l) => null, (r) => r);
+    if (userName == null) {
+      return left(RewildError(
+        'No username data',
+        source: runtimeType.toString(),
+        name: 'getToken',
+      ));
+    }
+
+    // get token from secure storage
+    // final getTokenResource = await secureDataProvider.getToken();
+    if (getTokenEither.isLeft()) {
+      return left(
+          getTokenEither.fold((l) => l, (r) => throw UnimplementedError()));
+    }
+    // If token exist (registered)
+    final token = getTokenEither.fold((l) => null, (r) => r);
+    if (getTokenEither.isRight() && token != null) {
       // check expiration
-      final tokenNotExpiredResult =
+      final tokenNotExpiredEither =
           await secureDataProvider.tokenNotExpiredInThreeMinutes();
 
-      return tokenNotExpiredResult.fold((l) => left(l), (tokenNotExpired) async {
-        if (tokenNotExpired) { // token not expired
-          return right(token);
-        } else { // token expired
-          // login
-          final loginResult = await _login(userName);
-        if (loginResult is Error) {
-          return Resource.error(loginResult.message!,
-              source: runtimeType.toString(), name: 'getToken', args: []);
-        }
-
-        // save received token
-        final token = loginResult.data!.token;
-        final expiredAt = loginResult.data!.expiredAt;
-        final freebie = loginResult.data!.freebie;
-        final saveResource = await _saveAuthData(
-            UserAuthData(token: token, expiredAt: expiredAt, freebie: freebie));
-        if (saveResource is Error) {
-          return Resource.error(saveResource.message!,
-              source: runtimeType.toString(), name: 'getToken', args: []);
-        }
-        }
-      });
-      
+      if (tokenNotExpiredEither.isLeft()) {
+        return left(tokenNotExpiredEither.fold(
+            (l) => l, (r) => throw UnimplementedError()));
+      }
+      final tokenNotExpired = tokenNotExpiredEither.fold(
+        (l) => false,
+        (r) => r,
+      );
       // If token not expired return token
       if (tokenNotExpired) {
-        return getTokenResource;
+        return right(token);
       } else {
         // If token expired
         // login
 
-        final loginResource = await _login(userName);
-        if (loginResource is Error) {
-          return Resource.error(loginResource.message!,
-              source: runtimeType.toString(), name: 'getToken', args: []);
+        final loginEither = await _login(userName);
+        if (loginEither is Error) {
+          return left(
+              loginEither.fold((l) => l, (r) => throw UnimplementedError()));
         }
 
         // save received token
-        final token = loginResource.data!.token;
-        final expiredAt = loginResource.data!.expiredAt;
-        final freebie = loginResource.data!.freebie;
-        final saveResource = await _saveAuthData(
+        final userAuthData =
+            loginEither.fold((l) => throw UnimplementedError(), (r) => r);
+        final token = userAuthData.token;
+        final expiredAt = userAuthData.expiredAt;
+        final freebie = userAuthData.freebie;
+        final saveEither = await _saveAuthData(
             UserAuthData(token: token, expiredAt: expiredAt, freebie: freebie));
-        if (saveResource is Error) {
-          return Resource.error(saveResource.message!,
-              source: runtimeType.toString(), name: 'getToken', args: []);
+        if (saveEither.isLeft()) {
+          return left(
+              saveEither.fold((l) => l, (r) => throw UnimplementedError()));
         }
 
-        return Resource.success(loginResource.data!.token);
+        return right(token);
       }
+    } else {
+      // Token does not exist (not registered)
+      // register
+      final registerEither = await _register(userName);
+      final userAuthData =
+          registerEither.fold((l) => throw UnimplementedError(), (r) => r);
+      if (registerEither is Error || userAuthData == null) {
+        return left(
+            registerEither.fold((l) => l, (r) => throw UnimplementedError()));
+      }
+      // save received data
 
-       } else {}
-       
-
-     });
-    });
-   
-
-     
-    
-
-    
-
+      final token = userAuthData.token;
+      final expiredAt = userAuthData.expiredAt;
+      final freebie = userAuthData.freebie;
+      final saveResource = await _saveAuthData(
+          UserAuthData(token: token, expiredAt: expiredAt, freebie: freebie));
+      if (saveResource.isLeft()) {
+        return left(
+            saveResource.fold((l) => l, (r) => throw UnimplementedError()));
+      }
+      return right(token);
+    }
   }
 
   Future<Either<RewildError, void>> _saveAuthData(UserAuthData authData) async {
     final token = authData.token;
     final freebie = authData.freebie;
     final expiredAt = authData.expiredAt;
-    final saveResource = await secureDataProvider.updateUsername(
+    final saveEither = await secureDataProvider.updateUsername(
       token: token,
       expiredAt: expiredAt.toString(),
       freebie: freebie,
     );
-    if (saveResource is Error) {
-      return left(RewildError(saveResource.message!,
-          source: runtimeType.toString(),
-          name: '_saveAuthData',
-          args: [authData]);
+    if (saveEither.isLeft()) {
+      return left(saveEither.fold((l) => l, (r) => throw UnimplementedError()));
     }
     return right(null);
   }
 
-  Future<Either<RewildError, UserAuthData>> _register(String username) async {
-    final authDataResource =
-        await authApiClient.registerUser(username, username);
-    if (authDataResource is Error) {
-      return left(RewildError(authDataResource.message!,
-          source: runtimeType.toString(), name: '_register', args: [username]);
+  Future<Either<RewildError, UserAuthData?>> _register(String username) async {
+    final authDataEither = await authApiClient.registerUser(
+        username: username, password: username);
+    if (authDataEither.isLeft()) {
+      return left(
+          authDataEither.fold((l) => l, (r) => throw UnimplementedError()));
     }
-    return Success(data: authDataResource.data!);
+    return authDataEither;
   }
 
   Future<Either<RewildError, UserAuthData>> _login(String username) async {
-    final authDataResource = await authApiClient.loginUser(username, username);
-    if (authDataResource is Error) {
-      return left(RewildError(authDataResource.message!,
-          source: runtimeType.toString(), name: '_login', args: [username]);
+    final authDataResource =
+        await authApiClient.loginUser(password: username, username: username);
+    if (authDataResource.isLeft()) {
+      return left(
+          authDataResource.fold((l) => l, (r) => throw UnimplementedError()));
     }
 
-    return Success(data: authDataResource.data!);
+    return right(
+        authDataResource.fold((l) => throw UnimplementedError(), (r) => r));
   }
 }

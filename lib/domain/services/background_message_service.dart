@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/background_message.dart';
 import 'package:rewild/presentation/app/app.dart';
@@ -17,7 +18,7 @@ class BackgroundMessageService
 
   @override
   Future<Either<RewildError, bool>> delete(
-      int id, int subject, int condition) async {
+      {required int id, required int subject, required int condition}) async {
     return await backgroundMessageDataProvider.delete(id, subject, condition);
   }
 
@@ -30,9 +31,6 @@ class BackgroundMessageService
   Future<Either<RewildError, bool>> isNotEmpty() async {
     final res = await getAll();
 
-    if (res is Success) {
-      return res.data!.isNotEmpty ? right(true) : right(false);
-    }
-    return right(false);
+    return res.fold((l) => left(l), (r) => right(r.isNotEmpty));
   }
 }

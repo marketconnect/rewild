@@ -38,7 +38,7 @@ class QuestionService
   // Function to get api key
   @override
   Future<Either<RewildError, String?>> getApiKey() async {
-    final result = await apiKeysDataProvider.getApiKey(keyType);
+    final result = await apiKeysDataProvider.getApiKey(type: keyType);
     return result.fold((l) => left(l), (r) {
       if (r == null) {
         return left(RewildError(
@@ -56,7 +56,7 @@ class QuestionService
   @override
   Future<Either<RewildError, List<QuestionModel>>> getQuestions({
     int? nmId,
-    required String apiKey,
+    required String token,
     required int take,
     required int skip,
   }) async {
@@ -64,14 +64,14 @@ class QuestionService
 
     // Unanswered questions
     final unAnsweredResult = await questionApiClient.getUnansweredQuestions(
-        apiKey, take, skip, nmId);
+        token: token, take: take, skip: skip, nmId: nmId);
 
     unAnsweredResult.fold((l) => left(l), (r) {
       allQuestions = r;
     });
     // Answered questions
-    final resourceAnswered =
-        await questionApiClient.getAnsweredQuestions(apiKey, take, skip, nmId);
+    final resourceAnswered = await questionApiClient.getAnsweredQuestions(
+        token: token, take: take, skip: skip, nmId: nmId);
 
     resourceAnswered.fold((l) => left(l), (r) {
       allQuestions.addAll(r);
@@ -83,8 +83,11 @@ class QuestionService
   // Function to publish question on wb server
   @override
   Future<Either<RewildError, bool>> publishQuestion(
-      String apiKey, String id, String answer) async {
-    final result = await questionApiClient.handleQuestion(apiKey, id, answer);
+      {required String token,
+      required String id,
+      required String answer}) async {
+    final result = await questionApiClient.handleQuestion(
+        token: token, id: id, answer: answer);
 
     return result.fold((l) => left(l), (r) {
       return right(r);

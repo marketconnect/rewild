@@ -9,7 +9,7 @@ import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model
 abstract class AllCardsFilterFilterDataProvider {
   Future<Either<RewildError, void>> insert({required FilterModel filter});
   Future<Either<RewildError, void>> delete();
-  Future<Either<RewildError, FilterModel?>> get();
+  Future<Either<RewildError, FilterModel>> get();
 }
 
 abstract class AllCardsFilterServiceCardsOfProductDataProvider {
@@ -101,7 +101,7 @@ class AllCardsFilterService
   }
 
   @override
-  Future<Either<RewildError, FilterModel?>> getCurrentFilter() async {
+  Future<Either<RewildError, FilterModel>> getCurrentFilter() async {
     return await filterDataProvider.get();
   }
 
@@ -111,7 +111,8 @@ class AllCardsFilterService
   }
 
   @override
-  Future<Either<RewildError, void>> setFilter(FilterModel filter) async {
+  Future<Either<RewildError, void>> setFilter(
+      {required FilterModel filter}) async {
     final values = await Future.wait([
       filterDataProvider.delete(),
       filterDataProvider.insert(filter: filter)

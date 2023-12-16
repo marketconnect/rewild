@@ -10,18 +10,18 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 // filter
 abstract class AllCardsFilterAllCardsFilterService {
   Future<Either<RewildError, FilterModel>> getCompletlyFilledFilter();
-  Future<Either<RewildError, void>> setFilter(FilterModel filter);
+  Future<Either<RewildError, void>> setFilter({required FilterModel filter});
   Future<Either<RewildError, FilterModel?>> getCurrentFilter();
 }
 
 // Commission
 abstract class AllCardsFilterCommissionService {
-  Future<Either<RewildError, CommissionModel>> get(int id);
+  Future<Either<RewildError, CommissionModel>> get({required int id});
 }
 
 // Supplier
 abstract class AllCardsFilterSellerService {
-  Future<Either<RewildError, SellerModel>> get(int supplierId);
+  Future<Either<RewildError, SellerModel>> get({required int supplierId});
 }
 
 class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {
@@ -82,7 +82,7 @@ class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {
     if (filter.subjects != null) {
       for (final subjId in filter.subjects!.keys) {
         final subj = await fetch(
-          () => commissionService.get(subjId),
+          () => commissionService.get(id: subjId),
         );
         if (subj == null) {
           return;
@@ -94,7 +94,7 @@ class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {
     if (filter.suppliers != null) {
       for (final suppId in filter.suppliers!.keys) {
         final seller = await fetch(
-          () => sellerService.get(suppId),
+          () => sellerService.get(supplierId: suppId),
         );
         if (seller == null) {
           return;
@@ -284,7 +284,7 @@ class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> save() async {
-    await fetch(() => allCardsFilterService.setFilter(outputfilter!));
+    await fetch(() => allCardsFilterService.setFilter(filter: outputfilter!));
     if (context.mounted) {
       Navigator.of(context).pushReplacementNamed(
         MainNavigationRouteNames.allCardsScreen,

@@ -32,47 +32,38 @@ import 'package:rewild/domain/entities/notification_content.dart';
 class BackgroundService {
   const BackgroundService();
 
-  static Future initial() async {}
-
-  // static DateTime? _autoLastReq;
-  // static DateTime? _searchLastReq;
-  // static DateTime? _budgetLastReq;
-  // static DateTime? _getCampaignsInfoLastReq;
-
   // updates initial stocks once a day
   static updateInitialStocks() async {
     // get cards from the local storage
-    final cardsOfProductsResource =
+    final cardsOfProductsEither =
         await CardOfProductDataProvider.getAllInBackGround();
-    if (cardsOfProductsResource is Error) {
-      return left(RewildError(cardsOfProductsResource.message!,
-          source: "BackgroundService", name: "updateInitialStocks", args: []);
-    }
-    final allSavedCardsOfProducts = cardsOfProductsResource.data!;
-
-    if (allSavedCardsOfProducts.isEmpty) {
-      return right(null);
+    final allSavedCardsOfProducts =
+        cardsOfProductsEither.fold((l) => null, (r) => r);
+    if (allSavedCardsOfProducts == null || allSavedCardsOfProducts.isEmpty) {
+      return;
     }
 
     // try to fetch today`s initial stocks from server
-    final todayInitialStocksFromServerResource =
+    final todayInitialStocksFromServerEither =
         await _fetchTodayInitialStocksFromServer(
             allSavedCardsOfProducts.map((e) => e.nmId).toList());
-    if (todayInitialStocksFromServerResource is Error) {
-      return left(RewildError(todayInitialStocksFromServerResource.message!,
-          source: "BackgroundService", name: "updateInitialStocks", args: []);
-    }
+
     final todayInitialStocksFromServer =
-        todayInitialStocksFromServerResource.data!;
+        todayInitialStocksFromServerEither.fold((l) => null, (r) => r);
+
+    if (todayInitialStocksFromServer == null ||
+        todayInitialStocksFromServer.isEmpty) {
+      return;
+    }
 
     // save today`s initial stocks to local db and delete supplies
     for (final stock in todayInitialStocksFromServer) {
       // delete supplies because they are not today`s
-      final deleteSuppliesResource =
+      final deleteSuppliesEither =
           await SupplyDataProvider.deleteInBackground(nmId: stock.nmId);
-      if (deleteSuppliesResource is Error) {
-        return left(RewildError(deleteSuppliesResource.message!,
-            source: "BackgroundService", name: "updateInitialStocks", args: []);
+
+      if (deleteSuppliesEither.isLeft()) {
+        return;
       }
 
       // set were updated today
@@ -91,67 +82,66 @@ class BackgroundService {
       SecureStorageProvider.getApiKeyFromBackground('Продвижение'),
       NotificationDataProvider.getAllInBackground(),
     ]);
-
-    final tokenResource = values[0] as Either<RewildError, ApiKeyModel>;
-    final notificationResource =
+    print('1');
+    final tokenEither = values[0] as Either<RewildError, ApiKeyModel?>;
+    final notificationEither =
         values[1] as Either<RewildError, List<ReWildNotificationModel>>;
-    // token
-    if (tokenResource is Success) {
-      token = tokenResource.data!.token;
-    }
-    // Adverts for single advert stat screen
-    // fetch adverts from API Wb
-    final advertResource = await fetchAdverts(token);
-    if (advertResource is Error) {
-      return left(RewildError(advertResource.message!,
-          source: "BackgroundService", name: "fetchAll", args: []);
-    }
-    // save all fetched adverts
-    if (advertResource is Success) {
-      for (final advert in advertResource.data!) {
-        await AdvertStatDataProvider.saveInBackground(advert);
-      }
-    }
-
-    if (notificationResource is Error) {
-      return left(RewildError(notificationResource.message!,
-          source: "BackgroundService", name: "fetchAll", args: []);
-    }
-    if (notificationResource is Empty) {
+    print('2');
+    if (tokenEither.fold((l) => null, (r) => r) == null) {
+      final _ = RewildError('Не удалось получить токен',
+          source: "BackgroundService", name: 'fetchAll', args: []);
       return;
     }
-    // Notifications
-    final notifications = notificationResource.data!;
+    print('3');
+    // token
+    token = tokenEither.fold((l) => null, (r) => r!.token);
+    print('4');
+    // Adverts for single advert stat screen
+    // fetch adverts from API Wb
+    final advertEither = await fetchAdverts(token);
+    advertEither.fold((l) => null, (advertStatModels) async {
+      // save all fetched adverts
+      if (advertStatModels == null || advertStatModels.isEmpty) {
+        for (final advert in advertStatModels!) {
+          await AdvertStatDataProvider.saveInBackground(advert);
+        }
+      }
+    });
+    print('15');
 
+    // Notifications
+    final notifications = notificationEither.fold((l) => null, (r) => null);
+    print('6');
+    if (notifications == null || notifications.isEmpty) {
+      return;
+    }
+    print('7');
     // separate cards and verts notifications
     List<ReWildNotificationModel> cardsNotifications = notifications
         .where((element) =>
             element.condition != NotificationConditionConstants.budgetLessThan)
         .toList();
+    print('8');
     List<ReWildNotificationModel> advertsNotifications = notifications
         .where((element) =>
             element.condition == NotificationConditionConstants.budgetLessThan)
         .toList();
+    print('9');
     // ids
     List<int> cardsIds = cardsNotifications.map((e) => e.parentId).toList();
     List<int> advertsIds = advertsNotifications.map((e) => e.parentId).toList();
-
+    print('10');
     // fetch cards from Wb
-    final cardsResource =
-        await DetailsApiClient.getInBackground(ids:  cardsIds.unique() as List<int>);
-    if (cardsResource is Error) {
-      return left(RewildError(cardsResource.message!,
-          source: "BackgroundService", name: "fetchAll", args: []);
-    }
-    // get notification contents for cards
-
+    final cardsEither = await DetailsApiClient.getInBackground(
+        ids: cardsIds.unique() as List<int>);
     // list to save notification contents
+    print('11');
     List<ReWildNotificationContent> notificationContents = [];
 
     // insert notification contents to the list
     // and update notification in local db with current value
-    if (cardsResource is Success) {
-      for (final card in cardsResource.data!) {
+    cardsEither.fold((l) => null, (cards) {
+      for (final card in cards) {
         final notificationsList = cardsNotifications
             .where((element) => element.parentId == card.nmId)
             .toList();
@@ -164,27 +154,26 @@ class BackgroundService {
         }
         notificationContents.addAll(notContentList);
       }
-    }
-
+    });
+    print('12');
     // get adverts budget from Wb for notification
     if (token != null) {
-      final fetchedAdvertBudgetNotifications = await _fetchAdvertBudgets(
+      final fetchedAdvertBudgetNotificationsEither = await _fetchAdvertBudgets(
           token, advertsIds.unique() as List<int>, advertsNotifications);
 
-      if (fetchedAdvertBudgetNotifications is Error) {
-        return left(RewildError(fetchedAdvertBudgetNotifications.message!,
-            source: "BackgroundService", name: "fetchAll", args: []);
-      }
-      if (fetchedAdvertBudgetNotifications is Success) {
-        notificationContents.addAll(fetchedAdvertBudgetNotifications.data!);
-      }
+      fetchedAdvertBudgetNotificationsEither.fold(
+        (l) => null,
+        (r) => notificationContents.addAll(r),
+      );
     }
 
+    print('14');
     // if there are no notifications return
     if (notificationContents.isEmpty) {
       return;
     }
 
+    print('15');
     // save all new notifications and messages to local db
     for (final notCont in notificationContents) {
       int subj = _getSubject(notCont);
@@ -200,7 +189,7 @@ class BackgroundService {
           value: notCont.newValue!));
       await BackgroundMessageDataProvider.saveInBackground(message);
     }
-
+    print('16');
     // notify user
     await _instantNotification("У вас есть сообщение от ReWild", '');
   }
@@ -219,23 +208,19 @@ class BackgroundService {
     List<ReWildNotificationContent> notificationContents = [];
     for (final campaignId in advertsIds) {
       // fetch budget
-      final budgetResource = await budgetRequest(token, campaignId);
-      if (budgetResource is Error) {
-        return left(RewildError(budgetResource.message!,
-            source: "BackgroundService",
-            name: "_fetchAdvertBudgets",
-            args: [token, advertsIds, advertsNotifications]);
-      }
-      if (budgetResource is Empty) {
+      final budgetEither = await budgetRequest(token, campaignId);
+
+      final budget = budgetEither.fold((l) => null, (r) => r);
+      if (budget == null) {
         continue;
       }
-      final budget = budgetResource.data!;
       final notificationsList = advertsNotifications
           .where((element) => element.parentId == campaignId)
           .toList();
       if (notificationsList.isEmpty) {
         continue;
       }
+
       final nBudg = int.tryParse(notificationsList.first.value) ?? 0;
       if (budget < nBudg) {
         final notContent = ReWildNotificationContent(
@@ -254,34 +239,39 @@ class BackgroundService {
     return right(notificationContents);
   }
 
-  static Future<Either<RewildError, List<AdvertStatModel>>> fetchAdverts(
+  static Future<Either<RewildError, List<AdvertStatModel>?>> fetchAdverts(
       String? token) async {
     if (token == null) {
       return right(null);
     }
     List<AdvertStatModel> fetchedAdverts = [];
 
-    // get all adverts Ids
-    final allAdvertsIdsResource =
+    // get all adverts Ids from Wb API
+    final allAdvertsIdsEither =
         await AdvertApiClient.countInBackground(token: token);
-    if (allAdvertsIdsResource is Error) {
-      return left(RewildError(allAdvertsIdsResource.message!,
-          source: "BackgroundService", name: "getAllAdverts", args: []);
+
+    final allAdvertsIdsMap = allAdvertsIdsEither.fold(
+      (l) => null,
+      (r) => r,
+    );
+    if (allAdvertsIdsMap == null) {
+      return right(null);
     }
 
-    final allAdvertsIdsMap = allAdvertsIdsResource.data!;
+    // convert map to list
     final ids = allAdvertsIdsMap.values.expand((element) => element).toList();
 
-    // wait
+    final advertEither =
+        await AdvertApiClient.getAdvertsInBackground(token: token, ids: ids);
 
-    final advertResource =
-        await AdvertApiClient.getAdvertsInBackground(token: token, ids:  ids);
-    if (advertResource is Error) {
-      return left(RewildError(advertResource.message!,
-          source: "BackgroundService", name: "fetchAdverts", args: [token]);
+    final allAdverts = advertEither.fold(
+      (l) => null,
+      (r) => r,
+    );
+    if (allAdverts == null) {
+      return right(null);
     }
-    final allAdverts = advertResource.data!;
-    // TODO
+
     for (final advertInfo in allAdverts) {
       if (advertInfo.status != AdvertStatusConstants.active &&
           advertInfo.status != AdvertStatusConstants.paused) {
@@ -289,28 +279,37 @@ class BackgroundService {
       }
       switch (advertInfo.type) {
         case AdvertTypeConstants.auto:
-          final advertStat = await _fetchAutoAdvertStat(token, advertInfo);
-          if (advertStat is Success) {
-            fetchedAdverts.add(advertStat.data!);
-          }
+          final advertStatEither =
+              await _fetchAutoAdvertStat(token, advertInfo);
+          advertStatEither.fold(
+            (l) => null,
+            (r) => fetchedAdverts.add(r),
+          );
+
           break;
         case AdvertTypeConstants.inSearch:
-          final advertStat = await _fetchSearchAdvertStat(token, advertInfo);
-          if (advertStat is Success) {
-            fetchedAdverts.add(advertStat.data!);
-          }
+          final advertStatEither =
+              await _fetchSearchAdvertStat(token, advertInfo);
+          advertStatEither.fold(
+            (l) => null,
+            (r) => fetchedAdverts.add(r),
+          );
           break;
         case AdvertTypeConstants.inCard:
-          final advertStat = await _fetchFullAdvertStat(token, advertInfo);
-          if (advertStat is Success) {
-            fetchedAdverts.add(advertStat.data!);
-          }
+          final advertStatEither =
+              await _fetchFullAdvertStat(token, advertInfo);
+          advertStatEither.fold(
+            (l) => null,
+            (r) => fetchedAdverts.add(r),
+          );
           break;
         case AdvertTypeConstants.inCatalog:
-          final advertStat = await _fetchFullAdvertStat(token, advertInfo);
-          if (advertStat is Success) {
-            fetchedAdverts.add(advertStat.data!);
-          }
+          final advertStatEither =
+              await _fetchFullAdvertStat(token, advertInfo);
+          advertStatEither.fold(
+            (l) => null,
+            (r) => fetchedAdverts.add(r),
+          );
           break;
         // case AdvertTypeConstants.inRecomendation:
         //   final advertStat = await _fetchFullAdvertStat(token, advertInfo);
@@ -319,10 +318,12 @@ class BackgroundService {
         //   }
         //   break;
         case AdvertTypeConstants.searchPlusCatalog:
-          final advertStat = await _fetchFullAdvertStat(token, advertInfo);
-          if (advertStat is Success) {
-            fetchedAdverts.add(advertStat.data!);
-          }
+          final advertStatEither =
+              await _fetchFullAdvertStat(token, advertInfo);
+          advertStatEither.fold(
+            (l) => null,
+            (r) => fetchedAdverts.add(r),
+          );
           break;
         default:
       }
@@ -332,65 +333,69 @@ class BackgroundService {
 
   static Future<Either<RewildError, AdvertStatModel>> _fetchAutoAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
-    final advertStatResource = await AdvertApiClient.getAutoStatInBackground(
-        token: token, campaignId:  advertInfo.campaignId);
+    final advertStatEither = await AdvertApiClient.getAutoStatInBackground(
+        token: token, campaignId: advertInfo.campaignId);
 
-    if (advertStatResource is Error) {
-      return left(RewildError(advertStatResource.message!,
-          source: "BackgroundService",
-          name: "_fetchAutoAdvertStat",
-          args: [token, advertInfo]);
+    final advertStat = advertStatEither.fold((l) => null, (r) => r);
+    if (advertStat == null) {
+      return left(RewildError(
+        "An error occurred: $advertStat",
+        source: "BackgroundService",
+        name: "_fetchAutoAdvertStat",
+        args: [token, advertInfo],
+      ));
     }
-
-    final advertStat = advertStatResource.data!;
     return right(advertStat);
   }
 
   static Future<Either<RewildError, AdvertStatModel>> _fetchFullAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
-    final advertStatResource = await AdvertApiClient.getFullStatInBackground(
-       token: token, campaignId:  advertInfo.campaignId);
+    final advertStatEither = await AdvertApiClient.getFullStatInBackground(
+        token: token, campaignId: advertInfo.campaignId);
 
-    if (advertStatResource is Error) {
-      return left(RewildError(advertStatResource.message!,
-          source: "BackgroundService",
-          name: "_fetchFullAdvertStat",
-          args: [token, advertInfo]);
+    final advertStat = advertStatEither.fold((l) => null, (r) => r);
+    if (advertStat == null) {
+      return left(RewildError(
+        "An error occurred: $advertStatEither",
+        source: "BackgroundService",
+        name: "_fetchFullAdvertStat",
+        args: [token, advertInfo],
+      ));
     }
-
-    final advertStat = advertStatResource.data!;
     return right(advertStat);
   }
 
   static Future<Either<RewildError, AdvertStatModel>> _fetchSearchAdvertStat(
       String token, AdvertInfoModel advertInfo) async {
-    final advertStatResource = await AdvertApiClient.getSearchStatInBackground(
-        token: token, campaignId:  advertInfo.campaignId);
+    final advertStatEither = await AdvertApiClient.getSearchStatInBackground(
+        token: token, campaignId: advertInfo.campaignId);
 
-    if (advertStatResource is Error) {
-      return left(RewildError(advertStatResource.message!,
-          source: "BackgroundService",
-          name: "_fetchSearchAdvertStat",
-          args: [token, advertInfo]);
+    final advertStat = advertStatEither.fold((l) => null, (r) => r);
+    if (advertStat == null) {
+      return left(RewildError(
+        "An error occurred: $advertStatEither",
+        source: "BackgroundService",
+        name: "_fetchSearchAdvertStat",
+        args: [token, advertInfo],
+      ));
     }
-
-    final advertStat = advertStatResource.data!;
     return right(advertStat);
   }
 
   static Future<Either<RewildError, int>> budgetRequest(
       String token, int id) async {
-    final budgetResource =
-        await AdvertApiClient.getCompanyBudgetInBackground(token: token, campaignId:  id);
+    final budgetEither = await AdvertApiClient.getCompanyBudgetInBackground(
+        token: token, campaignId: id);
 
-    if (budgetResource is Error) {
-      return left(RewildError(budgetResource.message!,
-          source: "BackgroundService",
-          name: "budgetRequest",
-          args: [token, id]);
+    final budget = budgetEither.fold((l) => null, (r) => r);
+    if (budget == null) {
+      return left(RewildError(
+        "An error occurred: $budgetEither",
+        source: "BackgroundService",
+        name: "budgetRequest",
+        args: [token, id],
+      ));
     }
-
-    final budget = budgetResource.data!;
     return right(budget);
   }
 
@@ -401,30 +406,27 @@ class BackgroundService {
           List<int> cardsWithoutTodayInitStocksIds) async {
     List<InitialStockModel> initialStocksFromServer = [];
     if (cardsWithoutTodayInitStocksIds.isNotEmpty) {
-      final initialStocksResource =
-          await InitialStocksApiClient.getInBackground(
-        cardsWithoutTodayInitStocksIds,
-        yesterdayEndOfTheDay(),
-        DateTime.now(),
+      final initialStocksEither = await InitialStocksApiClient.getInBackground(
+        skus: cardsWithoutTodayInitStocksIds,
+        dateFrom: yesterdayEndOfTheDay(),
+        dateTo: DateTime.now(),
       );
-      if (initialStocksResource is Error) {
-        return left(RewildError(initialStocksResource.message!,
-            source: "BackgroundService",
-            name: "_fetchTodayInitialStocksFromServer",
-            args: [cardsWithoutTodayInitStocksIds]);
-      }
 
-      initialStocksFromServer = initialStocksResource.data!;
+      initialStocksFromServer = initialStocksEither.fold((l) => [], (r) => r);
 
       // save initial stocks to local db
       for (final stock in initialStocksFromServer) {
-        final insertStockresource =
-            await InitialStockDataProvider.insertInBackground(stock);
-        if (insertStockresource is Error) {
-          return left(RewildError(insertStockresource.message!,
-              source: "BackgroundService",
-              name: "_fetchTodayInitialStocksFromServer",
-              args: [cardsWithoutTodayInitStocksIds]);
+        final insertStockEither =
+            await InitialStockDataProvider.insertInBackground(
+                initialStock: stock);
+        final insertStock = insertStockEither.fold((l) => null, (r) => r);
+        if (insertStock == null) {
+          return left(RewildError(
+            "An error occurred: $insertStockEither",
+            source: "BackgroundService",
+            name: "_fetchTodayInitialStocksFromServer",
+            args: [cardsWithoutTodayInitStocksIds],
+          ));
         }
       }
     }

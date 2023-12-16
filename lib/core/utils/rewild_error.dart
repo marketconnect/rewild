@@ -11,5 +11,7 @@ class RewildError {
       this.args,
       this.source,
       this.error,
-      this.stackTrace});
+      this.stackTrace}) {
+    print('$source $name $message');
+  }
 }

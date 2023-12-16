@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fpdart/fpdart.dart' as fp;
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/theme/color_schemes.g.dart';
@@ -13,7 +14,8 @@ abstract class AppNavigation {
 }
 
 abstract class AppMessagesService {
-  Future<Either<RewildError, bool>> isNotEmpty();
+  // State is used in the fpdart library also
+  Future<fp.Either<RewildError, bool>> isNotEmpty();
 }
 
 class App extends StatefulWidget {
@@ -57,8 +59,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         debugPrint("app in resumed");
-        final resource = await widget.appMessagesService.isNotEmpty();
-        if (resource is Success && resource.data!) {
+        final either = await widget.appMessagesService.isNotEmpty();
+        final messagesIsNotEmpty = either.getOrElse((l) => false);
+        if (either.isRight() && messagesIsNotEmpty) {
           if (navigatorKey.currentContext != null &&
               navigatorKey.currentContext!.mounted) {
             Navigator.of(navigatorKey.currentContext!).pushNamed(

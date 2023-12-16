@@ -6,14 +6,18 @@ import 'package:rewild/domain/entities/keyword.dart';
 import 'package:rewild/domain/entities/search_campaign_stat.dart';
 
 abstract class SingleSearchWordsKeywordService {
+  Future<Either<RewildError, String?>> getToken();
   Future<Either<RewildError, SearchCampaignStat>> getSearchCampaignStat(
-      int campaignId);
+      {required String token, required int campaignId});
   Future<Either<RewildError, bool>> setSearchExcluded(
-      int campaignId, List<String> excluded);
+      {required String token,
+      required int campaignId,
+      required List<String> excluded});
 }
 
 abstract class SingleSearchWordsAdvertService {
-  Future<Either<RewildError, Advert>> getAdvert(String apiKey, int campaignId);
+  Future<Either<RewildError, Advert>> getAdvert(
+      {required String token, required int campaignId});
 }
 
 class SingleSearchWordsViewModel extends ResourceChangeNotifier {
@@ -33,9 +37,16 @@ class SingleSearchWordsViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> _update() async {
+    final apiKey = await fetch(() => keywordService.getToken());
+    if (apiKey == null) {
+      return;
+    }
+    setApiKey(apiKey);
     final values = await Future.wait([
-      fetch(() => keywordService.getSearchCampaignStat(campaignId)),
-      fetch(() => advertService.getAdvert(campaignId)),
+      fetch(() => keywordService.getSearchCampaignStat(
+          token: _apiKey!, campaignId: campaignId)),
+      fetch(() =>
+          advertService.getAdvert(token: _apiKey!, campaignId: campaignId)),
     ]);
 
     // Advert Info
@@ -65,6 +76,12 @@ class SingleSearchWordsViewModel extends ResourceChangeNotifier {
     }
     _name = advertInfo.name;
     notify();
+  }
+
+  // Api
+  String? _apiKey;
+  void setApiKey(String apiKey) {
+    _apiKey = apiKey;
   }
 
   // Name
@@ -130,7 +147,11 @@ class SingleSearchWordsViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> save() async {
-    await fetch(() => keywordService.setSearchExcluded(campaignId, _excluded));
+    if (_apiKey == null) {
+      return;
+    }
+    await fetch(() => keywordService.setSearchExcluded(
+        token: _apiKey!, campaignId: campaignId, excluded: _excluded));
   }
 
   // Search functionality

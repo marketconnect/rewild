@@ -5,8 +5,9 @@ import 'package:rewild/presentation/single_card_screen/single_card_screen_view_m
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
 
 abstract class WarehouseServiceWarehouseProvider {
-  Future<Either<RewildError, bool>> update({required List<Warehouse> warehouses});
-  Future<Either<RewildError, String?>> get({required int id}) ;
+  Future<Either<RewildError, bool>> update(
+      {required List<Warehouse> warehouses});
+  Future<Either<RewildError, String?>> get({required int id});
 }
 
 abstract class WarehouseServiceWerehouseApiClient {
@@ -23,45 +24,36 @@ class WarehouseService
       {required this.warehouseProvider, required this.warehouseApiClient});
 
   @override
-  Future<Either<RewildError, Warehouse>> getById(int id) async {
-    final getResource = await warehouseProvider.get(id);
-    if (getResource is Error) {
-      return left(RewildError(getResource.message!,
-          source: runtimeType.toString(), name: "getById", args: [id]);
-    }
-    // warehouse exists
-    if (getResource is Success) {
-      final name = getResource.data!;
-      Warehouse warehouse = Warehouse(
-        id: id,
-        name: name,
-      );
-      return right(warehouse);
-    }
-    // warehouse does`t exist
-    final fetchedWarehusesResource = await warehouseApiClient.getAll();
-    if (fetchedWarehusesResource is Error) {
-      return left(RewildError(fetchedWarehusesResource.message!,
-          source: runtimeType.toString(), name: "getById", args: [id]);
-    }
-    final fetchedWarehouses = fetchedWarehusesResource.data!;
-    final okResource = await warehouseProvider.update(fetchedWarehouses);
-    if (okResource is Error) {
-      return left(RewildError(okResource.message!,
-          source: runtimeType.toString(), name: "getById", args: [id]);
-    }
-    final againGetResource = await warehouseProvider.get(id);
-    if (againGetResource is Error) {
-      return left(RewildError(againGetResource.message!,
-          source: runtimeType.toString(), name: "getById", args: [id]);
-    }
-    // warehouse exists
+  Future<Either<RewildError, Warehouse>> getById({required int id}) async {
+    final getEither = await warehouseProvider.get(id: id);
+    return getEither.fold((l) => left(l), (name) async {
+      // warehouse exists
+      if (name != null) {
+        Warehouse warehouse = Warehouse(
+          id: id,
+          name: name,
+        );
+        return right(warehouse);
+      }
+      // warehouse does`t exist
+      final fetchedWarehusesEither = await warehouseApiClient.getAll();
+      return fetchedWarehusesEither.fold((l) => left(l),
+          (fetchedWarehouses) async {
+        final okEither =
+            await warehouseProvider.update(warehouses: fetchedWarehouses);
+        return okEither.fold((l) => left(l), (ok) async {
+          final againGetEither = await warehouseProvider.get(id: id);
+          return againGetEither.fold((l) => left(l), (name) {
+            // warehouse exists
 
-    final name = againGetResource.data;
-    Warehouse warehouse = Warehouse(
-      id: id,
-      name: name ?? "",
-    );
-    return right(warehouse);
+            Warehouse warehouse = Warehouse(
+              id: id,
+              name: name ?? "",
+            );
+            return right(warehouse);
+          });
+        });
+      });
+    });
   }
 }

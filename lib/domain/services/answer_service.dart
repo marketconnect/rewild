@@ -21,15 +21,15 @@ class AnswerService
   const AnswerService({required this.answerDataProvider});
 
   @override
-  Future<Either<RewildError, bool>> delete(
-    String questionId,
-  ) async {
+  Future<Either<RewildError, bool>> delete({
+    required String questionId,
+  }) async {
     return await answerDataProvider.delete(questionId: questionId);
   }
 
   @override
   Future<Either<RewildError, bool>> insert(
-      String questionId, String answer) async {
+      {required String questionId, required String answer}) async {
     return await answerDataProvider.insert(
         questionId: questionId, answer: answer);
   }

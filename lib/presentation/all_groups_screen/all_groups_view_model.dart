@@ -1,13 +1,14 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/group_model.dart';
 
 abstract class AllGroupsScreenGroupsService {
-  Future<Either<RewildError, List<GroupModel>>> getAll();
-  Future<Either<RewildError, void>> deleteGroup(String groupName);
+  Future<Either<RewildError, List<GroupModel>?>> getAll([List<int>? nmIds]);
+  Future<Either<RewildError, void>> deleteGroup({required String groupName});
   Future<Either<RewildError, void>> renameGroup(
-      String groupName, String newGroupName);
+      {required String groupName, required String newGroupName});
 }
 
 abstract class AllGroupsScreenUpdateService {
@@ -43,13 +44,14 @@ class AllGroupsScreenViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> rename(String oldName, String newName) async {
-    await fetch(() => groupsProvider.renameGroup(oldName, newName));
+    await fetch(() =>
+        groupsProvider.renameGroup(groupName: oldName, newGroupName: newName));
 
     _asyncInit();
   }
 
   Future<void> delete(String name) async {
-    await fetch(() => groupsProvider.deleteGroup(name));
+    await fetch(() => groupsProvider.deleteGroup(groupName: name));
     _asyncInit();
   }
 

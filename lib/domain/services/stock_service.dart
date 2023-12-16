@@ -23,7 +23,8 @@ class StockService
   }
 
   @override
-  Future<Either<RewildError, List<StocksModel>>> get(int nmId) async {
+  Future<Either<RewildError, List<StocksModel>>> get(
+      {required int nmId}) async {
     return stocksDataProvider.get(nmId: nmId);
   }
 }

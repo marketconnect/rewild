@@ -9,8 +9,9 @@ abstract class SingleQuestionViewModelAnswerService {
 }
 
 abstract class SingleQuestionViewModelQuestionService {
+  Future<Either<RewildError, String?>> getApiKey();
   Future<Either<RewildError, bool>> publishQuestion(
-      String apiKey, String id, String answer);
+      {required String token, required String id, required String answer});
 }
 
 class SingleQuestionViewModel extends ResourceChangeNotifier {
@@ -26,6 +27,11 @@ class SingleQuestionViewModel extends ResourceChangeNotifier {
   }
 
   void _asyncInit() async {
+    final apiKey = await fetch(() => questionService.getApiKey());
+    if (apiKey == null) {
+      return;
+    }
+    setApiKey(apiKey);
     // Saved answers
     final answers = await fetch(() => answerService.getAll());
     if (answers == null) {
@@ -33,6 +39,12 @@ class SingleQuestionViewModel extends ResourceChangeNotifier {
     }
     setStoredAnswers(answers);
     notify();
+  }
+
+  // Api key
+  String? _apiKey;
+  void setApiKey(String apiKey) {
+    _apiKey = apiKey;
   }
 
   void setReusedAnswerText(String text) {
@@ -51,8 +63,11 @@ class SingleQuestionViewModel extends ResourceChangeNotifier {
   List<String>? get storedAnswers => _storedAnswers;
 
   Future<void> publish(String text) async {
-    final result =
-        await fetch(() => questionService.publishQuestion(question.id, text));
+    if (_apiKey == null) {
+      return;
+    }
+    final result = await fetch(() => questionService.publishQuestion(
+        token: _apiKey!, id: question.id, answer: text));
     if (result == null) {
       return;
     }

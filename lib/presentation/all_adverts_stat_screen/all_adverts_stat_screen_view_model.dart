@@ -16,11 +16,12 @@ abstract class AllAdvertsStatScreenAdvertService {
   Future<Either<RewildError, List<Advert>>> getAll(
       {required String token, List<int>? types});
   Future<Either<RewildError, String?>> getApiKey();
-  Future<Either<RewildError, int>> getBudget(String apiKey, int campaignId);
+  Future<Either<RewildError, int>> getBudget(
+      {required String token, required int campaignId});
 }
 
 abstract class AllAdvertsStatScreenCardOfProductService {
-  Future<Either<RewildError, String>> getImageForNmId(int id);
+  Future<Either<RewildError, String>> getImageForNmId({required int nmId});
 }
 
 class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
@@ -77,19 +78,17 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
   }
 
   Future _update() async {
-    final resource = await advertService.apiKeyExists();
-    if (resource is Error) {
+    final apiKey = await fetch(() => advertService.getApiKey());
+
+    if (apiKey == null) {
       return;
     }
 
-    setApiKeyExists(resource.data!);
-    if (!apiKeyExists) {
-      return;
-    }
+    setApiKey(apiKey);
     if (!isConnected) {
       return;
     }
-    final adverts = await fetch(() => advertService.getAll());
+    final adverts = await fetch(() => advertService.getAll(token: apiKey));
     if (adverts == null) {
       return;
     }
@@ -174,7 +173,7 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
       List<String> images = [];
       for (final nmId in nmIds) {
         final image = await fetch(
-          () => cardOfProductService.getImageForNmId(nmId),
+          () => cardOfProductService.getImageForNmId(nmId: nmId),
         );
         if (image == null) {
           continue;
@@ -194,8 +193,12 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
     setAdverts(adverts);
 
     notify();
+    if (_apiKey == null) {
+      return;
+    }
     for (final id in campaignIds) {
-      final budget = await fetch(() => advertService.getBudget(id));
+      final budget = await fetch(
+          () => advertService.getBudget(token: _apiKey!, campaignId: id));
       if (budget != null) {
         addBudget(id, budget);
         notify();
@@ -218,12 +221,13 @@ class AllAdvertsStatScreenViewModel extends ResourceChangeNotifier {
   List<Advert> get adverts => _adverts;
 
   // api key
-  bool _apiKeyExists = false;
-  void setApiKeyExists(bool value) {
-    _apiKeyExists = value;
+  String? _apiKey;
+  void setApiKey(String value) {
+    _apiKey = value;
+    notify();
   }
 
-  bool get apiKeyExists => _apiKeyExists;
+  bool get apiKeyExists => _apiKey != null;
 
   // images
   Map<int, List<String>> _image = {};

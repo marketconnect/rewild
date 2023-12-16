@@ -83,12 +83,12 @@ class FilterDataProvider implements AllCardsFilterFilterDataProvider {
   }
 
   @override
-  Future<Either<RewildError, FilterModel?>> get() async {
+  Future<Either<RewildError, FilterModel>> get() async {
     try {
       final db = await SqfliteService().database;
       final result = await db.rawQuery('SELECT * FROM filters');
       if (result.isEmpty) {
-        return right(null);
+        return right(FilterModel.empty());
       }
       Map<int, String> subjects = {};
       Map<int, String> brands = {};

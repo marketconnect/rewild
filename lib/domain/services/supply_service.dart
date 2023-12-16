@@ -17,11 +17,11 @@ class SupplyService
   SupplyService({required this.supplyDataProvider});
 
   @override
-  Future<Either<RewildError, List<SupplyModel>>> getForOne(
+  Future<Either<RewildError, List<SupplyModel>?>> getForOne(
       {required int nmId,
       required DateTime dateFrom,
       required DateTime dateTo}) async {
-    return supplyDataProvider.getForOne(nmId);
+    return supplyDataProvider.getForOne(nmId: nmId);
   }
 
   // Future<Either<RewildError,List<SupplyModel>>> getAll() async {

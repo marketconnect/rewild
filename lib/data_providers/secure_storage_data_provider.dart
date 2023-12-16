@@ -71,7 +71,7 @@ class SecureStorageProvider
     final result = await _read(key: 'token');
     return result.fold((l) => left(l), (r) {
       if (r == null) {
-        return right(null);
+        return right('');
       }
       return right(r);
     });
@@ -103,7 +103,7 @@ class SecureStorageProvider
 
   // Function to get username
   @override
-  Future<Either<RewildError, String>> getUsername() async {
+  Future<Either<RewildError, String?>> getUsername() async {
     // May be deviceId already exists
     final result = await _read(key: 'username');
     return result.fold((l) => left(l), (r) async {

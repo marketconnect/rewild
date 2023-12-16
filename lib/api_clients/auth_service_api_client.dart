@@ -11,7 +11,7 @@ class AuthApiClient implements AuthServiceAuthApiClient {
   const AuthApiClient();
 
   @override
-  Future<Either<RewildError, UserAuthData?>> registerUser(
+  Future<Either<RewildError, UserAuthData>> registerUser(
       {required String username, required String password}) async {
     final channel = ClientChannel(
       AuthApiHelper.grpcHost,
@@ -61,7 +61,7 @@ class AuthApiClient implements AuthServiceAuthApiClient {
   }
 
   @override
-  Future<Either<RewildError, UserAuthData?>> loginUser(
+  Future<Either<RewildError, UserAuthData>> loginUser(
       {required String username, required String password}) async {
     final channel = ClientChannel(AuthApiHelper.grpcHost,
         port: AuthApiHelper.grpcPort,

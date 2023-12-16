@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -7,9 +8,11 @@ import 'package:rewild/domain/entities/notification.dart';
 
 abstract class NotificationAdvertNotificationService {
   Future<Either<RewildError, void>> addForParent(
-      List<ReWildNotificationModel> notifications, int parentId, bool wasEmpty);
+      {required List<ReWildNotificationModel> notifications,
+      required int parentId,
+      required bool wasEmpty});
   Future<Either<RewildError, List<ReWildNotificationModel>>> getForParent(
-      int bnmId);
+      {required int parentId});
 }
 
 class NotificationAdvertState {
@@ -47,8 +50,8 @@ class NotificationAdvertViewModel extends ResourceChangeNotifier {
 
   Future<void> _asyncInit() async {
     SqfliteService.printTableContent('notifications');
-    final savedNotifications =
-        await fetch(() => notificationService.getForParent(state.nmId));
+    final savedNotifications = await fetch(
+        () => notificationService.getForParent(parentId: state.nmId));
     if (savedNotifications == null) {
       return;
     }
@@ -81,9 +84,12 @@ class NotificationAdvertViewModel extends ResourceChangeNotifier {
   Map<int, ReWildNotificationModel> get notifications => _notifications;
 
   Future<void> save() async {
-    final toSave = _notifications.values.toList();
+    final notificationsToSave = _notifications.values.toList();
 
-    await notificationService.addForParent(toSave, state.nmId, _wasEmpty);
+    await notificationService.addForParent(
+        notifications: notificationsToSave,
+        parentId: state.nmId,
+        wasEmpty: _wasEmpty);
 
     if (context.mounted) Navigator.of(context).pop();
   }

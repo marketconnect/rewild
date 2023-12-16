@@ -9,18 +9,18 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 
 // Images
 abstract class AllProductsFeedbackCardOfProductService {
-  Future<Either<RewildError, String>> getImageForNmId(int id);
+  Future<Either<RewildError, String>> getImageForNmId({required int nmId});
 }
 
 // Questions
 abstract class AllProductsFeedbackViewModelQuestionService {
+  Future<Either<RewildError, String?>> getApiKey();
   Future<Either<RewildError, List<QuestionModel>>> getQuestions({
     int? nmId,
-    required String apiKey,
+    required String token,
     required int take,
     required int skip,
   });
-  Future<Either<RewildError, String?>> getApiKey();
 }
 
 // Reviews
@@ -48,14 +48,15 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
   void _asyncInit() async {
     // check api key
-    final exists = await fetch(() => questionService.apiKeyExists());
-    if (exists == null) {
+    // final exists = await fetch(() => questionService.apiKeyExists());
+    // if (exists == null) {
+    //   return;
+    // }
+    final apiKey = await fetch(() => questionService.getApiKey());
+    if (apiKey == null) {
       return;
     }
-    setApiKeyExists(exists);
-    if (!exists) {
-      return;
-    }
+    setApiKey(apiKey);
 
     final _ = await Future.wait([_updateQuestions(), _updateReviews()]);
   }
@@ -105,7 +106,7 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
       // Image
       if (!_images.containsKey(nmId)) {
         final image = await fetch(
-          () => cardOfProductService.getImageForNmId(nmId),
+          () => cardOfProductService.getImageForNmId(nmId: nmId),
         );
         if (image == null) {
           continue;
@@ -178,8 +179,12 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
     // get questions
     List<QuestionModel> allQuestions = [];
     int n = 0;
+    if (_apiKey == null) {
+      return;
+    }
     while (true) {
       final questions = await fetch(() => questionService.getQuestions(
+          token: _apiKey!,
           take: NumericConstants.takeFeedbacksAtOnce,
           skip: NumericConstants.takeFeedbacksAtOnce * n));
       if (questions == null) {
@@ -206,7 +211,7 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
       // Image
       if (!_images.containsKey(nmId)) {
         final image = await fetch(
-          () => cardOfProductService.getImageForNmId(nmId),
+          () => cardOfProductService.getImageForNmId(nmId: nmId),
         );
         if (image == null) {
           continue;
@@ -295,13 +300,13 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   int allQuestionsQty(int nmId) => _allQuestionsQty[nmId] ?? 0;
 
   // ApiKeyExists
-  bool _apiKeyExists = false;
-  void setApiKeyExists(bool value) {
-    _apiKeyExists = value;
+  String? _apiKey;
+  void setApiKey(String value) {
+    _apiKey = value;
     notify();
   }
 
-  bool get apiKeyExists => _apiKeyExists;
+  bool get apiKeyExists => _apiKey != null;
 
   void goTo(int nmId) {
     if (isReviews) {

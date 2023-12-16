@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 
 abstract class AddApiKeysScreenApiKeysService {
-  Future<Either<RewildError, List<ApiKeyModel>>> getAll(List<String> types);
-  Future<Either<RewildError, void>> add(String key, String type);
-  Future<Either<RewildError, void>> deleteApiKey(String apiKeyType);
+  Future<Either<RewildError, List<ApiKeyModel>>> getAll(
+      {required List<String> types});
+  Future<Either<RewildError, void>> add(
+      {required String key, required String type});
+  Future<Either<RewildError, void>> deleteApiKey({required String apiKeyType});
 }
 
 class AddApiKeysScreenViewModel extends ResourceChangeNotifier {
@@ -39,7 +42,8 @@ class AddApiKeysScreenViewModel extends ResourceChangeNotifier {
   List<String> get addedTypes => _addedTypes;
 
   void _asyncInit() async {
-    final fetchedApiKeys = await fetch(() => apiKeysService.getAll(types));
+    final fetchedApiKeys =
+        await fetch(() => apiKeysService.getAll(types: types));
     if (fetchedApiKeys == null) {
       return;
     }
@@ -52,7 +56,7 @@ class AddApiKeysScreenViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> add(String key, String type) async {
-    await fetch(() => apiKeysService.add(key, type));
+    await fetch(() => apiKeysService.add(key: key, type: type));
     if (context.mounted) {
       Navigator.pop(context);
     }
@@ -62,7 +66,8 @@ class AddApiKeysScreenViewModel extends ResourceChangeNotifier {
   Future<void> delete() async {
     for (int index = 0; index < _apiKeys.length; index++) {
       if (_apiKeys[index].isSelected) {
-        await fetch(() => apiKeysService.deleteApiKey(_apiKeys[index].type));
+        await fetch(() =>
+            apiKeysService.deleteApiKey(apiKeyType: _apiKeys[index].type));
       }
     }
 

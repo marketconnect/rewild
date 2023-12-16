@@ -7,7 +7,7 @@ import 'package:rewild/domain/services/group_service.dart';
 class GroupDataProvider implements GroupServiceGroupDataProvider {
   const GroupDataProvider();
   @override
-  Future<Either<RewildError, int>> insert(GroupModel group) async {
+  Future<Either<RewildError, int>> insert({required GroupModel group}) async {
     try {
       final db = await SqfliteService().database;
       for (final nmId in group.cardsNmIds) {
@@ -26,7 +26,7 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
 
   @override
   Future<Either<RewildError, void>> renameGroup(
-      String groupName, String newGroupName) async {
+      {required String groupName, required String newGroupName}) async {
     try {
       final db = await SqfliteService().database;
       await db.rawUpdate(
@@ -43,7 +43,8 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
   }
 
   @override
-  Future<Either<RewildError, void>> delete(String name, [int? nmId]) async {
+  Future<Either<RewildError, void>> delete(
+      {required String name, int? nmId}) async {
     try {
       final db = await SqfliteService().database;
       if (nmId != null) {
@@ -62,7 +63,7 @@ class GroupDataProvider implements GroupServiceGroupDataProvider {
   }
 
   @override
-  Future<Either<RewildError, GroupModel?>> get(String name) async {
+  Future<Either<RewildError, GroupModel?>> get({required String name}) async {
     try {
       final db = await SqfliteService().database;
       final groups =

@@ -32,8 +32,8 @@ class InitialStockService
   // }
 
   @override
-  Future<Either<RewildError, List<InitialStockModel>>> get(int nmId,
-      [DateTime? dateFrom, DateTime? dateTo]) async {
+  Future<Either<RewildError, List<InitialStockModel>>> get(
+      {required int nmId, DateTime? dateFrom, DateTime? dateTo}) async {
     if (dateFrom == null || dateTo == null) {
       dateFrom = yesterdayEndOfTheDay();
       dateTo = DateTime.now();

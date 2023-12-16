@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -15,10 +16,11 @@ abstract class AllReviewsViewModelReviewService {
 }
 
 abstract class AllReviewsViewModelAnswerService {
-  Future<Either<RewildError, bool>> insert(String questionId, String answer);
-  Future<Either<RewildError, bool>> delete(
-    String questionId,
-  );
+  Future<Either<RewildError, bool>> insert(
+      {required String questionId, required String answer});
+  Future<Either<RewildError, bool>> delete({
+    required String questionId,
+  });
 
   Future<Either<RewildError, List<String>>> getAllQuestionsIds();
 }
@@ -159,7 +161,8 @@ class AllReviewsViewModel extends ResourceChangeNotifier {
       _savedAnswersQuestionsIds = [questionId];
     }
     final answerText = answer.text;
-    final ok = await fetch(() => answerService.insert(questionId, answerText));
+    final ok = await fetch(
+        () => answerService.insert(questionId: questionId, answer: answerText));
     if (ok == null) {
       return false;
     }
@@ -173,7 +176,7 @@ class AllReviewsViewModel extends ResourceChangeNotifier {
       _savedAnswersQuestionsIds!.remove(questionId);
     }
 
-    final ok = await fetch(() => answerService.delete(questionId));
+    final ok = await fetch(() => answerService.delete(questionId: questionId));
     if (ok == null) {
       return false;
     }

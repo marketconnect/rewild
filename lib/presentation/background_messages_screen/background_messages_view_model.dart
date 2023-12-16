@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/extensions/date_time.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
@@ -9,11 +10,13 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 
 abstract class BackgroundMessagesBackgroundMessageService {
   Future<Either<RewildError, List<BackgroundMessage>>> getAll();
-  Future<Either<RewildError, bool>> delete(int id, int subject, int condition);
+  Future<Either<RewildError, bool>> delete(
+      {required int id, required int subject, required int condition});
 }
 
 abstract class BackgroundMessagesNotificationService {
-  Future<Either<RewildError, bool>> delete(int id, int condition);
+  Future<Either<RewildError, bool>> delete(
+      {required int id, required int condition});
 }
 
 class BackgroundMessagesViewModel extends ResourceChangeNotifier {
@@ -122,14 +125,15 @@ class BackgroundMessagesViewModel extends ResourceChangeNotifier {
       required int id,
       required int subject,
       required int condition}) async {
-    final resource =
-        await fetch(() => notificationService.delete(id, condition));
+    final resource = await fetch(
+        () => notificationService.delete(id: id, condition: condition));
 
     if (resource == null) {
       return;
     }
 
-    final ok = await fetch(() => messageService.delete(id, subject, condition));
+    final ok = await fetch(() =>
+        messageService.delete(id: id, subject: subject, condition: condition));
     if (ok == null) {
       return;
     }

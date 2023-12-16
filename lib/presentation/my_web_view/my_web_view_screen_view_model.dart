@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 
@@ -7,7 +8,8 @@ import 'package:rewild/domain/entities/card_of_product_model.dart';
 
 abstract class MyWebViewScreenViewModelUpdateService {
   Future<Either<RewildError, int>> insert(
-      String token, List<CardOfProductModel> cards);
+      {required String token,
+      required List<CardOfProductModel> cardOfProductsToInsert});
 }
 
 abstract class MyWebViewScreenViewModelTokenProvider {
@@ -37,32 +39,42 @@ class MyWebViewScreenViewModel extends ResourceChangeNotifier {
     if (jsonString.isEmpty) {
       return 0;
     }
-    final cardsListResource = _parseCards(jsonString);
-    if (cardsListResource is Error) {
-      errorMessage = cardsListResource.message;
+    final cardsListEither = _parseCards(jsonString);
+    if (cardsListEither.isLeft()) {
+      errorMessage = cardsListEither.fold(
+          (l) => l.message, (r) => throw UnimplementedError());
       isLoading = false;
       notify();
       return 0;
     }
+    // if (cardsListResource is Error) {
+    //   errorMessage = cardsListResource.message;
+    //   isLoading = false;
+    //   notify();
+    //   return 0;
+    // }
 
-    final cardsList = cardsListResource.data!;
+    final cardsList =
+        cardsListEither.fold((l) => throw UnimplementedError(), (r) => r);
 
     // get token
-    final tokenResource = await tokenProvider.getToken();
-    if (tokenResource is Error) {
-      errorMessage = tokenResource.message;
+    final tokenEither = await tokenProvider.getToken();
+    if (tokenEither.isLeft()) {
+      errorMessage =
+          tokenEither.fold((l) => l.message, (r) => throw UnimplementedError());
 
       isLoading = false;
       notify();
     }
 
-    if (tokenResource is Success) {
-      final token = tokenResource.data!;
-      final resource = await updateService.insert(token, cardsList);
-      if (resource is Success) {
+    final token = tokenEither.fold((l) => null, (r) => r);
+    if (tokenEither.isRight() && token != null) {
+      final insertEither = await updateService.insert(
+          token: token, cardOfProductsToInsert: cardsList);
+      if (insertEither.isRight()) {
         isLoading = false;
         notify();
-        return resource.data!;
+        return insertEither.fold((l) => 0, (r) => r);
       }
     }
 
@@ -84,7 +96,7 @@ class MyWebViewScreenViewModel extends ResourceChangeNotifier {
       return left(RewildError(e.toString(),
           source: runtimeType.toString(),
           name: "_parseCards",
-          args: [jsonString]);
+          args: [jsonString]));
     }
   }
 }

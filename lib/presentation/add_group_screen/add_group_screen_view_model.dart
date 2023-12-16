@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/color.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -7,9 +8,10 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:flutter/material.dart';
 
 abstract class AddGroupScreenGroupsService {
-  Future<Either<RewildError, List<GroupModel>>> getAll();
+  Future<Either<RewildError, List<GroupModel>?>> getAll([List<int>? nmIds]);
   Future<Either<RewildError, void>> add(
-      List<GroupModel> groups, List<int> productsCardsNmIds);
+      {required List<GroupModel> groups,
+      required List<int> productsCardsNmIds});
 }
 
 class AddGroupScreenViewModel extends ResourceChangeNotifier {
@@ -25,16 +27,12 @@ class AddGroupScreenViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> asyncInit() async {
-    final groupsResource = await groupsProvider.getAll();
-    if (groupsResource is Error) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(groupsResource.message!),
-      ));
+    final groupsResource = await fetch(() => groupsProvider.getAll());
+    if (groupsResource == null) {
       return;
     }
 
-    _groups = groupsResource.data!;
+    _groups = groupsResource;
     notify();
   }
 
@@ -78,7 +76,8 @@ class AddGroupScreenViewModel extends ResourceChangeNotifier {
       final groupsToAdd = _groups.where((element) {
         return selectedGroupsNames.contains(element.name);
       }).toList();
-      await groupsProvider.add(groupsToAdd, productsCardsIds);
+      await groupsProvider.add(
+          groups: groupsToAdd, productsCardsNmIds: productsCardsIds);
     }
 
     if (context.mounted) {

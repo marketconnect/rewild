@@ -10,20 +10,23 @@ import 'package:rewild/presentation/single_search_words_screen/single_search_wor
 
 // Api key
 abstract class KeywordsServiceApiKeyDataProvider {
-  Future<Either<RewildError, ApiKeyModel?>> getApiKey(
-      {required String type});
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey({required String type});
 }
 
 // api client
 abstract class KeywordsServiceAdvertApiClient {
   Future<Either<RewildError, AutoCampaignStatWord>> autoStatWords(
-      String token, int campaignId);
+      {required String token, required int campaignId});
   Future<Either<RewildError, SearchCampaignStat>> getSearchStat(
-      String token, int campaignId);
+      {required String token, required int campaignId});
   Future<Either<RewildError, bool>> setAutoSetExcluded(
-      {required String token, required  int campaignId, required  List<String> excludedKw});
+      {required String token,
+      required int campaignId,
+      required List<String> excludedKw});
   Future<Either<RewildError, bool>> setSearchExcludedKeywords(
-      {required String token,required int campaignId, required List<String> excludedKeywords});
+      {required String token,
+      required int campaignId,
+      required List<String> excludedKeywords});
 }
 
 // data provider
@@ -44,252 +47,179 @@ class KeywordsService
   });
 
   @override
+  Future<Either<RewildError, String?>> getToken() async {
+    final tokenEither =
+        await apiKeysDataProvider.getApiKey(type: 'Продвижение');
+
+    return tokenEither.fold((l) => left(l), (apiKeyModel) async {
+      if (apiKeyModel == null) {
+        return right(null);
+      }
+      return right(apiKeyModel.token);
+    });
+  }
+
+  @override
   Future<Either<RewildError, bool>> setAutoExcluded(
-      int campaignId, List<String> excluded) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
-    if (tokenResource is Error) {
-      return left(RewildError(tokenResource.message!,
-          source: runtimeType.toString(),
-          name: 'setAutoExcluded',
-          args: [campaignId, excluded]);
-    }
-    if (tokenResource is Empty) {
-      return right(null);
-    }
+      {required String token,
+      required int campaignId,
+      required List<String> excluded}) async {
+    // TODO "Продвижение"
 
-    final autoExcludedResource = await advertApiClient.setAutoSetExcluded(
-        tokenResource.data!.token, campaignId, excluded);
-
-    if (autoExcludedResource is Error) {
-      return left(RewildError(autoExcludedResource.message!,
-          source: runtimeType.toString(),
-          name: 'setAutoExcluded',
-          args: [campaignId, excluded]);
-    }
-    return right(autoExcludedResource.data!);
+    final autoExcludedEither = await advertApiClient.setAutoSetExcluded(
+        token: token, campaignId: campaignId, excludedKw: excluded);
+    return autoExcludedEither.fold((l) => left(l), (r) => right(r));
   }
 
   @override
   Future<Either<RewildError, AutoCampaignStatWord>> getAutoStatWords(
-      int campaignId) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
-    if (tokenResource is Error) {
-      return left(RewildError(tokenResource.message!,
-          source: runtimeType.toString(),
-          name: 'getAutoStatWords',
-          args: [campaignId]);
-    }
-    if (tokenResource is Empty) {
-      return right(null);
-    }
-
+      {required String token, required int campaignId}) async {
     // get current auto stat from API
-    final currentAutoStatResource = await advertApiClient.autoStatWords(
-      tokenResource.data!.token,
-      campaignId,
-    );
-    if (currentAutoStatResource is Error) {
-      return left(RewildError(currentAutoStatResource.message!,
-          source: runtimeType.toString(),
-          name: 'getAutoStatWords',
-          args: [campaignId]);
-    }
+    final currentAutoStatEither = await advertApiClient.autoStatWords(
+        token: token, campaignId: campaignId);
 
-    // get saved auto stat from DB
-    final keywordsResource = await keywordsDataProvider.getAll(campaignId);
-    if (keywordsResource is Error) {
-      return left(RewildError(keywordsResource.message!,
-          source: runtimeType.toString(),
-          name: 'getAutoStatWords',
-          args: [campaignId]);
-    }
+    return currentAutoStatEither.fold((l) => left(l), (autoStat) async {
+      // get saved auto stat from DB
+      final keywordsEither = await keywordsDataProvider.getAll(campaignId);
+      return keywordsEither.fold((l) => left(l), (keywords) async {
+        final currentKeywords = autoStat.keywords
+            .map((e) => Keyword(
+                  keyword: e.keyword,
+                  count: e.count,
+                  campaignId: campaignId,
+                ))
+            .toList();
+        final savedKeywords = keywords
+            .map((e) => Keyword(
+                  keyword: e.keyword,
+                  count: e.count,
+                  campaignId: campaignId,
+                ))
+            .toList();
 
-    final autoStat = currentAutoStatResource.data!;
+        List<Keyword> newKeywords = [];
+        for (var keyword in currentKeywords) {
+          // the keyword does not exist in DB
+          if (!savedKeywords.any((e) => e.keyword == keyword.keyword)) {
+            newKeywords.add(keyword);
+            // save in database
+            final saveEither = await keywordsDataProvider.save(keyword);
+            if (saveEither.isLeft()) {
+              return Left(saveEither.fold(
+                  (err) => err, (r) => throw UnimplementedError()));
+            }
+            continue;
+          }
 
-    final currentKeywords = autoStat.keywords
-        .map((e) => Keyword(
-              keyword: e.keyword,
-              count: e.count,
-              campaignId: campaignId,
-            ))
-        .toList();
+          // keyword exists in DB
+          keyword.setNotNew();
+          final savedKeyword =
+              savedKeywords.firstWhere((e) => e.keyword == keyword.keyword);
 
-    final savedKeywords = keywordsResource.data!
-        .map((e) => Keyword(
-              keyword: e.keyword,
-              count: e.count,
-              campaignId: campaignId,
-            ))
-        .toList();
+          // saved keyword count is different
+          if (savedKeyword.count != keyword.count) {
+            // set diff property
+            keyword.setDiff(savedKeyword.count);
+            // update in database
+            final saveEither = await keywordsDataProvider.save(keyword);
+            if (saveEither.isLeft()) {
+              return Left(saveEither.fold(
+                  (err) => err, (r) => throw UnimplementedError()));
+            }
+            continue;
+          }
 
-    List<Keyword> newKeywords = [];
-    for (var keyword in currentKeywords) {
-      // the keyword does not exist in DB
-      if (!savedKeywords.any((e) => e.keyword == keyword.keyword)) {
-        newKeywords.add(keyword);
-        // save in database
-        final saveResource = await keywordsDataProvider.save(keyword);
-        if (saveResource is Error) {
-          return left(RewildError(saveResource.message!,
-              source: runtimeType.toString(),
-              name: 'getAutoStatWords',
-              args: [campaignId]);
+          newKeywords.add(keyword);
         }
-        continue;
-      }
+        final newAutoStat = autoStat.copyWith(keywords: newKeywords);
 
-      // keyword exists in DB
-      keyword.setNotNew();
-      final savedKeyword =
-          savedKeywords.firstWhere((e) => e.keyword == keyword.keyword);
-
-      // saved keyword count is different
-      if (savedKeyword.count != keyword.count) {
-        // set diff property
-        keyword.setDiff(savedKeyword.count);
-        // update in database
-        final saveResource = await keywordsDataProvider.save(keyword);
-        if (saveResource is Error) {
-          return left(RewildError(saveResource.message!,
-              source: runtimeType.toString(),
-              name: 'getAutoStatWords',
-              args: [campaignId]);
-        }
-      }
-
-      newKeywords.add(keyword);
-    }
-
-    final newAutoStat = autoStat.copyWith(keywords: newKeywords);
-
-    return right(newAutoStat);
+        return right(newAutoStat);
+      });
+    });
   }
 
   // search
   @override
   Future<Either<RewildError, bool>> setSearchExcluded(
-      int campaignId, List<String> excluded) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
-    if (tokenResource is Error) {
-      return left(RewildError(tokenResource.message!,
-          source: runtimeType.toString(),
-          name: 'setAutoExcluded',
-          args: [campaignId, excluded]);
-    }
-    if (tokenResource is Empty) {
-      return right(null);
-    }
-
-    final searchExcludedResource =
+      {required String token,
+      required int campaignId,
+      required List<String> excluded}) async {
+    final searchExcludedEither =
         await advertApiClient.setSearchExcludedKeywords(
-            tokenResource.data!.token, campaignId, excluded);
-
-    if (searchExcludedResource is Error) {
-      return left(RewildError(searchExcludedResource.message!,
-          source: runtimeType.toString(),
-          name: 'setAutoExcluded',
-          args: [campaignId, excluded]);
-    }
-    return right(searchExcludedResource.data!);
+            token: token, campaignId: campaignId, excludedKeywords: excluded);
+    return searchExcludedEither.fold((l) => left(l), (r) => right(r));
   }
 
   @override
   Future<Either<RewildError, SearchCampaignStat>> getSearchCampaignStat(
-      int campaignId) async {
-    final tokenResource = await apiKeysDataProvider.getApiKey('Продвижение');
-    if (tokenResource is Error) {
-      return left(RewildError(tokenResource.message!,
-          source: runtimeType.toString(),
-          name: 'getSearchCampaignStat',
-          args: [campaignId]);
-    }
-    if (tokenResource is Empty) {
-      return right(null);
-    }
-
+      {required String token, required int campaignId}) async {
     // get current auto stat from API
-    final currentSearchStatResource = await advertApiClient.getSearchStat(
-      tokenResource.data!.token,
-      campaignId,
+    final currentSearchStatEither = await advertApiClient.getSearchStat(
+      token: token,
+      campaignId: campaignId,
     );
-    if (currentSearchStatResource is Error) {
-      return left(RewildError(currentSearchStatResource.message!,
-          source: runtimeType.toString(),
-          name: 'getSearchCampaignStat',
-          args: [campaignId]);
-    }
+    return currentSearchStatEither.fold((l) => left(l), (searchStat) async {
+      final keywordsEither = await keywordsDataProvider.getAll(campaignId);
 
-    // get saved auto stat from DB
-    final keywordsResource = await keywordsDataProvider.getAll(campaignId);
-    if (keywordsResource is Error) {
-      return left(RewildError(keywordsResource.message!,
-          source: runtimeType.toString(),
-          name: 'getSearchCampaignStat',
-          args: [campaignId]);
-    }
+      return keywordsEither.fold((l) => left(l), (keywords) async {
+        final currentKeywords = searchStat.words.keywords
+            .map((e) => Keyword(
+                  keyword: e.keyword,
+                  count: e.count,
+                  campaignId: campaignId,
+                ))
+            .toList();
+        final savedKeywords = keywords
+            .map((e) => Keyword(
+                  keyword: e.keyword,
+                  count: e.count,
+                  campaignId: campaignId,
+                ))
+            .toList();
 
-    final searchStat = currentSearchStatResource.data!;
+        List<Keyword> newKeywords = [];
+        for (var keyword in currentKeywords) {
+          // the keyword does not exist in DB
+          if (!savedKeywords.any((e) => e.keyword == keyword.keyword)) {
+            newKeywords.add(keyword);
+            // save in database
+            final saveEither = await keywordsDataProvider.save(keyword);
+            if (saveEither.isLeft()) {
+              return Left(saveEither.fold(
+                  (err) => err, (r) => throw UnimplementedError()));
+            }
 
-    final currentKeywords = searchStat.words.keywords
-        .map((e) => Keyword(
-              keyword: e.keyword,
-              count: e.count,
-              campaignId: campaignId,
-            ))
-        .toList();
+            continue;
+          }
 
-    final savedKeywords = keywordsResource.data!
-        .map((e) => Keyword(
-              keyword: e.keyword,
-              count: e.count,
-              campaignId: campaignId,
-            ))
-        .toList();
+          // keyword exists in DB
+          keyword.setNotNew();
+          final savedKeyword =
+              savedKeywords.firstWhere((e) => e.keyword == keyword.keyword);
 
-    List<Keyword> newKeywords = [];
-    for (var keyword in currentKeywords) {
-      // the keyword does not exist in DB
-      if (!savedKeywords.any((e) => e.keyword == keyword.keyword)) {
-        newKeywords.add(keyword);
-        // save in database
-        final saveResource = await keywordsDataProvider.save(keyword);
-        if (saveResource is Error) {
-          return left(RewildError(saveResource.message!,
-              source: runtimeType.toString(),
-              name: 'getSearchCampaignStat',
-              args: [campaignId]);
+          // saved keyword count is different
+          if (savedKeyword.count != keyword.count) {
+            // set diff property
+            keyword.setDiff(savedKeyword.count);
+            // update in database
+            final saveEither = await keywordsDataProvider.save(keyword);
+            if (saveEither.isLeft()) {
+              return Left(saveEither.fold(
+                  (err) => err, (r) => throw UnimplementedError()));
+            }
+          }
+
+          newKeywords.add(keyword);
         }
-        continue;
-      }
 
-      // keyword exists in DB
-      keyword.setNotNew();
-      final savedKeyword =
-          savedKeywords.firstWhere((e) => e.keyword == keyword.keyword);
+        final oldWords = searchStat.words;
 
-      // saved keyword count is different
-      if (savedKeyword.count != keyword.count) {
-        // set diff property
-        keyword.setDiff(savedKeyword.count);
-        // update in database
-        final saveResource = await keywordsDataProvider.save(keyword);
-        if (saveResource is Error) {
-          return left(RewildError(saveResource.message!,
-              source: runtimeType.toString(),
-              name: 'getSearchCampaignStat',
-              args: [campaignId]);
-        }
-      }
+        final newWords = oldWords.copyWith(keywords: newKeywords);
 
-      newKeywords.add(keyword);
-    }
+        final newSearchStat = searchStat.copyWith(words: newWords);
 
-    final oldWords = searchStat.words;
-
-    final newWords = oldWords.copyWith(keywords: newKeywords);
-
-    final newSearchStat = searchStat.copyWith(words: newWords);
-
-    return right(newSearchStat);
+        return right(newSearchStat);
+      });
+    });
   }
 }

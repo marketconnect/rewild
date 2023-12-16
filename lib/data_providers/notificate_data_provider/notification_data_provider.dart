@@ -10,29 +10,29 @@ class NotificationDataProvider
 
   @override
   Future<Either<RewildError, bool>> save(
-      ReWildNotificationModel notificate) async {
+      {required ReWildNotificationModel notification}) async {
     try {
       final db = await SqfliteService().database;
       final id = await db.rawInsert(
           "INSERT INTO notifications (parentId, condition, value, sizeId, wh, reusable) VALUES (?, ?, ?, ?, ?, ?)",
           [
-            notificate.parentId,
-            notificate.condition,
-            notificate.value,
-            notificate.sizeId,
-            notificate.wh,
-            notificate.reusable
+            notification.parentId,
+            notification.condition,
+            notification.value,
+            notification.sizeId,
+            notification.wh,
+            notification.reusable
           ]);
       return right(id > 0);
     } catch (e) {
       return left(RewildError(e.toString(),
-          source: runtimeType.toString(), name: "save", args: [notificate]));
+          source: runtimeType.toString(), name: "save", args: [notification]));
     }
   }
 
   @override
   Future<Either<RewildError, List<ReWildNotificationModel>>> getForParent(
-      int parentId) async {
+      {required int parentId}) async {
     try {
       final db = await SqfliteService().database;
       final notificates = await db.rawQuery(
@@ -69,7 +69,7 @@ class NotificationDataProvider
   }
 
   @override
-  Future<Either<RewildError, int>> deleteAll(int parentId) async {
+  Future<Either<RewildError, int>> deleteAll({required int parentId}) async {
     try {
       final db = await SqfliteService().database;
       final numberOfChangesMade =
@@ -84,8 +84,10 @@ class NotificationDataProvider
   }
 
   @override
-  Future<Either<RewildError, bool>> delete(int parentId, int condition,
-      [bool? reusableAlso]) async {
+  Future<Either<RewildError, bool>> delete(
+      {required int parentId,
+      required int condition,
+      bool? reusableAlso}) async {
     try {
       final db = await SqfliteService().database;
       if (reusableAlso == true) {
@@ -150,7 +152,7 @@ class NotificationDataProvider
   }
 
   @override
-  Future<Either<RewildError, bool>> checkForParent(int id) async {
+  Future<Either<RewildError, bool>> checkForParent({required int id}) async {
     try {
       final db = await SqfliteService().database;
       final notifications = await db

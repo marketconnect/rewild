@@ -10,7 +10,8 @@ abstract class CommissionServiceCommissionApiClient {
 
 abstract class CommissionServiceCommissionDataProvider {
   Future<Either<RewildError, CommissionModel?>> get({required int id});
-  Future<Either<RewildError, void>> insert({required CommissionModel commission});
+  Future<Either<RewildError, void>> insert(
+      {required CommissionModel commission});
 }
 
 class CommissionService
@@ -25,31 +26,26 @@ class CommissionService
       required this.commissionDataProvider});
 
   @override
-  Future<Either<RewildError, CommissionModel>> get(int id) async {
+  Future<Either<RewildError, CommissionModel>> get({required int id}) async {
     // get from local db
-    final commissionResource = await commissionDataProvider.get(id);
-    if (commissionResource is Error) {
-      return left(RewildError(commissionResource.message!,
-          source: runtimeType.toString(), name: 'get', args: [id]);
-    }
-    if (commissionResource is Success) {
-      return commissionResource;
-    }
-    // not found in local db
-    // get from server
-    final commissionFromServerResource = await commissionApiClient.get(id);
-    if (commissionFromServerResource is Error) {
-      return left(RewildError(commissionFromServerResource.message!,
-          source: runtimeType.toString(), name: 'get', args: [id]);
-    }
-
-    // save to local db
-    final saveResource =
-        await commissionDataProvider.insert(commissionFromServerResource.data!);
-    if (saveResource is Error) {
-      return left(RewildError(saveResource.message!,
-          source: runtimeType.toString(), name: 'get', args: [id]);
-    }
-    return right(commissionFromServerResource.data!);
+    final commissionEither = await commissionDataProvider.get(id: id);
+    return commissionEither.fold((l) => left(l), (r) async {
+      if (r == null) {
+        // not found in local db
+        // get from server
+        final commissionFromServerEither =
+            await commissionApiClient.get(id: id);
+        return commissionFromServerEither.fold((l) => left(l),
+            (commision) async {
+          // save to local db
+          final saveEither =
+              await commissionDataProvider.insert(commission: commision);
+          return saveEither.fold((l) => left(l), (r) {
+            return right(commision);
+          });
+        });
+      }
+      return right(r);
+    });
   }
 }

@@ -8,12 +8,13 @@ import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/advert_search_model.dart';
 
 abstract class AllAdvertsWordsAdvertService {
+  Future<Either<RewildError, String?>> getApiKey();
   Future<Either<RewildError, List<Advert>>> getAll(
       {required String token, List<int>? types});
 }
 
 abstract class AllAdvertsWordsScreenCardOfProductService {
-  Future<Either<RewildError, String>> getImageForNmId(int id);
+  Future<Either<RewildError, String>> getImageForNmId({required int nmId});
 }
 
 class AllAdvertsWordsViewModel extends ResourceChangeNotifier {
@@ -27,9 +28,52 @@ class AllAdvertsWordsViewModel extends ResourceChangeNotifier {
     _asyncInit();
   }
 
+  // apiKey
+  String? _apiKey;
+  void setApiKey(String value) {
+    _apiKey = value;
+  }
+
+  // adverts
+  late List<Advert> _adverts = [];
+  void setAdverts(List<Advert> value) {
+    _adverts = value;
+  }
+
+  List<Advert> get adverts => _adverts;
+
+  Map<int, List<String>> subjects = {};
+
+  void addSubject(int id, String value) {
+    if (subjects[id] == null) {
+      subjects[id] = [];
+    }
+    subjects[id]!.add(value);
+  }
+
+  // images
+  Map<int, String> _image = {};
+  void setImage(Map<int, String> value) {
+    _image = value;
+  }
+
+  void addImage(int advId, String value) {
+    _image[advId] = value;
+  }
+
+  String image(int advId) {
+    return _image[advId] ?? "";
+  }
+
   void _asyncInit() async {
-    final adverts = await fetch(() => advertService
-        .getAll([AdvertTypeConstants.inSearch, AdvertTypeConstants.auto]));
+    final apiKey = await fetch(() => advertService.getApiKey());
+    if (apiKey == null) {
+      return;
+    }
+    setApiKey(apiKey);
+    final adverts = await fetch(() => advertService.getAll(
+        token: _apiKey!,
+        types: [AdvertTypeConstants.inSearch, AdvertTypeConstants.auto]));
     if (adverts == null) {
       return;
     }
@@ -70,7 +114,7 @@ class AllAdvertsWordsViewModel extends ResourceChangeNotifier {
       }
 
       final image = await fetch(
-        () => cardOfProductService.getImageForNmId(nmIds.first),
+        () => cardOfProductService.getImageForNmId(nmId: nmIds.first),
       );
       if (image == null) {
         continue;
@@ -83,36 +127,5 @@ class AllAdvertsWordsViewModel extends ResourceChangeNotifier {
 
       notify();
     }
-  }
-
-  // adverts
-  late List<Advert> _adverts = [];
-  void setAdverts(List<Advert> value) {
-    _adverts = value;
-  }
-
-  List<Advert> get adverts => _adverts;
-
-  Map<int, List<String>> subjects = {};
-
-  void addSubject(int id, String value) {
-    if (subjects[id] == null) {
-      subjects[id] = [];
-    }
-    subjects[id]!.add(value);
-  }
-
-  // images
-  Map<int, String> _image = {};
-  void setImage(Map<int, String> value) {
-    _image = value;
-  }
-
-  void addImage(int advId, String value) {
-    _image[advId] = value;
-  }
-
-  String image(int advId) {
-    return _image[advId] ?? "";
   }
 }

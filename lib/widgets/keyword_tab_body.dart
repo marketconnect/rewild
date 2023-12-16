@@ -77,12 +77,16 @@ class _CardsListState extends State<_CardsList> {
   }
 
   void _loadItems([int? qty]) {
+    print('object$_loadItems');
     if (_loadedItems >= widget.content.length) {
+      print("1 ${_loadedItems} ${widget.content.length}");
       return;
     }
 
     setState(() {});
+    print("2");
     if (searchQuery != "") {
+      print("3");
       setState(() {
         _displayedContent = widget.content
             .where((item) =>
@@ -92,15 +96,18 @@ class _CardsListState extends State<_CardsList> {
       });
       return;
     }
+    print("4");
     final perLoad = qty ?? _itemsPerLoad;
     final int endIndex = _loadedItems + perLoad;
-
+    print("5");
     if (endIndex < widget.content.length) {
+      print("6");
       setState(() {
         _displayedContent = widget.content.sublist(0, endIndex);
         _loadedItems = endIndex;
       });
     } else {
+      print("7");
       setState(() {
         _displayedContent = widget.content;
         _loadedItems = widget.content.length;
@@ -125,6 +132,8 @@ class _CardsListState extends State<_CardsList> {
       searchQuery = newSearchQuery;
       _loadItems();
     }
+
+    print('qaqaqaq ${_displayedContent.length} ${widget.content.length}');
 
     return Stack(children: [
       SingleChildScrollView(

@@ -71,19 +71,6 @@ class AdvertService
 
   static final keyType = StringConstants.apiKeyTypes[ApiKeyType.promo] ?? "";
 
-  // Function to check if api key exists
-  // @override
-  // Future<Either<RewildError, bool>> apiKeyExists() async {
-  //   final result = await apiKeysDataProvider.getApiKey(keyType);
-  //   return result.fold((l) => left(l), (r) {
-  //     if (r == null) {
-  //       return right(false);
-  //     }
-  //     return right(true);
-  //   });
-
-  // }
-
   // Function to get token string
   @override
   Future<Either<RewildError, String?>> getApiKey() async {
@@ -99,7 +86,7 @@ class AdvertService
 
   // Function to get ballance with token
   @override
-  Future<Either<RewildError, int?>> getBallance(String token) async {
+  Future<Either<RewildError, int?>> getBallance({required String token}) async {
     final balanceResult = await advertApiClient.balance(token: token);
 
     return balanceResult.fold((l) => left(l), (r) {
@@ -110,7 +97,7 @@ class AdvertService
   // Function to get budget of a campaign by id
   @override
   Future<Either<RewildError, int>> getBudget(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     final result = await advertApiClient.getCompanyBudget(
         token: token, campaignId: campaignId);
     return result;
@@ -172,7 +159,7 @@ class AdvertService
 
   @override
   Future<Either<RewildError, Advert>> getAdvert(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     final advInfoResult =
         await advertApiClient.getAdverts(token: token, ids: [campaignId]);
     return advInfoResult.fold((l) => left(l), (r) {
@@ -258,7 +245,7 @@ class AdvertService
 
   @override
   Future<Either<RewildError, bool>> stopAdvert(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     final result = await _tryChangeAdvertStatus(
       token: token,
       campaignId: campaignId,

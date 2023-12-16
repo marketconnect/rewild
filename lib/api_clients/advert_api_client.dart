@@ -346,7 +346,7 @@ class AdvertApiClient
 
   @override
   Future<Either<RewildError, AutoCampaignStatWord>> autoStatWords(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     try {
       final params = {'id': campaignId.toString()};
       // final uri =
@@ -383,7 +383,7 @@ class AdvertApiClient
 
   @override
   Future<Either<RewildError, SearchCampaignStat>> getSearchStat(
-      String token, int campaignId) async {
+      {required String token, required int campaignId}) async {
     try {
       final params = {'id': campaignId.toString()};
       // final uri = Uri.https('advert-api.wb.ru', "/adv/v1/stat/words", params);
@@ -523,33 +523,40 @@ class AdvertApiClient
         final stats = json.decode(utf8.decode(response.bodyBytes));
         List<Advert> res = [];
         for (final stat in stats) {
+          final advStatus = stat['status'];
+
+          if (advStatus != AdvertStatusConstants.active &&
+              advStatus != AdvertStatusConstants.paused) {
+            continue;
+          }
           final advType = stat['type'];
 
           switch (advType) {
             case AdvertTypeConstants.inCatalog:
               // catalog
-              res.add(AdvertCatalogueModel.fromJson(stats));
+              res.add(AdvertCatalogueModel.fromJson(stat));
             case AdvertTypeConstants.inCard:
               // card
-              res.add(AdvertCardModel.fromJson(stats));
+              res.add(AdvertCardModel.fromJson(stat));
             case AdvertTypeConstants.inSearch:
               // search
-              res.add(AdvertSearchModel.fromJson(stats));
+              res.add(AdvertSearchModel.fromJson(stat));
             case AdvertTypeConstants.inRecomendation:
               // recomendation
-              res.add(AdvertRecomendaionModel.fromJson(stats));
+
+              res.add(AdvertRecomendaionModel.fromJson(stat));
             case AdvertTypeConstants.auto:
               // auto
-              res.add(AdvertAutoModel.fromJson(stats));
+              res.add(AdvertAutoModel.fromJson(stat));
             case AdvertTypeConstants.searchPlusCatalog:
               // search+catalogue
-              res.add(AdvertSearchPlusCatalogueModel.fromJson(stats));
+              res.add(AdvertSearchPlusCatalogueModel.fromJson(stat));
 
             default:
               return left(RewildError(
                 "Неизвестный тип кампании: $advType",
                 source: runtimeType.toString(),
-                name: "getCampaignInfo",
+                name: "getAdverts",
                 args: [token, ids],
               ));
           }
@@ -562,7 +569,7 @@ class AdvertApiClient
         return left(RewildError(
           errString,
           source: runtimeType.toString(),
-          name: "getCampaignInfo",
+          name: "getAdverts",
           args: [token, ids],
         ));
       }
@@ -570,7 +577,7 @@ class AdvertApiClient
       return left(RewildError(
         "Неизвестная ошибка: $e",
         source: runtimeType.toString(),
-        name: "getCampaignInfo",
+        name: "getAdverts",
         args: [token, ids],
       ));
     }

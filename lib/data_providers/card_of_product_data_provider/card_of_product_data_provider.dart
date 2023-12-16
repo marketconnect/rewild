@@ -129,18 +129,19 @@ class CardOfProductDataProvider
   }
 
   @override
-  Future<Either<RewildError, CardOfProductModel>> get({required int id}) async {
+  Future<Either<RewildError, CardOfProductModel>> get(
+      {required int nmId}) async {
     try {
       final db = await SqfliteService().database;
       final card =
-          await db.rawQuery('SELECT * FROM cards WHERE nmId = ?', [id]);
+          await db.rawQuery('SELECT * FROM cards WHERE nmId = ?', [nmId]);
       return right(CardOfProductModel.fromMap(card.first));
     } catch (e) {
       return left(RewildError(
         e.toString(),
         source: runtimeType.toString(),
         name: "get",
-        args: [id],
+        args: [nmId],
       ));
     }
   }

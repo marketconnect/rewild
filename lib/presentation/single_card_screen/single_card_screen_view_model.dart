@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 
@@ -25,38 +26,38 @@ abstract class SingleCardScreenCardOfProductService {
 
 // warehouse
 abstract class SingleCardScreenWarehouseService {
-  Future<Either<RewildError, Warehouse?>> getById(int id);
+  Future<Either<RewildError, Warehouse?>> getById({required int id});
 }
 
 // initial stock
 abstract class SingleCardScreenInitialStockService {
-  Future<Either<RewildError, List<InitialStockModel>>> get(int nmId,
-      [DateTime? dateFrom, DateTime? dateTo]);
+  Future<Either<RewildError, List<InitialStockModel>>> get(
+      {required int nmId, DateTime? dateFrom, DateTime? dateTo});
 }
 
 // stock
 abstract class SingleCardScreenStockService {
-  Future<Either<RewildError, List<StocksModel>>> get(int nmId);
+  Future<Either<RewildError, List<StocksModel>>> get({required int nmId});
 }
 
 // seller
 abstract class SingleCardScreenSellerService {
-  Future<Either<RewildError, SellerModel>> get(int supplierId);
+  Future<Either<RewildError, SellerModel>> get({required int supplierId});
 }
 
 // commission
 abstract class SingleCardScreenCommissionService {
-  Future<Either<RewildError, CommissionModel>> get(int id);
+  Future<Either<RewildError, CommissionModel>> get({required int id});
 }
 
 // orders history
 abstract class SingleCardScreenOrdersHistoryService {
-  Future<Either<RewildError, OrdersHistoryModel>> get(int nmId);
+  Future<Either<RewildError, OrdersHistoryModel>> get({required int nmId});
 }
 
 // supply
 abstract class SingleCardScreenSupplyService {
-  Future<Either<RewildError, List<SupplyModel>>> getForOne(
+  Future<Either<RewildError, List<SupplyModel>?>> getForOne(
       {required int nmId,
       required DateTime dateFrom,
       required DateTime dateTo});
@@ -64,7 +65,7 @@ abstract class SingleCardScreenSupplyService {
 
 // notification
 abstract class SingleCardScreenNotificationService {
-  Future<Either<RewildError, bool>> checkForParent(int id);
+  Future<Either<RewildError, bool>> checkForParent({required int campaignId});
 }
 
 class SingleCardScreenViewModel extends ResourceChangeNotifier {
@@ -136,8 +137,8 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
     // Seller
     if (_sellerName == "-") {
       if (cardOfProduct.supplierId != null) {
-        final seller =
-            await fetch(() => sellerService.get(cardOfProduct.supplierId!));
+        final seller = await fetch(
+            () => sellerService.get(supplierId: cardOfProduct.supplierId!));
         if (seller == null) {
           return;
         }
@@ -157,7 +158,7 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
     }
     if (_commission == null && _subjectId != 0) {
       final commissionResource =
-          await fetch(() => commissionService.get(_subjectId));
+          await fetch(() => commissionService.get(id: _subjectId));
       if (commissionResource == null) {
         return;
       }
@@ -169,20 +170,21 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
     // brand
     _brand = cardOfProduct.brand ?? '-';
     // get stocks
-    final stocks = await fetch(() => stockService.get(id));
+    final stocks = await fetch(() => stockService.get(nmId: id));
     if (stocks == null) {
       return;
     }
 
     //  add stocks
     for (final stock in stocks) {
-      final resource = await warehouseService.getById(stock.wh);
-      final resouwarehouse = resource.data;
-      if (resouwarehouse == null) {
+      final wareHouse =
+          await fetch(() => warehouseService.getById(id: stock.wh));
+      if (wareHouse == null) {
         return;
       }
-      _notificationScreenWarehouses[resouwarehouse] = stock.qty;
-      addWarehouse(resouwarehouse.name, stock.qty);
+
+      _notificationScreenWarehouses[wareHouse] = stock.qty;
+      addWarehouse(wareHouse.name, stock.qty);
     }
     // get supplies
     final supplies = await fetch(() => supplyService.getForOne(
@@ -192,14 +194,14 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
         [];
 
     // get initial stocks
-    final initialStocks = await fetch(() => initialStocksService.get(id));
+    final initialStocks = await fetch(() => initialStocksService.get(nmId: id));
     if (initialStocks == null) {
       return;
     }
     // add initial stocks and orders
     for (final initStock in initialStocks) {
       final wh = initStock.wh;
-      final warehouse = await fetch(() => warehouseService.getById(wh));
+      final warehouse = await fetch(() => warehouseService.getById(id: wh));
       if (warehouse == null) {
         return;
       }
@@ -229,7 +231,7 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
     _supplySum = _supplies.values.isNotEmpty
         ? _supplies.values.reduce((value, element) => value + element)
         : 0;
-    final ordersHistory = await fetch(() => ordersHistoryService.get(id));
+    final ordersHistory = await fetch(() => ordersHistoryService.get(nmId: id));
     if (ordersHistory == null) {
       return;
     }
@@ -240,7 +242,7 @@ class SingleCardScreenViewModel extends ResourceChangeNotifier {
 
     // Notification
     final notificationsExists =
-        await fetch(() => notificationService.checkForParent(id));
+        await fetch(() => notificationService.checkForParent(campaignId: id));
     if (notificationsExists != null && notificationsExists) {
       setTracked();
     }

@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
@@ -9,21 +10,23 @@ import 'package:rewild/domain/entities/seller_model.dart';
 import 'package:rewild/domain/entities/warehouse.dart';
 
 abstract class SingleGroupScreenGroupsService {
-  Future<Either<RewildError, GroupModel>> loadGroup(String name);
-  Future<Either<RewildError, void>> delete(String groupName, int nmId);
+  Future<Either<RewildError, GroupModel?>> loadGroup({required String name});
+  Future<Either<RewildError, void>> delete(
+      {required String groupName, required int nmId});
 }
 
 abstract class SingleGroupScreenViewModelCardsService {
-  Future<Either<RewildError, List<CardOfProductModel>>> getAll(List<int> ids);
+  Future<Either<RewildError, List<CardOfProductModel>>> getAll(
+      [List<int>? nmIds]);
 }
 
 abstract class SingleGroupScreenSellerService {
-  Future<Either<RewildError, SellerModel>> get(int supplierId);
+  Future<Either<RewildError, SellerModel>> get({required int supplierId});
 }
 
 // warehouse
 abstract class SingleGroupScreenWarehouseService {
-  Future<Either<RewildError, Warehouse?>> getById(int id);
+  Future<Either<RewildError, Warehouse?>> getById({required int id});
 }
 
 class SingleGroupScreenViewModel extends ResourceChangeNotifier {
@@ -65,7 +68,7 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
 
   Future<void> _update() async {
     // group
-    final group = await fetch(() => groupService.loadGroup(name));
+    final group = await fetch(() => groupService.loadGroup(name: name));
 
     if (group == null) {
       return;
@@ -99,7 +102,8 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
         continue;
       }
       // seller
-      final seller = await fetch(() => sellerService.get(card.supplierId!));
+      final seller =
+          await fetch(() => sellerService.get(supplierId: card.supplierId!));
       if (seller == null) {
         continue;
       }
@@ -122,7 +126,7 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
             name = whIds[wh]!;
           } else {
             final warehouse =
-                await fetch(() => warehouseService.getById(stock.wh));
+                await fetch(() => warehouseService.getById(id: stock.wh));
             if (warehouse == null) {
               continue;
             }
@@ -224,7 +228,8 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
   int ordersSum = 0;
 
   Future<void> deleteCardFromGroup(int nmId) async {
-    final _ = await fetch(() => groupService.delete(name, nmId));
+    final _ =
+        await fetch(() => groupService.delete(groupName: name, nmId: nmId));
     if (cards == null) {
       return;
     }
