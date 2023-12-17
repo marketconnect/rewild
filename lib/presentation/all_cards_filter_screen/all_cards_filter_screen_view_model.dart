@@ -55,6 +55,7 @@ class AllCardsFilterScreenViewModel extends ResourceChangeNotifier {
 
   FilterModel? get outputfilter => _outputfilter;
   void setFilter(FilterModel filter) {
+    print('setFilter^ $filter');
     _outputfilter = filter;
     final brandsLength = _outputfilter.brands ?? {};
     final promoLength = _outputfilter.promos ?? {};

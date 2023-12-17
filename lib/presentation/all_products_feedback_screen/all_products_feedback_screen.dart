@@ -26,6 +26,7 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
     final isQuestionsLoading = model.isQuestionsLoading;
     final reviewQty = model.reviewQty;
     final questionsQty = model.questionsQty;
+    final onClose = model.onClose;
     Set<int> itemsIdsList = {};
     final setIsReview = model.setIsReviews;
     final isReviews = model.isReviews;
@@ -45,6 +46,12 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () async {
+            await onClose();
+          },
+        ),
         centerTitle: true,
         title: !apiKeyexists
             ? null

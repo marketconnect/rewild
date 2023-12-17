@@ -3,6 +3,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:rewild/api_clients/advert_api_client.dart';
 import 'package:rewild/api_clients/details_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
+import 'package:rewild/api_clients/questions_api_client.dart';
+import 'package:rewild/api_clients/reviews_api_client.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 
@@ -13,6 +15,7 @@ import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data
 import 'package:rewild/data_providers/background_message_data_provider/background_message_data_provider.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
+import 'package:rewild/data_providers/feedback_data_provider/feedback_qty_data_provider.dart';
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
 import 'package:rewild/data_providers/notificate_data_provider/notification_data_provider.dart';
@@ -24,6 +27,7 @@ import 'package:rewild/domain/entities/advert_model.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/advert_stat.dart';
 import 'package:rewild/domain/entities/background_message.dart';
+import 'package:rewild/domain/entities/feedback_qty_model.dart';
 
 import 'package:rewild/domain/entities/initial_stock_model.dart';
 import 'package:rewild/domain/entities/notification.dart';
@@ -73,69 +77,61 @@ class BackgroundService {
 
   // update all every n minutes
   static fetchAll() async {
-    // since the token does not uses for card of products details request
+    // since the tokens do not used for card of products details request
     // make it nullable
-    String? token;
+    String? advToken;
+    String? feedbackToken;
 
     // get token and all notifications
     final values = await Future.wait([
-      SecureStorageProvider.getApiKeyFromBackground('Продвижение'),
+      SecureStorageProvider.getApiKeyFromBackground(
+          StringConstants.apiKeyTypes[ApiKeyType.promo]!),
+      SecureStorageProvider.getApiKeyFromBackground(
+          StringConstants.apiKeyTypes[ApiKeyType.question]!),
       NotificationDataProvider.getAllInBackground(),
     ]);
-    print('1');
-    final tokenEither = values[0] as Either<RewildError, ApiKeyModel?>;
+    final advTokenEither = values[0] as Either<RewildError, ApiKeyModel?>;
+    final feedbackTokenEither = values[1] as Either<RewildError, ApiKeyModel?>;
     final notificationEither =
-        values[1] as Either<RewildError, List<ReWildNotificationModel>>;
-    print('2');
-    if (tokenEither.fold((l) => null, (r) => r) == null) {
-      final _ = RewildError('Не удалось получить токен',
-          source: "BackgroundService", name: 'fetchAll', args: []);
-      return;
-    }
-    print('3');
-    // token
-    token = tokenEither.fold((l) => null, (r) => r!.token);
-    print('4');
+        values[2] as Either<RewildError, List<ReWildNotificationModel>>;
+
+    // retrieve tokens
+    advToken = advTokenEither.fold((l) => null, (r) => r!.token);
+    feedbackToken = feedbackTokenEither.fold((l) => null, (r) => r!.token);
     // Adverts for single advert stat screen
     // fetch adverts from API Wb
-    final advertEither = await fetchAdverts(token);
-    advertEither.fold((l) => null, (advertStatModels) async {
-      // save all fetched adverts
-      if (advertStatModels == null || advertStatModels.isEmpty) {
-        for (final advert in advertStatModels!) {
-          await AdvertStatDataProvider.saveInBackground(advert);
-        }
-      }
-    });
-    print('15');
+
+    if (advToken != null) {
+      await _fetchAndSaveAdverts(advToken);
+    }
 
     // Notifications
-    final notifications = notificationEither.fold((l) => null, (r) => null);
-    print('6');
+    final notifications = notificationEither.fold((l) => null, (r) => r);
     if (notifications == null || notifications.isEmpty) {
       return;
     }
-    print('7');
-    // separate cards and verts notifications
+    // separate cards, feedbackQty and adverts notifications
     List<ReWildNotificationModel> cardsNotifications = notifications
-        .where((element) =>
-            element.condition != NotificationConditionConstants.budgetLessThan)
+        .where((element) => NotificationConditionConstants.isCardNotification(
+            element.condition))
         .toList();
-    print('8');
     List<ReWildNotificationModel> advertsNotifications = notifications
-        .where((element) =>
-            element.condition == NotificationConditionConstants.budgetLessThan)
+        .where((element) => NotificationConditionConstants.isAdvertNotification(
+            element.condition))
         .toList();
-    print('9');
+    List<ReWildNotificationModel> feedbackQtyNotifications = notifications
+        .where((element) =>
+            NotificationConditionConstants.isFeedbackQtyNotification(
+                element.condition))
+        .toList();
     // ids
     List<int> cardsIds = cardsNotifications.map((e) => e.parentId).toList();
     List<int> advertsIds = advertsNotifications.map((e) => e.parentId).toList();
-    print('10');
+
     // fetch cards from Wb
     final cardsEither = await DetailsApiClient.getInBackground(
         ids: cardsIds.unique() as List<int>);
     // list to save notification contents
-    print('11');
     List<ReWildNotificationContent> notificationContents = [];
 
     // insert notification contents to the list
@@ -155,11 +151,10 @@ class BackgroundService {
         notificationContents.addAll(notContentList);
       }
     });
-    print('12');
     // get adverts budget from Wb for notification
-    if (token != null) {
+    if (advToken != null) {
       final fetchedAdvertBudgetNotificationsEither = await _fetchAdvertBudgets(
-          token, advertsIds.unique() as List<int>, advertsNotifications);
+          advToken, advertsIds.unique() as List<int>, advertsNotifications);
 
       fetchedAdvertBudgetNotificationsEither.fold(
         (l) => null,
@@ -167,13 +162,79 @@ class BackgroundService {
       );
     }
 
-    print('14');
+    // get unanswered feedbacks qty
+    if (feedbackToken != null) {
+      // if notifications for questions is on
+      final q = feedbackQtyNotifications
+          .where((element) =>
+              element.condition == NotificationConditionConstants.question)
+          .isNotEmpty;
+
+      if (q) {
+        // get saved unanswered questions qty
+        final savedUnansweredQuestionsQtyEther =
+            await UnansweredFeedbackQtyDataProvider.getQtyOfType(
+                UnAnsweredFeedbacksQtyModel.getType('allQuestions'));
+
+        final savedUnansweredQuestionsQty =
+            savedUnansweredQuestionsQtyEther.fold((l) => 0, (r) => r);
+
+        // fetch current unanswered questions qty from Api
+        final unansweredQuestionsQtyFromApiEither =
+            await QuestionsApiClient.getCountUnansweredQuestionsInBackground(
+                token: feedbackToken);
+        final fetchedFromApiUnanswereedQuestionsQty =
+            unansweredQuestionsQtyFromApiEither.fold((l) => 0, (r) => r);
+
+        // if there are new questions
+        if (fetchedFromApiUnanswereedQuestionsQty >
+            savedUnansweredQuestionsQty) {
+          notificationContents.add(ReWildNotificationContent(
+              condition: NotificationConditionConstants.question,
+              newValue: (fetchedFromApiUnanswereedQuestionsQty -
+                      savedUnansweredQuestionsQty)
+                  .toString(),
+              id: 0));
+        }
+      }
+      // if notifications for reviews is on
+      final r = feedbackQtyNotifications
+          .where((element) =>
+              element.condition == NotificationConditionConstants.review)
+          .isNotEmpty;
+
+      if (r) {
+        // get saved unanswered questions qty
+        final savedUnansweredReviewsQtyEther =
+            await UnansweredFeedbackQtyDataProvider.getQtyOfType(
+                UnAnsweredFeedbacksQtyModel.getType('allReviews'));
+
+        final savedUnansweredReviewsQty =
+            savedUnansweredReviewsQtyEther.fold((l) => 0, (r) => r);
+
+        // fetch current unanswered questions qty from Api
+        final unansweredReviewsQtyFromApiEither =
+            await ReviewApiClient.getCountUnansweredReviewsInBackground(
+                token: feedbackToken);
+        final fetchedFromApiUnanswereedReviewsQty =
+            unansweredReviewsQtyFromApiEither.fold((l) => 0, (r) => r);
+
+        // if there are new questions
+        if (fetchedFromApiUnanswereedReviewsQty > savedUnansweredReviewsQty) {
+          notificationContents.add(ReWildNotificationContent(
+              condition: NotificationConditionConstants.review,
+              newValue: (fetchedFromApiUnanswereedReviewsQty -
+                      savedUnansweredReviewsQty)
+                  .toString(),
+              id: 0));
+        }
+      }
+    }
     // if there are no notifications return
     if (notificationContents.isEmpty) {
       return;
     }
 
-    print('15');
     // save all new notifications and messages to local db
     for (final notCont in notificationContents) {
       int subj = _getSubject(notCont);
@@ -189,9 +250,20 @@ class BackgroundService {
           value: notCont.newValue!));
       await BackgroundMessageDataProvider.saveInBackground(message);
     }
-    print('16');
     // notify user
     await _instantNotification("У вас есть сообщение от ReWild", '');
+  }
+
+  static Future<void> _fetchAndSaveAdverts(String token) async {
+    final advertEither = await fetchAdverts(token);
+    advertEither.fold((l) => null, (advertStatModels) async {
+      // save all fetched adverts
+      if (advertStatModels == null || advertStatModels.isEmpty) {
+        for (final advert in advertStatModels!) {
+          await AdvertStatDataProvider.saveInBackground(advert);
+        }
+      }
+    });
   }
 
   static int _getSubject(ReWildNotificationContent notCont) {

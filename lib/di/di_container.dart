@@ -20,6 +20,7 @@ import 'package:rewild/data_providers/background_message_data_provider/backgroun
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
 import 'package:rewild/data_providers/commission_data_provider/commission_data_provider.dart';
+import 'package:rewild/data_providers/feedback_data_provider/feedback_qty_data_provider.dart';
 import 'package:rewild/data_providers/filter_data_provider/filter_data_provider.dart';
 
 import 'package:rewild/data_providers/group_data_provider/group_data_provider.dart';
@@ -60,6 +61,7 @@ import 'package:rewild/domain/services/review_service.dart';
 import 'package:rewild/domain/services/seller_service.dart';
 import 'package:rewild/domain/services/stock_service.dart';
 import 'package:rewild/domain/services/supply_service.dart';
+import 'package:rewild/domain/services/unanswered_feedback_qty_service.dart';
 import 'package:rewild/domain/services/update_service.dart';
 
 import 'package:rewild/domain/services/warehouse_service.dart';
@@ -90,6 +92,8 @@ import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_view_model.
 import 'package:rewild/presentation/app/app.dart';
 import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
 import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_screen.dart';
+import 'package:rewild/presentation/notification_feedback_screen/notification_feedback_screen.dart';
+import 'package:rewild/presentation/notification_feedback_screen/notification_feedback_view_model.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_screen.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
 import 'package:rewild/presentation/background_messages_screen/background_messages_screen.dart';
@@ -265,6 +269,9 @@ class _DIContainer {
   // Answers
   AnswerDataProvider _makeAnswerDataProvider() => const AnswerDataProvider();
 
+  UnansweredFeedbackQtyDataProvider _makeUnansweredFeedbackQtyDataProvider() =>
+      const UnansweredFeedbackQtyDataProvider();
+
   // Services ==================================================================
 
   // check internet connection
@@ -399,6 +406,12 @@ class _DIContainer {
   AnswerService _makeAnswerService() => AnswerService(
         answerDataProvider: _makeAnswerDataProvider(),
       );
+
+  UnansweredFeedbackQtyService _makeUnansweredFeedbackQtyService() =>
+      UnansweredFeedbackQtyService(
+          feedbackQtyDataProvider: _makeUnansweredFeedbackQtyDataProvider(),
+          reviewsApiClient: _makeReviewApiClient(),
+          questionsApiClient: _makeQuestionsApiClient());
 
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
@@ -572,6 +585,7 @@ class _DIContainer {
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
           reviewService: _makeReviewService(),
+          unansweredFeedbackQtyService: _makeUnansweredFeedbackQtyService(),
           cardOfProductService: _makeCardOfProductService(),
           questionService: _makeQuestionService());
 
@@ -607,6 +621,14 @@ class _DIContainer {
         questionService: _makeQuestionService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
+
+  NotificationFeedbackViewModel _makeFeedbackNotificationViewModel(
+    BuildContext context,
+  ) =>
+      NotificationFeedbackViewModel(
+          notificationService: _makeNotificationService(),
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -802,6 +824,15 @@ class ScreenFactoryDefault implements ScreenFactory {
       create: (context) =>
           _diContainer._makeSingleQuestionViewModel(context, question),
       child: const SingleQuestionScreen(),
+    );
+  }
+
+  @override
+  Widget makeFeedbackNotificationSettingsScreen() {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeFeedbackNotificationViewModel(context),
+      child: const NotificationFeedbackSettingsScreen(),
     );
   }
 }

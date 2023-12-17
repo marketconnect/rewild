@@ -9,6 +9,7 @@ import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/presentation/background_messages_screen/background_messages_view_model.dart';
 import 'package:rewild/presentation/notification_card_screen/notification_card_view_model.dart';
+import 'package:rewild/presentation/notification_feedback_screen/notification_feedback_view_model.dart';
 import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 // import 'package:rewild/presentation/single_advert_stats_screen/single_advert_stats_view_model.dart';
@@ -23,6 +24,8 @@ abstract class NotificationServiceNotificationDataProvider {
   Future<Either<RewildError, bool>> delete(
       {required int parentId, required int condition, bool? reusableAlso});
   Future<Either<RewildError, bool>> checkForParent({required int id});
+  Future<Either<RewildError, List<ReWildNotificationModel>?>> getByCondition(
+      List<int> conditions);
 }
 
 class NotificationService
@@ -31,6 +34,7 @@ class NotificationService
         SingleCardScreenNotificationService,
         NotificationAdvertNotificationService,
         AllCardsScreenNotificationsService,
+        NotificationFeedbackNotificationService,
         BackgroundMessagesNotificationService,
         NotificationCardNotificationService {
   final NotificationServiceNotificationDataProvider notificationDataProvider;
@@ -116,6 +120,18 @@ class NotificationService
     return either.fold((l) => left(l), (notifications) {
       if (notifications == null || notifications.isEmpty) {
         return right([]);
+      }
+      return right(notifications);
+    });
+  }
+
+  @override
+  Future<Either<RewildError, List<ReWildNotificationModel>?>> getByCondition(
+      List<int> conditions) async {
+    final either = await notificationDataProvider.getByCondition(conditions);
+    return either.fold((l) => left(l), (notifications) {
+      if (notifications == null || notifications.isEmpty) {
+        return right(null);
       }
       return right(notifications);
     });

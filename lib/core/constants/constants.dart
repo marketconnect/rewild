@@ -165,6 +165,58 @@ class NotificationConditionConstants {
   static const int sizeStocksLessThan = 9;
   static const int sizeStocksInWhLessThan = 10;
   static const int stocksMoreThan = 11;
+  static const int review = 12;
+  static const int question = 14;
+  static bool isAdvertNotification(int condition) {
+    switch (condition) {
+      case NotificationConditionConstants.budgetLessThan:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static bool isFeedbackQtyNotification(int condition) {
+    switch (condition) {
+      case NotificationConditionConstants.question:
+        return true;
+      case NotificationConditionConstants.review:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static bool isCardNotification(int condition) {
+    switch (condition) {
+      case NotificationConditionConstants.nameChanged:
+        return true;
+      case NotificationConditionConstants.picsChanged:
+        return true;
+      case NotificationConditionConstants.priceChanged:
+        return true;
+
+      case NotificationConditionConstants.promoChanged:
+        return true;
+
+      case NotificationConditionConstants.reviewRatingChanged:
+        return true;
+
+      case NotificationConditionConstants.sizeStocksInWhLessThan:
+        return true;
+
+      case NotificationConditionConstants.sizeStocksLessThan:
+        return true;
+
+      case NotificationConditionConstants.stocksInWhLessThan:
+        return true;
+
+      case NotificationConditionConstants.stocksLessThan:
+        return true;
+      default:
+        return false;
+    }
+  }
 }
 
 // WB constants

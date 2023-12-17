@@ -52,6 +52,27 @@ class NotificationDataProvider
   }
 
   @override
+  Future<Either<RewildError, List<ReWildNotificationModel>?>> getByCondition(
+      List<int> conditions) async {
+    try {
+      final db = await SqfliteService().database;
+      final notifications = await db.rawQuery(
+          'SELECT * FROM notifications WHERE condition IN (${conditions.join(', ')})');
+      if (notifications.isEmpty) {
+        return right(null);
+      }
+      return right(notifications
+          .map((e) => ReWildNotificationModel.fromMap(e))
+          .toList());
+    } catch (e) {
+      return left(RewildError(e.toString(),
+          source: runtimeType.toString(),
+          name: "getByCondition",
+          args: [conditions]));
+    }
+  }
+
+  @override
   Future<Either<RewildError, List<ReWildNotificationModel>?>> getAll() async {
     try {
       final db = await SqfliteService().database;

@@ -20,6 +20,8 @@ abstract class MainNavigationRouteNames {
   static const String singleQuestionScreen = '/single_question_screen';
   static const String cardNotificationsSettingsScreen =
       '/card_notifications_settings_screen';
+  static const String feedbackNotificationScreen =
+      '/feedback_notification_screen';
 
   static const String firstStartSplashScreen = 'first_start_splash_screen';
   static const String productsFeedbackScreen = 'products_feedback_screen';

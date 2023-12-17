@@ -4,6 +4,7 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/extensions/date_time.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
+import 'package:rewild/core/utils/strings_utils.dart';
 import 'package:rewild/domain/entities/background_message.dart';
 import 'package:rewild/presentation/background_messages_screen/background_messages_screen.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
@@ -101,6 +102,19 @@ class BackgroundMessagesViewModel extends ResourceChangeNotifier {
           title = "Товар ${backgroundMessage.id}";
           description = "Остатки на складах: ${backgroundMessage.value}";
           routeName = MainNavigationRouteNames.singleCardScreen;
+          break;
+
+        case NotificationConditionConstants.question:
+          title = "Новые вопросы";
+          description =
+              "У Вас ${backgroundMessage.value} ${getNoun(int.parse(backgroundMessage.value), 'новый вопрос', 'новых вопроса', 'новых вопросов')}";
+          routeName = MainNavigationRouteNames.productsFeedbackScreen;
+          break;
+        case NotificationConditionConstants.review:
+          title = "Новые отзывы";
+          description =
+              "У Вас ${backgroundMessage.value} ${getNoun(int.parse(backgroundMessage.value), 'новый отзыв', 'новых отзыва', 'новых отзывов')}";
+          routeName = MainNavigationRouteNames.productsFeedbackScreen;
           break;
 
         default:

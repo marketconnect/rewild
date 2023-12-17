@@ -6,9 +6,67 @@ import 'package:rewild/core/utils/api_helpers/wb_review_seller_api_helper.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/review_model.dart';
 import 'package:rewild/domain/services/review_service.dart';
+import 'package:rewild/domain/services/unanswered_feedback_qty_service.dart';
 
-class ReviewApiClient implements ReviewServiceReviewApiClient {
+class ReviewApiClient
+    implements
+        ReviewServiceReviewApiClient,
+        UnansweredFeedbackQtyServiceReviewsApiClient {
   const ReviewApiClient();
+
+  Future<Either<RewildError, int>> getCountUnansweredReviews(
+      {required String token}) async {
+    try {
+      final wbApi = WbReviewApiHelper.countUnansweredFeedbacks;
+      final response = await wbApi.get(
+        token,
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final int countUnanswered = responseData['data']['countUnanswered'];
+        return right(countUnanswered); // Use 'right' for successful result
+      } else {
+        final errString = wbApi.errResponse(statusCode: response.statusCode);
+        return left(RewildError(errString,
+            source: runtimeType.toString(),
+            name: "getCountUnansweredQuestions",
+            args: [token])); // Use 'left' for error
+      }
+    } catch (e) {
+      return left(RewildError("Error: $e",
+          source: runtimeType.toString(),
+          name: "getCountUnansweredQuestions",
+          args: [token]));
+    }
+  }
+
+  static Future<Either<RewildError, int>> getCountUnansweredReviewsInBackground(
+      {required String token}) async {
+    try {
+      final wbApi = WbReviewApiHelper.countUnansweredFeedbacks;
+      final response = await wbApi.get(
+        token,
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final int countUnanswered = responseData['data']['countUnanswered'];
+        return right(countUnanswered); // Use 'right' for successful result
+      } else {
+        final errString = wbApi.errResponse(statusCode: response.statusCode);
+        return left(RewildError(errString,
+            source: 'getCountUnansweredReviewsInBackground',
+            name: "getCountUnansweredReviews",
+            args: [token])); // Use 'left' for error
+      }
+    } catch (e) {
+      return left(RewildError("Error: $e",
+          source: "getCountUnansweredReviewsInBackground",
+          name: "getCountUnansweredReviews",
+          args: [token]));
+    }
+  }
 
   @override
   Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(

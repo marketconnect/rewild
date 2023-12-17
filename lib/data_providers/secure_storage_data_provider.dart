@@ -85,11 +85,7 @@ class SecureStorageProvider
       (l) => left(l),
       (r) {
         if (r == null) {
-          return left(RewildError(
-            'No token expiration data',
-            source: runtimeType.toString(),
-            name: 'tokenNotExpiredInThreeMinutes',
-          ));
+          return right(false);
         }
         final now = DateTime.now().add(const Duration(minutes: 3));
         final timestamp = int.parse(r);

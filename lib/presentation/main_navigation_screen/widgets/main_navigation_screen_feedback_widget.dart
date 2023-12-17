@@ -81,8 +81,8 @@ class MainNavigationScreenFeedBackWidget extends StatelessWidget {
                       _Link(
                         text: 'Настройка уведомлений',
                         color: const Color(0xFFd2a941),
-                        route: MainNavigationRouteNames
-                            .backgroundNotificationsScreen,
+                        route:
+                            MainNavigationRouteNames.feedbackNotificationScreen,
                         imageSrc: IconConstant.iconNotificationSettings,
                       ),
                     ],

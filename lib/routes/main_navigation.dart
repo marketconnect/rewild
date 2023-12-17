@@ -30,6 +30,7 @@ abstract class ScreenFactory {
   Widget makeAllProductsQuestionsScreen();
   Widget makeAllQuestionsScreen(int nmId);
   Widget makeAllReviewsScreen(int nmId);
+  Widget makeFeedbackNotificationSettingsScreen();
   // Widget makeAllProductsReviewsScreen();
 }
 
@@ -225,6 +226,12 @@ class MainNavigation implements AppNavigation {
             arguments is QuestionModel ? arguments : QuestionModel.empty();
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeSingleQuestionScreen(question),
+        );
+
+      case MainNavigationRouteNames.feedbackNotificationScreen:
+        return MaterialPageRoute(
+          builder: (_) =>
+              screenFactory.makeFeedbackNotificationSettingsScreen(),
         );
 
       default:

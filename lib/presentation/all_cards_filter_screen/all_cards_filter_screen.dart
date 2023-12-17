@@ -152,7 +152,9 @@ class _Body extends StatelessWidget {
             title: "Предмет",
             items: completlyFilledfilter.subjects!,
             setCallBack: setSubject,
-            activeIds: outputFilter!.subjects!.keys.toList(),
+            activeIds: outputFilter!.subjects == null
+                ? []
+                : outputFilter.subjects!.keys.toList(),
             clearCallBack: clearSubjects,
             setAllCallBack: setAllSubjects,
             unSetCallBack: unSetSubject),
@@ -162,7 +164,9 @@ class _Body extends StatelessWidget {
             title: "Бренд",
             items: completlyFilledfilter.brands!,
             setCallBack: setBrand,
-            activeIds: outputFilter!.brands!.keys.toList(),
+            activeIds: outputFilter!.brands == null
+                ? []
+                : outputFilter.brands!.keys.toList(),
             clearCallBack: clearBrands,
             setAllCallBack: setAllBrands,
             unSetCallBack: unSetBrand),
@@ -172,7 +176,9 @@ class _Body extends StatelessWidget {
             title: "Продавец",
             items: completlyFilledfilter.suppliers!,
             setCallBack: setSupplier,
-            activeIds: outputFilter!.suppliers!.keys.toList(),
+            activeIds: outputFilter!.suppliers == null
+                ? []
+                : outputFilter.suppliers!.keys.toList(),
             clearCallBack: clearSuppliers,
             setAllCallBack: setAllSuppliers,
             unSetCallBack: unSetSupplier),
@@ -182,7 +188,9 @@ class _Body extends StatelessWidget {
             title: "Акция",
             items: completlyFilledfilter.promos!,
             setCallBack: setPromo,
-            activeIds: outputFilter!.promos!.keys.toList(),
+            activeIds: outputFilter!.promos == null
+                ? []
+                : outputFilter.promos!.keys.toList(),
             clearCallBack: clearPromos,
             setAllCallBack: setAllPromos,
             unSetCallBack: unSetPromo),

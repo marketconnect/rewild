@@ -3,6 +3,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
+import 'package:rewild/domain/entities/feedback_qty_model.dart';
 import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/domain/entities/review_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
@@ -32,15 +33,24 @@ abstract class AllProductsFeedbackViewModelReviewService {
   });
 }
 
+// Unanswered Feedback Qty
+abstract class AllProductsFeedbackUnansweredFeedbackQtyService {
+  Future<Either<RewildError, void>> saveUnansweredFeedbackQtyList(
+      {required String token,
+      required List<UnAnsweredFeedbacksQtyModel> feedbacks});
+}
+
 class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   final AllProductsFeedbackViewModelQuestionService questionService;
   final AllProductsFeedbackCardOfProductService cardOfProductService;
   final AllProductsFeedbackViewModelReviewService reviewService;
-
+  final AllProductsFeedbackUnansweredFeedbackQtyService
+      unansweredFeedbackQtyService;
   AllProductsFeedbackViewModel(
       {required super.context,
       required super.internetConnectionChecker,
       required this.cardOfProductService,
+      required this.unansweredFeedbackQtyService,
       required this.reviewService,
       required this.questionService}) {
     _asyncInit();
@@ -226,7 +236,33 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
         addSupplierArticle(nmId, supplierArticle);
       }
     }
+
     setQuestionsLoading(false);
+  }
+
+  Future<void> onClose() async {
+    List<UnAnsweredFeedbacksQtyModel> allUnansweredFeedbacksQtyList = [];
+    for (final nmId in _allQuestionsQty.keys) {
+      final allUnansweredFeedbacksQty = _allQuestionsQty[nmId]!;
+      allUnansweredFeedbacksQtyList.add(
+        UnAnsweredFeedbacksQtyModel(
+            nmId: nmId,
+            qty: allUnansweredFeedbacksQty,
+            type: UnAnsweredFeedbacksQtyModel.getType('question')),
+      );
+    }
+    for (final nmId in _allReviewsQty.keys) {
+      final allUnansweredFeedbacksQty = _allReviewsQty[nmId]!;
+      allUnansweredFeedbacksQtyList.add(
+        UnAnsweredFeedbacksQtyModel(
+            nmId: nmId,
+            qty: allUnansweredFeedbacksQty,
+            type: UnAnsweredFeedbacksQtyModel.getType('review')),
+      );
+    }
+    await unansweredFeedbackQtyService.saveUnansweredFeedbackQtyList(
+        token: _apiKey!, feedbacks: allUnansweredFeedbacksQtyList);
+    if (context.mounted) Navigator.of(context).pop();
   }
 
   // Images

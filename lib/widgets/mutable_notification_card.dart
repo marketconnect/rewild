@@ -8,6 +8,7 @@ class MutableNotificationCard extends StatefulWidget {
     required this.text,
     this.currentValue,
     this.suffix,
+    this.topBorder = false,
     required this.isActive,
     required this.dropNotification,
     required this.addNotification,
@@ -15,6 +16,7 @@ class MutableNotificationCard extends StatefulWidget {
 
   final int condition;
   final bool isActive;
+  final bool topBorder;
   final int? currentValue;
   final String? suffix;
   final String text;
@@ -44,16 +46,28 @@ class _MutableNotificationCardState extends State<MutableNotificationCard> {
       width: screenWidth,
       height: screenHeight * 0.11,
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color:
-                Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1),
-          ),
-          top: BorderSide(
-            color:
-                Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1),
-          ),
-        ),
+        border: widget.topBorder
+            ? Border(
+                bottom: BorderSide(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurfaceVariant
+                      .withOpacity(0.1),
+                ),
+                top: BorderSide(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurfaceVariant
+                      .withOpacity(0.1),
+                ))
+            : Border(
+                bottom: BorderSide(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurfaceVariant
+                      .withOpacity(0.1),
+                ),
+              ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,

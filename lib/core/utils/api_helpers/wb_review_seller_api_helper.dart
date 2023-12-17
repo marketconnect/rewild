@@ -34,5 +34,13 @@ class WbReviewApiHelper {
     },
   );
 
-  // Add other ApiConstants as needed
+  static ApiHelper countUnansweredFeedbacks = ApiHelper(
+    host: host,
+    url: '/api/v1/feedbacks/count-unanswered',
+    requestLimitPerMinute: 60, // Set the appropriate limit
+    statusCodeDescriptions: {
+      400: 'Ошибка переданных параметров',
+      401: 'Не авторизован',
+    },
+  );
 }

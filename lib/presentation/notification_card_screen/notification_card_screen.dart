@@ -54,6 +54,7 @@ class NotificationCardSettingsScreen extends StatelessWidget {
           UnmutableNotificationCard(
             condition: NotificationConditionConstants.nameChanged,
             currentValue: "",
+            topBorder: true,
             text: 'Изменение в назавании',
             isActive: isActive(NotificationConditionConstants.nameChanged),
             addNotification: add,
