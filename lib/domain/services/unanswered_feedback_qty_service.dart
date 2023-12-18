@@ -48,7 +48,7 @@ class UnansweredFeedbackQtyService
 
     feedbacks.add(UnAnsweredFeedbacksQtyModel(
       nmId: 0,
-      qty: unansweredAllQuestionsQty - 1,
+      qty: unansweredAllQuestionsQty,
       type: UnAnsweredFeedbacksQtyModel.getType("allQuestions"),
     ));
 
@@ -61,7 +61,7 @@ class UnansweredFeedbackQtyService
     );
     feedbacks.add(UnAnsweredFeedbacksQtyModel(
       nmId: 0,
-      qty: unansweredReviewsQty - 1,
+      qty: unansweredReviewsQty,
       type: UnAnsweredFeedbacksQtyModel.getType("allReviews"),
     ));
     return await feedbackQtyDataProvider.saveUnansweredFeedbackQtyList(

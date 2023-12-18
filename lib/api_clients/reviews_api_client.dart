@@ -79,7 +79,7 @@ class ReviewApiClient
         'isAnswered': false.toString(),
         'take': take.toString(),
         'skip': skip.toString(),
-        'order': 'dateAsc',
+        'order': 'dateDesc',
       };
       if (nmId != null) {
         params['nmId'] = nmId.toString();
@@ -128,7 +128,7 @@ class ReviewApiClient
         'isAnswered': true.toString(),
         'take': take.toString(),
         'skip': skip.toString(),
-        'order': 'dateAsc',
+        'order': 'dateDesc',
       };
       if (nmId != null) {
         params['nmId'] = nmId.toString();

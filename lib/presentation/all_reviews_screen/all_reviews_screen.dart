@@ -121,7 +121,7 @@ class _ReviewCard extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     // final screenHeight = MediaQuery.of(context).size.height;
 
-    final dateText = DateTime.now().difference(createdAt).inDays < 1
+    final dateText = DateTime.now().day == createdAt.day
         ? '${createdAt.hour}:${createdAt.minute}'
         : '${createdAt.day}.${createdAt.month}.${createdAt.year}';
     return Container(
