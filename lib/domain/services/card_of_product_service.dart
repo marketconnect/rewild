@@ -164,16 +164,8 @@ class CardOfProductService
   @override
   Future<Either<RewildError, String>> getImageForNmId(
       {required int nmId}) async {
-    final imgEither = await cardOfProductDataProvider.getImage(id: nmId);
+    return await cardOfProductDataProvider.getImage(id: nmId);
 
-    return imgEither.fold((l) => left(l), (img) => right(img));
+    // return imgEither.fold((l) => left(l), (img) => right(img));
   }
-
-  //   final img = imgEither.data;
-  //   if (img == null || img.isEmpty) {
-  //     return right('');
-  //   }
-
-  //   return right(img);
-  // }
 }

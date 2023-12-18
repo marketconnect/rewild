@@ -109,8 +109,9 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
 
   // loading
   bool _loading = true;
-  void setLoading(bool loading) {
-    _loading = loading;
+  @override
+  void setLoading(bool value) {
+    _loading = value;
     notify();
   }
 
@@ -186,6 +187,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
     if (_filter == null) {
       return;
     }
+    print('_filter ${_filter}');
     checkFilter();
     if (!context.mounted) {
       return;
@@ -221,7 +223,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
         }
       }
     }
-
+    print('object 1');
     final dateFrom = yesterdayEndOfTheDay();
     final dateTo = DateTime.now();
     // calculate stocks, initial stocks, supplies, was ordered field
@@ -244,26 +246,28 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
 
       _productCards.add(card);
     }
+    print('object 2');
     // sort by orders sum
     _productCards.sort((a, b) => b.ordersSum.compareTo(a.ordersSum));
 
     final fetchedGroups = await fetch(() => groupsProvider.getAll());
-    if (fetchedGroups == null) {
-      return;
-    }
+    print('object 3');
     final cardsNmIds = _productCards.map((card) => card.nmId).toList();
     // append groups
-    for (final g in fetchedGroups) {
-      if (_groups.where((element) => element.name == g.name).isEmpty) {
-        if (g.cardsNmIds.any((element) => cardsNmIds.contains(element))) {}
-        _groups.add(g);
-      }
-      final cardsWithGroup =
-          _productCards.where((card) => g.cardsNmIds.contains(card.nmId));
-      for (final card in cardsWithGroup) {
-        card.setGroup(g);
+    if (fetchedGroups != null) {
+      for (final g in fetchedGroups) {
+        if (_groups.where((element) => element.name == g.name).isEmpty) {
+          if (g.cardsNmIds.any((element) => cardsNmIds.contains(element))) {}
+          _groups.add(g);
+        }
+        final cardsWithGroup =
+            _productCards.where((card) => g.cardsNmIds.contains(card.nmId));
+        for (final card in cardsWithGroup) {
+          card.setGroup(g);
+        }
       }
     }
+    print("filtercard");
     // Filter cards
     _productCards = _productCards.where((card) {
       return filterCard(card);
@@ -380,6 +384,7 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
   }
 
   bool filterCard(CardOfProductModel card) {
+    print("filterCard");
     if (_filter == null) {
       return true;
     }
@@ -393,8 +398,10 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
       }
     }
     // check supplier
+    print('_filter.suppliers: ${_filter!.suppliers}');
     if (_filter!.suppliers != null && _filter!.suppliers!.isNotEmpty) {
       final found = _filter!.suppliers!.keys.contains(card.supplierId);
+      print('suppliers: ${card.supplierId} ${found}');
       if (!found) {
         return false;
       }

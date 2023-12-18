@@ -27,7 +27,7 @@ import 'package:rewild/data_providers/group_data_provider/group_data_provider.da
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
 import 'package:rewild/data_providers/keyword_data_provider/keyword_data_provider.dart';
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
-import 'package:rewild/data_providers/notificate_data_provider/notification_data_provider.dart';
+import 'package:rewild/data_providers/notifications_data_provider/notification_data_provider.dart';
 import 'package:rewild/data_providers/orders_history_data_provider/orders_history_data_provider.dart';
 
 import 'package:rewild/data_providers/secure_storage_data_provider.dart';
@@ -290,6 +290,7 @@ class _DIContainer {
         initialStockApiClient: _makeStocksApiClient(),
         supplyDataProvider: _makeSupplyDataProvider(),
         advertStatDataProvider: _makeAutoStatDataProvider(),
+        notificationDataProvider: _makeNotificationDataProvider(),
         cardsNumberStreamController: cardsNumberStreamController,
         lastUpdateDayDataProvider: _makeLastUpdateDayDataProvider(),
         cardOfProductDataProvider: _makeCardOfProductDataProvider(),

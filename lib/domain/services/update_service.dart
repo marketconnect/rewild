@@ -98,6 +98,11 @@ abstract class UpdateServiceLastUpdateDayDataProvider {
   Future<Either<RewildError, bool>> todayUpdated();
 }
 
+// notification data provider
+abstract class UpdateServiceNotificationDataProvider {
+  Future<Either<RewildError, int>> deleteAll({required int parentId});
+}
+
 class UpdateService
     implements
         MyWebViewScreenViewModelUpdateService,
@@ -112,6 +117,7 @@ class UpdateService
   final UpdateServiceInitStockDataProvider initialStockDataProvider;
   final UpdateServiceStockDataProvider stockDataProvider;
   final UpdateServiceLastUpdateDayDataProvider lastUpdateDayDataProvider;
+  final UpdateServiceNotificationDataProvider notificationDataProvider;
   final UpdateServiceAdvertStatDataProvider advertStatDataProvider;
   final StreamController<int> cardsNumberStreamController;
   UpdateService(
@@ -121,6 +127,7 @@ class UpdateService
       required this.initialStockDataProvider,
       required this.advertStatDataProvider,
       required this.cardOfProductDataProvider,
+      required this.notificationDataProvider,
       required this.initialStockApiClient,
       required this.supplyDataProvider,
       required this.lastUpdateDayDataProvider,
@@ -636,14 +643,6 @@ class UpdateService
       {required String token, required List<int> nmIds}) async {
     for (final id in nmIds) {
       // delete card from the server
-      // final deleteFromServerResource =
-      //     await cardOfProductApiClient.delete(token: token,id:  id);
-
-      // if (deleteFromServerResource is Error) {
-      //   return left(RewildError(deleteFromServerResource.message!,
-      //       source: runtimeType.toString(), name: 'delete', args: [token, id]);
-      // }
-
       final deleteFromServerEither =
           await cardOfProductApiClient.delete(token: token, id: id);
       if (deleteFromServerEither.isLeft()) {
@@ -652,25 +651,22 @@ class UpdateService
       }
 
       // delete card from the local storage
-      // final deleteResource = await cardOfProductDataProvider.delete(id: id);
-      // if (deleteResource is Error) {
-      //   return left(RewildError(deleteResource.message!,
-      //       source: runtimeType.toString(), name: 'delete', args: [token, id]);
-      // }
       final deleteEither = await cardOfProductDataProvider.delete(id: id);
       if (deleteEither.isLeft()) {
         return left(
             deleteEither.fold((l) => l, (r) => throw UnimplementedError()));
       }
+
+      // delete notifications for this card
+      final deleteNotificationsEither =
+          await notificationDataProvider.deleteAll(parentId: id);
+      if (deleteNotificationsEither.isLeft()) {
+        return left(deleteNotificationsEither.fold(
+            (l) => l, (r) => throw UnimplementedError()));
+      }
     }
     // get all cards from local db
-    // final cardsInDBResource = await cardOfProductDataProvider.getAll();
 
-    // if (cardsInDBResource is Error) {
-    //   return left(RewildError(cardsInDBResource.message!,
-    //       source: runtimeType.toString(), name: 'delete', args: [token, ids]);
-    // }
-    // final cardsInDB = cardsInDBResource.data!;
     final cardsInDBEither = await cardOfProductDataProvider.getAll();
     if (cardsInDBEither.isLeft()) {
       return left(

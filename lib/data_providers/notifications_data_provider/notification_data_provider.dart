@@ -3,9 +3,12 @@ import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/notification.dart';
 import 'package:rewild/domain/services/notification_service.dart';
+import 'package:rewild/domain/services/update_service.dart';
 
 class NotificationDataProvider
-    implements NotificationServiceNotificationDataProvider {
+    implements
+        NotificationServiceNotificationDataProvider,
+        UpdateServiceNotificationDataProvider {
   const NotificationDataProvider();
 
   @override

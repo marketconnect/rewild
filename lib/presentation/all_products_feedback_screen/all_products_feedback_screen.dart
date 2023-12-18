@@ -219,7 +219,7 @@ class _ProductCard extends StatelessWidget {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                       child: Text(
-                        'Новых: $newItemsQty',
+                        'Без ответа: $newItemsQty',
                         style: TextStyle(
                             fontSize: MediaQuery.of(context).size.width * 0.04,
                             color: newItemsQty > 0
