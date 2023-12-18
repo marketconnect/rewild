@@ -258,8 +258,8 @@ class BackgroundService {
     final advertEither = await fetchAdverts(token);
     advertEither.fold((l) => null, (advertStatModels) async {
       // save all fetched adverts
-      if (advertStatModels == null || advertStatModels.isEmpty) {
-        for (final advert in advertStatModels!) {
+      if (advertStatModels != null && advertStatModels.isNotEmpty) {
+        for (final advert in advertStatModels) {
           await AdvertStatDataProvider.saveInBackground(advert);
         }
       }

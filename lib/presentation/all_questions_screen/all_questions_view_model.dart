@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
+import 'package:rewild/core/utils/nums.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/question_model.dart';
@@ -12,6 +13,8 @@ abstract class AllQuestionsViewModelQuestionService {
     required String token,
     required int take,
     required int skip,
+    required int dateFrom,
+    required int dateTo,
   });
   Future<Either<RewildError, String?>> getApiKey();
 }
@@ -58,6 +61,8 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
             token: apiKey,
             nmId: nmId,
             take: NumericConstants.takeFeedbacksAtOnce,
+            dateFrom: unixTimestamp2019(),
+            dateTo: DateTime.now().millisecondsSinceEpoch ~/ 1000,
             skip: NumericConstants.takeFeedbacksAtOnce * n,
           ));
       if (questions == null) {

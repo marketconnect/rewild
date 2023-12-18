@@ -10,9 +10,19 @@ import 'package:rewild/presentation/single_question_screen/single_question_view_
 
 abstract class QuestionServiceQuestionApiClient {
   Future<Either<RewildError, List<QuestionModel>>> getUnansweredQuestions(
-      {required String token, required int take, required int skip, int? nmId});
+      {required String token,
+      required int take,
+      required int dateFrom,
+      required int dateTo,
+      required int skip,
+      int? nmId});
   Future<Either<RewildError, List<QuestionModel>>> getAnsweredQuestions(
-      {required String token, required int take, required int skip, int? nmId});
+      {required String token,
+      required int take,
+      required int dateFrom,
+      required int dateTo,
+      required int skip,
+      int? nmId});
   Future<Either<RewildError, bool>> handleQuestion(
       {required String token, required String id, required String answer});
 }
@@ -59,19 +69,31 @@ class QuestionService
     required String token,
     required int take,
     required int skip,
+    required int dateFrom,
+    required int dateTo,
   }) async {
     late List<QuestionModel> allQuestions;
 
     // Unanswered questions
     final unAnsweredResult = await questionApiClient.getUnansweredQuestions(
-        token: token, take: take, skip: skip, nmId: nmId);
+        token: token,
+        take: take,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        skip: skip,
+        nmId: nmId);
 
     unAnsweredResult.fold((l) => left(l), (r) {
       allQuestions = r;
     });
     // Answered questions
     final resourceAnswered = await questionApiClient.getAnsweredQuestions(
-        token: token, take: take, skip: skip, nmId: nmId);
+        token: token,
+        take: take,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        skip: skip,
+        nmId: nmId);
 
     resourceAnswered.fold((l) => left(l), (r) {
       allQuestions.addAll(r);

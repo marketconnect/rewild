@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
+import 'package:rewild/core/utils/nums.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/review_model.dart';
@@ -10,6 +11,8 @@ abstract class AllReviewsViewModelReviewService {
   Future<Either<RewildError, List<ReviewModel>>> getReviews({
     required int take,
     required int skip,
+    required int dateFrom,
+    required int dateTo,
     int? nmId,
   });
   Future<Either<RewildError, bool>> apiKeyExists();
@@ -50,26 +53,27 @@ class AllReviewsViewModel extends ResourceChangeNotifier {
       return;
     }
     // get questions
-    List<ReviewModel> allReviews = [];
-    int n = 0;
-    while (true) {
-      final reviews = await fetch(() => reviewService.getReviews(
-            nmId: nmId,
-            take: NumericConstants.takeFeedbacksAtOnce,
-            skip: NumericConstants.takeFeedbacksAtOnce * n,
-          ));
-      if (reviews == null) {
-        break;
-      }
-      allReviews.addAll(reviews);
-      if (reviews.length < NumericConstants.takeFeedbacksAtOnce) {
-        break;
-      }
-      n++;
-    }
+    // List<ReviewModel> allReviews = [];
+    await _firstLoad();
+    // int n = 0;
+    // while (true) {
+    //   final reviews = await fetch(() => reviewService.getReviews(
+    //         nmId: nmId,
+    //         take: NumericConstants.takeFeedbacksAtOnce,
+    //         skip: NumericConstants.takeFeedbacksAtOnce * n,
+    //       ));
+    //   if (reviews == null) {
+    //     break;
+    //   }
+    //   allReviews.addAll(reviews);
+    //   if (reviews.length < NumericConstants.takeFeedbacksAtOnce) {
+    //     break;
+    //   }
+    //   n++;
+    // }
 
     // Questions
-    setReviews(allReviews);
+    // setReviews(allReviews);
 
     // Saved answers
     final answers = await fetch(() => answerService.getAllQuestionsIds());
@@ -80,6 +84,42 @@ class AllReviewsViewModel extends ResourceChangeNotifier {
     setSavedAnswersQuestionsIds(answers);
 
     notify();
+  }
+
+  // PAGINATION
+  final int _limit = NumericConstants.takeReviewsAtOnce;
+  int get limit => _limit;
+
+  bool _isFirstLoadRunning = false;
+  void setFirstLoadRunning(bool value) {
+    _isFirstLoadRunning = value;
+    notify();
+  }
+
+  bool get isFirstLoadRunning => _isFirstLoadRunning;
+
+  int _page = 0;
+  void setPage(int value) {
+    _page = value;
+    notify();
+  }
+
+  Future<void> _firstLoad() async {
+    setFirstLoadRunning(true);
+    final reviews = await fetch(() => reviewService.getReviews(
+          nmId: nmId,
+          take: NumericConstants.takeFeedbacksAtOnce,
+          dateFrom: unixTimestamp2019(),
+          dateTo: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          skip: 0,
+        ));
+    if (reviews == null) {
+      setFirstLoadRunning(false);
+      return;
+    }
+    setReviews(reviews);
+
+    setFirstLoadRunning(false);
   }
 
   // ApiKeyExists

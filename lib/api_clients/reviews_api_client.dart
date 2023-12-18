@@ -14,6 +14,7 @@ class ReviewApiClient
         UnansweredFeedbackQtyServiceReviewsApiClient {
   const ReviewApiClient();
 
+  @override
   Future<Either<RewildError, int>> getCountUnansweredReviews(
       {required String token}) async {
     try {
@@ -73,14 +74,20 @@ class ReviewApiClient
       {required String token,
       required int take,
       required int skip,
+      required int dateFrom,
+      required int dateTo,
       int? nmId}) async {
     try {
+      print('dateFrom $dateFrom dateTo $dateTo');
       final params = {
         'isAnswered': false.toString(),
         'take': take.toString(),
         'skip': skip.toString(),
+        'dateFrom': dateFrom.toString(),
+        'dateTo': dateTo.toString(),
         'order': 'dateDesc',
       };
+
       if (nmId != null) {
         params['nmId'] = nmId.toString();
       }
@@ -122,12 +129,16 @@ class ReviewApiClient
       {required String token,
       required int take,
       required int skip,
+      required int dateFrom,
+      required int dateTo,
       int? nmId}) async {
     try {
       final params = {
         'isAnswered': true.toString(),
         'take': take.toString(),
         'skip': skip.toString(),
+        'dateFrom': dateFrom.toString(),
+        'dateTo': dateTo.toString(),
         'order': 'dateDesc',
       };
       if (nmId != null) {

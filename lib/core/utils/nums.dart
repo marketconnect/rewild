@@ -12,3 +12,12 @@ Int64 stringToInt64(String stringValue) {
     return Int64(0);
   }
 }
+
+int unixTimestamp2019() {
+  try {
+    final DateTime dateTime = DateTime(2019, 1, 1);
+    return dateTime.millisecondsSinceEpoch ~/ 1000;
+  } catch (e) {
+    return 0;
+  }
+}

@@ -80,12 +80,16 @@ class QuestionsApiClient
       {required String token,
       required int take,
       required int skip,
+      required int dateFrom,
+      required int dateTo,
       int? nmId}) async {
     try {
       final params = {
         'isAnswered': false.toString(),
         'take': take.toString(),
         'skip': skip.toString(),
+        'dateFrom': dateFrom.toString(),
+        'dateTo': dateTo.toString(),
         'order': 'dateAsc',
       };
 
@@ -135,12 +139,16 @@ class QuestionsApiClient
       {required String token,
       required int take,
       required int skip,
+      required int dateFrom,
+      required int dateTo,
       int? nmId}) async {
     try {
       final params = {
         'isAnswered': true.toString(),
         'take': take.toString(),
         'skip': skip.toString(),
+        'dateFrom': dateFrom.toString(),
+        'dateTo': dateTo.toString(),
         'order': 'dateAsc',
       };
 

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:rewild/core/constants/image_constant.dart';
 
 import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
 
 import 'package:rewild/widgets/empty_widget.dart';
 import 'package:rewild/widgets/network_image.dart';
+import 'package:rewild/widgets/popum_menu_item.dart';
 import 'package:rewild/widgets/progress_indicator.dart';
 
 class AllProductsFeedbackScreen extends StatefulWidget {
@@ -37,52 +39,105 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
     }
 
     final getImages = model.getImage;
-    final getNewQuestionsQty = model.newQuestionsQty;
+    final getNewQuestionsQty = model.unansweredQuestionsQty;
     final getNewReviewsQty = model.unansweredReviewsQty;
     final getallQuestionsQty = model.allQuestionsQty;
     final getallReviewsQty = model.allReviewsQty;
     final getSupplierArticle = model.getSupplierArticle;
     final goTo = model.goTo;
 
+    // filter by period
+    final setPeriod = model.setPeriod;
+    final period = model.period;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () async {
             await onClose();
           },
         ),
-        centerTitle: true,
-        title: !apiKeyexists
-            ? null
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: screenWidth * 0.15,
+        // centerTitle: true,
+        // title:
+        actions: [
+          if (apiKeyexists)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                isReviews
+                    ? Text('Отзывы',
+                        style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.05))
+                    : Text('Вопросы',
+                        style: TextStyle(
+                            fontSize:
+                                MediaQuery.of(context).size.width * 0.05)),
+                SizedBox(
+                  width: screenWidth * 0.05,
+                ),
+                Switch(
+                    value: isReviews,
+                    onChanged: (value) {
+                      // setState(() {
+                      //   isReviews = value;
+                      // });
+                      setIsReview(value);
+                    }),
+                SizedBox(
+                  width: screenWidth * 0.15,
+                ),
+              ],
+            ),
+          PopupMenuButton(
+            // Menu ============================================ Menu
+            onSelected: (value) => setPeriod(context, value),
+            icon: Icon(
+              Icons.menu,
+              size: MediaQuery.of(context).size.width * 0.1,
+              color: isReviews
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem(
+                  value: 'w',
+                  child: ReWildPopumMenuItemChild(
+                    text: "За неделю",
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: period == 'w' ? const Icon(Icons.check) : null,
+                    ),
                   ),
-                  Switch(
-                      value: isReviews,
-                      onChanged: (value) {
-                        // setState(() {
-                        //   isReviews = value;
-                        // });
-                        setIsReview(value);
-                      }),
-                  SizedBox(
-                    width: screenWidth * 0.05,
+                ),
+                PopupMenuItem(
+                  value: 'm',
+                  child: ReWildPopumMenuItemChild(
+                    text: "За месяц",
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: period == 'm' ? const Icon(Icons.check) : null,
+                    ),
                   ),
-                  isReviews
-                      ? Text('Отзывы',
-                          style: TextStyle(
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.05))
-                      : Text('Вопросы',
-                          style: TextStyle(
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.05)),
-                ],
-              ),
+                ),
+                PopupMenuItem(
+                  value: 'a',
+                  child: ReWildPopumMenuItemChild(
+                    text: "За все время",
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: period == 'a' ? const Icon(Icons.check) : null,
+                    ),
+                  ),
+                )
+              ];
+            },
+          ),
+        ],
       ),
       body: !apiKeyexists
           ? const EmptyWidget(

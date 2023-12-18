@@ -49,59 +49,60 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
     // }
 
     return Scaffold(
-      appBar: AppBar(
-        scrolledUnderElevation: 2,
-        shadowColor: Colors.black,
-        surfaceTintColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: Icon(_isSearching ? Icons.close : Icons.search),
-            onPressed: () {
-              setState(() {
-                _isSearching = !_isSearching;
-                if (!_isSearching) {
-                  _searchController.clear();
-                  clearSearchQuery();
-                }
-              });
-            },
-          ),
-        ],
-        title: _isSearching
-            ? GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isSearching = false;
+        appBar: AppBar(
+          scrolledUnderElevation: 2,
+          shadowColor: Colors.black,
+          surfaceTintColor: Colors.transparent,
+          actions: [
+            IconButton(
+              icon: Icon(_isSearching ? Icons.close : Icons.search),
+              onPressed: () {
+                setState(() {
+                  _isSearching = !_isSearching;
+                  if (!_isSearching) {
                     _searchController.clear();
-                  });
-                },
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (value) {
-                    setSearchQuery(value);
-                  },
-                  decoration: const InputDecoration(
-                    hintText: 'Поиск...',
-                    border: InputBorder.none,
-                  ),
-                ),
-              )
-            : null,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: screenWidth * 0.035),
-            ...displayedReviews.map((e) => _ReviewCard(
-                  reviewText: e.text,
-                  createdAt: e.createdDate,
-                  valuation: e.productValuation,
-                  userName: e.userName,
-                )),
+                    clearSearchQuery();
+                  }
+                });
+              },
+            ),
           ],
+          title: _isSearching
+              ? GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isSearching = false;
+                      _searchController.clear();
+                    });
+                  },
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setSearchQuery(value);
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Поиск...',
+                      border: InputBorder.none,
+                    ),
+                  ),
+                )
+              : null,
         ),
-      ),
-    );
+        body: Column(children: [
+          SizedBox(height: screenWidth * 0.035),
+          Expanded(
+              child: ListView.builder(
+                  itemCount: displayedReviews.length,
+                  itemBuilder: (context, index) {
+                    var review = displayedReviews[index];
+                    return _ReviewCard(
+                      reviewText: review.text,
+                      createdAt: review.createdDate,
+                      valuation: review.productValuation,
+                      userName: review.userName,
+                    );
+                  }))
+        ]));
   }
 }
 

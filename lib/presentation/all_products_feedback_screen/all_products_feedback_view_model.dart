@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
+import 'package:rewild/core/utils/nums.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/feedback_qty_model.dart';
@@ -21,6 +22,8 @@ abstract class AllProductsFeedbackViewModelQuestionService {
     required String token,
     required int take,
     required int skip,
+    required int dateFrom,
+    required int dateTo,
   });
 }
 
@@ -29,6 +32,8 @@ abstract class AllProductsFeedbackViewModelReviewService {
   Future<Either<RewildError, List<ReviewModel>>> getReviews({
     required int take,
     required int skip,
+    required int dateFrom,
+    required int dateTo,
     int? nmId,
   });
 }
@@ -70,6 +75,26 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
     final _ = await Future.wait([_updateQuestions(), _updateReviews()]);
   }
 
+  // Filter by period
+  String _period = 'w';
+  String get period => _period;
+  Future<void> setPeriod(BuildContext context, String value) async {
+    _period = value;
+    await _updateReviews();
+    await _updateQuestions();
+    notify();
+  }
+
+  (int, int) dateFromDateTo() {
+    final dateTo = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final dateFrom = _period == 'w'
+        ? dateTo - 60 * 60 * 24 * 7
+        : _period == 'm'
+            ? dateTo - 60 * 60 * 24 * 30
+            : unixTimestamp2019();
+    return (dateFrom, dateTo);
+  }
+
   // new feedback
   Map<int, int> _nmIdNew = {};
   void setNmIdNew(Map<int, int> value) {
@@ -99,6 +124,7 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   // Reviews ==================================================================== REVIEWS
   bool _isReviewsLoading = false;
   void setReviewsLoading(bool value) {
+    _reviewsQty = 0;
     _isReviewsLoading = value;
     notify();
   }
@@ -107,12 +133,17 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
   Future<void> _updateReviews() async {
     setReviewsLoading(true);
+    _resetAllReviewsQty();
+    _resetUnansweredReviewsQty();
     // get questions
     List<ReviewModel> allReviews = [];
     int n = 0;
+
     while (true) {
       final reviews = await fetch(() => reviewService.getReviews(
           take: NumericConstants.takeFeedbacksAtOnce,
+          dateFrom: dateFromDateTo().$1,
+          dateTo: dateFromDateTo().$2,
           skip: NumericConstants.takeFeedbacksAtOnce * n));
       if (reviews == null) {
         break;
@@ -120,7 +151,7 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
       // setReviewQty(allReviews.length);
       allReviews.addAll(reviews);
       n++;
-      setReviewQty(allReviews.length);
+      setReviewsQty(allReviews.length);
       if (reviews.length < NumericConstants.takeFeedbacksAtOnce) {
         break;
       }
@@ -133,7 +164,7 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
       // New Reviews Qty
       if (review.state == "none") {
-        incrementNewReviewsQty(nmId);
+        incrementUnansweredReviewsQty(nmId);
       }
 
       // incrementReview(nmId, review.productValuation);
@@ -161,7 +192,7 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   }
 
   int _reviewsQty = 0;
-  void setReviewQty(int value) {
+  void setReviewsQty(int value) {
     _reviewsQty = value;
     notify();
   }
@@ -171,6 +202,10 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   Map<int, int> _allReviewsQty = {};
   void setAllReviewsQty(Map<int, int> value) {
     _allReviewsQty = value;
+  }
+
+  void _resetAllReviewsQty() {
+    _allReviewsQty = {};
   }
 
   Set<int> get reviews => _allReviewsQty.keys.toSet();
@@ -185,25 +220,79 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
   int allReviewsQty(int nmId) => _allReviewsQty[nmId] ?? 0;
 
-  // new reviews for each nmId
-  Map<int, int> _newReviewsQty = {};
+  // unanswered reviews for each nmId
+  Map<int, int> _newUnansweredReviewsQty = {};
   void setUnansweredReviewsQty(Map<int, int> value) {
-    _newReviewsQty = value;
+    _newUnansweredReviewsQty = value;
   }
 
-  void incrementNewReviewsQty(int nmId) {
-    if (_newReviewsQty.containsKey(nmId)) {
-      _newReviewsQty[nmId] = _newReviewsQty[nmId]! + 1;
+  void _resetUnansweredReviewsQty() {
+    _newUnansweredReviewsQty = {};
+  }
+
+  void incrementUnansweredReviewsQty(int nmId) {
+    if (_newUnansweredReviewsQty.containsKey(nmId)) {
+      _newUnansweredReviewsQty[nmId] = _newUnansweredReviewsQty[nmId]! + 1;
     } else {
-      _newReviewsQty[nmId] = 1;
+      _newUnansweredReviewsQty[nmId] = 1;
     }
   }
 
-  int unansweredReviewsQty(int nmId) => _newReviewsQty[nmId] ?? 0;
+  int unansweredReviewsQty(int nmId) => _newUnansweredReviewsQty[nmId] ?? 0;
 
   // Questions ================================================================== QUESTIONS
+  // new questions qty
+  Map<int, int> _unansweredQuestionsQty = {};
+  void setUnansweredQuestionsQty(Map<int, int> value) {
+    _unansweredQuestionsQty = value;
+  }
+
+  void resetUnansweredQuestionsQty() {
+    _unansweredQuestionsQty = {};
+  }
+
+  void incrementNewQuestionsQty(int nmId) {
+    if (_unansweredQuestionsQty.containsKey(nmId)) {
+      _unansweredQuestionsQty[nmId] = _unansweredQuestionsQty[nmId]! + 1;
+    } else {
+      _unansweredQuestionsQty[nmId] = 1;
+    }
+  }
+
+  int unansweredQuestionsQty(int nmId) => _unansweredQuestionsQty[nmId] ?? 0;
+
+  int _questionsQty = 0;
+  void setQuestionsQty(int value) {
+    _questionsQty = value;
+    notify();
+  }
+
+  int get questionsQty => _questionsQty;
+
+  // all questions qty
+  Map<int, int> _allQuestionsQty = {};
+  void setAllQuestionsQty(Map<int, int> value) {
+    _allQuestionsQty = value;
+  }
+
+  void _resetAllQuestionsQty() {
+    _allQuestionsQty = {};
+  }
+
+  Set<int> get questions => _allQuestionsQty.keys.toSet();
+
+  void incrementAllQuestionsQty(int nmId) {
+    if (_allQuestionsQty.containsKey(nmId)) {
+      _allQuestionsQty[nmId] = _allQuestionsQty[nmId]! + 1;
+    } else {
+      _allQuestionsQty[nmId] = 1;
+    }
+  }
+
+  int allQuestionsQty(int nmId) => _allQuestionsQty[nmId] ?? 0;
   bool _isQuestionsLoading = false;
   void setQuestionsLoading(bool value) {
+    _questionsQty = 0;
     _isQuestionsLoading = value;
     notify();
   }
@@ -211,6 +300,9 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   bool get isQuestionsLoading => _isQuestionsLoading;
   Future<void> _updateQuestions() async {
     setQuestionsLoading(true);
+    resetUnansweredQuestionsQty();
+    _resetAllQuestionsQty();
+
     // get questions
     List<QuestionModel> allQuestions = [];
     int n = 0;
@@ -221,6 +313,8 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
       final questions = await fetch(() => questionService.getQuestions(
           token: _apiKey!,
           take: NumericConstants.takeFeedbacksAtOnce,
+          dateFrom: dateFromDateTo().$1,
+          dateTo: dateFromDateTo().$2,
           skip: NumericConstants.takeFeedbacksAtOnce * n));
       if (questions == null) {
         break;
@@ -318,48 +412,6 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
   String getSupplierArticle(int nmId) => _supplierArticle[nmId] ?? '';
 
-  // new questions qty
-  Map<int, int> _newQuestionsQty = {};
-  void setNewQuestionsQty(Map<int, int> value) {
-    _newQuestionsQty = value;
-  }
-
-  void incrementNewQuestionsQty(int nmId) {
-    if (_newQuestionsQty.containsKey(nmId)) {
-      _newQuestionsQty[nmId] = _newQuestionsQty[nmId]! + 1;
-    } else {
-      _newQuestionsQty[nmId] = 1;
-    }
-  }
-
-  int newQuestionsQty(int nmId) => _newQuestionsQty[nmId] ?? 0;
-
-  int _questionsQty = 0;
-  void setQuestionsQty(int value) {
-    _questionsQty = value;
-    notify();
-  }
-
-  int get questionsQty => _questionsQty;
-
-  // all questions qty
-  Map<int, int> _allQuestionsQty = {};
-  void setAllQuestionsQty(Map<int, int> value) {
-    _allQuestionsQty = value;
-  }
-
-  Set<int> get questions => _allQuestionsQty.keys.toSet();
-
-  void incrementAllQuestionsQty(int nmId) {
-    if (_allQuestionsQty.containsKey(nmId)) {
-      _allQuestionsQty[nmId] = _allQuestionsQty[nmId]! + 1;
-    } else {
-      _allQuestionsQty[nmId] = 1;
-    }
-  }
-
-  int allQuestionsQty(int nmId) => _allQuestionsQty[nmId] ?? 0;
-
   // ApiKeyExists
   String? _apiKey;
   void setApiKey(String value) {
@@ -371,9 +423,9 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
   void goTo(int nmId) {
     if (isReviews) {
-      _newReviewsQty.remove(nmId);
+      _newUnansweredReviewsQty.remove(nmId);
     } else {
-      _newQuestionsQty.remove(nmId);
+      _unansweredQuestionsQty.remove(nmId);
     }
     if (context.mounted) {
       Navigator.of(context).pushNamed(

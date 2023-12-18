@@ -8,12 +8,19 @@ import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.da
 
 abstract class ReviewServiceReviewApiClient {
   Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(
-      {required String token, required int take, required int skip, int? nmId});
+      {required String token,
+      required int take,
+      required int dateFrom,
+      required int dateTo,
+      required int skip,
+      int? nmId});
 
   Future<Either<RewildError, List<ReviewModel>>> getAnsweredReviews(
       {required String token,
       required int take,
       required int skip,
+      required int dateFrom,
+      required int dateTo,
       required int? nmId});
 
   Future<Either<RewildError, bool>> handleReview(
@@ -58,6 +65,8 @@ class ReviewService
   Future<Either<RewildError, List<ReviewModel>>> getReviews({
     required int take,
     required int skip,
+    required int dateFrom,
+    required int dateTo,
     int? nmId,
   }) async {
     final tokenEither = await apiKeysDataProvider.getApiKey(type: keyType);
@@ -74,6 +83,8 @@ class ReviewService
         token: apiKeyModel.token,
         take: take,
         skip: skip,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
         nmId: nmId,
       );
       return unAnsweredEther.fold((l) => left(l), (unAnsweredReviews) async {
@@ -81,6 +92,8 @@ class ReviewService
           nmId: nmId,
           token: apiKeyModel.token,
           take: take,
+          dateFrom: dateFrom,
+          dateTo: dateTo,
           skip: skip,
         );
         return answeredEither.fold((l) => left(l), (answeredReviews) {
