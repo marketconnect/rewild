@@ -5,7 +5,7 @@ import 'package:rewild/data_providers/answer_data_provider/answer_db.dart';
 import 'package:rewild/data_providers/background_message_data_provider/background_message_db.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_db.dart';
-import 'package:rewild/data_providers/feedback_data_provider/feedback_qty_db.dart';
+import 'package:rewild/data_providers/feedback_qty_data_provider/feedback_qty_db.dart';
 import 'package:rewild/data_providers/filter_data_provider/filter_db.dart';
 import 'package:rewild/data_providers/keyword_data_provider/keyword_db.dart';
 import 'package:rewild/data_providers/notifications_data_provider/notification_db.dart';

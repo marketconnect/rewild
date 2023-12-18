@@ -38,7 +38,7 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
 
     final getImages = model.getImage;
     final getNewQuestionsQty = model.newQuestionsQty;
-    final getNewReviewsQty = model.newReviewsQty;
+    final getNewReviewsQty = model.unansweredReviewsQty;
     final getallQuestionsQty = model.allQuestionsQty;
     final getallReviewsQty = model.allReviewsQty;
     final getSupplierArticle = model.getSupplierArticle;

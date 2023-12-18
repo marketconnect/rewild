@@ -38,6 +38,8 @@ abstract class AllProductsFeedbackUnansweredFeedbackQtyService {
   Future<Either<RewildError, void>> saveUnansweredFeedbackQtyList(
       {required String token,
       required List<UnAnsweredFeedbacksQtyModel> feedbacks});
+  Future<Either<RewildError, List<UnAnsweredFeedbacksQtyModel>>>
+      getAllUnansweredFeedbackQty();
 }
 
 class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
@@ -58,10 +60,7 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
   void _asyncInit() async {
     // check api key
-    // final exists = await fetch(() => questionService.apiKeyExists());
-    // if (exists == null) {
-    //   return;
-    // }
+
     final apiKey = await fetch(() => questionService.getApiKey());
     if (apiKey == null) {
       return;
@@ -69,6 +68,32 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
     setApiKey(apiKey);
 
     final _ = await Future.wait([_updateQuestions(), _updateReviews()]);
+  }
+
+  // new feedback
+  Map<int, int> _nmIdNew = {};
+  void setNmIdNew(Map<int, int> value) {
+    _nmIdNew = value;
+  }
+
+  void setNewReviewsQty(int nmId, int qty) {
+    _nmIdNew[nmId] = qty;
+  }
+
+  int newReviewsQty(int nmId) {
+    return _nmIdNew[nmId] ?? 0;
+  }
+
+  Future<void> _updateNews() async {
+    final unanswered = await fetch(
+        () => unansweredFeedbackQtyService.getAllUnansweredFeedbackQty());
+    if (unanswered == null) {
+      return;
+    }
+    for (final feedback in unanswered) {
+      setNewReviewsQty(feedback.nmId, feedback.qty);
+    }
+    notify();
   }
 
   // Reviews ==================================================================== REVIEWS
@@ -162,7 +187,7 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
   // new reviews for each nmId
   Map<int, int> _newReviewsQty = {};
-  void setNewReviewsQty(Map<int, int> value) {
+  void setUnansweredReviewsQty(Map<int, int> value) {
     _newReviewsQty = value;
   }
 
@@ -174,7 +199,7 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
     }
   }
 
-  int newReviewsQty(int nmId) => _newReviewsQty[nmId] ?? 0;
+  int unansweredReviewsQty(int nmId) => _newReviewsQty[nmId] ?? 0;
 
   // Questions ================================================================== QUESTIONS
   bool _isQuestionsLoading = false;

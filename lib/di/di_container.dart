@@ -20,7 +20,7 @@ import 'package:rewild/data_providers/background_message_data_provider/backgroun
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
 import 'package:rewild/data_providers/commission_data_provider/commission_data_provider.dart';
-import 'package:rewild/data_providers/feedback_data_provider/feedback_qty_data_provider.dart';
+import 'package:rewild/data_providers/feedback_qty_data_provider/feedback_qty_data_provider.dart';
 import 'package:rewild/data_providers/filter_data_provider/filter_data_provider.dart';
 
 import 'package:rewild/data_providers/group_data_provider/group_data_provider.dart';

@@ -15,7 +15,7 @@ import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data
 import 'package:rewild/data_providers/background_message_data_provider/background_message_data_provider.dart';
 
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
-import 'package:rewild/data_providers/feedback_data_provider/feedback_qty_data_provider.dart';
+import 'package:rewild/data_providers/feedback_qty_data_provider/feedback_qty_data_provider.dart';
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
 import 'package:rewild/data_providers/notifications_data_provider/notification_data_provider.dart';
