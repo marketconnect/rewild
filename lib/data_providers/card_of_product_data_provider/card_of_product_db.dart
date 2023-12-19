@@ -16,6 +16,7 @@ class CardOfProductDb extends CardOfProductModel {
       super.pics,
       super.rating,
       super.reviewRating,
+      super.my,
       super.feedbacks,
       super.promoTextCard});
 
@@ -35,6 +36,7 @@ class CardOfProductDb extends CardOfProductModel {
         basicPriceU INTEGER,
         pics INTEGER,
         rating INTEGER,
+        my INTEGER,
         reviewRating REAL,
         feedbacks INTEGER,
         promoTextCard TEXT,

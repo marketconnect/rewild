@@ -44,6 +44,8 @@ class CardOfProductModel extends BackgroundNotifier {
 
   int? createdAt;
 
+  int? my;
+
   final List<SizeModel> sizes;
 
   final List<InitialStockModel> initialStocks;
@@ -83,6 +85,7 @@ class CardOfProductModel extends BackgroundNotifier {
     this.feedbacks = 0,
     this.createdAt = 0,
     this.promoTextCard = "",
+    this.my = 0,
     this.sizes = const [],
     this.initialStocks = const [],
     this.groups = const [],
@@ -108,6 +111,7 @@ class CardOfProductModel extends BackgroundNotifier {
     String? promoTextCard,
     List<SizeModel>? sizes,
     List<InitialStockModel>? initialStocks,
+    int? my,
   }) {
     return CardOfProductModel(
       nmId: nmId ?? this.nmId,
@@ -128,6 +132,7 @@ class CardOfProductModel extends BackgroundNotifier {
       sizes: sizes ?? this.sizes,
       createdAt: createdAt ?? this.createdAt,
       initialStocks: initialStocks ?? this.initialStocks,
+      my: my ?? this.my,
       groups: groups,
       seller: seller,
     );
@@ -264,6 +269,7 @@ class CardOfProductModel extends BackgroundNotifier {
       'reviewRating': reviewRating,
       'feedbacks': feedbacks,
       'promoTextCard': promoTextCard,
+      'my': my,
     };
   }
 
@@ -289,6 +295,7 @@ class CardOfProductModel extends BackgroundNotifier {
       feedbacks: map['feedbacks'] != null ? map['feedbacks'] as int : null,
       promoTextCard:
           map['promoTextCard'] != null ? map['promoTextCard'] as String : null,
+      my: map['my'] != null ? map['my'] as int : 0,
     );
   }
 

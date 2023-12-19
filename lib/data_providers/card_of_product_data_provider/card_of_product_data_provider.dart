@@ -78,9 +78,10 @@ class CardOfProductDataProvider
         reviewRating,
         feedbacks,
         promoTextCard,
+        my,
         createdAt
       ) VALUES(
-        ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+        ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
       )''', [
         card.nmId,
         card.name,
@@ -97,6 +98,7 @@ class CardOfProductDataProvider
         card.reviewRating,
         card.feedbacks,
         card.promoTextCard,
+        card.my,
         DateTime.now().millisecondsSinceEpoch
       ]);
       return right(id);
@@ -167,6 +169,7 @@ class CardOfProductDataProvider
     reviewRating = ?,
     feedbacks = ?,
     promoTextCard = ?
+    my = ?
   WHERE
     nmId = ?
   ''',
@@ -184,6 +187,7 @@ class CardOfProductDataProvider
           card.reviewRating,
           card.feedbacks,
           card.promoTextCard,
+          card.my,
           card.nmId
         ],
       );
@@ -287,7 +291,8 @@ class CardOfProductDataProvider
     rating = ?,
     reviewRating = ?,
     feedbacks = ?,
-    promoTextCard = ?
+    promoTextCard = ?,
+    my = ?
   WHERE
     nmId = ?
   ''',
@@ -305,6 +310,7 @@ class CardOfProductDataProvider
           card.reviewRating,
           card.feedbacks,
           card.promoTextCard,
+          card.my,
           card.nmId
         ],
       );

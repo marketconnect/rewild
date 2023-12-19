@@ -2,11 +2,14 @@ import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/feedback_qty_model.dart';
+import 'package:rewild/domain/services/review_service.dart';
 import 'package:rewild/domain/services/unanswered_feedback_qty_service.dart';
 import 'package:sqflite/sqflite.dart';
 
 class UnansweredFeedbackQtyDataProvider
-    implements UnansweredFeedbackQtyServiceFeedbackQtyDataProvider {
+    implements
+        UnansweredFeedbackQtyServiceFeedbackQtyDataProvider,
+        ReviewServiceUnansweredFeedbackQtyDataProvider {
   const UnansweredFeedbackQtyDataProvider();
 
   @override
@@ -64,7 +67,23 @@ class UnansweredFeedbackQtyDataProvider
     }
   }
 
-  static Future<Either<RewildError, int>> getQtyOfType(int type) async {
+  @override
+  Future<Either<RewildError, int>> getQtyOfNmId({required int nmId}) async {
+    try {
+      final db = await SqfliteService().database;
+      final List<Map<String, dynamic>> maps = await db.rawQuery(
+          'SELECT * FROM unanswered_feedback_qty WHERE nmId = ?', [nmId]);
+      return right(maps[0]['qty']);
+    } catch (e) {
+      return left(RewildError(e.toString(),
+          source: 'FeedbackQtyDataProvider',
+          name: "getQtyOfType",
+          args: [nmId]));
+    }
+  }
+
+  static Future<Either<RewildError, int>> getQtyOfTypeInBackground(
+      int type) async {
     try {
       final db = await SqfliteService().database;
       final List<Map<String, dynamic>> maps = await db.rawQuery(

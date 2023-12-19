@@ -26,6 +26,7 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
     final model = context.watch<AllReviewsViewModel>();
     final screenWidth = MediaQuery.of(context).size.width;
     final reviews = model.reviews;
+
     // Search
     final setSearchQuery = model.setSearchQuery;
     final clearSearchQuery = model.clearSearchQuery;
@@ -38,15 +39,6 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
       }
       return q.text.toLowerCase().contains(searchQuery.toLowerCase());
     }).toList();
-    // List<ReviewModel> unAnsweredReviews = [];
-    // List<ReviewModel> answeredReviews = [];
-    // for (final question in displayedReviews) {
-    //   if (question.answer != null) {
-    //     answeredReviews.add(question);
-    //   } else {
-    //     unAnsweredReviews.add(question);
-    //   }
-    // }
 
     return Scaffold(
         appBar: AppBar(
@@ -108,8 +100,7 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
 
 class _ReviewCard extends StatelessWidget {
   const _ReviewCard(
-      {super.key,
-      required this.reviewText,
+      {required this.reviewText,
       required this.createdAt,
       required this.userName,
       required this.valuation});
@@ -123,7 +114,7 @@ class _ReviewCard extends StatelessWidget {
     // final screenHeight = MediaQuery.of(context).size.height;
 
     final dateText = DateTime.now().day == createdAt.day
-        ? '${createdAt.hour}:${createdAt.minute}'
+        ? '${createdAt.toLocal().hour.toString().padLeft(2, '0')}:${createdAt.toLocal().minute.toString().padLeft(2, '0')}'
         : '${createdAt.day}.${createdAt.month}.${createdAt.year}';
     return Container(
       padding: EdgeInsets.symmetric(

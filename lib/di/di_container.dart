@@ -377,6 +377,8 @@ class _DIContainer {
   ReviewService _makeReviewService() => ReviewService(
         reviewApiClient: _makeReviewApiClient(),
         apiKeysDataProvider: _makeSecureDataProvider(),
+        unansweredFeedbackQtyDataProvider:
+            _makeUnansweredFeedbackQtyDataProvider(),
       );
 
   // Auto stat

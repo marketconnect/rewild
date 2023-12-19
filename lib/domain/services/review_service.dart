@@ -1,11 +1,18 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/constants/constants.dart';
+
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/review_model.dart';
 import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
 import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.dart';
 
+// Api key
+abstract class ReviewServiceApiKeyDataProvider {
+  Future<Either<RewildError, ApiKeyModel?>> getApiKey({required String type});
+}
+
+// Api
 abstract class ReviewServiceReviewApiClient {
   Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(
       {required String token,
@@ -31,9 +38,9 @@ abstract class ReviewServiceReviewApiClient {
       required String answer});
 }
 
-// Api key
-abstract class ReviewServiceApiKeyDataProvider {
-  Future<Either<RewildError, ApiKeyModel?>> getApiKey({required String type});
+// data provider
+abstract class ReviewServiceUnansweredFeedbackQtyDataProvider {
+  Future<Either<RewildError, int>> getQtyOfNmId({required int nmId});
 }
 
 class ReviewService
@@ -42,10 +49,12 @@ class ReviewService
         AllReviewsViewModelReviewService {
   final ReviewServiceReviewApiClient reviewApiClient;
   final ReviewServiceApiKeyDataProvider apiKeysDataProvider;
-
+  final ReviewServiceUnansweredFeedbackQtyDataProvider
+      unansweredFeedbackQtyDataProvider;
   ReviewService({
     required this.apiKeysDataProvider,
     required this.reviewApiClient,
+    required this.unansweredFeedbackQtyDataProvider,
   });
 
   static final keyType = StringConstants.apiKeyTypes[ApiKeyType.question] ?? "";
@@ -59,6 +68,21 @@ class ReviewService
       }
       return right(true);
     });
+  }
+
+  @override
+  Future<Either<RewildError, Map<int, int>>> prevUnansweredReviewsQty(
+      {required Set<int> nmIds}) async {
+    Map<int, int> result = {};
+
+    for (final nmId in nmIds) {
+      final qtyEither =
+          await unansweredFeedbackQtyDataProvider.getQtyOfNmId(nmId: nmId);
+      if (qtyEither.isRight()) {
+        result[nmId] = qtyEither.getOrElse((l) => 0);
+      }
+    }
+    return Future.value(right(result));
   }
 
   @override
@@ -102,43 +126,6 @@ class ReviewService
       });
     });
   }
-
-  // Unanswered reviews
-
-  // if (resourceUnAnswered is Error) {
-  //   return left(RewildError(
-  //     resourceUnAnswered.message!,
-  //     source: runtimeType.toString(),
-  //     name: "getReviews",
-  //     args: [],
-  //   );
-  // }
-  // if (resourceUnAnswered is Empty) {
-  //   return right(null);
-  // }
-  // final unAnsweredReviews = resourceUnAnswered.data!;
-
-  // Answered reviews
-  // final resourceAnswered = await reviewApiClient.getAnsweredReviews(
-  //   tokenEither.data!.token,
-  //   take,
-  //   skip,
-  //   nmId,
-  // );
-  // if (resourceAnswered is Error) {
-  //   return left(RewildError(
-  //     resourceAnswered.message!,
-  //     source: runtimeType.toString(),
-  //     name: "getReviews",
-  //     args: [],
-  //   );
-  // }
-  // if (resourceAnswered is Empty) {
-  // //   return right(unAnsweredReviews);
-  // // }
-  // final answeredReviews = resourceAnswered.data!;
-
-  // return right([...unAnsweredReviews, ...answeredReviews]);
 
   Future<Either<RewildError, bool>> publishReview(
     String id,

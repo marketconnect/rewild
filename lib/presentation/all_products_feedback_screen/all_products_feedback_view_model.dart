@@ -36,6 +36,8 @@ abstract class AllProductsFeedbackViewModelReviewService {
     required int dateTo,
     int? nmId,
   });
+  Future<Either<RewildError, Map<int, int>>> prevUnansweredReviewsQty(
+      {required Set<int> nmIds});
 }
 
 // Unanswered Feedback Qty
@@ -72,7 +74,8 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
     }
     setApiKey(apiKey);
 
-    final _ = await Future.wait([_updateQuestions(), _updateReviews()]);
+    // get current questions and reviews
+    await Future.wait([_updateQuestions(), _updateReviews()]);
   }
 
   // Filter by period
@@ -80,8 +83,10 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   String get period => _period;
   Future<void> setPeriod(BuildContext context, String value) async {
     _period = value;
-    await _updateReviews();
-    await _updateQuestions();
+    final _ = await Future.wait([
+      _updateReviews(),
+      _updateQuestions(),
+    ]);
     notify();
   }
 
@@ -239,6 +244,19 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   }
 
   int unansweredReviewsQty(int nmId) => _newUnansweredReviewsQty[nmId] ?? 0;
+
+  // prev unanswered qty
+  Map<int, int> _prevUnansweredReviewsQty = {};
+  void setPrevUnansweredReviewsQty(Map<int, int> value) {
+    _prevUnansweredReviewsQty = value;
+  }
+
+  void _resetPrevUnansweredReviewsQty() {
+    _prevUnansweredReviewsQty = {};
+  }
+
+  int prevUnansweredReviewsQty(int nmId) =>
+      _prevUnansweredReviewsQty[nmId] ?? 0;
 
   // Questions ================================================================== QUESTIONS
   // new questions qty

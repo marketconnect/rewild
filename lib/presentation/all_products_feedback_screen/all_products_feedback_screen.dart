@@ -41,6 +41,7 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
     final getImages = model.getImage;
     final getNewQuestionsQty = model.unansweredQuestionsQty;
     final getNewReviewsQty = model.unansweredReviewsQty;
+    final prevUnansweredReviewsQty = model.prevUnansweredReviewsQty;
     final getallQuestionsQty = model.allQuestionsQty;
     final getallReviewsQty = model.allReviewsQty;
     final getSupplierArticle = model.getSupplierArticle;
@@ -170,6 +171,7 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
                               : getNewQuestionsQty(e),
                           supplierArticle: getSupplierArticle(e),
                           isReview: isReviews,
+                          prevUnansweredQty: prevUnansweredReviewsQty(e),
                           oldItemsQty: isReviews
                               ? getallReviewsQty(e)
                               : getallQuestionsQty(e),
@@ -190,11 +192,13 @@ class _ProductCard extends StatelessWidget {
       required this.oldItemsQty,
       required this.goTo,
       required this.supplierArticle,
+      required this.prevUnansweredQty,
       this.isReview = false});
   final int nmId;
   final String image;
   final String supplierArticle;
   final int newItemsQty;
+  final int prevUnansweredQty;
   final int oldItemsQty;
   final bool isReview;
   final Function(int nmId) goTo;
@@ -221,73 +225,83 @@ class _ProductCard extends StatelessWidget {
           aspectRatio: 10 / 3,
           child: SizedBox(
             width: screenWidth,
-            child: Row(
+            child: Stack(
               children: [
-                AspectRatio(
-                  aspectRatio: 3 / 4,
-                  child: (image.isEmpty)
-                      ? Image.asset(ImageConstant.taken, fit: BoxFit.scaleDown)
-                      : ReWildNetworkImage(
-                          width: screenWidth * 0.33, image: image),
-                ),
-                SizedBox(
-                  width: screenWidth * 0.05,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                Row(
                   children: [
-                    Center(
-                      child: Text(
-                        supplierArticle,
-                        style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.05,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.bold),
-                      ),
+                    AspectRatio(
+                      aspectRatio: 3 / 4,
+                      child: (image.isEmpty)
+                          ? Image.asset(ImageConstant.taken,
+                              fit: BoxFit.scaleDown)
+                          : ReWildNetworkImage(
+                              width: screenWidth * 0.33, image: image),
                     ),
-                    Text(
-                      'Всего ${isReview ? "отзывов" : "вопросов"}: $oldItemsQty',
-                      style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * 0.04,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant
-                              .withOpacity(0.8),
-                          fontWeight: FontWeight.w500),
+                    SizedBox(
+                      width: screenWidth * 0.05,
                     ),
-                    Container(
-                      padding: newItemsQty == 0
-                          ? null
-                          : EdgeInsets.symmetric(
-                              vertical:
-                                  MediaQuery.of(context).size.width * 0.01,
-                              horizontal:
-                                  MediaQuery.of(context).size.width * 0.02,
-                            ),
-                      decoration: newItemsQty == 0
-                          ? null
-                          : BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                  MediaQuery.of(context).size.width * 0.01),
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                      child: Text(
-                        'Без ответа: $newItemsQty',
-                        style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.04,
-                            color: newItemsQty > 0
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : Theme.of(context)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Center(
+                          child: Text(
+                            supplierArticle,
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.05,
+                                color: Theme.of(context)
                                     .colorScheme
-                                    .onSurfaceVariant
-                                    .withOpacity(0.7),
-                            fontWeight: FontWeight.w500),
-                      ),
+                                    .onSurfaceVariant,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Text(
+                          'Всего ${isReview ? "отзывов" : "вопросов"}: $oldItemsQty',
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.04,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant
+                                  .withOpacity(0.8),
+                              fontWeight: FontWeight.w500),
+                        ),
+                        Container(
+                          padding: newItemsQty == 0
+                              ? null
+                              : EdgeInsets.symmetric(
+                                  vertical:
+                                      MediaQuery.of(context).size.width * 0.01,
+                                  horizontal:
+                                      MediaQuery.of(context).size.width * 0.02,
+                                ),
+                          decoration: newItemsQty == 0
+                              ? null
+                              : BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                      MediaQuery.of(context).size.width * 0.01),
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          child: Text(
+                            'Без ответа: $newItemsQty',
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.04,
+                                color: newItemsQty > 0
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant
+                                        .withOpacity(0.7),
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+                Positioned(right: 0, child: Text('$prevUnansweredQty'))
               ],
             ),
           ),

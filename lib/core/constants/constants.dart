@@ -151,7 +151,7 @@ class NumericConstants {
   };
 
   static const int takeFeedbacksAtOnce = 500;
-  static const int takeReviewsAtOnce = 50;
+  static const int takeReviewsAtOnce = 10;
 }
 
 class NotificationConditionConstants {

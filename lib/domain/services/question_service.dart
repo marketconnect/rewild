@@ -72,10 +72,10 @@ class QuestionService
     required int dateFrom,
     required int dateTo,
   }) async {
-    late List<QuestionModel> allQuestions;
+    List<QuestionModel> allQuestions = [];
 
     // Unanswered questions
-    final unAnsweredResult = await questionApiClient.getUnansweredQuestions(
+    final unAnsweredEither = await questionApiClient.getUnansweredQuestions(
         token: token,
         take: take,
         dateFrom: dateFrom,
@@ -83,21 +83,25 @@ class QuestionService
         skip: skip,
         nmId: nmId);
 
-    unAnsweredResult.fold((l) => left(l), (r) {
-      allQuestions = r;
-    });
+    if (unAnsweredEither.isRight()) {
+      unAnsweredEither.fold((l) => left(l), (r) {
+        allQuestions = r;
+      });
+    }
+
     // Answered questions
-    final resourceAnswered = await questionApiClient.getAnsweredQuestions(
+    final answeredEither = await questionApiClient.getAnsweredQuestions(
         token: token,
         take: take,
         dateFrom: dateFrom,
         dateTo: dateTo,
         skip: skip,
         nmId: nmId);
-
-    resourceAnswered.fold((l) => left(l), (r) {
-      allQuestions.addAll(r);
-    });
+    if (answeredEither.isRight()) {
+      answeredEither.fold((l) => left(l), (r) {
+        allQuestions.addAll(r);
+      });
+    }
 
     return right(allQuestions);
   }

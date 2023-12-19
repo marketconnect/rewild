@@ -20,6 +20,7 @@ class QuestionsApiClient
     try {
       final wbApiHelper = WbQuestionsApiHelper.getUnansweredQuestionsCount;
       final response = await wbApiHelper.get(token);
+      print('token $token');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
