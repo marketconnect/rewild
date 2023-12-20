@@ -18,6 +18,7 @@ abstract class MainNavigationRouteNames {
   static const String singleCardScreen = '/single_card_screen';
   static const String singleAdvertStatsScreen = '/single_advert_stats_screen';
   static const String singleQuestionScreen = '/single_question_screen';
+  static const String singleReviewScreen = '/single_review_screen';
   static const String cardNotificationsSettingsScreen =
       '/card_notifications_settings_screen';
   static const String feedbackNotificationScreen =

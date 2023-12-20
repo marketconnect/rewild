@@ -44,9 +44,10 @@ class UnansweredFeedbackQtyService
   }
 
   @override
-  Future<Either<RewildError, void>> saveUnansweredFeedbackQtyList(
-      {required String token,
-      required List<UnAnsweredFeedbacksQtyModel> feedbacks}) async {
+  Future<Either<RewildError, void>> saveUnansweredFeedbackQtyList({
+    required String token,
+    required List<UnAnsweredFeedbacksQtyModel> feedbacks,
+  }) async {
     // quantity of unanswered questions
     final unansweredAllQuestionsQtyEither =
         await questionsApiClient.getCountUnansweredQuestions(token: token);

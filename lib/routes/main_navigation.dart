@@ -1,4 +1,5 @@
 import 'package:rewild/domain/entities/question_model.dart';
+import 'package:rewild/domain/entities/review_model.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/presentation/app/app.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ abstract class ScreenFactory {
   Widget makeSingleCardScreen(int id);
   Widget makeSingleStatAdvertScreen(int id);
   Widget makeSingleQuestionScreen(QuestionModel question);
+  Widget makeSingleReviewScreen(ReviewModel? review);
   Widget makeBackgroundNotificationsScreen();
   Widget makeFirstTimeSplashScreen();
   Widget makeAllProductsQuestionsScreen();
@@ -193,11 +195,6 @@ class MainNavigation implements AppNavigation {
           builder: (_) => screenFactory.makeAllProductsQuestionsScreen(),
         );
 
-      // case MainNavigationRouteNames.productsReviewsScreen:
-      //   return MaterialPageRoute(
-      //     builder: (_) => screenFactory.makeAllProductsReviewsScreen(),
-      //   );
-
       case MainNavigationRouteNames.advertNotificationScreen:
         final arguments = settings.arguments;
         final state = arguments is NotificationAdvertState
@@ -220,6 +217,14 @@ class MainNavigation implements AppNavigation {
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllReviewsScreen(nmId),
         );
+
+      case MainNavigationRouteNames.singleReviewScreen:
+        final arguments = settings.arguments;
+        final review = arguments is ReviewModel ? arguments : null;
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeSingleReviewScreen(review),
+        );
+
       case MainNavigationRouteNames.singleQuestionScreen:
         final arguments = settings.arguments;
         final question =

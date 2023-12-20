@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:rewild/core/constants/icons_constant.dart';
 
 import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.dart';
+import 'package:rewild/routes/main_navigation_route_names.dart';
 
 class AllReviewsScreen extends StatefulWidget {
   const AllReviewsScreen({super.key});
@@ -87,11 +88,16 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
                   itemCount: displayedReviews.length,
                   itemBuilder: (context, index) {
                     var review = displayedReviews[index];
-                    return _ReviewCard(
-                      reviewText: review.text,
-                      createdAt: review.createdDate,
-                      valuation: review.productValuation,
-                      userName: review.userName,
+                    return GestureDetector(
+                      onTap: () => Navigator.of(context).pushNamed(
+                          MainNavigationRouteNames.singleReviewScreen,
+                          arguments: displayedReviews[index]),
+                      child: _ReviewCard(
+                        reviewText: review.text,
+                        createdAt: review.createdDate,
+                        valuation: review.productValuation,
+                        userName: review.userName,
+                      ),
                     );
                   }))
         ]));

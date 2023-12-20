@@ -36,6 +36,7 @@ import 'package:rewild/data_providers/stock_data_provider.dart/stock_data_provid
 import 'package:rewild/data_providers/supply_data_provider/supply_data_provider.dart';
 import 'package:rewild/data_providers/warehouse_data_provider.dart';
 import 'package:rewild/domain/entities/question_model.dart';
+import 'package:rewild/domain/entities/review_model.dart';
 
 import 'package:rewild/domain/entities/stream_advert_event.dart';
 import 'package:rewild/domain/entities/stream_notification_event.dart';
@@ -113,6 +114,8 @@ import 'package:rewild/presentation/single_card_screen/single_card_screen.dart';
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 import 'package:rewild/presentation/single_question_screen/single_question_view_model.dart';
 import 'package:rewild/presentation/single_question_screen/single_question_screen.dart';
+import 'package:rewild/presentation/single_review_screen/single_review_screen.dart';
+import 'package:rewild/presentation/single_review_screen/single_review_view_model.dart';
 import 'package:rewild/presentation/single_search_words_screen/single_search_words_screen.dart';
 import 'package:rewild/presentation/single_search_words_screen/single_search_words_view_model.dart';
 
@@ -625,6 +628,14 @@ class _DIContainer {
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
 
+  SingleReviewViewModel _makeSingleReviewViewModel(
+          BuildContext context, ReviewModel? review) =>
+      SingleReviewViewModel(
+        review,
+        context: context,
+        internetConnectionChecker: _makeInternetConnectionChecker(),
+      );
+
   NotificationFeedbackViewModel _makeFeedbackNotificationViewModel(
     BuildContext context,
   ) =>
@@ -836,6 +847,15 @@ class ScreenFactoryDefault implements ScreenFactory {
       create: (context) =>
           _diContainer._makeFeedbackNotificationViewModel(context),
       child: const NotificationFeedbackSettingsScreen(),
+    );
+  }
+
+  @override
+  Widget makeSingleReviewScreen(ReviewModel? review) {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeSingleReviewViewModel(context, review),
+      child: const SingleReviewScreen(),
     );
   }
 }

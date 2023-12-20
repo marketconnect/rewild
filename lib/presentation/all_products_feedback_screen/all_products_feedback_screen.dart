@@ -32,6 +32,7 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
     Set<int> itemsIdsList = {};
     final setIsReview = model.setIsReviews;
     final isReviews = model.isReviews;
+
     if (isReviews) {
       itemsIdsList = model.reviews;
     } else {
@@ -41,7 +42,6 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
     final getImages = model.getImage;
     final getNewQuestionsQty = model.unansweredQuestionsQty;
     final getNewReviewsQty = model.unansweredReviewsQty;
-    final prevUnansweredReviewsQty = model.prevUnansweredReviewsQty;
     final getallQuestionsQty = model.allQuestionsQty;
     final getallReviewsQty = model.allReviewsQty;
     final getSupplierArticle = model.getSupplierArticle;
@@ -171,7 +171,9 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
                               : getNewQuestionsQty(e),
                           supplierArticle: getSupplierArticle(e),
                           isReview: isReviews,
-                          prevUnansweredQty: prevUnansweredReviewsQty(e),
+                          difCurrentPrevUnansweredQty: isReviews
+                              ? model.difReview(e)
+                              : model.difQuestion(e),
                           oldItemsQty: isReviews
                               ? getallReviewsQty(e)
                               : getallQuestionsQty(e),
@@ -192,13 +194,13 @@ class _ProductCard extends StatelessWidget {
       required this.oldItemsQty,
       required this.goTo,
       required this.supplierArticle,
-      required this.prevUnansweredQty,
+      required this.difCurrentPrevUnansweredQty,
       this.isReview = false});
   final int nmId;
   final String image;
   final String supplierArticle;
   final int newItemsQty;
-  final int prevUnansweredQty;
+  final int difCurrentPrevUnansweredQty;
   final int oldItemsQty;
   final bool isReview;
   final Function(int nmId) goTo;
@@ -267,41 +269,37 @@ class _ProductCard extends StatelessWidget {
                                   .withOpacity(0.8),
                               fontWeight: FontWeight.w500),
                         ),
-                        Container(
-                          padding: newItemsQty == 0
-                              ? null
-                              : EdgeInsets.symmetric(
-                                  vertical:
-                                      MediaQuery.of(context).size.width * 0.01,
-                                  horizontal:
-                                      MediaQuery.of(context).size.width * 0.02,
-                                ),
-                          decoration: newItemsQty == 0
-                              ? null
-                              : BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                      MediaQuery.of(context).size.width * 0.01),
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                          child: Text(
-                            'Без ответа: $newItemsQty',
-                            style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.04,
-                                color: newItemsQty > 0
-                                    ? Theme.of(context).colorScheme.onPrimary
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant
-                                        .withOpacity(0.7),
-                                fontWeight: FontWeight.w500),
-                          ),
+                        Text(
+                          'Без ответа: $newItemsQty',
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.04,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant
+                                  .withOpacity(0.7),
+                              fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
                   ],
                 ),
-                Positioned(right: 0, child: Text('$prevUnansweredQty'))
+                if (difCurrentPrevUnansweredQty != 0)
+                  Positioned(
+                      right: 5,
+                      bottom: 5,
+                      child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          child: Text(
+                            '$difCurrentPrevUnansweredQty',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary),
+                          )))
               ],
             ),
           ),

@@ -62,6 +62,24 @@ class QuestionService
     });
   }
 
+  // Function to get unanswered questions by nmId
+  @override
+  Future<Either<RewildError, List<QuestionModel>>> getUnansweredQuestions(
+      {required String token,
+      required int take,
+      required int dateFrom,
+      required int dateTo,
+      required int skip,
+      int? nmId}) async {
+    return questionApiClient.getUnansweredQuestions(
+        token: token,
+        take: take,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        skip: skip,
+        nmId: nmId);
+  }
+
   // Function to get unanswered questions and answered questions by nmId
   @override
   Future<Either<RewildError, List<QuestionModel>>> getQuestions({

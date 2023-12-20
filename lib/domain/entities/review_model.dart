@@ -12,9 +12,17 @@ class ReviewModel {
   String state;
   ReviewAnswer? answer;
   ReviewProductDetails productDetails;
-  // List<Photo> photoLinks;
-  // Video video;
   bool wasViewed;
+
+  List<PhotoLink> photoLinks;
+  Video? video;
+  bool isAbleSupplierFeedbackValuation;
+  int? supplierFeedbackValuation;
+  bool isAbleSupplierProductValuation;
+  int? supplierProductValuation;
+  bool isAbleReturnProductOrders;
+  String? returnProductOrdersDate;
+  List<String> bables;
 
   ReviewModel({
     required this.id,
@@ -27,6 +35,15 @@ class ReviewModel {
     this.answer,
     required this.productDetails,
     required this.wasViewed,
+    required this.photoLinks,
+    this.video,
+    required this.isAbleSupplierFeedbackValuation,
+    this.supplierFeedbackValuation,
+    required this.isAbleSupplierProductValuation,
+    this.supplierProductValuation,
+    required this.isAbleReturnProductOrders,
+    this.returnProductOrdersDate,
+    required this.bables,
   });
 
   ReviewModel copyWith({
@@ -40,6 +57,15 @@ class ReviewModel {
     ReviewAnswer? answer,
     ReviewProductDetails? productDetails,
     bool? wasViewed,
+    List<PhotoLink>? photoLinks,
+    Video? video,
+    bool? isAbleSupplierFeedbackValuation,
+    int? supplierFeedbackValuation,
+    bool? isAbleSupplierProductValuation,
+    int? supplierProductValuation,
+    bool? isAbleReturnProductOrders,
+    String? returnProductOrdersDate,
+    List<String>? bables,
   }) {
     return ReviewModel(
       id: id ?? this.id,
@@ -52,6 +78,21 @@ class ReviewModel {
       answer: answer ?? this.answer,
       productDetails: productDetails ?? this.productDetails,
       wasViewed: wasViewed ?? this.wasViewed,
+      photoLinks: photoLinks ?? this.photoLinks,
+      video: video ?? this.video,
+      isAbleSupplierFeedbackValuation: isAbleSupplierFeedbackValuation ??
+          this.isAbleSupplierFeedbackValuation,
+      supplierFeedbackValuation:
+          supplierFeedbackValuation ?? this.supplierFeedbackValuation,
+      isAbleSupplierProductValuation:
+          isAbleSupplierProductValuation ?? this.isAbleSupplierProductValuation,
+      supplierProductValuation:
+          supplierProductValuation ?? this.supplierProductValuation,
+      isAbleReturnProductOrders:
+          isAbleReturnProductOrders ?? this.isAbleReturnProductOrders,
+      returnProductOrdersDate:
+          returnProductOrdersDate ?? this.returnProductOrdersDate,
+      bables: bables ?? this.bables,
     );
   }
 
@@ -69,6 +110,23 @@ class ReviewModel {
       productDetails: ReviewProductDetails.fromMap(
           map['productDetails'] as Map<String, dynamic>),
       wasViewed: map['wasViewed'] as bool,
+      photoLinks: (map['photoLinks'] as List<dynamic>?)
+              ?.map((link) => PhotoLink.fromMap(link))
+              .toList() ??
+          [],
+      video: map['video'] != null ? Video.fromMap(map['video']) : null,
+      isAbleSupplierFeedbackValuation:
+          map['isAbleSupplierFeedbackValuation'] as bool,
+      supplierFeedbackValuation: map['supplierFeedbackValuation'] as int?,
+      isAbleSupplierProductValuation:
+          map['isAbleSupplierProductValuation'] as bool,
+      supplierProductValuation: map['supplierProductValuation'] as int?,
+      isAbleReturnProductOrders: map['isAbleReturnProductOrders'] as bool,
+      returnProductOrdersDate: map['returnProductOrdersDate'] as String?,
+      bables: (map['bables'] as List<dynamic>?)
+              ?.map((bable) => bable as String)
+              .toList() ??
+          [],
     );
   }
 
@@ -85,6 +143,23 @@ class ReviewModel {
           json['answer'] == null ? null : ReviewAnswer.fromJson(json['answer']),
       productDetails: ReviewProductDetails.fromJson(json['productDetails']),
       wasViewed: json['wasViewed'] ?? false,
+      photoLinks: (json['photoLinks'] as List<dynamic>?)
+              ?.map((link) => PhotoLink.fromJson(link))
+              .toList() ??
+          [],
+      video: json['video'] != null ? Video.fromJson(json['video']) : null,
+      isAbleSupplierFeedbackValuation:
+          json['isAbleSupplierFeedbackValuation'] as bool,
+      supplierFeedbackValuation: json['supplierFeedbackValuation'] as int?,
+      isAbleSupplierProductValuation:
+          json['isAbleSupplierProductValuation'] as bool,
+      supplierProductValuation: json['supplierProductValuation'] as int?,
+      isAbleReturnProductOrders: json['isAbleReturnProductOrders'] as bool,
+      returnProductOrdersDate: json['returnProductOrdersDate'] as String?,
+      bables: (json['bables'] as List<dynamic>?)
+              ?.map((bable) => bable as String)
+              .toList() ??
+          [],
     );
   }
   String? reusedAnswerText;
@@ -265,5 +340,57 @@ class ReviewProductDetails {
         supplierName.hashCode ^
         brandName.hashCode ^
         size.hashCode;
+  }
+}
+
+class PhotoLink {
+  String fullSize;
+  String miniSize;
+
+  PhotoLink({
+    required this.fullSize,
+    required this.miniSize,
+  });
+
+  factory PhotoLink.fromMap(Map<String, dynamic> map) {
+    return PhotoLink(
+      fullSize: map['fullSize'] as String,
+      miniSize: map['miniSize'] as String,
+    );
+  }
+
+  factory PhotoLink.fromJson(Map<String, dynamic> json) {
+    return PhotoLink(
+      fullSize: json['fullSize'] as String,
+      miniSize: json['miniSize'] as String,
+    );
+  }
+}
+
+class Video {
+  String previewImage;
+  String link;
+  int durationSec;
+
+  Video({
+    required this.previewImage,
+    required this.link,
+    required this.durationSec,
+  });
+
+  factory Video.fromMap(Map<String, dynamic> map) {
+    return Video(
+      previewImage: map['previewImage'] as String,
+      link: map['link'] as String,
+      durationSec: map['duration_sec'] as int,
+    );
+  }
+
+  factory Video.fromJson(Map<String, dynamic> json) {
+    return Video(
+      previewImage: json['previewImage'] as String,
+      link: json['link'] as String,
+      durationSec: json['duration_sec'] as int,
+    );
   }
 }

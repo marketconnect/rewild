@@ -163,21 +163,15 @@ class BackgroundService {
     }
 
     // get unanswered feedbacks qty
-    final allCardsEither = await CardOfProductDataProvider.getAllInBackGround();
-    if (feedbackToken != null && allCardsEither.isRight()) {
-      // users ids
-      final allCards = allCardsEither.fold((l) => [], (r) => r).toList();
-      final userCards = allCards.where((e) => e.my == 1).toList();
 
-      // get users ids
-      final usersIds = userCards.map((e) => e.nmId).toList();
-
+    if (feedbackToken != null) {
       // if notifications for questions is on
       final q = feedbackQtyNotifications
           .where((element) =>
               element.condition == NotificationConditionConstants.question)
           .isNotEmpty;
 
+      // if notifications for questions is on
       if (q) {
         // get saved unanswered questions qty
         final savedUnansweredQuestionsQtyEther =

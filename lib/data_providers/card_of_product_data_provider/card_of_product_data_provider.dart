@@ -168,7 +168,7 @@ class CardOfProductDataProvider
     rating = ?,
     reviewRating = ?,
     feedbacks = ?,
-    promoTextCard = ?
+    promoTextCard = ?,
     my = ?
   WHERE
     nmId = ?

@@ -45,6 +45,7 @@ class BackgroundMessagesViewModel extends ResourceChangeNotifier {
   }
 
   _update() async {
+    print("update   ;;;");
     if (_messages.isNotEmpty) {
       _messages.clear();
     }
@@ -151,8 +152,10 @@ class BackgroundMessagesViewModel extends ResourceChangeNotifier {
     if (ok == null) {
       return;
     }
+    print('pressed');
 
     await _update();
+    print('updated');
     if (context.mounted) {
       Navigator.pushNamed(context, routeName, arguments: id);
     }

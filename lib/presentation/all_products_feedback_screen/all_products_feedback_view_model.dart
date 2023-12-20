@@ -4,6 +4,7 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/nums.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
+
 import 'package:rewild/domain/entities/feedback_qty_model.dart';
 import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/domain/entities/review_model.dart';
@@ -25,6 +26,13 @@ abstract class AllProductsFeedbackViewModelQuestionService {
     required int dateFrom,
     required int dateTo,
   });
+  Future<Either<RewildError, List<QuestionModel>>> getUnansweredQuestions(
+      {required String token,
+      required int take,
+      required int dateFrom,
+      required int dateTo,
+      required int skip,
+      int? nmId});
 }
 
 // Reviews
@@ -36,15 +44,23 @@ abstract class AllProductsFeedbackViewModelReviewService {
     required int dateTo,
     int? nmId,
   });
+  Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(
+      {required String token,
+      required int take,
+      required int skip,
+      required int dateFrom,
+      required int dateTo,
+      int? nmId});
   Future<Either<RewildError, Map<int, int>>> prevUnansweredReviewsQty(
       {required Set<int> nmIds});
 }
 
 // Unanswered Feedback Qty
 abstract class AllProductsFeedbackUnansweredFeedbackQtyService {
-  Future<Either<RewildError, void>> saveUnansweredFeedbackQtyList(
-      {required String token,
-      required List<UnAnsweredFeedbacksQtyModel> feedbacks});
+  Future<Either<RewildError, void>> saveUnansweredFeedbackQtyList({
+    required String token,
+    required List<UnAnsweredFeedbacksQtyModel> feedbacks,
+  });
   Future<Either<RewildError, List<UnAnsweredFeedbacksQtyModel>>>
       getAllUnansweredFeedbackQty();
 }
@@ -76,6 +92,21 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
     // get current questions and reviews
     await Future.wait([_updateQuestions(), _updateReviews()]);
+    await _updateSavedUnansweredFeedBacks();
+    // set qty of unanswered reviews that user did not see yet
+
+    for (final nmId in _unansweredReviewsQty.keys) {
+      final current = _unansweredReviewsQty[nmId]!;
+      final old = _savedNmIdUnansweredReviews[nmId] ?? 0;
+
+      difReviews[nmId] = current - old;
+    }
+    for (final nmId in _unansweredQuestionsQty.keys) {
+      final current = _unansweredQuestionsQty[nmId]!;
+      final old = _savedNmIdUnansweredQuestions[nmId] ?? 0;
+
+      difQuestions[nmId] = current - old;
+    }
   }
 
   // Filter by period
@@ -100,31 +131,39 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
     return (dateFrom, dateTo);
   }
 
-  // new feedback
-  Map<int, int> _nmIdNew = {};
-  void setNmIdNew(Map<int, int> value) {
-    _nmIdNew = value;
+  // saved unanswered reviews
+  Map<int, int> _savedNmIdUnansweredReviews = {};
+  void setSavedNmIdUnansweredReviews(Map<int, int> value) {
+    _savedNmIdUnansweredReviews = value;
   }
 
-  void setNewReviewsQty(int nmId, int qty) {
-    _nmIdNew[nmId] = qty;
+  void setSavedNmIdUnansweredReview(int nmId, int qty) {
+    _savedNmIdUnansweredReviews[nmId] = qty;
   }
 
-  int newReviewsQty(int nmId) {
-    return _nmIdNew[nmId] ?? 0;
-  }
-
-  Future<void> _updateNews() async {
+  Future<void> _updateSavedUnansweredFeedBacks() async {
     final unanswered = await fetch(
         () => unansweredFeedbackQtyService.getAllUnansweredFeedbackQty());
     if (unanswered == null) {
       return;
     }
     for (final feedback in unanswered) {
-      setNewReviewsQty(feedback.nmId, feedback.qty);
+      if (feedback.type == UnAnsweredFeedbacksQtyModel.getType("review")) {
+        setSavedNmIdUnansweredReview(feedback.nmId, feedback.qty);
+      } else {
+        setSavedNmIdUnansweredQuestion(feedback.nmId, feedback.qty);
+      }
     }
+
     notify();
   }
+
+  // Variables for storing new feedbacks qty
+  Map<int, int> difQuestions = {};
+  int difQuestion(int nmId) => difQuestions[nmId] ?? 0;
+
+  Map<int, int> difReviews = {};
+  int difReview(int nmId) => difReviews[nmId] ?? 0;
 
   // Reviews ==================================================================== REVIEWS
   bool _isReviewsLoading = false;
@@ -226,39 +265,36 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   int allReviewsQty(int nmId) => _allReviewsQty[nmId] ?? 0;
 
   // unanswered reviews for each nmId
-  Map<int, int> _newUnansweredReviewsQty = {};
+  Map<int, int> _unansweredReviewsQty = {};
   void setUnansweredReviewsQty(Map<int, int> value) {
-    _newUnansweredReviewsQty = value;
+    _unansweredReviewsQty = value;
   }
 
   void _resetUnansweredReviewsQty() {
-    _newUnansweredReviewsQty = {};
+    _unansweredReviewsQty = {};
   }
 
   void incrementUnansweredReviewsQty(int nmId) {
-    if (_newUnansweredReviewsQty.containsKey(nmId)) {
-      _newUnansweredReviewsQty[nmId] = _newUnansweredReviewsQty[nmId]! + 1;
+    if (_unansweredReviewsQty.containsKey(nmId)) {
+      _unansweredReviewsQty[nmId] = _unansweredReviewsQty[nmId]! + 1;
     } else {
-      _newUnansweredReviewsQty[nmId] = 1;
+      _unansweredReviewsQty[nmId] = 1;
     }
   }
 
-  int unansweredReviewsQty(int nmId) => _newUnansweredReviewsQty[nmId] ?? 0;
-
-  // prev unanswered qty
-  Map<int, int> _prevUnansweredReviewsQty = {};
-  void setPrevUnansweredReviewsQty(Map<int, int> value) {
-    _prevUnansweredReviewsQty = value;
-  }
-
-  void _resetPrevUnansweredReviewsQty() {
-    _prevUnansweredReviewsQty = {};
-  }
-
-  int prevUnansweredReviewsQty(int nmId) =>
-      _prevUnansweredReviewsQty[nmId] ?? 0;
+  int unansweredReviewsQty(int nmId) => _unansweredReviewsQty[nmId] ?? 0;
 
   // Questions ================================================================== QUESTIONS
+  // saved unanswered questions
+  Map<int, int> _savedNmIdUnansweredQuestions = {};
+  void setSavedNmIdUnansweredQuestions(Map<int, int> value) {
+    _savedNmIdUnansweredQuestions = value;
+  }
+
+  void setSavedNmIdUnansweredQuestion(int nmId, int qty) {
+    _savedNmIdUnansweredQuestions[nmId] = qty;
+  }
+
   // new questions qty
   Map<int, int> _unansweredQuestionsQty = {};
   void setUnansweredQuestionsQty(Map<int, int> value) {
@@ -378,28 +414,110 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   }
 
   Future<void> onClose() async {
+    // get all last week unanswered feedbacks and add it to allUnansweredFeedbacksQtyList
     List<UnAnsweredFeedbacksQtyModel> allUnansweredFeedbacksQtyList = [];
-    for (final nmId in _allQuestionsQty.keys) {
-      final allUnansweredFeedbacksQty = _allQuestionsQty[nmId]!;
-      allUnansweredFeedbacksQtyList.add(
-        UnAnsweredFeedbacksQtyModel(
-            nmId: nmId,
-            qty: allUnansweredFeedbacksQty,
-            type: UnAnsweredFeedbacksQtyModel.getType('question')),
-      );
+    // get period
+    final dateTo = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final dateFrom = dateTo - 60 * 60 * 24 * 7;
+
+    // fetch unanswered questions and reviews from Api and store in allUnansweredFeedbacksQty
+    final values = await Future.wait([
+      _fetchAllUnansweredQuestionsForLatsWeek(
+        dateFrom,
+        dateTo,
+      ),
+      _fetchAllUnansweredReviewsForLastWeek(dateFrom, dateTo),
+    ]);
+
+    final allUnansweredQuestionsForLastWeek = values[0];
+    final allUnansweredReviewsQty = values[1];
+    for (final nmId in allUnansweredQuestionsForLastWeek.keys) {
+      allUnansweredFeedbacksQtyList.add(UnAnsweredFeedbacksQtyModel(
+        nmId: nmId,
+        qty: allUnansweredQuestionsForLastWeek[nmId]!,
+        type: UnAnsweredFeedbacksQtyModel.getType('question'),
+      ));
     }
-    for (final nmId in _allReviewsQty.keys) {
-      final allUnansweredFeedbacksQty = _allReviewsQty[nmId]!;
-      allUnansweredFeedbacksQtyList.add(
-        UnAnsweredFeedbacksQtyModel(
-            nmId: nmId,
-            qty: allUnansweredFeedbacksQty,
-            type: UnAnsweredFeedbacksQtyModel.getType('review')),
-      );
+
+    for (final nmId in allUnansweredReviewsQty.keys) {
+      allUnansweredFeedbacksQtyList.add(UnAnsweredFeedbacksQtyModel(
+        nmId: nmId,
+        qty: allUnansweredReviewsQty[nmId]!,
+        type: UnAnsweredFeedbacksQtyModel.getType('review'),
+      ));
     }
+
     await unansweredFeedbackQtyService.saveUnansweredFeedbackQtyList(
-        token: _apiKey!, feedbacks: allUnansweredFeedbacksQtyList);
+      token: _apiKey!,
+      feedbacks: allUnansweredFeedbacksQtyList,
+    );
     if (context.mounted) Navigator.of(context).pop();
+  }
+
+  Future<Map<int, int>> _fetchAllUnansweredReviewsForLastWeek(
+      int dateFrom, int dateTo) async {
+    Map<int, int> allUnansweredReviewsQty = {};
+    int n = 0;
+    while (true) {
+      final reviews = await fetch(() => reviewService.getUnansweredReviews(
+          token: _apiKey!,
+          take: NumericConstants.takeFeedbacksAtOnce,
+          dateFrom: dateFrom,
+          dateTo: dateTo,
+          skip: NumericConstants.takeFeedbacksAtOnce * n));
+      if (reviews == null) {
+        break;
+      }
+
+      for (final review in reviews) {
+        final nmId = review.productDetails.nmId;
+        if (allUnansweredReviewsQty.containsKey(nmId)) {
+          allUnansweredReviewsQty[nmId] = allUnansweredReviewsQty[nmId]! + 1;
+        } else {
+          allUnansweredReviewsQty[nmId] = 1;
+        }
+      }
+      n++;
+
+      if (reviews.length < NumericConstants.takeFeedbacksAtOnce) {
+        break;
+      }
+    }
+    return allUnansweredReviewsQty;
+  }
+
+  Future<Map<int, int>> _fetchAllUnansweredQuestionsForLatsWeek(
+      int dateFrom, int dateTo) async {
+    Map<int, int> allUnansweredQuestionsQty = {};
+    int n = 0;
+    while (true) {
+      final questions = await fetch(() =>
+          questionService.getUnansweredQuestions(
+              token: _apiKey!,
+              take: NumericConstants.takeFeedbacksAtOnce,
+              dateFrom: dateFrom,
+              dateTo: dateTo,
+              skip: NumericConstants.takeFeedbacksAtOnce * n));
+      if (questions == null) {
+        break;
+      }
+
+      for (final question in questions) {
+        final nmId = question.productDetails.nmId;
+        if (allUnansweredQuestionsQty.containsKey(nmId)) {
+          allUnansweredQuestionsQty[nmId] =
+              allUnansweredQuestionsQty[nmId]! + 1;
+        } else {
+          allUnansweredQuestionsQty[nmId] = 1;
+        }
+      }
+      n++;
+
+      if (questions.length < NumericConstants.takeFeedbacksAtOnce) {
+        break;
+      }
+    }
+    return allUnansweredQuestionsQty;
   }
 
   // Images
@@ -441,9 +559,9 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
 
   void goTo(int nmId) {
     if (isReviews) {
-      _newUnansweredReviewsQty.remove(nmId);
+      difReviews[nmId] = 0;
     } else {
-      _unansweredQuestionsQty.remove(nmId);
+      difQuestions[nmId] = 0;
     }
     if (context.mounted) {
       Navigator.of(context).pushNamed(

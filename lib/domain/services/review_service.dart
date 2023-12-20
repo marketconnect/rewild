@@ -86,6 +86,24 @@ class ReviewService
   }
 
   @override
+  Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(
+      {required String token,
+      required int take,
+      required int skip,
+      required int dateFrom,
+      required int dateTo,
+      int? nmId}) async {
+    return await reviewApiClient.getUnansweredReviews(
+      token: token,
+      take: take,
+      skip: skip,
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+      nmId: nmId,
+    );
+  }
+
+  @override
   Future<Either<RewildError, List<ReviewModel>>> getReviews({
     required int take,
     required int skip,
