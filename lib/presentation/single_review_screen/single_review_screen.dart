@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/presentation/single_review_screen/single_review_view_model.dart';
 import 'package:rewild/widgets/empty_widget.dart';
-import 'package:rewild/widgets/network_image.dart';
 
 class SingleReviewScreen extends StatelessWidget {
   const SingleReviewScreen({super.key});

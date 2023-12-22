@@ -16,9 +16,25 @@ class ReWildNetworkImage extends StatelessWidget {
   final double? height;
   final BoxFit? fit;
   final String image;
+  bool validateURL(String? input) {
+    if (input == null) {
+      return false;
+    }
+    if (Uri.tryParse(input)?.hasAbsolutePath ?? false) {
+      return Uri.parse(input).host.isNotEmpty;
+    } else {
+      return false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (!validateURL(image)) {
+      return Image.asset(
+        ImageConstant.taken,
+        fit: BoxFit.scaleDown,
+      );
+    }
     return SizedBox(
       height: height,
       width: width,

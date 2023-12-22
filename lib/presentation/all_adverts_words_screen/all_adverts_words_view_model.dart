@@ -112,10 +112,10 @@ class AllAdvertsWordsViewModel extends ResourceChangeNotifier {
         }
         // cpm = params.first.price!.toString();
       }
-
       final image = await fetch(
         () => cardOfProductService.getImageForNmId(nmId: nmIds.first),
       );
+      print(image);
       if (image == null) {
         continue;
       }
