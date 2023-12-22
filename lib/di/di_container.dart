@@ -633,6 +633,7 @@ class _DIContainer {
       SingleReviewViewModel(
         review,
         context: context,
+        singleReviewCardOfProductService: _makeCardOfProductService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
 

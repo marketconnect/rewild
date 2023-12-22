@@ -29,3 +29,9 @@ DateTime yesterdayEndOfTheDay() {
   ));
   return dateFrom;
 }
+
+String formatReviewDate(DateTime createdAt) {
+  return DateTime.now().day == createdAt.day
+      ? '${createdAt.toLocal().hour.toString().padLeft(2, '0')}:${createdAt.toLocal().minute.toString().padLeft(2, '0')}'
+      : '${createdAt.day}.${createdAt.month}.${createdAt.year}';
+}

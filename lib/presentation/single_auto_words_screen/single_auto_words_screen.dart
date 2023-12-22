@@ -58,6 +58,7 @@ class SingleAutoWordsScreen extends StatelessWidget {
                               Navigator.of(context).pop();
                             }
                           },
+                          title: 'Сохранить изменения?',
                         );
                       },
                     );

@@ -22,6 +22,7 @@ import 'package:rewild/presentation/all_products_feedback_screen/all_products_fe
 
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
+import 'package:rewild/presentation/single_review_screen/single_review_view_model.dart';
 
 // API clients
 abstract class CardOfProductServiceSellerApiClient {
@@ -81,6 +82,7 @@ class CardOfProductService
         AllAdvertsStatScreenCardOfProductService,
         AllCardsScreenCardOfProductService,
         AllProductsFeedbackCardOfProductService,
+        SingleReviewCardOfProductService,
         AllAdvertsWordsScreenCardOfProductService,
         SingleGroupScreenViewModelCardsService {
   final CardOfProductServiceWarehouseDataProvider warehouseDataprovider;
