@@ -31,6 +31,8 @@ class ReWildNetworkImage extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!validateURL(image)) {
       return Image.asset(
+        width: width,
+        height: height,
         ImageConstant.taken,
         fit: BoxFit.scaleDown,
       );
