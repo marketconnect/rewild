@@ -72,7 +72,7 @@ class MyDialogSaveWidget extends StatelessWidget {
                     child: Container(
                       alignment: Alignment.center,
                       color: Theme.of(context).colorScheme.primary,
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(11),
                       width: MediaQuery.of(context).size.width * 0.4,
                       child: const Text(
                         "ДА",
