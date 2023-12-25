@@ -109,13 +109,13 @@ class BackgroundMessagesViewModel extends ResourceChangeNotifier {
           title = "Новые вопросы";
           description =
               "У Вас ${backgroundMessage.value} ${getNoun(int.parse(backgroundMessage.value), 'новый вопрос', 'новых вопроса', 'новых вопросов')}";
-          routeName = MainNavigationRouteNames.productsFeedbackScreen;
+          routeName = MainNavigationRouteNames.allProductsQuestionsScreen;
           break;
         case NotificationConditionConstants.review:
           title = "Новые отзывы";
           description =
               "У Вас ${backgroundMessage.value} ${getNoun(int.parse(backgroundMessage.value), 'новый отзыв', 'новых отзыва', 'новых отзывов')}";
-          routeName = MainNavigationRouteNames.productsFeedbackScreen;
+          routeName = MainNavigationRouteNames.allProductsQuestionsScreen;
           break;
 
         default:

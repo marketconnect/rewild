@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:fpdart/fpdart.dart';
-import 'package:rewild/core/utils/api_helpers/warehouses_api_helper%20copy.dart';
+import 'package:rewild/core/utils/api_helpers/warehouses_api_helper.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/warehouse.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';

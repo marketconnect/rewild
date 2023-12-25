@@ -5,7 +5,7 @@ import 'package:rewild/domain/entities/search_campaign_stat.dart';
 import 'package:rewild/presentation/single_search_words_screen/single_search_words_view_model.dart';
 import 'package:rewild/widgets/keyword_slidable_container.dart';
 import 'package:rewild/widgets/keyword_tab_body.dart';
-import 'package:rewild/widgets/my_dialog_save_widget.dart';
+import 'package:rewild/widgets/my_dialog_header_and_two_btns_widget.dart';
 
 class SingleSearchWordsScreen extends StatelessWidget {
   const SingleSearchWordsScreen({super.key});
@@ -44,7 +44,7 @@ class SingleSearchWordsScreen extends StatelessWidget {
                     showDialog(
                       context: context,
                       builder: (BuildContext buildContext) {
-                        return MyDialogSaveWidget(
+                        return MyDialogHeaderAndTwoBtnsWidget(
                           onNoPressed: () {
                             if (buildContext.mounted) {
                               Navigator.of(buildContext).pop();

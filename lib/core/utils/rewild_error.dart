@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class RewildError {
   final List<dynamic>? args;
   final String? message;
@@ -12,6 +14,10 @@ class RewildError {
       this.source,
       this.error,
       this.stackTrace}) {
-    print('$source $name $message');
+    debugPrint(toString());
+  }
+  @override
+  String toString() {
+    return 'RewildError: $message\nSource: $source\nName: $name\nError: $error\nStackTrace: $stackTrace';
   }
 }

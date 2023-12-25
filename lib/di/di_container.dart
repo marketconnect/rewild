@@ -69,6 +69,8 @@ import 'package:rewild/domain/services/warehouse_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
+import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_screen.dart';
+import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_view_model.dart';
 
 import 'package:rewild/presentation/all_questions_screen/all_questions_screen.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
@@ -91,8 +93,8 @@ import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_screen.dart
 import 'package:rewild/presentation/add_api_keys_screen/add_api_keys_view_model.dart';
 
 import 'package:rewild/presentation/app/app.dart';
-import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
-import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_screen.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_screen.dart';
 import 'package:rewild/presentation/notification_feedback_screen/notification_feedback_screen.dart';
 import 'package:rewild/presentation/notification_feedback_screen/notification_feedback_view_model.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_screen.dart';
@@ -586,21 +588,23 @@ class _DIContainer {
           internetConnectionChecker: _makeInternetConnectionChecker(),
           messageService: makeBackgroundMessageService());
 
-  AllProductsFeedbackViewModel _makeQuestionsViewModel(BuildContext context) =>
-      AllProductsFeedbackViewModel(
+  AllProductsQuestionsViewModel _makeAllProductsQuestionsViewModel(
+          BuildContext context) =>
+      AllProductsQuestionsViewModel(
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker(),
-          reviewService: _makeReviewService(),
           unansweredFeedbackQtyService: _makeUnansweredFeedbackQtyService(),
           cardOfProductService: _makeCardOfProductService(),
           questionService: _makeQuestionService());
 
-  // AllProductsReviewsViewModel _makeReviewsViewModel(BuildContext context) =>
-  //     AllProductsReviewsViewModel(
-  //         context: context,
-  //         internetConnectionChecker: _makeInternetConnectionChecker(),
-  //         cardOfProductService: _makeCardOfProductService(),
-  //         reviewService: _makeReviewService());
+  AllProductsReviewsViewModel _makeAllProductsReviewsViewModel(
+          BuildContext context) =>
+      AllProductsReviewsViewModel(
+          context: context,
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          cardOfProductService: _makeCardOfProductService(),
+          reviewService: _makeReviewService(),
+          unansweredFeedbackQtyService: _makeUnansweredFeedbackQtyService());
 
   AllQuestionsViewModel _makeAllQuestionsViewModel(
           BuildContext context, int nmId) =>
@@ -634,6 +638,7 @@ class _DIContainer {
         review,
         context: context,
         singleReviewCardOfProductService: _makeCardOfProductService(),
+        reviewService: _makeReviewService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
 
@@ -811,8 +816,18 @@ class ScreenFactoryDefault implements ScreenFactory {
   @override
   Widget makeAllProductsQuestionsScreen() {
     return ChangeNotifierProvider(
-      create: (context) => _diContainer._makeQuestionsViewModel(context),
-      child: const AllProductsFeedbackScreen(),
+      create: (context) =>
+          _diContainer._makeAllProductsQuestionsViewModel(context),
+      child: const AllProductsQuestionsScreen(),
+    );
+  }
+
+  @override
+  Widget makeAllProductsReviewsScreen() {
+    return ChangeNotifierProvider(
+      create: (context) =>
+          _diContainer._makeAllProductsReviewsViewModel(context),
+      child: const AllProductsReviewsScreen(),
     );
   }
 

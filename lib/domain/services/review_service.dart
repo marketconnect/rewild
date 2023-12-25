@@ -4,8 +4,10 @@ import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/api_key_model.dart';
 import 'package:rewild/domain/entities/review_model.dart';
-import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
+
+import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_view_model.dart';
 import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.dart';
+import 'package:rewild/presentation/single_review_screen/single_review_view_model.dart';
 
 // Api key
 abstract class ReviewServiceApiKeyDataProvider {
@@ -45,7 +47,8 @@ abstract class ReviewServiceUnansweredFeedbackQtyDataProvider {
 
 class ReviewService
     implements
-        AllProductsFeedbackViewModelReviewService,
+        AllProductsReviewsViewModelReviewService,
+        SingleReviewViewReviewService,
         AllReviewsViewModelReviewService {
   final ReviewServiceReviewApiClient reviewApiClient;
   final ReviewServiceApiKeyDataProvider apiKeysDataProvider;
@@ -67,6 +70,22 @@ class ReviewService
         return right(false);
       }
       return right(true);
+    });
+  }
+
+  @override
+  Future<Either<RewildError, String?>> getApiKey() async {
+    final result = await apiKeysDataProvider.getApiKey(type: keyType);
+    return result.fold((l) => left(l), (r) {
+      if (r == null) {
+        return left(RewildError(
+          "Api key not found",
+          name: "getApiKey",
+          source: runtimeType.toString(),
+          args: [],
+        ));
+      }
+      return right(r.token);
     });
   }
 
@@ -145,12 +164,13 @@ class ReviewService
     });
   }
 
-  Future<Either<RewildError, bool>> publishReview(
-    String id,
-    bool wasViewed,
-    bool wasRejected,
-    String answer,
-  ) async {
+  @override
+  Future<Either<RewildError, bool>> publishReview({
+    required String id,
+    required bool wasViewed,
+    required bool wasRejected,
+    required String answer,
+  }) async {
     final tokenEither = await apiKeysDataProvider.getApiKey(type: keyType);
     return tokenEither.fold((l) => left(l), (apiKeyModel) async {
       if (apiKeyModel == null) {

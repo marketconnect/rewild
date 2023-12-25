@@ -73,16 +73,24 @@ class MainNavigationScreenFeedBackWidget extends StatelessWidget {
                   child: Column(
                     children: [
                       _Link(
-                        text: 'Вопросы и отзывы',
-                        color: const Color(0xFF8c56ce),
+                        text: 'Вопросы',
+                        color: const Color(0xFFd2a941),
                         imageSrc: IconConstant.iconQuestions,
-                        route: MainNavigationRouteNames.productsFeedbackScreen,
+                        route:
+                            MainNavigationRouteNames.allProductsQuestionsScreen,
+                      ),
+                      _Link(
+                        text: 'Отзывы',
+                        color: const Color(0xFF8c56ce),
+                        imageSrc: IconConstant.iconRatingStars,
+                        route:
+                            MainNavigationRouteNames.allProductsReviewsScreen,
                       ),
                       _Link(
                         text: 'Настройка уведомлений',
-                        color: const Color(0xFFd2a941),
                         route:
                             MainNavigationRouteNames.feedbackNotificationScreen,
+                        color: const Color(0xFF4aa6db),
                         imageSrc: IconConstant.iconNotificationSettings,
                       ),
                     ],

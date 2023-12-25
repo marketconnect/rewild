@@ -26,4 +26,5 @@ class IconConstant {
   static String iconRedo = '$iconPath/redo.png';
   static String iconNotificationSettings =
       '$iconPath/notification_settings.png';
+  static String iconRatingStars = '$iconPath/rating-stars.png';
 }

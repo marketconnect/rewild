@@ -7,12 +7,23 @@ abstract class SingleReviewCardOfProductService {
   Future<Either<RewildError, String>> getImageForNmId({required int nmId});
 }
 
+abstract class SingleReviewViewReviewService {
+  Future<Either<RewildError, bool>> publishReview({
+    required String id,
+    required bool wasViewed,
+    required bool wasRejected,
+    required String answer,
+  });
+}
+
 class SingleReviewViewModel extends ResourceChangeNotifier {
   final SingleReviewCardOfProductService singleReviewCardOfProductService;
+  final SingleReviewViewReviewService reviewService;
   final ReviewModel? review;
   SingleReviewViewModel(this.review,
       {required super.context,
       required super.internetConnectionChecker,
+      required this.reviewService,
       required this.singleReviewCardOfProductService}) {
     _asyncInit();
   }
@@ -28,4 +39,24 @@ class SingleReviewViewModel extends ResourceChangeNotifier {
   String? _cardImage;
 
   String? get cardImage => _cardImage;
+
+  String? _answer;
+  void setAnswer(String value) {
+    _answer = value;
+    print(_answer);
+    notify();
+  }
+
+  Future<void> publish() async {
+    if (review == null || _answer == null || _answer!.isEmpty) {
+      return;
+    }
+
+    await fetch(() => reviewService.publishReview(
+          id: review!.id,
+          answer: _answer!,
+          wasRejected: false,
+          wasViewed: true,
+        ));
+  }
 }

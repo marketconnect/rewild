@@ -1,7 +1,8 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/domain/entities/feedback_qty_model.dart';
-import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
+import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
+import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_view_model.dart';
 
 // questions api client
 abstract class UnansweredFeedbackQtyServiceQuestionsApiClient {
@@ -26,7 +27,9 @@ abstract class UnansweredFeedbackQtyServiceFeedbackQtyDataProvider {
 
 // class to provide qty of unanswered feedbacks that a user has not seen yet
 class UnansweredFeedbackQtyService
-    implements AllProductsFeedbackUnansweredFeedbackQtyService {
+    implements
+        AllProductsQuestionsUnansweredFeedbackQtyService,
+        AllProductsReviewsUnansweredFeedbackQtyService {
   final UnansweredFeedbackQtyServiceFeedbackQtyDataProvider
       feedbackQtyDataProvider;
   final UnansweredFeedbackQtyServiceReviewsApiClient reviewsApiClient;

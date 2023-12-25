@@ -33,7 +33,7 @@ abstract class ScreenFactory {
   Widget makeAllQuestionsScreen(int nmId);
   Widget makeAllReviewsScreen(int nmId);
   Widget makeFeedbackNotificationSettingsScreen();
-  // Widget makeAllProductsReviewsScreen();
+  Widget makeAllProductsReviewsScreen();
 }
 
 class MainNavigation implements AppNavigation {
@@ -190,9 +190,14 @@ class MainNavigation implements AppNavigation {
           builder: (_) => screenFactory.makeSearchStatsWordsScreen(campaignId),
         );
 
-      case MainNavigationRouteNames.productsFeedbackScreen:
+      case MainNavigationRouteNames.allProductsQuestionsScreen:
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeAllProductsQuestionsScreen(),
+        );
+
+      case MainNavigationRouteNames.allProductsReviewsScreen:
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeAllProductsReviewsScreen(),
         );
 
       case MainNavigationRouteNames.advertNotificationScreen:

@@ -5,8 +5,7 @@ import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/presentation/single_review_screen/single_review_view_model.dart';
 import 'package:rewild/widgets/empty_widget.dart';
 import 'package:rewild/widgets/expandable_image.dart';
-import 'package:rewild/widgets/my_dialog_save_widget.dart';
-import 'package:rewild/widgets/my_dialog_textfield_widget.dart';
+import 'package:rewild/widgets/my_dialog_header_and_two_btns_widget.dart';
 import 'package:rewild/widgets/network_image.dart';
 import 'package:rewild/widgets/rate_stars.dart';
 
@@ -20,6 +19,7 @@ class SingleReviewScreen extends StatelessWidget {
     final review = model.review;
     final cardImage = model.cardImage;
     final brandName = review != null ? review.productDetails.brandName : null;
+    final publish = model.publish;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -37,9 +37,9 @@ class SingleReviewScreen extends StatelessWidget {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return MyDialogSaveWidget(
-                    onNoPressed: () => print('No'),
-                    onYesPressed: () => print('yeas'),
+                  return MyDialogHeaderAndTwoBtnsWidget(
+                    onNoPressed: () => Navigator.of(context).pop(),
+                    onYesPressed: () => publish(),
                     title: 'Отправить ответ?',
                   );
                 },
@@ -150,6 +150,7 @@ class _Body extends StatelessWidget {
     final createdDate = review.createdDate;
     final userName = review.userName;
     final reviewText = review.text;
+    final setAnswer = model.setAnswer;
 
     final photos = review.photoLinks;
     return DefaultTextStyle(
@@ -260,10 +261,11 @@ class _Body extends StatelessWidget {
                   SizedBox(
                     height: screenWidth * 0.05,
                   ),
-                  const TextField(
+                  TextField(
+                    onChanged: (value) => setAnswer(value),
                     maxLines: null,
                     // expands: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Введите Ваш ответ на отзыв",
                       border: OutlineInputBorder(),
                     ),

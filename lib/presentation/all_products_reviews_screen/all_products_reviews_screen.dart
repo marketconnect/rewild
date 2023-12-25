@@ -3,46 +3,39 @@ import 'package:provider/provider.dart';
 
 import 'package:rewild/core/constants/image_constant.dart';
 
-import 'package:rewild/presentation/all_products_feedback_screen/all_products_feedback_view_model.dart';
+import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_view_model.dart';
 
 import 'package:rewild/widgets/empty_widget.dart';
 import 'package:rewild/widgets/network_image.dart';
 import 'package:rewild/widgets/popum_menu_item.dart';
 import 'package:rewild/widgets/progress_indicator.dart';
 
-class AllProductsFeedbackScreen extends StatefulWidget {
-  const AllProductsFeedbackScreen({super.key});
+class AllProductsReviewsScreen extends StatefulWidget {
+  const AllProductsReviewsScreen({super.key});
 
   @override
-  State<AllProductsFeedbackScreen> createState() =>
-      _AllProductsFeedbackScreenState();
+  State<AllProductsReviewsScreen> createState() =>
+      _AllProductsReviewsScreenState();
 }
 
-class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
+class _AllProductsReviewsScreenState extends State<AllProductsReviewsScreen> {
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<AllProductsFeedbackViewModel>();
+    final model = context.watch<AllProductsReviewsViewModel>();
     final screenWidth = MediaQuery.of(context).size.width;
     final apiKeyexists = model.apiKeyExists;
     final isReviewsLoading = model.isReviewsLoading;
-    final isQuestionsLoading = model.isQuestionsLoading;
-    final reviewQty = model.reviewQty;
-    final questionsQty = model.questionsQty;
-    final onClose = model.onClose;
-    Set<int> itemsIdsList = {};
-    final setIsReview = model.setIsReviews;
-    final isReviews = model.isReviews;
 
-    if (isReviews) {
-      itemsIdsList = model.reviews;
-    } else {
-      itemsIdsList = model.questions;
-    }
+    final reviewQty = model.reviewQty;
+
+    final onClose = model.onClose;
+
+    final itemsIdsList = model.reviews;
 
     final getImages = model.getImage;
-    final getNewQuestionsQty = model.unansweredQuestionsQty;
+
     final getNewReviewsQty = model.unansweredReviewsQty;
-    final getallQuestionsQty = model.allQuestionsQty;
+
     final getallReviewsQty = model.allReviewsQty;
     final getSupplierArticle = model.getSupplierArticle;
     final goTo = model.goTo;
@@ -53,99 +46,69 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        title: const Text("Отзывы"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () async {
             await onClose();
           },
         ),
-        // centerTitle: true,
-        // title:
         actions: [
           if (apiKeyexists)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                isReviews
-                    ? Text('Отзывы',
-                        style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.05))
-                    : Text('Вопросы',
-                        style: TextStyle(
-                            fontSize:
-                                MediaQuery.of(context).size.width * 0.05)),
-                SizedBox(
-                  width: screenWidth * 0.05,
-                ),
-                Switch(
-                    value: isReviews,
-                    onChanged: (value) {
-                      // setState(() {
-                      //   isReviews = value;
-                      // });
-                      setIsReview(value);
-                    }),
-                SizedBox(
-                  width: screenWidth * 0.15,
-                ),
-              ],
+            PopupMenuButton(
+              // Menu ============================================ Menu
+              onSelected: (value) => setPeriod(context, value),
+              icon: Icon(
+                Icons.menu,
+                size: MediaQuery.of(context).size.width * 0.1,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem(
+                    value: 'w',
+                    child: ReWildPopumMenuItemChild(
+                      text: "За неделю",
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: period == 'w' ? const Icon(Icons.check) : null,
+                      ),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'm',
+                    child: ReWildPopumMenuItemChild(
+                      text: "За месяц",
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: period == 'm' ? const Icon(Icons.check) : null,
+                      ),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'a',
+                    child: ReWildPopumMenuItemChild(
+                      text: "За все время",
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: period == 'a' ? const Icon(Icons.check) : null,
+                      ),
+                    ),
+                  )
+                ];
+              },
             ),
-          PopupMenuButton(
-            // Menu ============================================ Menu
-            onSelected: (value) => setPeriod(context, value),
-            icon: Icon(
-              Icons.menu,
-              size: MediaQuery.of(context).size.width * 0.1,
-              color: isReviews
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem(
-                  value: 'w',
-                  child: ReWildPopumMenuItemChild(
-                    text: "За неделю",
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: period == 'w' ? const Icon(Icons.check) : null,
-                    ),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'm',
-                  child: ReWildPopumMenuItemChild(
-                    text: "За месяц",
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: period == 'm' ? const Icon(Icons.check) : null,
-                    ),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'a',
-                  child: ReWildPopumMenuItemChild(
-                    text: "За все время",
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: period == 'a' ? const Icon(Icons.check) : null,
-                    ),
-                  ),
-                )
-              ];
-            },
-          ),
         ],
       ),
       body: !apiKeyexists
           ? const EmptyWidget(
               text: 'Создайте API ключ, чтобы видеть вопросы',
             )
-          : (isReviewsLoading && isReviews) ||
-                  (isQuestionsLoading && !isReviews)
+          : (isReviewsLoading)
               ? Center(
                   child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -154,8 +117,7 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
                     SizedBox(
                       height: screenWidth * 0.05,
                     ),
-                    Text(
-                        "Загружено ${isReviews ? reviewQty : questionsQty} ${isReviews ? "отзыва" : "вопроса"}")
+                    Text("Загружено $reviewQty отзыва")
                   ],
                 ))
               : SingleChildScrollView(
@@ -163,21 +125,13 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
                     Column(
                       children: itemsIdsList.toList().map((e) {
                         return _ProductCard(
-                          nmId: e,
-                          image: getImages(e),
-                          goTo: goTo,
-                          newItemsQty: isReviews
-                              ? getNewReviewsQty(e)
-                              : getNewQuestionsQty(e),
-                          supplierArticle: getSupplierArticle(e),
-                          isReview: isReviews,
-                          difCurrentPrevUnansweredQty: isReviews
-                              ? model.difReview(e)
-                              : model.difQuestion(e),
-                          oldItemsQty: isReviews
-                              ? getallReviewsQty(e)
-                              : getallQuestionsQty(e),
-                        );
+                            nmId: e,
+                            image: getImages(e),
+                            goTo: goTo,
+                            newItemsQty: getNewReviewsQty(e),
+                            supplierArticle: getSupplierArticle(e),
+                            difCurrentPrevUnansweredQty: model.difReview(e),
+                            oldItemsQty: getallReviewsQty(e));
                       }).toList(),
                     )
                   ]),
@@ -187,22 +141,22 @@ class _AllProductsFeedbackScreenState extends State<AllProductsFeedbackScreen> {
 }
 
 class _ProductCard extends StatelessWidget {
-  const _ProductCard(
-      {required this.image,
-      required this.newItemsQty,
-      required this.nmId,
-      required this.oldItemsQty,
-      required this.goTo,
-      required this.supplierArticle,
-      required this.difCurrentPrevUnansweredQty,
-      this.isReview = false});
+  const _ProductCard({
+    required this.image,
+    required this.newItemsQty,
+    required this.nmId,
+    required this.oldItemsQty,
+    required this.goTo,
+    required this.supplierArticle,
+    required this.difCurrentPrevUnansweredQty,
+  });
   final int nmId;
   final String image;
   final String supplierArticle;
   final int newItemsQty;
   final int difCurrentPrevUnansweredQty;
   final int oldItemsQty;
-  final bool isReview;
+
   final Function(int nmId) goTo;
 
   @override
@@ -259,7 +213,7 @@ class _ProductCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Всего ${isReview ? "отзывов" : "вопросов"}: $oldItemsQty',
+                          'Всего отзывов: $oldItemsQty',
                           style: TextStyle(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.04,

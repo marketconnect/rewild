@@ -7,16 +7,16 @@ import 'package:rewild/core/utils/resource_change_notifier.dart';
 
 import 'package:rewild/domain/entities/feedback_qty_model.dart';
 import 'package:rewild/domain/entities/question_model.dart';
-import 'package:rewild/domain/entities/review_model.dart';
+
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
 // Images
-abstract class AllProductsFeedbackCardOfProductService {
+abstract class AllProductsQuestionsCardOfProductService {
   Future<Either<RewildError, String>> getImageForNmId({required int nmId});
 }
 
 // Questions
-abstract class AllProductsFeedbackViewModelQuestionService {
+abstract class AllProductsQuestionsViewModelQuestionService {
   Future<Either<RewildError, String?>> getApiKey();
   Future<Either<RewildError, List<QuestionModel>>> getQuestions({
     int? nmId,
@@ -35,28 +35,8 @@ abstract class AllProductsFeedbackViewModelQuestionService {
       int? nmId});
 }
 
-// Reviews
-abstract class AllProductsFeedbackViewModelReviewService {
-  Future<Either<RewildError, List<ReviewModel>>> getReviews({
-    required int take,
-    required int skip,
-    required int dateFrom,
-    required int dateTo,
-    int? nmId,
-  });
-  Future<Either<RewildError, List<ReviewModel>>> getUnansweredReviews(
-      {required String token,
-      required int take,
-      required int skip,
-      required int dateFrom,
-      required int dateTo,
-      int? nmId});
-  Future<Either<RewildError, Map<int, int>>> prevUnansweredReviewsQty(
-      {required Set<int> nmIds});
-}
-
 // Unanswered Feedback Qty
-abstract class AllProductsFeedbackUnansweredFeedbackQtyService {
+abstract class AllProductsQuestionsUnansweredFeedbackQtyService {
   Future<Either<RewildError, void>> saveUnansweredFeedbackQtyList({
     required String token,
     required List<UnAnsweredFeedbacksQtyModel> feedbacks,
@@ -65,18 +45,17 @@ abstract class AllProductsFeedbackUnansweredFeedbackQtyService {
       getAllUnansweredFeedbackQty();
 }
 
-class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
-  final AllProductsFeedbackViewModelQuestionService questionService;
-  final AllProductsFeedbackCardOfProductService cardOfProductService;
-  final AllProductsFeedbackViewModelReviewService reviewService;
-  final AllProductsFeedbackUnansweredFeedbackQtyService
+class AllProductsQuestionsViewModel extends ResourceChangeNotifier {
+  final AllProductsQuestionsViewModelQuestionService questionService;
+  final AllProductsQuestionsCardOfProductService cardOfProductService;
+
+  final AllProductsQuestionsUnansweredFeedbackQtyService
       unansweredFeedbackQtyService;
-  AllProductsFeedbackViewModel(
+  AllProductsQuestionsViewModel(
       {required super.context,
       required super.internetConnectionChecker,
       required this.cardOfProductService,
       required this.unansweredFeedbackQtyService,
-      required this.reviewService,
       required this.questionService}) {
     _asyncInit();
   }
@@ -91,16 +70,10 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
     setApiKey(apiKey);
 
     // get current questions and reviews
-    await Future.wait([_updateQuestions(), _updateReviews()]);
+    await _updateQuestions();
     await _updateSavedUnansweredFeedBacks();
     // set qty of unanswered reviews that user did not see yet
 
-    for (final nmId in _unansweredReviewsQty.keys) {
-      final current = _unansweredReviewsQty[nmId]!;
-      final old = _savedNmIdUnansweredReviews[nmId] ?? 0;
-
-      difReviews[nmId] = current - old;
-    }
     for (final nmId in _unansweredQuestionsQty.keys) {
       final current = _unansweredQuestionsQty[nmId]!;
       final old = _savedNmIdUnansweredQuestions[nmId] ?? 0;
@@ -114,10 +87,8 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   String get period => _period;
   Future<void> setPeriod(BuildContext context, String value) async {
     _period = value;
-    final _ = await Future.wait([
-      _updateReviews(),
-      _updateQuestions(),
-    ]);
+    await _updateQuestions();
+
     notify();
   }
 
@@ -161,128 +132,6 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   // Variables for storing new feedbacks qty
   Map<int, int> difQuestions = {};
   int difQuestion(int nmId) => difQuestions[nmId] ?? 0;
-
-  Map<int, int> difReviews = {};
-  int difReview(int nmId) => difReviews[nmId] ?? 0;
-
-  // Reviews ==================================================================== REVIEWS
-  bool _isReviewsLoading = false;
-  void setReviewsLoading(bool value) {
-    _reviewsQty = 0;
-    _isReviewsLoading = value;
-    notify();
-  }
-
-  bool get isReviewsLoading => _isReviewsLoading;
-
-  Future<void> _updateReviews() async {
-    setReviewsLoading(true);
-    _resetAllReviewsQty();
-    _resetUnansweredReviewsQty();
-    // get questions
-    List<ReviewModel> allReviews = [];
-    int n = 0;
-
-    while (true) {
-      final reviews = await fetch(() => reviewService.getReviews(
-          take: NumericConstants.takeFeedbacksAtOnce,
-          dateFrom: dateFromDateTo().$1,
-          dateTo: dateFromDateTo().$2,
-          skip: NumericConstants.takeFeedbacksAtOnce * n));
-      if (reviews == null) {
-        break;
-      }
-      // setReviewQty(allReviews.length);
-      allReviews.addAll(reviews);
-      n++;
-      setReviewsQty(allReviews.length);
-      if (reviews.length < NumericConstants.takeFeedbacksAtOnce) {
-        break;
-      }
-    }
-
-    for (final review in allReviews) {
-      final nmId = review.productDetails.nmId;
-      // All Reviews Qty
-      incrementAllReviewsQty(nmId);
-
-      // New Reviews Qty
-      if (review.state == "none") {
-        incrementUnansweredReviewsQty(nmId);
-      }
-
-      // incrementReview(nmId, review.productValuation);
-
-      // Image
-      if (!_images.containsKey(nmId)) {
-        final image = await fetch(
-          () => cardOfProductService.getImageForNmId(nmId: nmId),
-        );
-        if (image == null) {
-          continue;
-        }
-
-        addImage(nmId, image);
-      }
-
-      // SupplierArticle
-      if (!_supplierArticle.containsKey(nmId)) {
-        final supplierArticle = review.productDetails.supplierArticle;
-        addSupplierArticle(nmId, supplierArticle);
-      }
-    }
-
-    setReviewsLoading(false);
-  }
-
-  int _reviewsQty = 0;
-  void setReviewsQty(int value) {
-    _reviewsQty = value;
-    notify();
-  }
-
-  int get reviewQty => _reviewsQty;
-
-  Map<int, int> _allReviewsQty = {};
-  void setAllReviewsQty(Map<int, int> value) {
-    _allReviewsQty = value;
-  }
-
-  void _resetAllReviewsQty() {
-    _allReviewsQty = {};
-  }
-
-  Set<int> get reviews => _allReviewsQty.keys.toSet();
-
-  void incrementAllReviewsQty(int nmId) {
-    if (_allReviewsQty.containsKey(nmId)) {
-      _allReviewsQty[nmId] = _allReviewsQty[nmId]! + 1;
-    } else {
-      _allReviewsQty[nmId] = 1;
-    }
-  }
-
-  int allReviewsQty(int nmId) => _allReviewsQty[nmId] ?? 0;
-
-  // unanswered reviews for each nmId
-  Map<int, int> _unansweredReviewsQty = {};
-  void setUnansweredReviewsQty(Map<int, int> value) {
-    _unansweredReviewsQty = value;
-  }
-
-  void _resetUnansweredReviewsQty() {
-    _unansweredReviewsQty = {};
-  }
-
-  void incrementUnansweredReviewsQty(int nmId) {
-    if (_unansweredReviewsQty.containsKey(nmId)) {
-      _unansweredReviewsQty[nmId] = _unansweredReviewsQty[nmId]! + 1;
-    } else {
-      _unansweredReviewsQty[nmId] = 1;
-    }
-  }
-
-  int unansweredReviewsQty(int nmId) => _unansweredReviewsQty[nmId] ?? 0;
 
   // Questions ================================================================== QUESTIONS
   // saved unanswered questions
@@ -421,16 +270,12 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
     final dateFrom = dateTo - 60 * 60 * 24 * 7;
 
     // fetch unanswered questions and reviews from Api and store in allUnansweredFeedbacksQty
-    final values = await Future.wait([
-      _fetchAllUnansweredQuestionsForLatsWeek(
-        dateFrom,
-        dateTo,
-      ),
-      _fetchAllUnansweredReviewsForLastWeek(dateFrom, dateTo),
-    ]);
+    final allUnansweredQuestionsForLastWeek =
+        await _fetchAllUnansweredQuestionsForLatsWeek(
+      dateFrom,
+      dateTo,
+    );
 
-    final allUnansweredQuestionsForLastWeek = values[0];
-    final allUnansweredReviewsQty = values[1];
     for (final nmId in allUnansweredQuestionsForLastWeek.keys) {
       allUnansweredFeedbacksQtyList.add(UnAnsweredFeedbacksQtyModel(
         nmId: nmId,
@@ -439,51 +284,11 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
       ));
     }
 
-    for (final nmId in allUnansweredReviewsQty.keys) {
-      allUnansweredFeedbacksQtyList.add(UnAnsweredFeedbacksQtyModel(
-        nmId: nmId,
-        qty: allUnansweredReviewsQty[nmId]!,
-        type: UnAnsweredFeedbacksQtyModel.getType('review'),
-      ));
-    }
-
     await unansweredFeedbackQtyService.saveUnansweredFeedbackQtyList(
       token: _apiKey!,
       feedbacks: allUnansweredFeedbacksQtyList,
     );
     if (context.mounted) Navigator.of(context).pop();
-  }
-
-  Future<Map<int, int>> _fetchAllUnansweredReviewsForLastWeek(
-      int dateFrom, int dateTo) async {
-    Map<int, int> allUnansweredReviewsQty = {};
-    int n = 0;
-    while (true) {
-      final reviews = await fetch(() => reviewService.getUnansweredReviews(
-          token: _apiKey!,
-          take: NumericConstants.takeFeedbacksAtOnce,
-          dateFrom: dateFrom,
-          dateTo: dateTo,
-          skip: NumericConstants.takeFeedbacksAtOnce * n));
-      if (reviews == null) {
-        break;
-      }
-
-      for (final review in reviews) {
-        final nmId = review.productDetails.nmId;
-        if (allUnansweredReviewsQty.containsKey(nmId)) {
-          allUnansweredReviewsQty[nmId] = allUnansweredReviewsQty[nmId]! + 1;
-        } else {
-          allUnansweredReviewsQty[nmId] = 1;
-        }
-      }
-      n++;
-
-      if (reviews.length < NumericConstants.takeFeedbacksAtOnce) {
-        break;
-      }
-    }
-    return allUnansweredReviewsQty;
   }
 
   Future<Map<int, int>> _fetchAllUnansweredQuestionsForLatsWeek(
@@ -558,24 +363,18 @@ class AllProductsFeedbackViewModel extends ResourceChangeNotifier {
   bool get apiKeyExists => _apiKey != null;
 
   void goTo(int nmId) {
-    if (isReviews) {
-      difReviews[nmId] = 0;
-    } else {
-      difQuestions[nmId] = 0;
-    }
+    difQuestions[nmId] = 0;
     if (context.mounted) {
       Navigator.of(context).pushNamed(
-          isReviews
-              ? MainNavigationRouteNames.allReviewsScreen
-              : MainNavigationRouteNames.allQuestionsScreen,
+          MainNavigationRouteNames.allQuestionsScreen,
           arguments: nmId);
     }
     notify();
   }
 
-  bool isReviews = false;
-  void setIsReviews(bool value) {
-    isReviews = value;
-    notify();
-  }
+  // bool isNew = false;
+  // void setIsNew(bool value) {
+  //   isNew = value;
+  //   notify();
+  // }
 }

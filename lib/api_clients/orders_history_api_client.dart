@@ -15,8 +15,6 @@ class OrdersHistoryApiClient
   Future<Either<RewildError, OrdersHistoryModel>> get(
       {required int nmId}) async {
     try {
-      // final uri = Uri.parse(
-      //     'https://product-order-qnt.wildberries.ru/v2/by-nm/?nm=$nmId');
       final params = {'nm': nmId.toString()};
       final wbApiHelper = WbOrdersHistoryApiHelper.get;
       final response = await wbApiHelper.get(null, params);
