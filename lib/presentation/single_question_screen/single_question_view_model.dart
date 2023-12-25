@@ -4,10 +4,17 @@ import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/question_model.dart';
 
-abstract class SingleQuestionViewModelAnswerService {
-  Future<Either<RewildError, List<String>>> getAll();
+// card of product
+abstract class SingleQuestionViewModelCardOfProductService {
+  Future<Either<RewildError, String>> getImageForNmId({required int nmId});
 }
 
+// Answer
+abstract class SingleQuestionViewModelAnswerService {
+  Future<Either<RewildError, List<String>>> getAllQuestions();
+}
+
+// Question
 abstract class SingleQuestionViewModelQuestionService {
   Future<Either<RewildError, String?>> getApiKey();
   Future<Either<RewildError, bool>> publishQuestion(
@@ -18,10 +25,12 @@ class SingleQuestionViewModel extends ResourceChangeNotifier {
   final QuestionModel question;
   final SingleQuestionViewModelAnswerService answerService;
   final SingleQuestionViewModelQuestionService questionService;
+  final SingleQuestionViewModelCardOfProductService cardOfProductService;
   SingleQuestionViewModel(this.question,
       {required super.context,
       required super.internetConnectionChecker,
       required this.questionService,
+      required this.cardOfProductService,
       required this.answerService}) {
     _asyncInit();
   }
@@ -33,13 +42,20 @@ class SingleQuestionViewModel extends ResourceChangeNotifier {
     }
     setApiKey(apiKey);
     // Saved answers
-    final answers = await fetch(() => answerService.getAll());
+    final answers = await fetch(() => answerService.getAllQuestions());
     if (answers == null) {
       return;
     }
+    _cardImage = await fetch(() => cardOfProductService.getImageForNmId(
+        nmId: question.productDetails.nmId));
     setStoredAnswers(answers);
     notify();
   }
+
+  // Image
+  String? _cardImage;
+
+  String? get cardImage => _cardImage;
 
   // Api key
   String? _apiKey;
@@ -62,15 +78,22 @@ class SingleQuestionViewModel extends ResourceChangeNotifier {
 
   List<String>? get storedAnswers => _storedAnswers;
 
-  Future<void> publish(String text) async {
-    if (_apiKey == null) {
+  Future<void> publish() async {
+    if (_apiKey == null || _answer == null) {
       return;
     }
     final result = await fetch(() => questionService.publishQuestion(
-        token: _apiKey!, id: question.id, answer: text));
+        token: _apiKey!, id: question.id, answer: _answer!));
     if (result == null) {
       return;
     }
     if (context.mounted) Navigator.of(context).pop();
+  }
+
+  String? _answer;
+  void setAnswer(String value) {
+    _answer = value;
+
+    notify();
   }
 }

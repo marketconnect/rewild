@@ -5,65 +5,70 @@ import 'package:rewild/domain/services/answer_service.dart';
 
 class AnswerDataProvider implements AnswerServiceAnswerDataProvider {
   const AnswerDataProvider();
-  @override
-  Future<Either<RewildError, bool>> delete({required String questionId}) async {
+
+  Future<Either<RewildError, bool>> delete(
+      {required String id, required String type}) async {
     try {
       final db = await SqfliteService().database;
-
       final deletedID = await db.rawDelete(
-        'DELETE FROM answers WHERE questionId = ? ',
-        [questionId],
+        'DELETE FROM answers WHERE id = ? AND type = ?',
+        [id, type],
       );
       return right(deletedID > 0);
     } catch (e) {
       return left(RewildError(e.toString(),
-          source: runtimeType.toString(), name: "delete", args: [questionId]));
+          source: runtimeType.toString(), name: "delete", args: [id, type]));
     }
   }
 
-  @override
   Future<Either<RewildError, bool>> insert(
-      {required String questionId, required String answer}) async {
+      {required String id,
+      required String answer,
+      required String type}) async {
     try {
       final db = await SqfliteService().database;
-      final id = await db.rawInsert(
-        'INSERT INTO answers (questionId, answer) VALUES (?, ?)',
-        [questionId, answer],
+      final insertedID = await db.rawInsert(
+        'INSERT INTO answers (id, answer, type) VALUES (?, ?, ?)',
+        [id, answer, type],
       );
-      return right(id > 0);
+      return right(insertedID > 0);
     } catch (e) {
       return left(RewildError(e.toString(),
-          source: runtimeType.toString(), name: "insert", args: [questionId]));
+          source: runtimeType.toString(),
+          name: "insert",
+          args: [id, answer, type]));
     }
   }
 
-  @override
-  Future<Either<RewildError, List<String>>> getAllQuestionsIds() async {
+  Future<Either<RewildError, List<String>>> getAllIds(
+      {required String type}) async {
     try {
       final db = await SqfliteService().database;
       final answers = await db.rawQuery(
-        'SELECT * FROM answers',
+        'SELECT * FROM answers WHERE type = ?',
+        [type],
       );
       if (answers.isEmpty) {
         return right([]);
       }
-      return right(answers.map((e) => e['questionId'] as String).toList());
+      return right(answers.map((e) => e['id'] as String).toList());
     } catch (e) {
       return left(RewildError(
         e.toString(),
         source: runtimeType.toString(),
-        name: "getAllQuestionsIds",
-        args: [],
+        name: "getAllIds",
+        args: [type],
       ));
     }
   }
 
-  @override
-  Future<Either<RewildError, List<String>>> getAll() async {
+  Future<Either<RewildError, List<String>>> getAll(
+      {required String type}) async {
     try {
       final db = await SqfliteService().database;
       final answers = await db.rawQuery(
-        'SELECT * FROM answers',
+        'SELECT * FROM answers WHERE type = ?',
+        [type],
       );
       if (answers.isEmpty) {
         return right([]);
@@ -74,7 +79,7 @@ class AnswerDataProvider implements AnswerServiceAnswerDataProvider {
         e.toString(),
         source: runtimeType.toString(),
         name: "getAll",
-        args: [],
+        args: [type],
       ));
     }
   }

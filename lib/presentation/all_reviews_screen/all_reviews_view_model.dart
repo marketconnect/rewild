@@ -21,13 +21,13 @@ abstract class AllReviewsViewModelReviewService {
 
 // Answers service
 abstract class AllReviewsViewModelAnswerService {
-  Future<Either<RewildError, bool>> insert(
-      {required String questionId, required String answer});
-  Future<Either<RewildError, bool>> delete({
-    required String questionId,
+  Future<Either<RewildError, bool>> insertReview(
+      {required String reviewId, required String answer});
+  Future<Either<RewildError, bool>> deleteReview({
+    required String reviewId,
   });
 
-  Future<Either<RewildError, List<String>>> getAllQuestionsIds();
+  Future<Either<RewildError, List<String>>> getAllReviewIds();
 }
 
 class AllReviewsViewModel extends ResourceChangeNotifier {
@@ -80,7 +80,7 @@ class AllReviewsViewModel extends ResourceChangeNotifier {
     setReviews(allReviews);
 
     // Saved answers
-    final answers = await fetch(() => answerService.getAllQuestionsIds());
+    final answers = await fetch(() => answerService.getAllReviewIds());
     if (answers == null) {
       return;
     }
@@ -205,8 +205,8 @@ class AllReviewsViewModel extends ResourceChangeNotifier {
       _savedAnswersQuestionsIds = [questionId];
     }
     final answerText = answer.text;
-    final ok = await fetch(
-        () => answerService.insert(questionId: questionId, answer: answerText));
+    final ok = await fetch(() =>
+        answerService.insertReview(reviewId: questionId, answer: answerText));
     if (ok == null) {
       return false;
     }
@@ -220,7 +220,8 @@ class AllReviewsViewModel extends ResourceChangeNotifier {
       _savedAnswersQuestionsIds!.remove(questionId);
     }
 
-    final ok = await fetch(() => answerService.delete(questionId: questionId));
+    final ok =
+        await fetch(() => answerService.deleteReview(reviewId: questionId));
     if (ok == null) {
       return false;
     }

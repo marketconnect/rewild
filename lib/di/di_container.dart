@@ -629,6 +629,7 @@ class _DIContainer {
         context: context,
         answerService: _makeAnswerService(),
         questionService: _makeQuestionService(),
+        cardOfProductService: _makeCardOfProductService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
 

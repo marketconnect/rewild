@@ -5,11 +5,12 @@ import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.da
 import 'package:rewild/presentation/single_question_screen/single_question_view_model.dart';
 
 abstract class AnswerServiceAnswerDataProvider {
-  Future<Either<RewildError, bool>> delete({required String questionId});
+  Future<Either<RewildError, bool>> delete(
+      {required String id, required String type});
   Future<Either<RewildError, bool>> insert(
-      {required String questionId, required String answer});
-  Future<Either<RewildError, List<String>>> getAllQuestionsIds();
-  Future<Either<RewildError, List<String>>> getAll();
+      {required String id, required String answer, required String type});
+  Future<Either<RewildError, List<String>>> getAllIds({required String type});
+  Future<Either<RewildError, List<String>>> getAll({required String type});
 }
 
 class AnswerService
@@ -21,26 +22,50 @@ class AnswerService
   const AnswerService({required this.answerDataProvider});
 
   @override
-  Future<Either<RewildError, bool>> delete({
+  Future<Either<RewildError, bool>> deleteQuestion({
     required String questionId,
   }) async {
-    return await answerDataProvider.delete(questionId: questionId);
+    return await answerDataProvider.delete(id: questionId, type: 'question');
   }
 
   @override
-  Future<Either<RewildError, bool>> insert(
+  Future<Either<RewildError, bool>> deleteReview({
+    required String reviewId,
+  }) async {
+    return await answerDataProvider.delete(id: reviewId, type: 'review');
+  }
+
+  @override
+  Future<Either<RewildError, bool>> insertQuestion(
       {required String questionId, required String answer}) async {
     return await answerDataProvider.insert(
-        questionId: questionId, answer: answer);
+        id: questionId, answer: answer, type: 'question');
   }
 
   @override
-  Future<Either<RewildError, List<String>>> getAll() async {
-    return await answerDataProvider.getAll();
+  Future<Either<RewildError, bool>> insertReview(
+      {required String reviewId, required String answer}) async {
+    return await answerDataProvider.insert(
+        id: reviewId, answer: answer, type: 'review');
   }
 
   @override
-  Future<Either<RewildError, List<String>>> getAllQuestionsIds() async {
-    return await answerDataProvider.getAllQuestionsIds();
+  Future<Either<RewildError, List<String>>> getAllQuestions() async {
+    return await answerDataProvider.getAll(type: 'question');
+  }
+
+  @override
+  Future<Either<RewildError, List<String>>> getAllReviews() async {
+    return await answerDataProvider.getAll(type: 'review');
+  }
+
+  @override
+  Future<Either<RewildError, List<String>>> getAllQuestionIds() async {
+    return await answerDataProvider.getAllIds(type: 'question');
+  }
+
+  @override
+  Future<Either<RewildError, List<String>>> getAllReviewIds() async {
+    return await answerDataProvider.getAllIds(type: 'review');
   }
 }

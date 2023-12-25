@@ -23,6 +23,7 @@ import 'package:rewild/presentation/all_products_questions_screen/all_products_q
 
 import 'package:rewild/presentation/single_card_screen/single_card_screen_view_model.dart';
 import 'package:rewild/presentation/single_group_screen/single_groups_screen_view_model.dart';
+import 'package:rewild/presentation/single_question_screen/single_question_view_model.dart';
 import 'package:rewild/presentation/single_review_screen/single_review_view_model.dart';
 
 // API clients
@@ -83,6 +84,7 @@ class CardOfProductService
         AllAdvertsStatScreenCardOfProductService,
         AllCardsScreenCardOfProductService,
         AllProductsQuestionsCardOfProductService,
+        SingleQuestionViewModelCardOfProductService,
         AllProductsReviewsCardOfProductService,
         SingleReviewCardOfProductService,
         AllAdvertsWordsScreenCardOfProductService,
