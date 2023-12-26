@@ -13,6 +13,7 @@ import 'package:rewild/api_clients/reviews_api_client.dart';
 import 'package:rewild/api_clients/seller_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/api_clients/warehouse_api_client.dart';
+import 'package:rewild/api_clients/yandex_spell_checker_api_client.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data_provider.dart';
 import 'package:rewild/data_providers/answer_data_provider/answer_data_provider.dart';
@@ -60,6 +61,7 @@ import 'package:rewild/domain/services/question_service.dart';
 import 'package:rewild/domain/services/review_service.dart';
 
 import 'package:rewild/domain/services/seller_service.dart';
+import 'package:rewild/domain/services/spell_checker_service.dart';
 import 'package:rewild/domain/services/stock_service.dart';
 import 'package:rewild/domain/services/supply_service.dart';
 import 'package:rewild/domain/services/unanswered_feedback_qty_service.dart';
@@ -210,6 +212,9 @@ class _DIContainer {
   QuestionsApiClient _makeQuestionsApiClient() => const QuestionsApiClient();
 
   ReviewApiClient _makeReviewApiClient() => const ReviewApiClient();
+
+  YandexSpellerApiClient _makeSpellCheckerApiClient() =>
+      const YandexSpellerApiClient();
   // Data providers ============================================================
 
   // secure storage
@@ -421,6 +426,11 @@ class _DIContainer {
           reviewsApiClient: _makeReviewApiClient(),
           questionsApiClient: _makeQuestionsApiClient());
 
+  // Spell checker
+  SpellCheckerService _makeSpellCheckerService() => SpellCheckerService(
+        spellCheckerApiClient: _makeSpellCheckerApiClient(),
+      );
+
   // View models ===============================================================
   SplashScreenViewModel _makeSplashScreenViewModel(BuildContext context) =>
       SplashScreenViewModel(
@@ -630,6 +640,7 @@ class _DIContainer {
         answerService: _makeAnswerService(),
         questionService: _makeQuestionService(),
         cardOfProductService: _makeCardOfProductService(),
+        spellChecker: _makeSpellCheckerService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
       );
 
