@@ -17,6 +17,7 @@ import 'package:rewild/presentation/all_adverts_stat_screen/all_adverts_stat_scr
 import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_view_model.dart';
 import 'package:rewild/presentation/all_cards_screen/all_cards_screen_view_model.dart';
 import 'package:rewild/presentation/all_products_reviews_screen/all_products_reviews_view_model.dart';
+import 'package:rewild/presentation/geo_search_screen/geo_search_view_model.dart';
 
 import 'package:rewild/presentation/main_navigation_screen/main_navigation_view_model.dart';
 import 'package:rewild/presentation/all_products_questions_screen/all_products_questions_view_model.dart';
@@ -75,6 +76,7 @@ abstract class CardOfProductServiceCardOfProductDataProvider {
   Future<Either<RewildError, String>> getImage({required int id});
   Future<Either<RewildError, List<CardOfProductModel>>> getAllBySupplierId(
       {required int supplierId});
+  Future<Either<RewildError, List<int>>> getAllNmIds();
 }
 
 class CardOfProductService
@@ -83,6 +85,7 @@ class CardOfProductService
         MainNavigationCardService,
         AllAdvertsStatScreenCardOfProductService,
         AllCardsScreenCardOfProductService,
+        GeoSearchViewModelCardOfProductService,
         AllProductsQuestionsCardOfProductService,
         SingleQuestionViewModelCardOfProductService,
         AllProductsReviewsCardOfProductService,
@@ -173,5 +176,12 @@ class CardOfProductService
     return await cardOfProductDataProvider.getImage(id: nmId);
 
     // return imgEither.fold((l) => left(l), (img) => right(img));
+  }
+
+  @override
+  Future<Either<RewildError, List<int>>> getAllNmIds() async {
+    final nmIdsEither = await cardOfProductDataProvider.getAllNmIds();
+
+    return nmIdsEither;
   }
 }

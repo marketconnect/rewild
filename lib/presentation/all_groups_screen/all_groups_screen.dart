@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:rewild/core/utils/extensions/strings.dart';
+import 'package:rewild/domain/entities/group_model.dart';
 import 'package:rewild/presentation/all_groups_screen/all_groups_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 
@@ -14,10 +15,13 @@ class AllGroupsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AllGroupsScreenViewModel>();
-    final groups = model.groups;
+    List<GroupModel> groups = model.groups;
     final rename = model.rename;
     final delete = model.delete;
-
+    final isLoading = model.isLoading;
+    if (isLoading) {
+      groups = generateFakeGroups();
+    }
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(
@@ -33,7 +37,7 @@ class AllGroupsScreen extends StatelessWidget {
                 scrolledUnderElevation: 2,
                 shadowColor: Colors.black,
                 surfaceTintColor: Colors.transparent),
-            body: groups.isEmpty
+            body: !isLoading && groups.isEmpty
                 ? const EmptyWidget(
                     text: 'У вас пока нет групп',
                   )
@@ -388,4 +392,33 @@ class AllGroupsScreen extends StatelessWidget {
               ]);
         });
   }
+}
+
+List<GroupModel> generateFakeGroups() {
+  return [
+    GroupModel(
+      id: 1,
+      name: "Group 1",
+      bgColor: 0xFFE0E0E0, // Light grey color
+      fontColor: 0xFF000000, // Black color
+      cardsNmIds: [1, 2, 3],
+      cards: [], // Add CardOfProductModel instances if needed
+    ),
+    GroupModel(
+      id: 2,
+      name: "Group 2",
+      bgColor: 0xFFFFEBEE, // Light red color
+      fontColor: 0xFF000000, // Black color
+      cardsNmIds: [4, 5, 6],
+      cards: [], // Add CardOfProductModel instances if needed
+    ),
+    GroupModel(
+      id: 3,
+      name: "Group 3",
+      bgColor: 0xFFE8F5E9, // Light green color
+      fontColor: 0xFF000000, // Black color
+      cardsNmIds: [7, 8, 9],
+      cards: [], // Add CardOfProductModel instances if needed
+    )
+  ];
 }

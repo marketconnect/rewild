@@ -7,6 +7,7 @@ import 'package:rewild/core/utils/extensions/date_time.dart';
 import 'package:rewild/core/utils/strings_utils.dart';
 import 'package:rewild/domain/entities/question_model.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
+import 'package:rewild/routes/main_navigation_route_names.dart';
 
 import 'package:rewild/widgets/popum_menu_item.dart';
 
@@ -544,10 +545,10 @@ class _PopupMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.read<AllQuestionsViewModel>();
-    final setAnswerToReuse = model.setAnswerToReuse;
+    final saveAnswer = model.saveAnswer;
     final delete = model.deleteAnswer;
     final save = model.saveAnswer;
-
+    final getQuestion = model.question;
     return PopupMenuButton(
       // Menu ============================================ Menu
       onSelected: (value) => Navigator.popAndPushNamed(context, value),
@@ -559,13 +560,26 @@ class _PopupMenu extends StatelessWidget {
         return [
           if (isEditable)
             PopupMenuItem(
-              child: ReWildPopumMenuItemChild(
-                text: "Редактировать",
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: Image.asset(
-                    IconConstant.iconPencil,
+              child: GestureDetector(
+                onTap: () {
+                  final question = getQuestion(questionId);
+                  print(' question: $question');
+                  if (question == null) {
+                    Navigator.of(context).pop();
+                  }
+                  Navigator.of(context).pushNamed(
+                    MainNavigationRouteNames.singleQuestionScreen,
+                    arguments: questionId,
+                  );
+                },
+                child: ReWildPopumMenuItemChild(
+                  text: "Редактировать",
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Image.asset(
+                      IconConstant.iconPencil,
+                    ),
                   ),
                 ),
               ),
@@ -574,7 +588,7 @@ class _PopupMenu extends StatelessWidget {
             PopupMenuItem(
               child: GestureDetector(
                 onTap: () {
-                  setAnswerToReuse(answerText, questionId);
+                  saveAnswer(questionId);
                   Navigator.of(context).pop();
                 },
                 child: ReWildPopumMenuItemChild(

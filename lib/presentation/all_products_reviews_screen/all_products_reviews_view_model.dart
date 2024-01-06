@@ -19,6 +19,7 @@ abstract class AllProductsReviewsCardOfProductService {
 abstract class AllProductsReviewsViewModelReviewService {
   Future<Either<RewildError, String?>> getApiKey();
   Future<Either<RewildError, List<ReviewModel>>> getReviews({
+    required String token,
     required int take,
     required int skip,
     required int dateFrom,
@@ -130,7 +131,10 @@ class AllProductsReviewsViewModel extends ResourceChangeNotifier {
   // Variables for storing new feedbacks qty
 
   Map<int, int> difReviews = {};
-  int difReview(int nmId) => difReviews[nmId] ?? 0;
+  int difReview(int nmId) {
+    final dif = difReviews[nmId] ?? 0;
+    return dif < 0 ? 0 : dif;
+  }
 
   // Reviews ==================================================================== REVIEWS
   bool _isReviewsLoading = false;
@@ -149,9 +153,12 @@ class AllProductsReviewsViewModel extends ResourceChangeNotifier {
     // get questions
     List<ReviewModel> allReviews = [];
     int n = 0;
-
+    if (_apiKey == null) {
+      return;
+    }
     while (true) {
       final reviews = await fetch(() => reviewService.getReviews(
+          token: _apiKey!,
           take: NumericConstants.takeFeedbacksAtOnce,
           dateFrom: dateFromDateTo().$1,
           dateTo: dateFromDateTo().$2,

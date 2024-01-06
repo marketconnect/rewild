@@ -7,6 +7,7 @@ import 'package:rewild/domain/entities/search_campaign_stat.dart';
 class CardContent {
   final int orderNum;
   final String word;
+  final String normQuery;
   final int dif;
   final bool isNew;
   final int? qty;
@@ -18,6 +19,7 @@ class CardContent {
       required this.orderNum,
       required this.isNew,
       required this.word,
+      required this.normQuery,
       this.qty,
       this.stat,
       this.highCost});

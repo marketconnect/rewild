@@ -34,6 +34,7 @@ abstract class ScreenFactory {
   Widget makeAllReviewsScreen(int nmId);
   Widget makeFeedbackNotificationSettingsScreen();
   Widget makeAllProductsReviewsScreen();
+  Widget makeGeoSearchScreen();
 }
 
 class MainNavigation implements AppNavigation {
@@ -142,6 +143,11 @@ class MainNavigation implements AppNavigation {
         final groupName = arguments is String ? arguments : "";
         return MaterialPageRoute(
           builder: (_) => screenFactory.makeSingleGroupScreen(groupName),
+        );
+
+      case MainNavigationRouteNames.geoSearchScreen:
+        return MaterialPageRoute(
+          builder: (_) => screenFactory.makeGeoSearchScreen(),
         );
 
       case MainNavigationRouteNames.apiKeysScreen:

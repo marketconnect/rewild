@@ -51,6 +51,13 @@ class MainNavigationScreenCardsWidget extends StatelessWidget {
                 // route: '',
                 iconData: Icons.account_tree_outlined,
               ),
+              LinkBtn(
+                text: 'Гео запросы',
+                color: Color(0xFFfb8532),
+                route: MainNavigationRouteNames.geoSearchScreen,
+                // route: '',
+                iconData: Icons.map_outlined,
+              ),
             ],
           ),
         )

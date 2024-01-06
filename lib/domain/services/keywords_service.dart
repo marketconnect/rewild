@@ -93,6 +93,7 @@ class KeywordsService
             .map((e) => Keyword(
                   keyword: e.keyword,
                   count: e.count,
+                  normquery: e.normquery,
                   campaignId: campaignId,
                 ))
             .toList();
@@ -109,6 +110,13 @@ class KeywordsService
                   (err) => err, (r) => throw UnimplementedError()));
             }
             continue;
+          } else {
+            // if exists add normquery
+            final savedKeyword =
+                savedKeywords.firstWhere((e) => e.keyword == keyword.keyword);
+            keyword.normquery = savedKeyword.normquery;
+            print(
+                'keyword ${keyword.keyword} exists ${savedKeyword.normquery}');
           }
 
           // keyword exists in DB

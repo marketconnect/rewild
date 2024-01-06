@@ -4,6 +4,7 @@ import 'dart:convert';
 class Keyword {
   int campaignId;
   String keyword;
+  String normquery;
   int count;
 
   int diff = 0;
@@ -21,6 +22,7 @@ class Keyword {
     required this.campaignId,
     required this.keyword,
     required this.count,
+    this.normquery = '',
   });
 
   Map<String, dynamic> toMap() {

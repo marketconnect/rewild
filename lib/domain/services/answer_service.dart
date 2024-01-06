@@ -3,6 +3,7 @@ import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/presentation/all_questions_screen/all_questions_view_model.dart';
 import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.dart';
 import 'package:rewild/presentation/single_question_screen/single_question_view_model.dart';
+import 'package:rewild/presentation/single_review_screen/single_review_view_model.dart';
 
 abstract class AnswerServiceAnswerDataProvider {
   Future<Either<RewildError, bool>> delete(
@@ -17,6 +18,7 @@ class AnswerService
     implements
         AllQuestionsViewModelAnswerService,
         AllReviewsViewModelAnswerService,
+        SingleReviewViewModelAnswerService,
         SingleQuestionViewModelAnswerService {
   final AnswerServiceAnswerDataProvider answerDataProvider;
   const AnswerService({required this.answerDataProvider});
@@ -38,6 +40,7 @@ class AnswerService
   @override
   Future<Either<RewildError, bool>> insertQuestion(
       {required String questionId, required String answer}) async {
+    print("question id: $questionId, answer: $answer");
     return await answerDataProvider.insert(
         id: questionId, answer: answer, type: 'question');
   }

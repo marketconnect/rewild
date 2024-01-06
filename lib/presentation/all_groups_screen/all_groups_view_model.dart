@@ -29,6 +29,7 @@ class AllGroupsScreenViewModel extends ResourceChangeNotifier {
   }
 
   void _asyncInit() async {
+    setIsLoading(true);
     final groups = await fetch(() => groupsProvider.getAll());
     if (groups == null) {
       return;
@@ -38,9 +39,9 @@ class AllGroupsScreenViewModel extends ResourceChangeNotifier {
       await fetch(() => updateService.update());
     }
     _groups = groups;
-    if (context.mounted) {
-      notifyListeners();
-    }
+    setIsLoading(false);
+
+    notify();
   }
 
   Future<void> rename(String oldName, String newName) async {
@@ -57,4 +58,10 @@ class AllGroupsScreenViewModel extends ResourceChangeNotifier {
 
   List<GroupModel> _groups = [];
   List<GroupModel> get groups => _groups;
+
+  bool _isloading = false;
+  bool get isLoading => _isloading;
+  void setIsLoading(bool value) {
+    _isloading = value;
+  }
 }

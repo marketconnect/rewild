@@ -1,6 +1,8 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
+import 'package:rewild/core/utils/sqflite_service.dart';
+
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/auto_campaign_stat.dart';
 import 'package:rewild/domain/entities/keyword.dart';
@@ -33,6 +35,7 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
   }
 
   void _asyncInit() async {
+    // SqfliteService.printTableContent("keywords");
     await _update();
   }
 
@@ -56,6 +59,8 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
       return;
     }
 
+    _clusterKeywordsByNormQuery(autoStatsWordRes.keywords);
+
     autoStatsWordRes.keywords.sort((a, b) => b.count.compareTo(a.count));
 
     final tempKeywords = autoStatsWordRes.keywords;
@@ -68,7 +73,7 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
       return;
     }
     _name = advertInfo.name;
-    print('keywords: ${_keywords.length}');
+    // print('keywords: ${_keywords.length}');
     notify();
   }
 
@@ -78,6 +83,17 @@ class SingleAutoWordsViewModel extends ResourceChangeNotifier {
   void setApiKey(String? apiKey) {
     _apiKey = apiKey;
     notify();
+  }
+
+  // Clusters
+  Map<String, List<Keyword>> _keywordClusters = {};
+  Map<String, List<Keyword>> get keywordClusters => _keywordClusters;
+  // New method to cluster keywords
+  void _clusterKeywordsByNormQuery(List<Keyword> keywords) {
+    _keywordClusters = {};
+    for (var keyword in keywords) {
+      _keywordClusters.putIfAbsent(keyword.normquery, () => []).add(keyword);
+    }
   }
 
   // Name

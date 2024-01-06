@@ -70,14 +70,9 @@ class ProductCardWidget extends StatelessWidget {
                       ReWildNetworkImage(
                           width: screenWidth * 0.2,
                           image: productCard.img ?? ""),
-                      // SizedBox(
-                      //   width: screenWidth * 0.2,
-                      //   child: Padding(
-                      //     padding: const EdgeInsets.all(8.0),
-                      //     child: CachedNetworkImage(
-                      //         imageUrl: productCard.img ?? ''),
-                      //   ),
-                      // ),
+                      const SizedBox(
+                        width: 3,
+                      ),
                       SizedBox(
                         width: screenWidth * 0.6,
                         child: Column(

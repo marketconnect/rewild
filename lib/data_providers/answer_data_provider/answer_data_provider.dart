@@ -62,6 +62,7 @@ class AnswerDataProvider implements AnswerServiceAnswerDataProvider {
     }
   }
 
+  @override
   Future<Either<RewildError, List<String>>> getAll(
       {required String type}) async {
     try {

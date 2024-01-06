@@ -10,7 +10,9 @@ import 'package:rewild/routes/main_navigation_route_names.dart';
 // Reviews service
 abstract class AllReviewsViewModelReviewService {
   Future<Either<RewildError, bool>> apiKeyExists();
+  Future<Either<RewildError, String?>> getApiKey();
   Future<Either<RewildError, List<ReviewModel>>> getReviews({
+    required String token,
     required int take,
     required int skip,
     required int dateFrom,
@@ -45,21 +47,28 @@ class AllReviewsViewModel extends ResourceChangeNotifier {
 
   void _asyncInit() async {
     // check api key
-    final exists = await fetch(() => reviewService.apiKeyExists());
-    if (exists == null) {
+    final apiKey = await fetch(() => reviewService.getApiKey());
+    if (apiKey == null) {
       return;
     }
 
-    setApiKeyExists(exists);
-    if (!exists) {
+    setApiKey(apiKey);
+    if (apiKey.isEmpty) {
       return;
     }
+
+    // setApiKeyExists(exists);
+    // if (!exists) {
+    //   return;
+    // }
+
     // get questions
     List<ReviewModel> allReviews = [];
     // await _firstLoad();
     int n = 0;
     while (true) {
       final reviews = await fetch(() => reviewService.getReviews(
+            token: apiKey,
             nmId: nmId,
             take: NumericConstants.takeFeedbacksAtOnce,
             skip: NumericConstants.takeFeedbacksAtOnce * n,
@@ -89,6 +98,15 @@ class AllReviewsViewModel extends ResourceChangeNotifier {
 
     notify();
   }
+
+  // ApiKeyExists
+  String? _apiKey;
+  void setApiKey(String value) {
+    _apiKey = value;
+    notify();
+  }
+
+  bool get apiKeyExists => _apiKey != null;
 
   // PAGINATION
   // final int _limit = NumericConstants.takeReviewsAtOnce;
@@ -127,13 +145,6 @@ class AllReviewsViewModel extends ResourceChangeNotifier {
   // }
 
   // ApiKeyExists
-  bool _apiKeyExists = false;
-  void setApiKeyExists(bool value) {
-    _apiKeyExists = value;
-    notify();
-  }
-
-  bool get apiKeyExists => _apiKeyExists;
 
   // Questions
   List<ReviewModel>? _reviews;

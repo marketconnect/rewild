@@ -58,6 +58,9 @@ class SingleQuestionViewModel extends ResourceChangeNotifier {
     _cardImage = await fetch(() => cardOfProductService.getImageForNmId(
         nmId: question.productDetails.nmId));
     setStoredAnswers(answers);
+    if (question.answer != null) {
+      setAnswer(question.answer!.text);
+    }
     notify();
   }
 
@@ -72,6 +75,7 @@ class SingleQuestionViewModel extends ResourceChangeNotifier {
     _apiKey = apiKey;
   }
 
+  // reused answer text
   void setReusedAnswerText(String text) {
     question.setReusedAnswerText(text);
   }
@@ -80,6 +84,7 @@ class SingleQuestionViewModel extends ResourceChangeNotifier {
     question.clearReusedAnswerText();
   }
 
+  // Saved answers
   List<String>? _storedAnswers;
   void setStoredAnswers(List<String> answers) {
     _storedAnswers = answers;
@@ -87,32 +92,39 @@ class SingleQuestionViewModel extends ResourceChangeNotifier {
 
   List<String>? get storedAnswers => _storedAnswers;
 
+  // Spell checker
+  List<SpellResult>? _spellResults;
+
+  List<SpellResult> get spellResults => _spellResults ?? [];
+
+  // Publish
   Future<void> publish() async {
+    print('publish ${question.id} ${_answer} ${_apiKey}');
     if (_apiKey == null || _answer == null) {
       return;
     }
-    final res = await fetch(() => spellChecker.checkText(text: _answer!));
-    if (res == null) {
+
+    final result = await fetch(() => questionService.publishQuestion(
+        token: _apiKey!, id: question.id, answer: _answer!));
+    if (result == null) {
       return;
     }
-    print(_answer);
-    for (final spellResult in res) {
-      print(
-          'code: ${spellResult.code} - col: ${spellResult.col} - row: ${spellResult.row} - len: ${spellResult.len} - pos: ${spellResult.pos}');
-      print('${spellResult.word} - ${spellResult.suggestions}');
-    }
-    // final result = await fetch(() => questionService.publishQuestion(
-    //     token: _apiKey!, id: question.id, answer: _answer!));
-    // if (result == null) {
-    //   return;
-    // }
     if (context.mounted) Navigator.of(context).pop();
   }
 
   String? _answer;
+  String? get answer => _answer;
   void setAnswer(String value) {
     _answer = value;
 
     notify();
+  }
+
+  Future<List<SpellResult>> checkSpellText(String text) async {
+    final spellResults = await fetch(() => spellChecker.checkText(text: text));
+    if (spellResults == null) {
+      return [];
+    }
+    return spellResults;
   }
 }

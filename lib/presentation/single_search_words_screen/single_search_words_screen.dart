@@ -155,6 +155,7 @@ class SingleSearchWordsScreen extends StatelessWidget {
                             qty: e.count,
                             orderNum: keywords.indexOf(e),
                             dif: e.diff,
+                            normQuery: e.normquery,
                             stat: s,
                             isNew: e.isNew);
                       }).toList(),
@@ -169,6 +170,7 @@ class SingleSearchWordsScreen extends StatelessWidget {
                                 word: e,
                                 dif: 0,
                                 orderNum: excluded.indexOf(e),
+                                normQuery: '',
                                 isNew: false,
                               ))
                           .toList(),

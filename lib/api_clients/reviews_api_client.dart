@@ -190,14 +190,12 @@ class ReviewApiClient
         'text': answer,
       };
 
-      print('handleReview $id $wasViewed $wasRejected $answer');
       final wbApi = WbReviewApiHelper.patchFeedbacks;
       final response = await wbApi.patch(token, body);
 
       if (response.statusCode == 200) {
         return right(true);
       } else {
-        print(response.body);
         final errString = wbApi.errResponse(statusCode: response.statusCode);
         return left(RewildError(
           errString,

@@ -29,4 +29,5 @@ abstract class MainNavigationRouteNames {
   static const String allQuestionsScreen = 'all_questions_screen';
   static const String allProductsReviewsScreen = 'products_reviews_screen';
   static const String allReviewsScreen = 'all_reviews_screen';
+  static const String geoSearchScreen = 'geo_search_screen';
 }

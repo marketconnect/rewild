@@ -104,6 +104,13 @@ class AllQuestionsViewModel extends ResourceChangeNotifier {
     _questions = value;
   }
 
+  QuestionModel? question(String questionId) {
+    if (_questions == null) {
+      return null;
+    }
+    return _questions!.where((element) => element.id == questionId).firstOrNull;
+  }
+
   List<QuestionModel> get questions => _questions ?? [];
 
   // Answer to reuse

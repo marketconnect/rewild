@@ -4,6 +4,7 @@ import 'package:rewild/api_clients/advert_api_client.dart';
 import 'package:rewild/api_clients/auth_service_api_client.dart';
 import 'package:rewild/api_clients/commision_api_client.dart';
 import 'package:rewild/api_clients/details_api_client.dart';
+import 'package:rewild/api_clients/geo_search_api_client.dart';
 
 import 'package:rewild/api_clients/orders_history_api_client.dart';
 
@@ -13,6 +14,7 @@ import 'package:rewild/api_clients/reviews_api_client.dart';
 import 'package:rewild/api_clients/seller_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
 import 'package:rewild/api_clients/warehouse_api_client.dart';
+import 'package:rewild/api_clients/web_catalog_ads_api_client.dart';
 import 'package:rewild/api_clients/yandex_spell_checker_api_client.dart';
 import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/data_providers/advert_stat_data_provider/advert_stat_data_provider.dart';
@@ -50,6 +52,7 @@ import 'package:rewild/domain/services/advert_stat_service.dart';
 import 'package:rewild/domain/services/background_message_service.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
 import 'package:rewild/domain/services/commission_service.dart';
+import 'package:rewild/domain/services/geo_search_service.dart';
 import 'package:rewild/domain/services/group_service.dart';
 import 'package:rewild/domain/services/init_stock_service.dart';
 import 'package:rewild/domain/services/internet_connection_checke.dart';
@@ -68,6 +71,7 @@ import 'package:rewild/domain/services/unanswered_feedback_qty_service.dart';
 import 'package:rewild/domain/services/update_service.dart';
 
 import 'package:rewild/domain/services/warehouse_service.dart';
+import 'package:rewild/domain/services/web_catalog_ads_service.dart';
 import 'package:rewild/main.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen.dart';
 import 'package:rewild/presentation/add_group_screen/add_group_screen_view_model.dart';
@@ -79,6 +83,8 @@ import 'package:rewild/presentation/all_questions_screen/all_questions_view_mode
 import 'package:rewild/presentation/all_reviews_screen/all_reviews_screen.dart';
 import 'package:rewild/presentation/all_reviews_screen/all_reviews_view_model.dart';
 import 'package:rewild/presentation/first_start_splash_screen/first_start_splash_screen.dart';
+import 'package:rewild/presentation/geo_search_screen/geo_search_screen.dart';
+import 'package:rewild/presentation/geo_search_screen/geo_search_view_model.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_screen.dart';
 import 'package:rewild/presentation/notification_advert_screen/notification_advert_view_model.dart';
 import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_view_model.dart';
@@ -215,6 +221,10 @@ class _DIContainer {
 
   YandexSpellerApiClient _makeSpellCheckerApiClient() =>
       const YandexSpellerApiClient();
+
+  // NormQueryApiClient _makeNormQueryApiClient() => const NormQueryApiClient();
+
+  GeoSearchApiClient _makeGeoSearchApiClient() => const GeoSearchApiClient();
   // Data providers ============================================================
 
   // secure storage
@@ -282,6 +292,8 @@ class _DIContainer {
   UnansweredFeedbackQtyDataProvider _makeUnansweredFeedbackQtyDataProvider() =>
       const UnansweredFeedbackQtyDataProvider();
 
+  WebCatalogAdsApiClient _makeWebCatalogAdsApiClient() =>
+      const WebCatalogAdsApiClient();
   // Services ==================================================================
 
   // check internet connection
@@ -429,6 +441,14 @@ class _DIContainer {
   // Spell checker
   SpellCheckerService _makeSpellCheckerService() => SpellCheckerService(
         spellCheckerApiClient: _makeSpellCheckerApiClient(),
+      );
+
+  GeoSearchService _makeGeoSearchService() => GeoSearchService(
+        geoSearchApiClient: _makeGeoSearchApiClient(),
+      );
+
+  WebCatalogAdsService _makeWebCatalogAdsService() => WebCatalogAdsService(
+        webCatalogAdsApiClient: _makeWebCatalogAdsApiClient(),
       );
 
   // View models ===============================================================
@@ -649,6 +669,8 @@ class _DIContainer {
       SingleReviewViewModel(
         review,
         context: context,
+        spellChecker: _makeSpellCheckerService(),
+        answerService: _makeAnswerService(),
         singleReviewCardOfProductService: _makeCardOfProductService(),
         reviewService: _makeReviewService(),
         internetConnectionChecker: _makeInternetConnectionChecker(),
@@ -661,6 +683,16 @@ class _DIContainer {
           notificationService: _makeNotificationService(),
           context: context,
           internetConnectionChecker: _makeInternetConnectionChecker());
+
+  GeoSearchViewModel _makeGeoSearchViewModel(
+    BuildContext context,
+  ) =>
+      GeoSearchViewModel(
+          internetConnectionChecker: _makeInternetConnectionChecker(),
+          context: context,
+          cardOfProductService: _makeCardOfProductService(),
+          webCatalogAdsService: _makeWebCatalogAdsService(),
+          geoSearchService: _makeGeoSearchService());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -857,6 +889,14 @@ class ScreenFactoryDefault implements ScreenFactory {
       create: (context) =>
           _diContainer._makeAllQuestionsViewModel(context, nmId),
       child: const AllQuestionsScreen(),
+    );
+  }
+
+  @override
+  Widget makeGeoSearchScreen() {
+    return ChangeNotifierProvider(
+      create: (context) => _diContainer._makeGeoSearchViewModel(context),
+      child: const GeoSearchScreen(),
     );
   }
 

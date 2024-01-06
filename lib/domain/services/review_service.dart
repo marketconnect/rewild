@@ -124,75 +124,79 @@ class ReviewService
 
   @override
   Future<Either<RewildError, List<ReviewModel>>> getReviews({
+    required String token,
     required int take,
     required int skip,
     required int dateFrom,
     required int dateTo,
     int? nmId,
   }) async {
-    final tokenEither = await apiKeysDataProvider.getApiKey(type: keyType);
-    return tokenEither.fold((l) => left(l), (apiKeyModel) async {
-      if (apiKeyModel == null) {
-        return left(RewildError(
-          'Api key not found',
-          source: runtimeType.toString(),
-          name: 'getReviews',
-          args: [],
-        ));
-      }
-      final unAnsweredEther = await reviewApiClient.getUnansweredReviews(
-        token: apiKeyModel.token,
-        take: take,
-        skip: skip,
-        dateFrom: dateFrom,
-        dateTo: dateTo,
-        nmId: nmId,
-      );
-      return unAnsweredEther.fold((l) => left(l), (unAnsweredReviews) async {
-        final answeredEither = await reviewApiClient.getAnsweredReviews(
-          nmId: nmId,
-          token: apiKeyModel.token,
-          take: take,
-          dateFrom: dateFrom,
-          dateTo: dateTo,
-          skip: skip,
-        );
-        return answeredEither.fold((l) => left(l), (answeredReviews) {
-          return right([...unAnsweredReviews, ...answeredReviews]);
-        });
-      });
+    // final tokenEither = await apiKeysDataProvider.getApiKey(type: keyType);
+    // return tokenEither.fold((l) => left(l), (apiKeyModel) async {
+    //   if (apiKeyModel == null) {
+    //     return left(RewildError(
+    //       'Api key not found',
+    //       source: runtimeType.toString(),
+    //       name: 'getReviews',
+    //       args: [],
+    //     ));
+    //   }
+    final unAnsweredEther = await reviewApiClient.getUnansweredReviews(
+      token: token,
+      take: take,
+      skip: skip,
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+      nmId: nmId,
+    );
+    if (unAnsweredEther.isLeft()) {
+      return unAnsweredEther;
+    }
+
+    final unAnsweredReviews = unAnsweredEther.getOrElse((l) => []);
+
+    final answeredEither = await reviewApiClient.getAnsweredReviews(
+      nmId: nmId,
+      token: token,
+      take: take,
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+      skip: skip,
+    );
+    return answeredEither.fold((l) => left(l), (answeredReviews) {
+      return right([...unAnsweredReviews, ...answeredReviews]);
     });
   }
 
   @override
   Future<Either<RewildError, bool>> publishReview({
+    required String token,
     required String id,
     required bool wasViewed,
     required bool wasRejected,
     required String answer,
   }) async {
-    final tokenEither = await apiKeysDataProvider.getApiKey(type: keyType);
-    return tokenEither.fold((l) => left(l), (apiKeyModel) async {
-      if (apiKeyModel == null) {
-        return left(RewildError(
-          'Api key not found',
-          source: runtimeType.toString(),
-          name: 'publishReview',
-          args: [],
-        ));
-      }
+    // final tokenEither = await apiKeysDataProvider.getApiKey(type: keyType);
+    // return tokenEither.fold((l) => left(l), (apiKeyModel) async {
+    //   if (apiKeyModel == null) {
+    //     return left(RewildError(
+    //       'Api key not found',
+    //       source: runtimeType.toString(),
+    //       name: 'publishReview',
+    //       args: [],
+    //     ));
+    //   }
 
-      final either = await reviewApiClient.handleReview(
-        token: apiKeyModel.token,
-        id: id,
-        wasViewed: wasViewed,
-        wasRejected: wasRejected,
-        answer: answer,
-      );
-      return either.fold(
-        (l) => left(l),
-        (r) => right(r),
-      );
-    });
+    final either = await reviewApiClient.handleReview(
+      token: token,
+      id: id,
+      wasViewed: wasViewed,
+      wasRejected: wasRejected,
+      answer: answer,
+    );
+    return either.fold(
+      (l) => left(l),
+      (r) => right(r),
+    );
   }
 }

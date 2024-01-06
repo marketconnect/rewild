@@ -3,6 +3,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:rewild/api_clients/advert_api_client.dart';
 import 'package:rewild/api_clients/details_api_client.dart';
 import 'package:rewild/api_clients/initial_stocks_api_client.dart';
+import 'package:rewild/api_clients/norm_query_api_client.dart';
 import 'package:rewild/api_clients/questions_api_client.dart';
 import 'package:rewild/api_clients/reviews_api_client.dart';
 import 'package:rewild/core/constants/constants.dart';
@@ -17,6 +18,7 @@ import 'package:rewild/data_providers/background_message_data_provider/backgroun
 import 'package:rewild/data_providers/card_of_product_data_provider/card_of_product_data_provider.dart';
 import 'package:rewild/data_providers/feedback_qty_data_provider/feedback_qty_data_provider.dart';
 import 'package:rewild/data_providers/initial_stocks_data_provider/initial_stocks_data_provider.dart';
+import 'package:rewild/data_providers/keyword_data_provider/keyword_data_provider.dart';
 import 'package:rewild/data_providers/last_update_day_data_provider.dart';
 import 'package:rewild/data_providers/notifications_data_provider/notification_data_provider.dart';
 
@@ -79,6 +81,7 @@ class BackgroundService {
   static fetchAll() async {
     // since the tokens do not used for card of products details request
     // make it nullable
+    print("FETCH ALL1");
     String? advToken;
     String? feedbackToken;
 
@@ -90,21 +93,26 @@ class BackgroundService {
           StringConstants.apiKeyTypes[ApiKeyType.question]!),
       NotificationDataProvider.getAllInBackground(),
     ]);
+    print("FETCH ALL2");
     final advTokenEither = values[0] as Either<RewildError, ApiKeyModel?>;
     final feedbackTokenEither = values[1] as Either<RewildError, ApiKeyModel?>;
     final notificationEither =
         values[2] as Either<RewildError, List<ReWildNotificationModel>>;
-
+    print("FETCH ALL3 NORM QUERIES");
+    await _fetchAndSaveNormQueries();
+    print("FETCH ALL3 NORM QUERIES END");
     // retrieve tokens
     advToken = advTokenEither.fold((l) => null, (r) => r!.token);
     feedbackToken = feedbackTokenEither.fold((l) => null, (r) => r!.token);
     // Adverts for single advert stat screen
     // fetch adverts from API Wb
-
+    print("FETCH ALL4");
     if (advToken != null) {
-      await _fetchAndSaveAdverts(advToken);
+      print("FETCH ALL5 $advToken");
+      final advEither = await _fetchAndSaveAdverts(advToken);
+      if (advEither.isLeft()) {}
     }
-
+    print("FETCH ALL5");
     // Notifications
     final notifications = notificationEither.fold((l) => null, (r) => r);
     if (notifications == null || notifications.isEmpty) {
@@ -115,25 +123,30 @@ class BackgroundService {
         .where((element) => NotificationConditionConstants.isCardNotification(
             element.condition))
         .toList();
+    print("FETCH ALL6");
     List<ReWildNotificationModel> advertsNotifications = notifications
         .where((element) => NotificationConditionConstants.isAdvertNotification(
             element.condition))
         .toList();
+    print("FETCH ALL7");
     List<ReWildNotificationModel> feedbackQtyNotifications = notifications
         .where((element) =>
             NotificationConditionConstants.isFeedbackQtyNotification(
                 element.condition))
         .toList();
+    print("FETCH ALL8");
     // ids
     List<int> cardsIds = cardsNotifications.map((e) => e.parentId).toList();
     List<int> advertsIds = advertsNotifications.map((e) => e.parentId).toList();
 
+    print("FETCH ALL9");
     // fetch cards from Wb
     final cardsEither = await DetailsApiClient.getInBackground(
         ids: cardsIds.unique() as List<int>);
     // list to save notification contents
     List<ReWildNotificationContent> notificationContents = [];
 
+    print("FETCH ALL10");
     // insert notification contents to the list
     // and update notification in local db with current value
     cardsEither.fold((l) => null, (cards) {
@@ -151,6 +164,7 @@ class BackgroundService {
         notificationContents.addAll(notContentList);
       }
     });
+    print("FETCH ALL11");
     // get adverts budget from Wb for notification
     if (advToken != null) {
       final fetchedAdvertBudgetNotificationsEither = await _fetchAdvertBudgets(
@@ -161,7 +175,7 @@ class BackgroundService {
         (r) => notificationContents.addAll(r),
       );
     }
-
+    print("FETCH ALL12");
     // get unanswered feedbacks qty
 
     if (feedbackToken != null) {
@@ -170,7 +184,7 @@ class BackgroundService {
           .where((element) =>
               element.condition == NotificationConditionConstants.question)
           .isNotEmpty;
-
+      print("FETCH ALL14");
       // if notifications for questions is on
       if (q) {
         // get saved unanswered questions qty
@@ -180,14 +194,14 @@ class BackgroundService {
 
         final savedUnansweredQuestionsQty =
             savedUnansweredQuestionsQtyEther.fold((l) => 0, (r) => r);
-
+        print("FETCH ALL15");
         // fetch current unanswered questions qty from Api
         final unansweredQuestionsQtyFromApiEither =
             await QuestionsApiClient.getCountUnansweredQuestionsInBackground(
                 token: feedbackToken);
         final fetchedFromApiUnanswereedQuestionsQty =
             unansweredQuestionsQtyFromApiEither.fold((l) => 0, (r) => r);
-
+        print("FETCH ALL16");
         // if there are new questions
         if (fetchedFromApiUnanswereedQuestionsQty >
             savedUnansweredQuestionsQty) {
@@ -204,7 +218,7 @@ class BackgroundService {
           .where((element) =>
               element.condition == NotificationConditionConstants.review)
           .isNotEmpty;
-
+      print("FETCH ALL17");
       if (r) {
         // get saved unanswered questions qty
         final savedUnansweredReviewsQtyEther =
@@ -236,7 +250,7 @@ class BackgroundService {
     if (notificationContents.isEmpty) {
       return;
     }
-
+    print("FETCH ALL18");
     // save all new notifications and messages to local db
     for (final notCont in notificationContents) {
       int subj = _getSubject(notCont);
@@ -256,16 +270,52 @@ class BackgroundService {
     await _instantNotification("У вас есть сообщение от ReWild", '');
   }
 
-  static Future<void> _fetchAndSaveAdverts(String token) async {
+  static Future<Either<RewildError, void>> _fetchAndSaveAdverts(
+      String token) async {
     final advertEither = await fetchAdverts(token);
-    advertEither.fold((l) => null, (advertStatModels) async {
-      // save all fetched adverts
-      if (advertStatModels != null && advertStatModels.isNotEmpty) {
-        for (final advert in advertStatModels) {
-          await AdvertStatDataProvider.saveInBackground(advert);
+    if (advertEither is Left) {
+      return advertEither;
+    }
+
+    final advertStatModels = advertEither.fold((l) => null, (r) => r);
+
+    // save all fetched adverts
+    if (advertStatModels != null && advertStatModels.isNotEmpty) {
+      for (final advert in advertStatModels) {
+        final res = await AdvertStatDataProvider.saveInBackground(advert);
+        if (res is Left) {
+          return res;
         }
       }
-    });
+    }
+
+    return right(null);
+  }
+
+  static Future<Either<RewildError, void>> _fetchAndSaveNormQueries() async {
+    print("fetchAndSaveNormQueries");
+    final keywordsWithoutNormsEither =
+        await KeywordDataProvider.getKeywordsWithoutNormQuery();
+    if (keywordsWithoutNormsEither is Left) {
+      return keywordsWithoutNormsEither;
+    }
+    final keywordsWithoutNorms =
+        keywordsWithoutNormsEither.fold((l) => null, (r) => r);
+    if (keywordsWithoutNorms != null && keywordsWithoutNorms.isNotEmpty) {
+      for (final keyword in keywordsWithoutNorms.sublist(0, 100)) {
+        final normQueryEither = await NormQueryApiClient.getNormQuery(keyword);
+        if (normQueryEither is Left) {
+          continue;
+        }
+        final normQuery = normQueryEither.fold((l) => null, (r) => r);
+        if (normQuery == null) {
+          continue;
+        }
+        print("updateWithNormQuery ${keyword}");
+        await KeywordDataProvider.updateWithNormQuery(keyword, normQuery);
+      }
+    }
+    return right(null);
   }
 
   static int _getSubject(ReWildNotificationContent notCont) {
@@ -315,42 +365,49 @@ class BackgroundService {
 
   static Future<Either<RewildError, List<AdvertStatModel>?>> fetchAdverts(
       String? token) async {
+    print('fetchAdverts 1');
     if (token == null) {
       return right(null);
     }
+    print('fetchAdverts 2');
     List<AdvertStatModel> fetchedAdverts = [];
 
     // get all adverts Ids from Wb API
     final allAdvertsIdsEither =
         await AdvertApiClient.countInBackground(token: token);
-
+    print('fetchAdverts 3');
     final allAdvertsIdsMap = allAdvertsIdsEither.fold(
       (l) => null,
       (r) => r,
     );
+    print('fetchAdverts 4');
     if (allAdvertsIdsMap == null) {
       return right(null);
     }
-
+    print('fetchAdverts 5');
     // convert map to list
     final ids = allAdvertsIdsMap.values.expand((element) => element).toList();
 
+    print('fetchAdverts 6');
     final advertEither =
         await AdvertApiClient.getAdvertsInBackground(token: token, ids: ids);
-
+    print('fetchAdverts 7');
     final allAdverts = advertEither.fold(
       (l) => null,
       (r) => r,
     );
+    print('fetchAdverts 8');
     if (allAdverts == null) {
       return right(null);
     }
-
+    print('fetchAdverts 9');
     for (final advertInfo in allAdverts) {
       if (advertInfo.status != AdvertStatusConstants.active &&
           advertInfo.status != AdvertStatusConstants.paused) {
         continue;
       }
+      print(
+          'fetchAdverts type ${advertInfo.type} status ${advertInfo.status} id ${advertInfo.campaignId}');
       switch (advertInfo.type) {
         case AdvertTypeConstants.auto:
           final advertStatEither =
@@ -401,6 +458,7 @@ class BackgroundService {
           break;
         default:
       }
+      print('fetchAdverts 11');
     }
     return right(fetchedAdverts);
   }

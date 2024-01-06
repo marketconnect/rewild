@@ -27,8 +27,12 @@ class SingleReviewScreen extends StatelessWidget {
     final userName = review.userName;
     final reviewText = review.text;
     final setAnswer = model.setAnswer;
-
+    final checkSpellText = model.checkSpellText;
     final photos = review.photoLinks;
+    final storedAnswers = model.storedAnswers;
+    final spellResults = model.spellResults;
+    final isAnswered = model.isAnswered;
+    final answerText = model.answer;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -48,7 +52,10 @@ class SingleReviewScreen extends StatelessWidget {
                 builder: (BuildContext context) {
                   return MyDialogHeaderAndTwoBtnsWidget(
                     onNoPressed: () => Navigator.of(context).pop(),
-                    onYesPressed: () => publish(),
+                    onYesPressed: () async {
+                      await publish();
+                      Navigator.of(context).pop();
+                    },
                     title: 'Отправить ответ?',
                   );
                 },
@@ -136,11 +143,16 @@ class SingleReviewScreen extends StatelessWidget {
       ),
       body: SingleFeedbackBody(
         createdDate: createdDate,
+        text: reviewText,
+        listOfTemplates: storedAnswers ?? [],
+        content: answerText,
+        checkSpell: checkSpellText,
+        isAnswered: isAnswered,
+        setAnswer: setAnswer,
+        photos: photos,
         productValuation: productValuation,
         userName: userName,
-        text: reviewText,
-        photos: photos,
-        setAnswer: setAnswer,
+        initSpellResults: spellResults,
       ),
     );
   }

@@ -280,7 +280,6 @@ class SingleAdvertStatsViewModel extends ResourceChangeNotifier {
   List<AdvertStatModel> get autoStatList => _autoStatList;
 
   Future<void> _asyncInit() async {
-    // SqfliteService.printTableContent("advert_stat");
     // Stream update track
     streamNotification.listen((event) async {
       if (event.parentType == ParentType.card) {

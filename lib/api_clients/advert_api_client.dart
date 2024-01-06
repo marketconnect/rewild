@@ -777,6 +777,7 @@ class AdvertApiClient
         final stats = json.decode(utf8.decode(response.bodyBytes));
         return right(AdvertStatModel.fromJson(stats, campaignId));
       } else {
+        print('response.statusCode ${response.statusCode} ${response.body}');
         final errString = wbApi.errResponse(
           statusCode: response.statusCode,
         );

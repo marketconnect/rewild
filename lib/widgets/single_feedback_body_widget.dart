@@ -1,28 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:rewild/core/utils/date_time_utils.dart';
 import 'package:rewild/domain/entities/review_model.dart';
+import 'package:rewild/domain/entities/spell_result.dart';
 import 'package:rewild/widgets/expandable_image.dart';
 import 'package:rewild/widgets/rate_stars.dart';
+import 'package:rewild/widgets/rewild_text_editing_controller.dart';
 
-class SingleFeedbackBody extends StatelessWidget {
+class SingleFeedbackBody extends StatefulWidget {
   final int? productValuation;
+  final bool isAnswered;
   final DateTime createdDate;
   final String? userName;
   final String text;
+  final String? content;
   final List<String> listOfTemplates;
   final List<PhotoLink> photos;
   final Function(String) setAnswer;
+  final Future<List<SpellResult>> Function(String) checkSpell;
+  final List<SpellResult> initSpellResults;
 
   const SingleFeedbackBody({
     super.key,
     this.productValuation,
     this.userName,
+    this.content,
+    this.isAnswered = false,
     required this.createdDate,
+    required this.checkSpell,
     required this.text,
     this.photos = const [],
     this.listOfTemplates = const [],
     required this.setAnswer,
+    required this.initSpellResults,
   });
+
+  @override
+  _SingleFeedbackBodyState createState() => _SingleFeedbackBodyState();
+}
+
+class _SingleFeedbackBodyState extends State<SingleFeedbackBody> {
+  RewildTextEdittingController _controller = RewildTextEdittingController();
+  final List<String> listErrorTexts = [];
+
+  final List<String> listTexts = [];
+
+  @override
+  void initState() {
+    _controller = RewildTextEdittingController(listErrorTexts: listErrorTexts);
+    super.initState();
+  }
+
+  void _handleOnChange(String text) {
+    widget.setAnswer(text);
+    widget.checkSpell(text).then((value) {
+      listErrorTexts.clear();
+      listErrorTexts.addAll(value.map((e) => e.word));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +79,10 @@ class SingleFeedbackBody extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (productValuation != null)
-                        RateStars(valuation: productValuation!),
+                      if (widget.productValuation != null)
+                        RateStars(valuation: widget.productValuation!),
                       Text(
-                        formatReviewDate(createdDate),
+                        formatReviewDate(widget.createdDate),
                         style: TextStyle(
                             color: Theme.of(context)
                                 .colorScheme
@@ -60,11 +94,11 @@ class SingleFeedbackBody extends StatelessWidget {
                   SizedBox(
                     height: screenWidth * 0.05,
                   ),
-                  if (userName != null)
+                  if (widget.userName != null)
                     Row(
                       children: [
                         Text(
-                          userName!,
+                          widget.userName!,
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context)
@@ -81,7 +115,7 @@ class SingleFeedbackBody extends StatelessWidget {
                       SizedBox(
                           width: screenWidth * 0.7,
                           child: Text(
-                            text,
+                            widget.text,
                             style: TextStyle(
                                 color: Theme.of(context)
                                     .colorScheme
@@ -97,7 +131,7 @@ class SingleFeedbackBody extends StatelessWidget {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: photos.map((e) {
+                        children: widget.photos.map((e) {
                           return Padding(
                             padding: EdgeInsets.only(right: screenWidth * 0.02),
                             child: ReWildExpandableImage(
@@ -137,22 +171,59 @@ class SingleFeedbackBody extends StatelessWidget {
                   SizedBox(
                     height: screenWidth * 0.05,
                   ),
-                  TextField(
-                    onChanged: (value) => setAnswer(value),
-                    maxLines: null,
-                    // expands: true,
-                    decoration: const InputDecoration(
-                      hintText: "Введите Ваш ответ на отзыв",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
+                  !widget.isAnswered
+                      ? Focus(
+                          onFocusChange: (hasFocus) {
+                            if (!hasFocus) {
+                              _handleOnChange(_controller.text);
+                            }
+                          },
+                          child: TextFormField(
+                              controller: _controller,
+                              onChanged: _handleOnChange,
+                              minLines: 5,
+                              maxLines: 10,
+                              decoration: const InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.black)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.black)),
+                                  disabledBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.black)))),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.content ?? "",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
                   SizedBox(
                     height: screenWidth * 0.15,
                   ),
-                  if (listOfTemplates.isNotEmpty)
-                    ElevatedButton(
-                      onPressed: () => _showTemplatesBottomSheet(context),
-                      child: const Text("Шаблоны"),
+                  if (widget.listOfTemplates.isNotEmpty)
+                    Container(
+                      width: screenWidth * 0.7,
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(screenWidth * 0.05),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: GestureDetector(
+                        onTap: () => _showTemplatesBottomSheet(context),
+                        child: Text(
+                          "Использвать шаблон",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: screenWidth * 0.05),
+                        ),
+                      ),
                     ),
                   SizedBox(height: screenWidth * 0.15),
                 ],
@@ -169,12 +240,14 @@ class SingleFeedbackBody extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return ListView.builder(
-          itemCount: listOfTemplates.length,
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+          itemCount: widget.listOfTemplates.length,
           itemBuilder: (BuildContext context, int index) {
             return ListTile(
-              title: Text(listOfTemplates[index]),
+              title: Text(widget.listOfTemplates[index]),
               onTap: () {
-                // Handle the template selection
+                _controller.text = widget.listOfTemplates[index];
+                _handleOnChange(widget.listOfTemplates[index]);
                 Navigator.pop(context); // Close the bottom sheet
               },
             );

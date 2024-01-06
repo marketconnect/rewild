@@ -4,6 +4,7 @@ import 'package:rewild/core/utils/sqflite_service.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
 import 'package:rewild/domain/services/all_cards_filter_service.dart';
 import 'package:rewild/domain/services/card_of_product_service.dart';
+
 import 'package:rewild/domain/services/update_service.dart';
 
 class CardOfProductDataProvider
@@ -12,6 +13,20 @@ class CardOfProductDataProvider
         UpdateServiceCardOfProductDataProvider,
         AllCardsFilterServiceCardsOfProductDataProvider {
   const CardOfProductDataProvider();
+
+  @override
+  Future<Either<RewildError, List<int>>> getAllNmIds() async {
+    try {
+      final db = await SqfliteService().database;
+      return await db
+          .rawQuery('SELECT nmId FROM cards')
+          .then((value) => right(value.map((e) => e['nmId'] as int).toList()));
+    } catch (e) {
+      return left(RewildError(e.toString(),
+          source: runtimeType.toString(), name: "getAllNmIds", args: []));
+    }
+  }
+
   @override
   Future<Either<RewildError, int>> insertOrUpdate(
       {required CardOfProductModel card}) async {

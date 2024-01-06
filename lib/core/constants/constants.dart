@@ -250,3 +250,22 @@ class AdvertTypeNameConstants {
     "Рекомендации": AdvertTypeConstants.inRecomendation
   };
 }
+
+Map<String, String> geoDistance = {
+  'Санкт-Петербург': '-1181903',
+  'Алматы': '232',
+  'Екатеринбург': '-5817698',
+  'Минск': '-59252',
+  'Москва': '12358265',
+  'Краснодар': '12358058',
+  'Казань': '-2133462',
+  'Омск': '-3902444',
+  'Новосибирск': '-365401',
+};
+
+String getDistanceCity(String dist) {
+  return geoDistance.entries
+      .firstWhere((entry) => entry.value == dist,
+          orElse: () => const MapEntry('', ''))
+      .key;
+}

@@ -10,8 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/custom_elevated_button.dart';
 import 'package:rewild/widgets/popum_menu_item.dart';
-
-import 'package:rewild/widgets/progress_indicator.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AllCardsScreen extends StatelessWidget {
   const AllCardsScreen({super.key});
@@ -21,12 +20,13 @@ class AllCardsScreen extends StatelessWidget {
     final model = context.watch<AllCardsScreenViewModel>();
     final resetFilter = model.resetFilter;
     final filterIsEmpty = model.filterIsEmpty;
-
+    final refresh = model.refresh;
     List<CardOfProductModel> productCards = model.productCards;
     final selectedGroup = model.selectedGroup;
     int selectedGroupIndex = 0;
     final groups = model.groups;
     final isLoading = model.loading;
+
     if (selectedGroup != null) {
       final groupsIds = selectedGroup.cardsNmIds;
 
@@ -82,30 +82,52 @@ class AllCardsScreen extends StatelessWidget {
                 (BuildContext context, bool innerBoxIsScrolled) {
               return headerSliverBuilderItems;
             },
-            body: model.loading
-                ? const MyProgressIndicator()
-                : productCards
-                        .isEmpty // Body ============================================================== Body
+            body:
+                // model.loading
+                //     ? const MyProgressIndicator()
+                //     :
+                !isLoading &&
+                        productCards
+                            .isEmpty // Body ============================================================== Body
                     ? const _EmptyProductsCards()
                     : Stack(children: [
-                        ListView.builder(
-                          itemCount: productCards.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            if (index > (productCards.length - 1)) {
-                              return Container();
-                            }
-                            if ((!filterIsEmpty || selectionInProcess) &&
-                                index == productCards.length - 1) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 50.0),
-                                child: _GestureDetectorCard(
-                                    productCard: productCards[index]),
-                              );
-                            }
-                            return _GestureDetectorCard(
-                              productCard: productCards[index],
-                            );
+                        RefreshIndicator(
+                          onRefresh: () async {
+                            await refresh();
                           },
+                          child: ListView.builder(
+                            itemCount: isLoading ? 7 : productCards.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              if (!isLoading &&
+                                  (index > (productCards.length - 1))) {
+                                return Container();
+                              }
+                              if ((!filterIsEmpty || selectionInProcess) &&
+                                  index == productCards.length - 1) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 50.0),
+                                  child: isLoading
+                                      ? Shimmer(
+                                          gradient: _shimmerGradient,
+                                          child: _GestureDetectorCard(
+                                              productCard:
+                                                  createFakeCardOfProductModel()),
+                                        )
+                                      : _GestureDetectorCard(
+                                          productCard: productCards[index]),
+                                );
+                              }
+                              return isLoading
+                                  ? Shimmer(
+                                      gradient: _shimmerGradient,
+                                      child: _GestureDetectorCard(
+                                          productCard:
+                                              createFakeCardOfProductModel()),
+                                    )
+                                  : _GestureDetectorCard(
+                                      productCard: productCards[index]);
+                            },
+                          ),
                         ),
                         if (selectionInProcess) const _BottomMergeBtn()
                       ]),
@@ -561,4 +583,45 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
               ]);
         });
   }
+}
+
+const _shimmerGradient = LinearGradient(
+  colors: [
+    Color(0xFFEBEBF4),
+    Color(0xFFF4F4F4),
+    Color(0xFFEBEBF4),
+  ],
+  stops: [
+    0.1,
+    0.3,
+    0.4,
+  ],
+  begin: Alignment(-1.0, -0.3),
+  end: Alignment(1.0, 0.3),
+  tileMode: TileMode.clamp,
+);
+
+CardOfProductModel createFakeCardOfProductModel() {
+  return CardOfProductModel(
+    nmId: 1,
+    name: "■■■■■■■■■■■■■■■■■■■■",
+    img:
+        "https://basket-02.wbbasket.ru/vol160/part16020/16020241/images/big/1.webp",
+    sellerId: 123,
+    tradeMark: "Sample TradeMark",
+    subjectId: 456,
+    subjectParentId: 789,
+    brand: "Sample Brand",
+    supplierId: 101,
+    basicPriceU: 1000,
+    pics: 2,
+    rating: 4,
+    reviewRating: 4.5,
+    feedbacks: 20,
+    promoTextCard: "Special Offer",
+    createdAt: DateTime.now().millisecondsSinceEpoch,
+    my: 0,
+    sizes: [/* Add SizeModel instances here */],
+    initialStocks: [/* Add InitialStockModel instances here */],
+  );
 }

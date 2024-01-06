@@ -181,6 +181,10 @@ class AllCardsScreenViewModel extends ResourceChangeNotifier {
     return token;
   }
 
+  Future<void> refresh() async {
+    return await _update();
+  }
+
   Future<void> _update([bool toNotify = true]) async {
     // filter
     _filter = await fetch(() => filterService.getCurrentFilter());
