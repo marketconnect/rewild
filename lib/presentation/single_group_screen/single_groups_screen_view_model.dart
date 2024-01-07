@@ -57,13 +57,13 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
   }
 
   void _asyncInit() async {
+    setIsLoading(true);
     await _update();
 
     if (_cards == null) {
       return;
     }
-
-    notify();
+    // setIsLoading(false);
   }
 
   Future<void> _update() async {
@@ -171,6 +171,13 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
         }
       }
     }
+  }
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+  void setIsLoading(bool value) {
+    _isLoading = value;
+    notify();
   }
 
   Map<int, String> whIds = {};

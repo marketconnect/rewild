@@ -5,6 +5,7 @@ import 'package:rewild/core/utils/resource_change_notifier.dart';
 import 'package:rewild/domain/entities/group_model.dart';
 
 abstract class AllGroupsScreenGroupsService {
+  int groupsCount();
   Future<Either<RewildError, List<GroupModel>?>> getAll([List<int>? nmIds]);
   Future<Either<RewildError, void>> deleteGroup({required String groupName});
   Future<Either<RewildError, void>> renameGroup(
@@ -24,7 +25,7 @@ class AllGroupsScreenViewModel extends ResourceChangeNotifier {
     required this.updateService,
     required super.context,
     required super.internetConnectionChecker,
-  }) {
+  }) : groupsCount = groupsProvider.groupsCount() {
     _asyncInit();
   }
 
@@ -55,6 +56,8 @@ class AllGroupsScreenViewModel extends ResourceChangeNotifier {
     await fetch(() => groupsProvider.deleteGroup(groupName: name));
     _asyncInit();
   }
+
+  final int groupsCount;
 
   List<GroupModel> _groups = [];
   List<GroupModel> get groups => _groups;

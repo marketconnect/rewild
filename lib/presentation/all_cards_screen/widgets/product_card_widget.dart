@@ -12,11 +12,13 @@ class ProductCardWidget extends StatelessWidget {
     required this.productCard,
     this.inAnyGroup = false,
     this.isSelected = false,
+    this.isShimmer = false,
   });
 
   final CardOfProductModel productCard;
   final bool isSelected;
   final bool inAnyGroup;
+  final bool isShimmer;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +29,7 @@ class ProductCardWidget extends StatelessWidget {
     final promoTextCard = productCard.promoTextCard;
     final supplySum = productCard.supplySum;
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final tracked = productCard.tracked;
 
     final supplyText = productCard.supplies.isNotEmpty && supplySum > 0
@@ -86,8 +89,20 @@ class ProductCardWidget extends StatelessWidget {
                                       productCard.groups.isEmpty || inAnyGroup
                                           ? screenWidth * 0.6
                                           : screenWidth * 0.45,
-                                  child: Text(productCard.name,
-                                      overflow: TextOverflow.ellipsis),
+                                  child: isShimmer
+                                      ? Container(
+                                          width: screenWidth * 0.2,
+                                          height: screenHeight * 0.02,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onBackground,
+                                          ),
+                                        )
+                                      : Text(productCard.name,
+                                          overflow: TextOverflow.ellipsis),
                                 ),
                                 inAnyGroup
                                     ? Container()
@@ -99,24 +114,48 @@ class ProductCardWidget extends StatelessWidget {
                             ),
                             Row(
                               children: [
-                                Text('Остатки: $stocksSum шт.',
-                                    style: TextStyle(
-                                        color: const Color(0xFFa1a1a2),
-                                        fontSize: screenWidth * 0.035)),
+                                isShimmer
+                                    ? Container(
+                                        width: screenWidth * 0.2,
+                                        height: screenHeight * 0.02,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onBackground,
+                                        ),
+                                      )
+                                    : Text('Остатки: $stocksSum шт.',
+                                        style: TextStyle(
+                                            color: const Color(0xFFa1a1a2),
+                                            fontSize: screenWidth * 0.035)),
                               ],
                             ),
                             Row(
                               children: [
                                 Row(
                                   children: [
-                                    Text(salesSumText,
-                                        style: TextStyle(
-                                            color: const Color(0xFFa1a1a2),
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.035)),
+                                    isShimmer
+                                        ? Container(
+                                            width: screenWidth * 0.25,
+                                            height: screenHeight * 0.02,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onBackground,
+                                            ),
+                                          )
+                                        : Text(salesSumText,
+                                            style: TextStyle(
+                                                color: const Color(0xFFa1a1a2),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.035)),
                                     if (wasSaled)
                                       const Padding(
                                         padding: EdgeInsets.only(left: 8.0),
@@ -148,8 +187,19 @@ class ProductCardWidget extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Text('${(price / 100).floor()}₽',
-                            style: TextStyle(fontSize: screenWidth * 0.03)),
+                        isShimmer
+                            ? Container(
+                                width: screenWidth * 0.1,
+                                height: screenHeight * 0.02,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground,
+                                ),
+                              )
+                            : Text('${(price / 100).floor()}₽',
+                                style: TextStyle(fontSize: screenWidth * 0.03)),
                         if (promoTextCard != null && promoTextCard != "")
                           Container(
                               margin: const EdgeInsets.fromLTRB(0, 5, 5, 0),

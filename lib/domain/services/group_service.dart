@@ -24,6 +24,14 @@ class GroupService
         SingleGroupScreenGroupsService {
   final GroupServiceGroupDataProvider groupDataProvider;
 
+  int _groupsCount = 0;
+  void _setGroupsCount(int count) {
+    _groupsCount = count;
+  }
+
+  @override
+  int groupsCount() => _groupsCount;
+
   GroupService({required this.groupDataProvider});
   @override
   Future<Either<RewildError, void>> add(
@@ -48,8 +56,14 @@ class GroupService
   Future<Either<RewildError, List<GroupModel>?>> getAll(
       [List<int>? nmIds]) async {
     final resource = await groupDataProvider.getAll(nmIds);
+    if (resource.isLeft()) {
+      return resource.fold((l) => left(l), (r) => right(r));
+    }
 
-    return resource.fold((l) => left(l), (r) => right(r));
+    final groups =
+        resource.fold((l) => throw UnimplementedError(), (r) => r ?? []);
+    _setGroupsCount(groups.length);
+    return right(groups);
   }
 
   @override

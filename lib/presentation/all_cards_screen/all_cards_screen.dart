@@ -1,3 +1,4 @@
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/constants/icons_constant.dart';
 import 'package:rewild/core/utils/extensions/strings.dart';
 import 'package:rewild/domain/entities/card_of_product_model.dart';
@@ -108,8 +109,9 @@ class AllCardsScreen extends StatelessWidget {
                                   padding: const EdgeInsets.only(bottom: 50.0),
                                   child: isLoading
                                       ? Shimmer(
-                                          gradient: _shimmerGradient,
+                                          gradient: shimmerGradient,
                                           child: _GestureDetectorCard(
+                                              isShimmer: true,
                                               productCard:
                                                   createFakeCardOfProductModel()),
                                         )
@@ -119,8 +121,9 @@ class AllCardsScreen extends StatelessWidget {
                               }
                               return isLoading
                                   ? Shimmer(
-                                      gradient: _shimmerGradient,
+                                      gradient: shimmerGradient,
                                       child: _GestureDetectorCard(
+                                          isShimmer: true,
                                           productCard:
                                               createFakeCardOfProductModel()),
                                     )
@@ -286,9 +289,11 @@ class _BottomMergeBtn extends StatelessWidget {
 class _GestureDetectorCard extends StatelessWidget {
   const _GestureDetectorCard({
     required this.productCard,
+    this.isShimmer = false,
   });
 
   final CardOfProductModel productCard;
+  final bool isShimmer;
 
   @override
   Widget build(BuildContext context) {
@@ -303,6 +308,7 @@ class _GestureDetectorCard extends StatelessWidget {
       onLongPress: () => onCardLongPress(id),
       child: ProductCardWidget(
         productCard: productCard,
+        isShimmer: isShimmer,
         inAnyGroup: selectedGroup != null,
         isSelected: isSelected,
       ),
@@ -584,22 +590,6 @@ class _HorizontalScrollMenuState extends State<_HorizontalScrollMenu>
         });
   }
 }
-
-const _shimmerGradient = LinearGradient(
-  colors: [
-    Color(0xFFEBEBF4),
-    Color(0xFFF4F4F4),
-    Color(0xFFEBEBF4),
-  ],
-  stops: [
-    0.1,
-    0.3,
-    0.4,
-  ],
-  begin: Alignment(-1.0, -0.3),
-  end: Alignment(1.0, 0.3),
-  tileMode: TileMode.clamp,
-);
 
 CardOfProductModel createFakeCardOfProductModel() {
   return CardOfProductModel(

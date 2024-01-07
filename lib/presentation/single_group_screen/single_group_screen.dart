@@ -1,4 +1,5 @@
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:rewild/core/constants/constants.dart';
 import 'package:rewild/core/constants/image_constant.dart';
 
 import 'package:rewild/core/utils/extensions/strings.dart';
@@ -13,6 +14,7 @@ import 'package:pie_chart/pie_chart.dart';
 import 'package:provider/provider.dart';
 import 'package:rewild/widgets/empty_widget.dart';
 import 'package:rewild/widgets/network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 class SingleGroupScreen extends StatelessWidget {
   const SingleGroupScreen({super.key});
@@ -70,8 +72,10 @@ class _TabBody extends StatelessWidget {
     final stocksDataMap = model.stocksDataMap;
     final ordersTotal = model.ordersTotal;
     final stocksTotal = model.stocksTotal;
+    final isLoading = model.isLoading;
 
-    if (cards == null || ordersDataMap.isEmpty || stocksDataMap.isEmpty) {
+    if (!isLoading &&
+        (cards == null || ordersDataMap.isEmpty || stocksDataMap.isEmpty)) {
       return const EmptyWidget(
         text: "Нет групп",
       );
@@ -109,10 +113,17 @@ class _TabBody extends StatelessWidget {
                     const SizedBox(
                       height: 35,
                     ),
-                  _Chart(
-                    dataMap: isOrder ? ordersDataMap : stocksDataMap,
-                    total: isOrder ? ordersTotal : stocksTotal,
-                  ),
+                  isLoading
+                      ? Shimmer(
+                          gradient: shimmerGradient,
+                          child: _Chart(
+                            dataMap: isOrder ? ordersDataMap : stocksDataMap,
+                            total: isOrder ? ordersTotal : stocksTotal,
+                          ))
+                      : _Chart(
+                          dataMap: isOrder ? ordersDataMap : stocksDataMap,
+                          total: isOrder ? ordersTotal : stocksTotal,
+                        ),
                 ],
               ),
             ),
@@ -142,7 +153,7 @@ class _CardsList extends StatelessWidget {
     final ordersTotal = model.ordersTotal;
     final stocksTotal = model.stocksTotal;
     final delete = model.deleteCardFromGroup;
-    // final cardStock = model.cardStocks;
+    final isLoading = model.isLoading;
     if (cards != null && isOrder) {
       cards = cards.where((card) => card.ordersSum > 0).toList();
     } else if (cards != null && !isOrder) {
@@ -169,6 +180,10 @@ class _CardsList extends StatelessWidget {
       cards.sort((a, b) => b.ordersSum.compareTo(a.ordersSum));
     } else {
       cards.sort((a, b) => b.stocksFbw.compareTo(a.stocksFbw));
+    }
+    if (isLoading) {
+      print('i am heeeeeerrrrreee');
+      cards = create5FakeCardsOfProductModel();
     }
     return SingleChildScrollView(
       child: Column(
@@ -303,12 +318,19 @@ class _Chart extends StatelessWidget {
     final expanded = model.isExpanded;
     List<Color> colorsList = [];
     Map<String, double> data = <String, double>{};
-    for (final entry in dataMap.entries) {
-      data[entry.key.name] = entry.value;
-      colorsList.add(entry.key.backgroundColor!);
+    final isShimmer = model.isLoading;
+    if (isShimmer) {
+      data[""] = 100.0; // Empty string for the label
+      colorsList.add(Colors.black);
+    } else {
+      // Normal data processing
+      for (final entry in dataMap.entries) {
+        data[entry.key.name] = entry.value;
+        colorsList.add(entry.key.backgroundColor!);
+      }
     }
 
-    if (dataMap.isEmpty) {
+    if (dataMap.isEmpty && !isShimmer) {
       return const SizedBox();
     }
 
@@ -322,7 +344,7 @@ class _Chart extends StatelessWidget {
           ringStrokeWidth: 30,
           centerText: 'Всего\n$total шт.',
           legendOptions: LegendOptions(
-            showLegends: expanded,
+            showLegends: expanded && !isShimmer,
             legendPosition: LegendPosition.bottom,
           ),
           chartValuesOptions: const ChartValuesOptions(
@@ -336,4 +358,75 @@ class _Chart extends StatelessWidget {
       ),
     );
   }
+}
+
+List<CardOfProductModel> create5FakeCardsOfProductModel() {
+  return [
+    CardOfProductModel(
+      nmId: 1,
+      name: "■■■■■■■■■■■■■■■■■■■■",
+      img:
+          "https://basket-02.wbbasket.ru/vol160/part16020/16020241/images/big/1.webp",
+      sellerId: 123,
+      tradeMark: "Sample TradeMark",
+      subjectId: 456,
+      subjectParentId: 789,
+      brand: "Sample Brand",
+      supplierId: 101,
+      basicPriceU: 1000,
+      pics: 2,
+      rating: 4,
+      reviewRating: 4.5,
+      feedbacks: 20,
+      promoTextCard: "Special Offer",
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      my: 0,
+      sizes: [/* Add SizeModel instances here */],
+      initialStocks: [/* Add InitialStockModel instances here */],
+    ),
+    CardOfProductModel(
+      nmId: 1,
+      name: "■■■■■■■■■■■■■■■■■■■■",
+      img:
+          "https://basket-02.wbbasket.ru/vol160/part16020/16020241/images/big/1.webp",
+      sellerId: 123,
+      tradeMark: "Sample TradeMark",
+      subjectId: 456,
+      subjectParentId: 789,
+      brand: "Sample Brand",
+      supplierId: 101,
+      basicPriceU: 1000,
+      pics: 2,
+      rating: 4,
+      reviewRating: 4.5,
+      feedbacks: 20,
+      promoTextCard: "Special Offer",
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      my: 0,
+      sizes: [/* Add SizeModel instances here */],
+      initialStocks: [/* Add InitialStockModel instances here */],
+    ),
+    CardOfProductModel(
+      nmId: 1,
+      name: "■■■■■■■■■■■■■■■■■■■■",
+      img:
+          "https://basket-02.wbbasket.ru/vol160/part16020/16020241/images/big/1.webp",
+      sellerId: 123,
+      tradeMark: "Sample TradeMark",
+      subjectId: 456,
+      subjectParentId: 789,
+      brand: "Sample Brand",
+      supplierId: 101,
+      basicPriceU: 1000,
+      pics: 2,
+      rating: 4,
+      reviewRating: 4.5,
+      feedbacks: 20,
+      promoTextCard: "Special Offer",
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      my: 0,
+      sizes: [/* Add SizeModel instances here */],
+      initialStocks: [/* Add InitialStockModel instances here */],
+    )
+  ];
 }
