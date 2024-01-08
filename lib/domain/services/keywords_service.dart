@@ -115,8 +115,6 @@ class KeywordsService
             final savedKeyword =
                 savedKeywords.firstWhere((e) => e.keyword == keyword.keyword);
             keyword.normquery = savedKeyword.normquery;
-            print(
-                'keyword ${keyword.keyword} exists ${savedKeyword.normquery}');
           }
 
           // keyword exists in DB

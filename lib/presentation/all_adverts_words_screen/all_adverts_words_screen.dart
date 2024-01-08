@@ -7,6 +7,7 @@ import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/presentation/all_adverts_words_screen/all_adverts_words_view_model.dart';
 import 'package:rewild/routes/main_navigation_route_names.dart';
 import 'package:rewild/widgets/network_image.dart';
+import 'package:rewild/widgets/progress_indicator.dart';
 
 class AllAdvertsWordsScreen extends StatelessWidget {
   const AllAdvertsWordsScreen({super.key});
@@ -22,69 +23,76 @@ class AllAdvertsWordsScreen extends StatelessWidget {
     final searchAdverts = adverts
         .where((advert) => advert.type == AdvertTypeConstants.inSearch)
         .toList();
+
+    final isLoading = model.isLoading;
+    print("isLoading: $isLoading");
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const _AppBar(),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width * 0.05),
+      body: isLoading
+          ? const MyProgressIndicator()
+          : Padding(
+              padding:
+                  EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      if (autoAdverts.isNotEmpty)
-                        const _Title(text: 'Автоматические'),
-                      Column(
-                        children: autoAdverts
-                            .map(
-                              (advert) => GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).pushNamed(
-                                      MainNavigationRouteNames
-                                          .autoStatWordsScreen,
-                                      arguments: advert.campaignId);
-                                  return;
-                                },
-                                child: _Card(
-                                  advert: advert,
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      if (searchAdverts.isNotEmpty)
-                        const _Title(text: 'В поиске'),
-                      Column(
-                        children: searchAdverts
-                            .map(
-                              (advert) => GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).pushNamed(
-                                      MainNavigationRouteNames
-                                          .searchStatWordsScreen,
-                                      arguments: advert.campaignId);
-                                  return;
-                                },
-                                child: _Card(
-                                  advert: advert,
-                                ),
-                              ),
-                            )
-                            .toList(),
+                      const _AppBar(),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal:
+                                MediaQuery.of(context).size.width * 0.05),
+                        child: Column(
+                          children: [
+                            if (autoAdverts.isNotEmpty)
+                              const _Title(text: 'Автоматические'),
+                            Column(
+                              children: autoAdverts
+                                  .map(
+                                    (advert) => GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).pushNamed(
+                                            MainNavigationRouteNames
+                                                .autoStatWordsScreen,
+                                            arguments: advert.campaignId);
+                                        return;
+                                      },
+                                      child: _Card(
+                                        advert: advert,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                            if (searchAdverts.isNotEmpty)
+                              const _Title(text: 'В поиске'),
+                            Column(
+                              children: searchAdverts
+                                  .map(
+                                    (advert) => GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).pushNamed(
+                                            MainNavigationRouteNames
+                                                .searchStatWordsScreen,
+                                            arguments: advert.campaignId);
+                                        return;
+                                      },
+                                      child: _Card(
+                                        advert: advert,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

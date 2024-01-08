@@ -9,6 +9,7 @@ import 'package:rewild/domain/services/web_catalog_ads_service.dart';
 class WebCatalogAdsApiClient
     implements WebCatalogAdsServiceWebCatalogAdsApiClient {
   const WebCatalogAdsApiClient();
+  @override
   Future<Either<RewildError, List<SearchAdvData>>> getAdvData(
       String keyword, List<int> nmIds) async {
     final params = {
@@ -40,13 +41,11 @@ class WebCatalogAdsApiClient
         var positions = pages[0]['positions'];
         var adverts = advDict['adverts'] ?? [];
 
-        print(nmIds);
         List<SearchAdvData> result = [];
         for (var i = 0; i < adverts.length && i < positions.length; i++) {
           if (!nmIds.contains(adverts[i]['id'])) {
             continue;
           }
-          print("here --- ${adverts[i]['id']}");
           result.add(SearchAdvData.fromJson({
             'id': adverts[i]['id'],
             'cpm': adverts[i]['cpm'],

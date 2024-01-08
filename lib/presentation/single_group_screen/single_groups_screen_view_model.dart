@@ -63,7 +63,7 @@ class SingleGroupScreenViewModel extends ResourceChangeNotifier {
     if (_cards == null) {
       return;
     }
-    // setIsLoading(false);
+    setIsLoading(false);
   }
 
   Future<void> _update() async {

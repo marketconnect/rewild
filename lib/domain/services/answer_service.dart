@@ -40,7 +40,6 @@ class AnswerService
   @override
   Future<Either<RewildError, bool>> insertQuestion(
       {required String questionId, required String answer}) async {
-    print("question id: $questionId, answer: $answer");
     return await answerDataProvider.insert(
         id: questionId, answer: answer, type: 'question');
   }

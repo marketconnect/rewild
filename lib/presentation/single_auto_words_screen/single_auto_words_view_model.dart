@@ -1,7 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:rewild/core/utils/rewild_error.dart';
 import 'package:rewild/core/utils/resource_change_notifier.dart';
-import 'package:rewild/core/utils/sqflite_service.dart';
 
 import 'package:rewild/domain/entities/advert_base.dart';
 import 'package:rewild/domain/entities/auto_campaign_stat.dart';

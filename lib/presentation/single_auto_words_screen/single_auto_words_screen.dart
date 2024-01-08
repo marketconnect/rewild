@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:rewild/core/utils/extensions/strings.dart';
 import 'package:rewild/domain/entities/keyword.dart';
 import 'package:rewild/presentation/single_auto_words_screen/single_auto_words_view_model.dart';
-import 'package:rewild/widgets/keyword_slidable_container.dart';
-import 'package:rewild/widgets/keyword_tab_body.dart';
 import 'package:rewild/widgets/my_dialog_header_and_two_btns_widget.dart';
 
 class SingleAutoWordsScreen extends StatelessWidget {
@@ -15,7 +13,7 @@ class SingleAutoWordsScreen extends StatelessWidget {
     final model = context.watch<SingleAutoWordsViewModel>();
     final name = model.name;
     final keywords = model.keywords;
-    print('keywords ${keywords.length} aaaaaaa');
+
     final excluded = model.excluded;
     final searchInputOpen = model.searchInputOpen;
     final searchInputToggle = model.toggleSearchInput;
@@ -299,19 +297,19 @@ class HorizontalProgressBar extends StatelessWidget {
     double progress = current / total;
 
     return Container(
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
           LinearProgressIndicator(
             value: progress,
             minHeight: 10.0,
             backgroundColor: Colors.grey[300]!,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
           ),
-          SizedBox(height: 8.0),
+          const SizedBox(height: 8.0),
           Text(
             'Progress: $current/$total',
-            style: TextStyle(fontSize: 16.0),
+            style: const TextStyle(fontSize: 16.0),
           ),
         ],
       ),

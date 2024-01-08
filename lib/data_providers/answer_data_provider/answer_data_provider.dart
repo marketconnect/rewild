@@ -6,6 +6,7 @@ import 'package:rewild/domain/services/answer_service.dart';
 class AnswerDataProvider implements AnswerServiceAnswerDataProvider {
   const AnswerDataProvider();
 
+  @override
   Future<Either<RewildError, bool>> delete(
       {required String id, required String type}) async {
     try {
@@ -21,6 +22,7 @@ class AnswerDataProvider implements AnswerServiceAnswerDataProvider {
     }
   }
 
+  @override
   Future<Either<RewildError, bool>> insert(
       {required String id,
       required String answer,
@@ -40,6 +42,7 @@ class AnswerDataProvider implements AnswerServiceAnswerDataProvider {
     }
   }
 
+  @override
   Future<Either<RewildError, List<String>>> getAllIds(
       {required String type}) async {
     try {

@@ -154,12 +154,14 @@ class _CardsList extends StatelessWidget {
     final stocksTotal = model.stocksTotal;
     final delete = model.deleteCardFromGroup;
     final isLoading = model.isLoading;
+
     if (cards != null && isOrder) {
       cards = cards.where((card) => card.ordersSum > 0).toList();
     } else if (cards != null && !isOrder) {
       cards = cards.where((card) => card.stocksFbw > 0).toList();
     }
-    if (cards == null) {
+    // the group is empty
+    if (!isLoading && cards == null) {
       return Center(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         CustomImageView(
@@ -176,15 +178,49 @@ class _CardsList extends StatelessWidget {
       ]));
     }
 
-    if (isOrder) {
-      cards.sort((a, b) => b.ordersSum.compareTo(a.ordersSum));
-    } else {
-      cards.sort((a, b) => b.stocksFbw.compareTo(a.stocksFbw));
-    }
+    // Loading
     if (isLoading) {
-      print('i am heeeeeerrrrreee');
       cards = create5FakeCardsOfProductModel();
     }
+
+    if (isOrder) {
+      cards!.sort((a, b) => b.ordersSum.compareTo(a.ordersSum));
+    } else {
+      cards!.sort((a, b) => b.stocksFbw.compareTo(a.stocksFbw));
+    }
+
+    return _CardsListScrollView(
+        cards: cards,
+        isShimmer: isLoading,
+        isOrder: isOrder,
+        ordersTotal: ordersTotal,
+        stocksTotal: stocksTotal,
+        delete: delete,
+        model: model);
+  }
+}
+
+class _CardsListScrollView extends StatelessWidget {
+  const _CardsListScrollView({
+    this.isShimmer = false,
+    required this.cards,
+    required this.isOrder,
+    required this.ordersTotal,
+    required this.stocksTotal,
+    required this.delete,
+    required this.model,
+  });
+
+  final bool isShimmer;
+  final List<CardOfProductModel> cards;
+  final bool isOrder;
+  final int ordersTotal;
+  final int stocksTotal;
+  final Future<void> Function(int nmId) delete;
+  final SingleGroupScreenViewModel model;
+
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
           children: cards.map((card) {
@@ -265,35 +301,79 @@ class _CardsList extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    ReWildNetworkImage(
-                        width: model.screenWidth * 0.2,
-                        height: model.screenWidth * 0.2,
-                        fit: BoxFit.contain,
-                        image: card.img ?? ''),
-                    // SizedBox(
-                    //     width: model.screenWidth * 0.2,
-                    //     height: model.screenWidth * 0.2,
-                    //     child:
-                    //     CachedNetworkImage(imageUrl: card.img ?? '')),
-                    SizedBox(
-                      width: model.screenWidth * 0.45,
-                      child: Text(card.name, overflow: TextOverflow.ellipsis),
-                    ),
+                    isShimmer
+                        ? Shimmer(
+                            gradient: shimmerGradient,
+                            child: ReWildNetworkImage(
+                                width: model.screenWidth * 0.2,
+                                height: model.screenWidth * 0.2,
+                                fit: BoxFit.contain,
+                                image: card.img ?? ''))
+                        : ReWildNetworkImage(
+                            width: model.screenWidth * 0.2,
+                            height: model.screenWidth * 0.2,
+                            fit: BoxFit.contain,
+                            image: card.img ?? ''),
+                    isShimmer
+                        ? Shimmer(
+                            gradient: shimmerGradient,
+                            child: Container(
+                              width: model.screenWidth * 0.45,
+                              height: model.screenHeight * 0.02,
+                              decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          )
+                        : SizedBox(
+                            width: model.screenWidth * 0.45,
+                            child: Text(card.name,
+                                overflow: TextOverflow.ellipsis),
+                          ),
                   ],
                 ),
-                Container(
-                  width: model.screenWidth * 0.12,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: card.seller!.backgroundColor,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Text(
-                    '${part.toStringAsFixed(0)}%',
-                    style: TextStyle(color: card.seller!.fontColor),
-                  ),
-                ),
-                Text('${isOrder ? card.ordersSum : card.stocksFbw}'),
+                isShimmer
+                    ? Shimmer(
+                        gradient: shimmerGradient,
+                        child: Container(
+                          width: model.screenWidth * 0.07,
+                          height: model.screenHeight * 0.02,
+                          decoration: const BoxDecoration(
+                            color: Colors.black,
+                          ),
+                        ),
+                      )
+                    : Container(
+                        width: model.screenWidth * 0.12,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: card.seller != null
+                              ? card.seller!.backgroundColor
+                              : null,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Text(
+                          '${part.toStringAsFixed(0)}%',
+                          style: TextStyle(
+                              color: card.seller != null
+                                  ? card.seller!.fontColor
+                                  : null),
+                        ),
+                      ),
+                isShimmer
+                    ? Shimmer(
+                        gradient: shimmerGradient,
+                        child: Container(
+                          margin: EdgeInsets.only(right: 5),
+                          width: model.screenWidth * 0.05,
+                          height: model.screenHeight * 0.02,
+                          decoration: const BoxDecoration(
+                            color: Colors.black,
+                          ),
+                        ),
+                      )
+                    : Text('${isOrder ? card.ordersSum : card.stocksFbw}'),
               ],
             ),
           ),

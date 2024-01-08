@@ -79,6 +79,7 @@ class AllAdvertsWordsViewModel extends ResourceChangeNotifier {
     }
 
     List<int> campaignIds = [];
+    setIsLoading(false);
     for (final advert in adverts) {
       campaignIds.add(advert.campaignId);
       List<int> nmIds = [];
@@ -115,7 +116,7 @@ class AllAdvertsWordsViewModel extends ResourceChangeNotifier {
       final image = await fetch(
         () => cardOfProductService.getImageForNmId(nmId: nmIds.first),
       );
-      print(image);
+
       if (image == null) {
         continue;
       }
@@ -128,4 +129,13 @@ class AllAdvertsWordsViewModel extends ResourceChangeNotifier {
       notify();
     }
   }
+
+  bool _isLoading = true;
+  void setIsLoading(bool variable) {
+    _isLoading = variable;
+    print(":SETETET");
+    notify();
+  }
+
+  bool get isLoading => _isLoading;
 }

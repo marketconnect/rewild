@@ -310,7 +310,6 @@ class UpdateService
   // update cards ==============================================================
   @override
   Future<Either<RewildError, void>> update() async {
-    print("UPDATE");
     if (!timeToUpdated()) {
       return right(null);
     }

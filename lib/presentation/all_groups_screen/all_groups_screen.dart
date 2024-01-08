@@ -54,17 +54,10 @@ class AllGroupsScreen extends StatelessWidget {
                               arguments: groups[index].name,
                             );
                           },
-                          child: isLoading
-                              ? Shimmer(
-                                  gradient: shimmerGradient,
-                                  child: _GroupCard(
-                                    isShimmer: true,
-                                    group: groups[index],
-                                  ),
-                                )
-                              : _GroupCard(
-                                  group: groups[index],
-                                ));
+                          child: _GroupCard(
+                            isShimmer: isLoading,
+                            group: groups[index],
+                          ));
                     })));
   }
 }
@@ -169,6 +162,7 @@ class _GroupCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Slidable(
+        enabled: !isShimmer,
         startActionPane: ActionPane(
           dragDismissible: false,
           // A motion is a widget used to control how the pane animates.
@@ -318,19 +312,34 @@ class _GroupCard extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 5),
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width * 0.12,
-                      height: MediaQuery.of(context).size.width * 0.12,
-                      decoration: BoxDecoration(
-                          color: Color(group.bgColor).withOpacity(1.0),
-                          borderRadius: BorderRadius.circular(2)),
-                      child: Icon(
-                        Icons.pie_chart,
-                        color: Color(group.fontColor),
-                      ),
-                    ),
+                    isShimmer
+                        ? Shimmer(
+                            gradient: shimmerGradient,
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 5),
+                              alignment: Alignment.center,
+                              width: MediaQuery.of(context).size.width * 0.125,
+                              height: MediaQuery.of(context).size.width * 0.125,
+                              decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground,
+                                  borderRadius: BorderRadius.circular(2)),
+                            ),
+                          )
+                        : Container(
+                            margin: const EdgeInsets.only(top: 5),
+                            alignment: Alignment.center,
+                            width: MediaQuery.of(context).size.width * 0.12,
+                            height: MediaQuery.of(context).size.width * 0.12,
+                            decoration: BoxDecoration(
+                                color: Color(group.bgColor).withOpacity(1.0),
+                                borderRadius: BorderRadius.circular(2)),
+                            child: Icon(
+                              Icons.pie_chart,
+                              color: Color(group.fontColor),
+                            ),
+                          ),
                     const SizedBox(width: 15),
                     Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,15 +348,18 @@ class _GroupCard extends StatelessWidget {
                           SizedBox(
                             width: model.screenWidth * 0.5,
                             child: isShimmer
-                                ? Container(
-                                    margin: const EdgeInsets.only(top: 5),
-                                    width: screenWidth * 0.1,
-                                    height: screenHeight * 0.02,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onBackground,
+                                ? Shimmer(
+                                    gradient: shimmerGradient,
+                                    child: Container(
+                                      margin: const EdgeInsets.only(top: 5),
+                                      width: screenWidth * 0.11,
+                                      height: screenHeight * 0.02,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onBackground,
+                                      ),
                                     ),
                                   )
                                 : AutoSizeText(
@@ -359,15 +371,18 @@ class _GroupCard extends StatelessWidget {
                                   ),
                           ),
                           isShimmer
-                              ? Container(
-                                  margin: const EdgeInsets.only(top: 5),
-                                  width: screenWidth * 0.1,
-                                  height: screenHeight * 0.015,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onBackground,
+                              ? Shimmer(
+                                  gradient: shimmerGradient,
+                                  child: Container(
+                                    margin: const EdgeInsets.only(top: 5),
+                                    width: screenWidth * 0.1,
+                                    height: screenHeight * 0.015,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onBackground,
+                                    ),
                                   ),
                                 )
                               : Text(
@@ -384,17 +399,27 @@ class _GroupCard extends StatelessWidget {
                   ],
                 ),
                 Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  Text(
-                    String.fromCharCode(Icons.arrow_forward_ios.codePoint),
-                    style: TextStyle(
-                      inherit: false,
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: model.screenWidth * 0.03,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: Icons.arrow_forward_ios.fontFamily,
-                      package: Icons.arrow_forward_ios.fontPackage,
-                    ),
-                  )
+                  isShimmer
+                      ? Shimmer(
+                          gradient: shimmerGradient,
+                          child: Container(
+                            width: screenWidth * 0.03,
+                            height: screenWidth * 0.03,
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
+                        )
+                      : Text(
+                          String.fromCharCode(
+                              Icons.arrow_forward_ios.codePoint),
+                          style: TextStyle(
+                            inherit: false,
+                            color: Theme.of(context).colorScheme.primary,
+                            fontSize: model.screenWidth * 0.03,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: Icons.arrow_forward_ios.fontFamily,
+                            package: Icons.arrow_forward_ios.fontPackage,
+                          ),
+                        )
                 ])
               ],
             ),

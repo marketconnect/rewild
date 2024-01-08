@@ -78,7 +78,6 @@ class ReviewApiClient
       required int dateTo,
       int? nmId}) async {
     try {
-      print('dateFrom $dateFrom dateTo $dateTo');
       final params = {
         'isAnswered': false.toString(),
         'take': take.toString(),
